@@ -27,7 +27,8 @@
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
     "audit:public": "tsx tools/audit-public.ts",
-    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run check && npm test && npm run build && npm run audit:public"
+    "audit:language": "tsx tools/audit-language.ts",
+    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run check && npm test && npm run build && npm run audit:public && npm run audit:language"
   },
   "dependencies": {
     "@mdn/browser-compat-data": "8.0.7",

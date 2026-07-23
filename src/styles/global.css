@@ -153,18 +153,11 @@ code {
 }
 
 .brand-mark {
-  display: grid;
+  display: block;
   width: 2.35rem;
   height: 2.35rem;
-  place-items: center;
-  border: 1px solid var(--accent);
-  border-radius: 0.45rem;
-  background: rgb(110 231 183 / 7%);
-  color: var(--accent);
-  font:
-    700 0.8rem/1 ui-monospace,
-    monospace;
-  box-shadow: inset 0 0 18px rgb(110 231 183 / 8%);
+  border-radius: 0.55rem;
+  box-shadow: 0 0 18px rgb(103 232 249 / 10%);
 }
 
 .brand strong,

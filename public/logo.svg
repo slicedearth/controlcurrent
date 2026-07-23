@@ -1,0 +1,56 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 640 160"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">ControlCurrent</title>
+  <desc id="description">
+    A control ring crossed by a current trace beside the ControlCurrent wordmark.
+  </desc>
+  <rect width="640" height="160" rx="24" fill="#071012"/>
+  <rect
+    width="136"
+    height="136"
+    x="12"
+    y="12"
+    rx="30"
+    fill="#0b181b"
+    stroke="#17393a"
+    stroke-width="2"
+  />
+  <path
+    d="M110 46a42 42 0 1 0 0 68"
+    fill="none"
+    stroke="#6ee7b7"
+    stroke-linecap="round"
+    stroke-width="13"
+  />
+  <path
+    d="M32 81h23l10-21 17 42 12-29 11 8h19"
+    fill="none"
+    stroke="#67e8f9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="8"
+  />
+  <circle cx="124" cy="81" r="7" fill="#67e8f9"/>
+  <text
+    x="180"
+    y="88"
+    fill="#c8fff0"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+    font-size="48"
+    font-weight="700"
+    letter-spacing="0.5"
+  >Control<tspan fill="#6ee7b7">Current</tspan></text>
+  <text
+    x="183"
+    y="119"
+    fill="#91a7a1"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+    font-size="14"
+    font-weight="600"
+    letter-spacing="3"
+  >BROWSER SECURITY READINESS</text>
+</svg>

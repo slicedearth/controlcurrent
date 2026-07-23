@@ -52,3 +52,8 @@ Use neutral compatibility language. A source-data correction is not
 automatically a browser regression or fix. A new qualification is not proof of
 insecurity. A supported control is not proof of correct application
 configuration.
+
+Use Australian English for project-authored names, identifiers, interface copy,
+tests, and documentation. Preserve technically fixed spellings in protocol
+fields, platform APIs, CSS properties, package metadata, and official licence
+titles. Run `npm run audit:language` before committing.

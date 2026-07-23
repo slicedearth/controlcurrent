@@ -1,6 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
   <title id="title">ControlCurrent</title>
-  <rect width="64" height="64" rx="12" fill="#071012"/>
-  <path d="M14 14h20c10 0 16 7 16 18s-6 18-16 18H14V14Zm10 9v18h9c5 0 7-4 7-9s-2-9-7-9h-9Z" fill="#6ee7b7"/>
-  <path d="M29 28h25v8H29z" fill="#67e8f9"/>
+  <rect width="64" height="64" rx="14" fill="#071012"/>
+  <path
+    d="M46 16.5a20 20 0 1 0 0 31"
+    fill="none"
+    stroke="#6ee7b7"
+    stroke-linecap="round"
+    stroke-width="6"
+  />
+  <path
+    d="M10 33h11l5-10 8 20 6-14 5 4h9"
+    fill="none"
+    stroke="#67e8f9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="4"
+  />
+  <circle cx="54" cy="33" r="3.25" fill="#67e8f9"/>
 </svg>

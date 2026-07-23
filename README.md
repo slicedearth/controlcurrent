@@ -1,4 +1,6 @@
-# ControlCurrent
+<p align="center">
+  <img src="public/logo.svg" width="520" alt="ControlCurrent">
+</p>
 
 **Which browser security controls can you safely deploy today?**
 
@@ -139,6 +141,7 @@ silently becoming supported.
 | `npm test`               | Run fixture-driven unit tests with coverage                         |
 | `npm run build`          | Verify the source snapshot and build the static site                |
 | `npm run audit:public`   | Inspect the public build for bounds and prohibited content          |
+| `npm run audit:language` | Enforce ControlCurrent naming and Australian-English terminology    |
 | `npm run test:e2e`       | Run local browser and accessibility tests                           |
 | `npm run verify`         | Run the non-browser verification suite                              |
 

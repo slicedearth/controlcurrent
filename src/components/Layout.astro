@@ -45,7 +45,13 @@ const pathWithBase = (path: string) => `${base}${path}`;
     <header class="site-header">
       <div class="shell header-inner">
         <a class="brand" href={pathWithBase("/")} aria-label="ControlCurrent home">
-          <span class="brand-mark" aria-hidden="true">DC</span>
+          <img
+            class="brand-mark"
+            src={pathWithBase("/favicon.svg")}
+            width="38"
+            height="38"
+            alt=""
+          />
           <span>
             <strong>ControlCurrent</strong>
             <small>browser defence readiness</small>

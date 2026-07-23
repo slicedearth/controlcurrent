@@ -97,8 +97,8 @@ npm run cli -- check-evidence examples/evidence-policy.json report.json \
   --as-of 2026-07-23
 ```
 
-Add `--strict-review` to make both `review` and `fail` decisions exit with code
-1. Use `--json` for a deterministic machine-readable result.
+Add `--strict-review` to return exit code 1 for both `review` and `fail`
+decisions. Use `--json` for a deterministic machine-readable result.
 
 The policy is intentionally independent of the evidence bundle. A producer
 cannot remove a required control, composite, or evidence kind from its bundle

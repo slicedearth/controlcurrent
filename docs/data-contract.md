@@ -9,7 +9,7 @@ The root contract contains:
 
 | Field                | Meaning                                            |
 | -------------------- | -------------------------------------------------- |
-| `schemaVersion`      | ControlCurrent selected-snapshot schema             |
+| `schemaVersion`      | ControlCurrent selected-snapshot schema            |
 | `bcdVersion`         | Locked BCD package version                         |
 | `bcdTimestamp`       | BCD package build timestamp                        |
 | `webFeaturesVersion` | Locked Web Platform Features package version       |
