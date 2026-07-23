@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "name": "Public web baseline",
+  "baselines": [
+    {
+      "browser": "chrome",
+      "minimumVersion": "120"
+    },
+    {
+      "browser": "edge",
+      "minimumVersion": "120"
+    },
+    {
+      "browser": "firefox",
+      "minimumVersion": "115"
+    },
+    {
+      "browser": "safari",
+      "minimumVersion": "17"
+    }
+  ],
+  "requiredControls": [
+    "content-security-policy",
+    "subresource-integrity",
+    "referrer-policy",
+    "samesite-cookies"
+  ],
+  "rules": {
+    "qualifications": "review",
+    "unknown": "fail",
+    "unsupported": "fail"
+  },
+  "exceptions": []
+}

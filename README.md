@@ -17,6 +17,8 @@ It is not a general compatibility index and it does not scan websites.
 - Preservation of partial support, flags, prefixes, alternative names, notes,
   removals, and unknown source values
 - A local deployment-profile planner with no browser detection or telemetry
+- Version-controlled policy profiles with expiring, visible exceptions
+- A local CLI for policy checks, explanations, and minimum-baseline calculation
 - Current-channel compatibility matrix and browser release views
 - Deterministic selected-source snapshots and change events
 - Static pages suitable for GitHub Pages
@@ -90,19 +92,20 @@ silently becoming supported.
 
 ## Commands
 
-| Command                  | Purpose                                                             |
-| ------------------------ | ------------------------------------------------------------------- |
-| `npm run generate`       | Regenerate the selected BCD subset and append deterministic changes |
-| `npm run generate:check` | Verify the selected subset matches the locked package               |
-| `npm run lint`           | Run strict ESLint checks                                            |
-| `npm run format:check`   | Verify repository formatting                                        |
-| `npm run typecheck`      | Type-check source, tools, and tests                                 |
-| `npm run check`          | Run Astro diagnostics                                               |
-| `npm test`               | Run fixture-driven unit tests with coverage                         |
-| `npm run build`          | Verify the source snapshot and build the static site                |
-| `npm run audit:public`   | Inspect the public build for bounds and prohibited content          |
-| `npm run test:e2e`       | Run local browser and accessibility tests                           |
-| `npm run verify`         | Run the non-browser verification suite                              |
+| Command                  | Purpose                                                              |
+| ------------------------ | -------------------------------------------------------------------- |
+| `npm run generate`       | Regenerate the selected BCD subset and append deterministic changes  |
+| `npm run generate:check` | Verify the selected subset matches the locked package                |
+| `npm run lint`           | Run strict ESLint checks                                             |
+| `npm run format:check`   | Verify repository formatting                                         |
+| `npm run typecheck`      | Type-check source, tools, and tests                                  |
+| `npm run check`          | Run Astro diagnostics                                                |
+| `npm run cli -- ...`     | Evaluate policies, explain controls, and calculate minimum baselines |
+| `npm test`               | Run fixture-driven unit tests with coverage                          |
+| `npm run build`          | Verify the source snapshot and build the static site                 |
+| `npm run audit:public`   | Inspect the public build for bounds and prohibited content           |
+| `npm run test:e2e`       | Run local browser and accessibility tests                            |
+| `npm run verify`         | Run the non-browser verification suite                               |
 
 ## Architecture
 
@@ -132,6 +135,7 @@ for compatibility data.
 
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)
+- [Policy as code](docs/policy-as-code.md)
 - [Methodology](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
 - [Dependency policy](docs/dependency-policy.md)

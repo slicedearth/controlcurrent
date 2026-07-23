@@ -169,6 +169,120 @@ export const profileEvaluationSchema = z
   .strict();
 export type ProfileEvaluation = z.infer<typeof profileEvaluationSchema>;
 
+export const policyDecisionSchema = z.enum(["pass", "review", "fail"]);
+export type PolicyDecision = z.infer<typeof policyDecisionSchema>;
+
+export const policyRuleSchema = z.enum(["review", "fail"]);
+
+export const policyExceptionSchema = z
+  .object({
+    controlId: z.string().min(1).max(80),
+    browsers: z.array(browserIdSchema).min(1).max(4).optional(),
+    outcomes: z.array(outcomeSchema).min(1).max(7),
+    reason: z.string().trim().min(8).max(512),
+    expiresOn: z.iso.date()
+  })
+  .strict();
+export type PolicyException = z.infer<typeof policyExceptionSchema>;
+
+export const policyProfileSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    baselines: z.array(browserBaselineSchema).min(1).max(4),
+    requiredControls: z.array(z.string().min(1).max(80)).min(1).max(64),
+    rules: z
+      .object({
+        qualifications: policyRuleSchema,
+        unknown: policyRuleSchema,
+        unsupported: policyRuleSchema
+      })
+      .strict(),
+    exceptions: z.array(policyExceptionSchema).max(64).default([])
+  })
+  .strict()
+  .superRefine((profile, context) => {
+    const browsers = new Set<string>();
+    for (const [index, baseline] of profile.baselines.entries()) {
+      if (browsers.has(baseline.browser)) {
+        context.addIssue({
+          code: "custom",
+          message: `Duplicate browser baseline: ${baseline.browser}`,
+          path: ["baselines", index, "browser"]
+        });
+      }
+      browsers.add(baseline.browser);
+    }
+
+    const controls = new Set<string>();
+    for (const [index, controlId] of profile.requiredControls.entries()) {
+      if (controls.has(controlId)) {
+        context.addIssue({
+          code: "custom",
+          message: `Duplicate required control: ${controlId}`,
+          path: ["requiredControls", index]
+        });
+      }
+      controls.add(controlId);
+    }
+  });
+export type PolicyProfile = z.infer<typeof policyProfileSchema>;
+
+export const policyFindingSchema = z
+  .object({
+    controlId: z.string().min(1).max(80),
+    browser: browserIdSchema,
+    minimumVersion: z.string().min(1).max(64),
+    outcome: outcomeSchema,
+    decision: policyDecisionSchema,
+    explanation: z.string().min(1).max(1_024),
+    exceptionState: z.enum(["active", "expired"]).optional(),
+    exceptionReason: z.string().max(512).optional(),
+    exceptionExpiresOn: z.iso.date().optional()
+  })
+  .strict();
+export type PolicyFinding = z.infer<typeof policyFindingSchema>;
+
+export const policyEvaluationSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    evaluatedAsOf: z.iso.date(),
+    bcdVersion: z.string().min(1).max(64),
+    bcdTimestamp: z.iso.datetime(),
+    catalogueVersion: z.string().min(1).max(64),
+    profile: policyProfileSchema,
+    summary: z
+      .object({
+        pass: z.number().int().min(0).max(1_024),
+        review: z.number().int().min(0).max(1_024),
+        fail: z.number().int().min(0).max(1_024)
+      })
+      .strict(),
+    findings: z.array(policyFindingSchema).max(1_024)
+  })
+  .strict();
+export type PolicyEvaluation = z.infer<typeof policyEvaluationSchema>;
+
+export const minimumBaselineRequestSchema = z
+  .object({
+    controlIds: z.array(z.string().min(1).max(80)).min(1).max(64),
+    browsers: z.array(browserIdSchema).min(1).max(4),
+    allowQualified: z.boolean()
+  })
+  .strict();
+export type MinimumBaselineRequest = z.infer<typeof minimumBaselineRequestSchema>;
+
+export const minimumBaselineResultSchema = z
+  .object({
+    browser: browserIdSchema,
+    status: z.enum(["found", "unavailable", "unsupported_mapping", "source_inconsistent"]),
+    minimumVersion: z.string().min(1).max(64).optional(),
+    releaseDate: z.iso.date().optional(),
+    blockers: z.array(z.string().min(1).max(80)).max(64)
+  })
+  .strict();
+export type MinimumBaselineResult = z.infer<typeof minimumBaselineResultSchema>;
+
 export const changeEventSchema = z
   .object({
     schemaVersion: z.literal(1),
