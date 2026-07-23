@@ -19,6 +19,7 @@ import { compareEvidenceReports } from "../src/evidence-comparison";
 import { evaluateEvidencePolicy } from "../src/evidence-policy";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
+import { reduceScopeInventory } from "../src/scope-inventory";
 
 const MAX_INPUT_BYTES = 64 * 1_024;
 
@@ -30,6 +31,7 @@ function usage(): never {
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
   npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]
+  npm run cli -- reduce-scope-inventory <inventory.json> [--json]
   npm run cli -- create-attestation-statement <report.json>
   npm run cli -- check-evidence <policy.json> <report.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
   npm run cli -- verify-evidence <policy.json> <report.json> <sigstore-bundle.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]`);
@@ -251,6 +253,20 @@ async function createAttestationStatement(): Promise<void> {
   process.exitCode = 0;
 }
 
+async function reduceInventory(): Promise<void> {
+  const inventoryPath = process.argv[3] ?? usage();
+  const inventory = await reduceScopeInventory(await readBoundedJson(inventoryPath, 64 * 1_024));
+  if (process.argv.includes("--json")) {
+    process.stdout.write(canonicalJson(inventory));
+  } else if (inventory.state === "present") {
+    console.log(`${inventory.name}: ${inventory.fingerprint}`);
+    console.log(
+      `${inventory.kind} · ${inventory.completeness} · ${String(inventory.includedEntries)} included · ${String(inventory.excludedEntries)} excluded`
+    );
+  }
+  process.exitCode = 0;
+}
+
 async function verifyEvidence(): Promise<void> {
   const profilePath = process.argv[3] ?? usage();
   const reportPath = process.argv[4] ?? usage();
@@ -313,6 +329,9 @@ try {
       break;
     case "compare-reports":
       await compareReports();
+      break;
+    case "reduce-scope-inventory":
+      await reduceInventory();
       break;
     case "create-attestation-statement":
       await createAttestationStatement();

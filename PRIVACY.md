@@ -61,9 +61,10 @@ cookie names and values. Replace values and other secrets with `REDACTED`
 before pasting because the browser still has to hold the input temporarily to
 parse it.
 
-Evidence bundles can also contain supplied HTML, bounded local resource bytes,
-selected request headers, and reduced WebAuthn configuration. They remain in
-page or process memory and are never uploaded or saved by ControlCurrent. The
+Evidence bundles can also contain an opaque scope inventory, supplied HTML,
+bounded local resource bytes, selected request headers, and reduced WebAuthn
+configuration. They remain in page or process memory and are never uploaded or
+saved by ControlCurrent. The
 HTML parser does not execute markup or load resources. Resource bodies are
 decoded and hashed locally, then omitted from the reduced report. Reports also
 omit HTML, resource paths and origins, CSP nonces and hashes, inline content,
@@ -74,18 +75,23 @@ Bundle labels and reduced WebAuthn selections remain in exported reports. Use
 non-identifying labels and review a generated file before sharing it.
 Expected-surface IDs and roles also remain in reports, along with the supplied
 application ID, environment, revision, optional build ID, producer ID and
-version, and capture timestamps. These must remain opaque and non-identifying.
+version, and capture timestamps. Scope inventory entry IDs and exclusion reasons
+do not remain; reports retain only the inventory name, kind, completeness,
+generation time, counts, and semantic fingerprint. All retained values must
+remain opaque and non-identifying.
 Report comparison uses only reduced exports and stores neither report. Surface
 control and composite requirements, source-model provenance, and a SHA-256
-reduced-report fingerprint also remain in the export. The fingerprint covers
-the canonical reduced report and its identity claims, not raw HTML, resource
-bytes, nonce or digest values, cookie identities, request targets, or WebAuthn
-identifiers. It does not authenticate who supplied those claims.
+reduced-report fingerprint also remain in the export. The report fingerprint
+covers the canonical reduced report, its identity claims, and the reduced
+inventory. The inventory fingerprint represents sorted opaque entry semantics
+without retaining them. Neither fingerprint contains raw HTML, resource bytes,
+nonce or digest values, cookie identities, request targets, or WebAuthn
+identifiers. Neither authenticates who supplied those claims.
 
-Evidence-policy evaluations contain the reduced report fingerprint, evidence
-identity, pinned model provenance, the policy profile, freshness calculations,
-attestation state, bounded verified certificate issuer and URI identity when
-present, decisions, and exception reasons. Complete Sigstore bundles,
+Evidence-policy evaluations contain the reduced report and scope fingerprints,
+evidence identity, pinned model provenance, the policy profile, freshness
+calculations, attestation state, bounded verified certificate issuer and URI
+identity when present, decisions, and exception reasons. Complete Sigstore bundles,
 certificates, transparency entries, TUF metadata, and dependency diagnostics do
 not enter the reduced evaluation. Use non-identifying identifiers and exception
 reasons, and review evaluation files before sharing.

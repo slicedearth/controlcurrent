@@ -27,16 +27,19 @@ It is not a general compatibility index and it does not scan websites.
 - A bounded evidence bundle for route variation, CSP-to-markup correlation,
   local SRI byte verification, Fetch Metadata request context, and reduced
   WebAuthn configuration
-- An expected-surface manifest that distinguishes missing evidence from
-  unexamined application scope and declares which controls and composites
-  actually apply to each surface
+- An optional privacy-minimised scope inventory that reduces up to 256 opaque
+  entries to a semantic fingerprint, counts, provenance, and completeness state
+- An expected-surface manifest bound exactly to the inventory's included
+  entries, distinguishing missing evidence from explicitly excluded scope and
+  declaring which controls and composites apply to each assessed surface
 - Subject-identified reduced reports with application, environment, revision,
   build, producer, and capture-window context inside deterministic SHA-256
   fingerprints
 - Detail-aware reduced-report comparison with explicit model compatibility,
   regressions, resolutions, other changes, and incomparable evidence
 - An independent evidence-policy profile and CI exit code with identity,
-  producer, capture-duration, freshness, and expiring-exception requirements
+  scope-inventory fingerprint, completeness, producer, capture-duration,
+  freshness, and expiring-exception requirements
 - Optional CLI-only Sigstore attestation verification that binds an exact
   certificate identity to the reduced report fingerprint and deployment
   identity
@@ -89,6 +92,10 @@ The deployed site has:
 Sigstore verification is CLI-only. It uses a temporary cache and the trust
 snapshot packaged with the locked TUF dependency, with live refresh disabled.
 The static website never receives an attestation bundle.
+
+A supplied scope inventory is reduced in memory. The public report retains its
+kind, completeness, generation time, counts, and semantic fingerprint, but not
+the opaque inventory entries or exclusion reasons.
 
 A profile is saved to one bounded, versioned `localStorage` key only after the
 visitor selects **Save locally**. JSON exports are generated in the browser.
@@ -170,6 +177,13 @@ Inspect a bounded multi-surface evidence bundle:
 npm run cli -- inspect-bundle examples/evidence-bundle.example.json --json
 ```
 
+Reduce an independently produced opaque scope inventory and obtain the exact
+fingerprint for evidence policy:
+
+```sh
+npm run cli -- reduce-scope-inventory examples/scope-inventory.json --json
+```
+
 Compare two exported reduced reports and fail only for classified regressions:
 
 ```sh
@@ -203,11 +217,12 @@ each applicable project-authored composite candidate to avoid a review or gap
 state. Controls outside every declared surface policy are `not_applicable`, not
 failures. Evidence policy requirements come from a separate file, so weakening
 the submitted bundle cannot weaken the CI gate. The example gate also requires
-the expected application, environment, revision, CI producer, build ID, capture
-duration, and maximum evidence age. These are fingerprinted producer claims,
-not authenticated provenance unless the separate attestation verifier accepts
-the signed statement and exact policy-selected signer. Verification still does
-not prove complete or truthful collection.
+the expected inventory fingerprint, complete scope, application, environment,
+revision, CI producer, build ID, capture duration, and maximum inventory and
+evidence age. These are fingerprinted producer claims, not authenticated
+provenance unless the separate attestation verifier accepts the signed
+statement and exact policy-selected signer. A signed complete inventory still
+does not prove that its source discovered every production route or state.
 
 ## Architecture
 
@@ -231,13 +246,15 @@ Locked BCD and Web Platform Features packages
           v
        static Astro site
 
-local response, HTML, request, and WebAuthn inputs
+opaque scope inventory plus local response, HTML,
+request, resource, and WebAuthn inputs
           |
           v
  non-executing bounded evidence reduction
           |
           v
- surface-scoped findings and composite candidates
+inventory fingerprint plus surface-scoped findings
+          and composite candidates
           |
           v
 subject-identified, provenance-stamped reduced report
@@ -263,6 +280,7 @@ for compatibility data.
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)
 - [Policy as code](docs/policy-as-code.md)
+- [Scope inventory](docs/scope-inventory.md)
 - [Attested evidence](docs/attested-evidence.md)
 - [Conformance evidence](docs/conformance-evidence.md)
 - [Methodology](docs/methodology.md)

@@ -123,7 +123,7 @@ describe("bounded evidence bundles", () => {
   it("combines response, HTML, request, and WebAuthn evidence conservatively", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Release candidate",
         surfaces: [
@@ -220,10 +220,10 @@ describe("bounded evidence bundles", () => {
     expect(finding(report, "fetch-metadata").state).toBe("observed");
     expect(finding(report, "webauthn-conditional-mediation").state).toBe("observed");
     expect(finding(report, "csp-hashes").state).toBe("not_applicable");
-    expect(report.schemaVersion).toBe(5);
+    expect(report.schemaVersion).toBe(6);
     expect(report.identity).toEqual(evidenceIdentity);
     expect(report.provenance).toMatchObject({
-      analyserVersion: "3.0.0",
+      analyserVersion: "4.0.0",
       catalogueVersion: "2.2.0",
       ...evidenceSourceContext
     });
@@ -259,7 +259,7 @@ describe("bounded evidence bundles", () => {
   it("correlates CSP with inline markup and verifies bounded local resource bytes", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Correlated deployment",
         surfaces: [
@@ -331,7 +331,7 @@ describe("bounded evidence bundles", () => {
   it("makes broad CSP sources, nonce reuse, and digest mismatch reviewable", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Review evidence",
         surfaces: [
@@ -410,7 +410,7 @@ describe("bounded evidence bundles", () => {
   it("surfaces route variation instead of choosing the favourable response", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Route comparison",
         surfaces: [
@@ -447,7 +447,7 @@ describe("bounded evidence bundles", () => {
   it("makes missing expected-surface evidence explicit", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Incomplete manifest",
         surfaces: [
@@ -487,7 +487,7 @@ describe("bounded evidence bundles", () => {
     await expect(
       inspectEvidenceBundle(
         {
-          schemaVersion: 3,
+          schemaVersion: 4,
           identity: evidenceIdentity,
           name: "Unknown surface",
           surfaces: [
@@ -546,7 +546,7 @@ describe("bounded evidence bundles", () => {
     await expect(
       inspectEvidenceBundle(
         {
-          schemaVersion: 3,
+          schemaVersion: 4,
           identity: evidenceIdentity,
           name: "Unknown control",
           surfaces: [
@@ -574,7 +574,7 @@ describe("bounded evidence bundles", () => {
 
   it("bounds evidence identity and capture windows before analysis", async () => {
     const bundle = {
-      schemaVersion: 3,
+      schemaVersion: 4,
       identity: {
         ...evidenceIdentity,
         capture: {

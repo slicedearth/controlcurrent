@@ -156,25 +156,41 @@ composites are transparent candidate recipes rather than certification or
 policy scores. They are evaluated only for surfaces that explicitly require
 them.
 
-Coverage is complete only for the declared manifest. A satisfied result never
-claims that the manifest contains every production route or user state.
+An optional scope inventory can be supplied before the surface manifest. It
+contains up to 256 opaque IDs from a declared list, framework manifest,
+authorised crawl, or test suite. Included IDs must match assessed surface IDs
+exactly. The reducer retains only the inventory kind, completeness claim,
+generation time, counts, and a semantic fingerprint over sorted entries.
 
-Every schema 3 bundle also identifies an opaque application, environment,
-revision, optional build, producer, and bounded capture window. Schema 5 reports
-retain that identity inside their canonical fingerprint. The fingerprint makes
-later modification detectable but does not prove that the named producer
-created the evidence or that its timestamps are trustworthy.
+Coverage is complete only for the supplied inventory and declared manifest. A
+satisfied result never claims that the inventory source discovered every
+production route or user state.
 
-An independent schema 3 evidence policy can require the intended application,
+Every schema 4 bundle also identifies an opaque application, environment,
+revision, optional build, producer, and bounded capture window. Schema 6 reports
+retain that identity and the reduced scope inventory inside their canonical
+fingerprint. The fingerprint makes later modification detectable but does not
+prove that the named producer created the evidence, that its timestamps are
+trustworthy, or that its inventory is exhaustive.
+
+An independent schema 4 evidence policy can require the intended application,
 allowed environments and producer kinds, exact release revision, build-ID
 presence, maximum capture duration, and maximum evidence age. Age is measured
 in UTC calendar days from capture completion to the explicit evaluation date.
 Future-dated evidence fails rather than receiving a negative age. Producer
 timestamps remain claims in an unsigned report.
 
+The same policy can require an inventory, restrict accepted inventory source
+kinds, require a complete claim, pin an exact semantic fingerprint, limit
+excluded entries, and enforce inventory freshness. These inventory decisions
+cannot receive a surface exception. They make scope changes and omissions
+reviewable without turning a supplied inventory into independently verified
+route discovery.
+
 An optional CLI trust layer creates one canonical in-toto statement over the
-validated reduced-report fingerprint and retained deployment identity. An
-external producer can sign that statement as a Sigstore DSSE bundle.
+validated reduced-report fingerprint, retained deployment identity, and reduced
+scope inventory. An external producer can sign that statement as a Sigstore
+DSSE bundle.
 ControlCurrent verifies the signature, certificate, transparency evidence,
 subject digest, and exact policy-selected certificate identity before applying
 the evidence gate. Verification authenticates the signed statement, not the
@@ -183,7 +199,8 @@ truth or completeness of the collection that produced it.
 Reduced reports also pin the analyser, catalogue, BCD, Web Platform Features,
 and selected-schema versions.
 Report comparison proceeds semantically only when analyser and catalogue
-versions match and both reports describe the same application and environment.
+versions match and both reports describe the same application, environment,
+and semantic scope-inventory fingerprint.
 It compares normalised states and retained reduced details, so
 an HSTS duration or other bounded detail can change without being hidden behind
 an unchanged `observed` state. Moving from an observed finding or satisfied

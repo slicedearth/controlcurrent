@@ -90,17 +90,20 @@ import Layout from "../components/Layout.astro";
       coverage across routes, rollout safety, or runtime behaviour. Report-only policy, incompatible
       multiple-policy evidence, and controls requiring another evidence surface remain explicitly
       separate. A bounded bundle can add CSP-to-markup correlation, local SRI byte verification,
-      Fetch Metadata, reduced WebAuthn evidence, declared surface coverage, and deterministic
-      reduced-report comparison while preserving those limits.
+      Fetch Metadata, reduced WebAuthn evidence, a privacy-minimised opaque scope inventory,
+      declared surface coverage, and deterministic reduced-report comparison while preserving those
+      limits. Included inventory IDs must match assessed surfaces exactly, but ControlCurrent does
+      not discover or validate the external inventory’s exhaustiveness.
     </p>
 
     <h2>Attested evidence</h2>
     <p>
       The CLI can create one canonical in-toto statement over a validated reduced-report fingerprint
-      and its deployment identity. It verifies an externally signed Sigstore DSSE bundle using
-      packaged trust material, an exact certificate issuer, and an exact URI identity selected by
-      independent policy. This authenticates the matching signed statement, not the completeness or
-      truth of evidence collection, runtime enforcement, or signer integrity.
+      its deployment identity, and its reduced scope inventory. It verifies an externally signed
+      Sigstore DSSE bundle using packaged trust material, an exact certificate issuer, and an exact
+      URI identity selected by independent policy. This authenticates the matching signed statement,
+      not the completeness or truth of the inventory or evidence collection, runtime enforcement, or
+      signer integrity.
     </p>
 
     <h2>Conformance evidence</h2>

@@ -15,9 +15,10 @@ import Layout from "../components/Layout.astro";
       Move beyond feature availability by checking response policies, route variation, SRI
       declarations, Fetch Metadata request context, and reduced WebAuthn configuration against
       explicit per-surface requirements. Reduced reports bind an opaque application, environment,
-      revision, producer, and capture window into their fingerprint. An optional CLI gate can verify
-      an externally signed Sigstore statement from one exact policy-selected workflow identity.
-      Neither path certifies a site or replaces runtime testing.
+      revision, producer, capture window, and privacy-minimised scope inventory into their
+      fingerprint. An optional CLI gate can verify an externally signed Sigstore statement from one
+      exact policy-selected workflow identity. Neither path discovers routes, certifies a site, or
+      replaces runtime testing.
     </p>
   </header>
   <div class="shell">
@@ -28,8 +29,9 @@ import Layout from "../components/Layout.astro";
       <h2>Verify the exported report in CI</h2>
       <p>
         The browser inspector deliberately remains unsigned and offline. After export, the CLI can
-        create one canonical in-toto statement over the report fingerprint and deployment identity.
-        A separately reviewed CI workflow can sign that statement as a Sigstore DSSE bundle.
+        create one canonical in-toto statement over the report fingerprint, deployment identity, and
+        reduced scope inventory. A separately reviewed CI workflow can sign that statement as a
+        Sigstore DSSE bundle.
       </p>
       <p>
         <code>verify-evidence</code> checks the signature, trusted certificate, transparency evidence,

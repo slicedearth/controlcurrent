@@ -29,6 +29,7 @@ import {
 } from "./contracts";
 import { EVIDENCE_ANALYSER_VERSION, EVIDENCE_COMPOSITE_IDS } from "./evidence-model";
 import { fingerprintEvidenceReportBody } from "./evidence-report";
+import { absentScopeInventory, reduceScopeInventory } from "./scope-inventory";
 import { cspElementTokens, extractCspEvidence, inspectHeaders, type CspPolicy } from "./assurance";
 import {
   decodeBase64Bytes,
@@ -1187,6 +1188,9 @@ export async function inspectEvidenceBundle(
 ): Promise<EvidenceBundleReport> {
   const bundle = evidenceBundleInputSchema.parse(input);
   const sourceContext = evidenceSourceContextSchema.parse(sourceContextInput);
+  const scopeInventory = bundle.scopeInventory
+    ? await reduceScopeInventory(bundle.scopeInventory)
+    : absentScopeInventory();
   const knownControls = new Set<string>(SECURITY_CONTROLS.map((control) => control.id));
   for (const surface of bundle.surfaces) {
     for (const controlId of surface.requiredControls) {
@@ -1310,9 +1314,10 @@ export async function inspectEvidenceBundle(
     surfaceCoverageComposite(surfaceCoverage)
   ];
   const reportWithoutFingerprint = {
-    schemaVersion: 5 as const,
+    schemaVersion: 6 as const,
     name: bundle.name,
     identity: bundle.identity,
+    scopeInventory,
     provenance: {
       analyserVersion: EVIDENCE_ANALYSER_VERSION,
       catalogueVersion: CATALOGUE_VERSION,

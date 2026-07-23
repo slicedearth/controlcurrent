@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "name": "Example release candidate",
   "identity": {
     "subject": {
@@ -17,6 +17,19 @@
         "version": "1.0.0"
       }
     }
+  },
+  "scopeInventory": {
+    "schemaVersion": 1,
+    "name": "Reviewed application route manifest",
+    "kind": "framework_manifest",
+    "generatedAt": "2026-07-20T08:55:00.000Z",
+    "completeness": "complete",
+    "entries": [
+      {
+        "id": "document",
+        "disposition": "included"
+      }
+    ]
   },
   "surfaces": [
     {

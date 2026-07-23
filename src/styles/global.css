@@ -828,6 +828,7 @@ select:disabled {
   color: var(--ink) !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.8rem;
+  overflow-wrap: anywhere;
 }
 
 .inspector-panel {

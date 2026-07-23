@@ -83,22 +83,28 @@ observations become `inconclusive`, invalid evidence cannot be hidden by a
 favourable snapshot, and composite deployment candidates remain separate from
 browser-support outcomes.
 
-An expected-surface manifest makes missing evidence and control applicability
-explicit within an operator-declared scope. Reduced reports pin their analysis
-and source model, bind a bounded application, environment, revision, build,
-producer, and capture window into a canonical fingerprint, and retain bounded
-safe detail. Compatible comparison separates regressions, resolutions, detail
-changes, and incomparable application or environment identities without
-reintroducing raw inputs. A separate policy profile lets CI enforce identity,
-freshness, coverage, and control requirements that the evidence producer cannot
-weaken.
+An optional opaque scope inventory now binds assessed surfaces to a semantic
+fingerprint without retaining inventory entries. It can identify excluded scope
+and distinguish declared, framework-manifest, authorised-crawl, and test-suite
+claims. An expected-surface manifest then makes missing evidence and control
+applicability explicit within that supplied scope.
 
-An optional CLI-only trust layer now turns that fingerprint and deployment
-identity into a canonical in-toto statement, verifies an externally signed
-Sigstore DSSE bundle against the policy's exact issuer and workflow identity,
-and reduces the result without retaining certificates or transparency entries.
-This authenticates the signed statement without claiming complete collection,
-runtime enforcement, or signer integrity.
+Reduced reports pin their analysis and source model, bind the reduced inventory,
+application, environment, revision, build, producer, and capture window into a
+canonical fingerprint, and retain bounded safe detail. Compatible comparison
+separates regressions, resolutions, detail changes, and incomparable
+application, environment, or inventory identities without reintroducing raw
+inputs. A separate policy profile lets CI enforce inventory provenance,
+completeness, fingerprint, freshness, identity, coverage, and control
+requirements that the evidence producer cannot weaken.
+
+An optional CLI-only trust layer turns that fingerprint, deployment identity,
+and reduced inventory into a canonical in-toto statement, verifies an
+externally signed Sigstore DSSE bundle against the policy's exact issuer and
+workflow identity, and reduces the result without retaining certificates or
+transparency entries. This authenticates the signed statement without claiming
+that the inventory source was exhaustive, collection was truthful, controls
+worked at runtime, or the signer was uncompromised.
 
 ## Privacy through absence
 

@@ -160,8 +160,12 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     "captured 2026-07-20T09:05:00.000Z by example-ci (application_ci)"
   );
   await expect(results.locator("#bundle-source")).toContainText(
-    "analyser 3.0.0 · catalogue 2.2.0 · BCD 8.0.7"
+    "analyser 4.0.0 · catalogue 2.2.0 · BCD 8.0.7"
   );
+  await expect(
+    results.getByText("Scope inventory · Reviewed application route manifest")
+  ).toBeVisible();
+  await expect(results.getByText(/framework_manifest · complete/u)).toBeVisible();
   await expect(page.getByText("Compare with a previous reduced report")).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Verify the exported report in CI" })
@@ -174,6 +178,12 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
   expect(reportText).not.toContain("__Host-session");
   expect(reportText).not.toContain("REDACTED");
   expect(externalRequests).toEqual([]);
+  await page.setViewportSize({ width: 320, height: 800 });
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 
   await page.getByRole("button", { name: "Clear" }).last().click();
   await expect(page.getByRole("heading", { name: "Reduced evidence report" })).toBeHidden();

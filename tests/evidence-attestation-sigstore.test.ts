@@ -61,7 +61,7 @@ const policy: EvidenceAttestationPolicy = {
 async function report(): Promise<EvidenceBundleReport> {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 3,
+      schemaVersion: 4,
       name: "Release candidate",
       identity: evidenceIdentity,
       surfaces: [

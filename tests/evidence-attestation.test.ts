@@ -24,12 +24,24 @@ const policy: EvidenceAttestationPolicy = {
     "https://github.com/example/example/.github/workflows/evidence.yml@refs/heads/main"
 };
 
-async function report(): Promise<EvidenceBundleReport> {
+async function report(withScopeInventory = false): Promise<EvidenceBundleReport> {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 3,
+      schemaVersion: 4,
       name: "Release candidate",
       identity: evidenceIdentity,
+      ...(withScopeInventory
+        ? {
+            scopeInventory: {
+              schemaVersion: 1,
+              name: "Reviewed route manifest",
+              kind: "framework_manifest",
+              generatedAt: "2026-07-20T08:55:00.000Z",
+              completeness: "complete",
+              entries: [{ id: "document", disposition: "included" }]
+            }
+          }
+        : {}),
       surfaces: [
         {
           id: "document",
@@ -88,16 +100,20 @@ describe("evidence attestation", () => {
       ],
       predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
       predicate: {
-        schemaVersion: 1,
-        reportSchemaVersion: 5,
+        schemaVersion: 2,
+        reportSchemaVersion: 6,
         reportName: evidenceReport.name,
-        identity: evidenceReport.identity
+        identity: evidenceReport.identity,
+        scopeInventory: {
+          schemaVersion: 1,
+          state: "absent"
+        }
       }
     });
   });
 
   it("accepts a cryptographically verified statement only when its digest and identity match", async () => {
-    const evidenceReport = await report();
+    const evidenceReport = await report(true);
     const statement = await createEvidenceAttestationStatement(evidenceReport);
     const verification = await verifyEvidenceAttestation(
       evidenceReport,
@@ -116,6 +132,7 @@ describe("evidence attestation", () => {
         }
       })
     );
+    expect(statement.predicate.scopeInventory).toEqual(evidenceReport.scopeInventory);
   });
 
   it("rejects a verified statement for another digest", async () => {

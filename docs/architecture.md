@@ -202,10 +202,15 @@ BCD compatibility outcomes and do not claim browser execution, remote resource
 identity, server-side enforcement, ceremony success, or complete route
 coverage.
 
-The optional surface manifest is an assertion supplied by the operator, not
-route discovery. It makes omitted required evidence visible within the stated
-scope while preserving opaque surface IDs. Report comparison consumes only
-validated reduced reports and cannot recover their original evidence.
+The optional scope inventory and required surface manifest are assertions
+supplied by an external producer, not route discovery performed by
+ControlCurrent. Up to 256 opaque inventory entries are reduced to kind,
+completeness, generation time, counts, and a semantic fingerprint. Included
+entry IDs must match assessed surface IDs exactly. This makes excluded or
+unknown scope reviewable while preserving opaque identifiers and discarding
+entry-level data from the report. Report comparison consumes only validated
+reduced reports, requires the same semantic inventory fingerprint, and cannot
+recover original inventory or evidence.
 
 The evidence identity is also an operator or CI assertion. It prevents reports
 for different named applications or environments from being compared as one
@@ -214,11 +219,12 @@ duration, and age. A SHA-256 report fingerprint protects retained content
 integrity; it does not authenticate the producer by itself.
 
 The optional attestation path places that fingerprint and the retained
-deployment identity in one bounded in-toto Statement v1. ControlCurrent does not
-sign it. The CLI verifies an externally produced Sigstore DSSE bundle against
-the exact certificate issuer and URI identity selected by schema 3 evidence
-policy, then compares the verified subject and predicate with the supplied
-report. It requires certificate-transparency and transparency-log evidence.
+deployment identity and reduced scope inventory in one bounded in-toto
+Statement v1. ControlCurrent does not sign it. The CLI verifies an externally
+produced Sigstore DSSE bundle against the exact certificate issuer and URI
+identity selected by schema 4 evidence policy, then compares the verified
+subject and predicate with the supplied report. It requires
+certificate-transparency and transparency-log evidence.
 
 Sigstore verification is excluded from the browser build. The CLI creates a
 temporary TUF cache, uses only the trust snapshot packaged with the locked

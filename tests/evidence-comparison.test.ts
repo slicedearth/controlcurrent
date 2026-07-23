@@ -7,7 +7,7 @@ import { evidenceIdentity, evidenceSourceContext } from "./helpers";
 async function report(name: string, options: { csp: boolean; includeHtml: boolean }) {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 3,
+      schemaVersion: 4,
       name,
       identity: evidenceIdentity,
       surfaces: [
@@ -47,12 +47,28 @@ async function report(name: string, options: { csp: boolean; includeHtml: boolea
   );
 }
 
-async function hstsReport(name: string, maxAge: number) {
+async function hstsReport(
+  name: string,
+  maxAge: number,
+  inventoryKind?: "framework_manifest" | "authorised_crawl"
+) {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 3,
+      schemaVersion: 4,
       name,
       identity: evidenceIdentity,
+      ...(inventoryKind
+        ? {
+            scopeInventory: {
+              schemaVersion: 1,
+              name: "Reviewed route manifest",
+              kind: inventoryKind,
+              generatedAt: "2026-07-20T08:55:00.000Z",
+              completeness: "complete",
+              entries: [{ id: "document", disposition: "included" }]
+            }
+          }
+        : {}),
       surfaces: [
         {
           id: "document",
@@ -127,7 +143,7 @@ describe("reduced evidence report comparison", () => {
       ...originalBody,
       provenance: {
         ...originalAfter.provenance,
-        analyserVersion: "4.0.0"
+        analyserVersion: "99.0.0"
       }
     };
     const after = {
@@ -139,6 +155,21 @@ describe("reduced evidence report comparison", () => {
     expect(comparison.compatible).toBe(false);
     expect(comparison.summary.incomparable).toBe(1);
     expect(comparison.events).toEqual([expect.objectContaining({ key: "model:analyser-version" })]);
+  });
+
+  it("refuses semantic comparison across different scope inventories", async () => {
+    const before = await hstsReport("Before", 3600, "framework_manifest");
+    const after = await hstsReport("After", 3600, "authorised_crawl");
+    const comparison = await compareEvidenceReports(before, after);
+
+    expect(comparison.compatible).toBe(false);
+    expect(comparison.summary.incomparable).toBe(1);
+    expect(comparison.events).toEqual([
+      expect.objectContaining({
+        key: "scope:inventory-fingerprint",
+        type: "evidence_became_incomparable"
+      })
+    ]);
   });
 
   it("refuses semantic comparison across application or environment identities", async () => {

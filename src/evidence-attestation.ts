@@ -102,10 +102,11 @@ export async function createEvidenceAttestationStatement(
     ],
     predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
     predicate: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       reportSchemaVersion: report.schemaVersion,
       reportName: report.name,
-      identity: report.identity
+      identity: report.identity,
+      scopeInventory: report.scopeInventory
     }
   });
 }

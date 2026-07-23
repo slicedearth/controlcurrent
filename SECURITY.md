@@ -69,11 +69,13 @@ schema stops publication.
 
 ControlCurrent does not fetch or test an application or browser. The offline
 assessment can compare supplied response snapshots, reduce an HTML resource
-inventory, recognise selected request context, and inspect a strict reduced
-WebAuthn configuration. Neither a compatibility result nor an evidence
+inventory, bind assessed surfaces to a supplied opaque scope inventory,
+recognise selected request context, and inspect a strict reduced WebAuthn
+configuration. Neither a compatibility result nor an evidence
 observation is a vulnerability finding, compliance result, or assurance that a
 control is effective across an application. A report fingerprint detects edits
 to retained content but is not a signature by itself. A verified attestation
-authenticates the matching signed statement and configured signer identity; it
-does not prove evidence completeness, collection truth, runtime enforcement, or
-signer integrity.
+authenticates the matching signed statement, configured signer identity, and
+reduced inventory. It does not prove that the inventory source discovered every
+route or state, that collection claims were truthful, that controls worked at
+runtime, or that the signer was uncompromised.

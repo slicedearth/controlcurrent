@@ -8,7 +8,7 @@ verifies bundles.
 ## Trust chain
 
 ```text
-schema 5 reduced evidence report
+schema 6 reduced evidence report
           |
           v
 canonical SHA-256 report fingerprint
@@ -29,7 +29,7 @@ offline Sigstore cryptographic verification
           +--> statement digest and deployment identity
           |
           v
-schema 3 evidence-policy decision
+schema 4 evidence-policy decision
 ```
 
 The statement uses:
@@ -38,17 +38,18 @@ The statement uses:
 - subject name: `controlcurrent-evidence-report`;
 - subject digest: the report's canonical SHA-256 fingerprint;
 - predicate type:
-  `https://github.com/slicedearth/controlcurrent/attestations/evidence-report/v1`;
+  `https://github.com/slicedearth/controlcurrent/attestations/evidence-report/v2`;
 - predicate: the report name, schema version, application, environment,
-  revision, optional build, producer, and capture window.
+  revision, optional build, producer, capture window, and reduced scope
+  inventory.
 
-The predicate deliberately contains no raw HTML, headers, request targets,
-resource bytes, credentials, cookies, WebAuthn identifiers, or source
-diagnostics.
+The predicate deliberately contains no raw scope entries, exclusion reasons,
+HTML, headers, request targets, resource bytes, credentials, cookies, WebAuthn
+identifiers, or source diagnostics.
 
 ## Create the statement
 
-First export a schema 5 reduced report. Then create its canonical statement:
+First export a schema 6 reduced report. Then create its canonical statement:
 
 ```sh
 npm --silent run cli -- create-attestation-statement report.json > statement.json
@@ -61,7 +62,7 @@ outside the read-only verifier and outside ordinary tests.
 
 ## Configure trust policy
 
-Evidence-policy schema 3 contains:
+Evidence-policy schema 4 contains:
 
 ```json
 {
@@ -126,11 +127,12 @@ A verified result establishes that:
   checks;
 - its certificate matched the exact issuer and URI identity in policy;
 - its signed statement named the supplied report fingerprint;
-- its bounded deployment predicate matched the validated report.
+- its bounded deployment and scope predicate matched the validated report.
 
 It does not establish that:
 
-- the producer collected every route, state, environment, or response;
+- the producer's supplied inventory discovered every route, state, environment,
+  or response;
 - the signed evidence was truthful before signing;
 - the named workflow or identity was uncompromised;
 - a control worked at runtime;

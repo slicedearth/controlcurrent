@@ -36,7 +36,7 @@ describe("profile exports", () => {
   it("exports only the reduced evidence report", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Export",
         surfaces: [
@@ -69,7 +69,7 @@ describe("profile exports", () => {
   it("exports deterministic reduced evidence comparisons", async () => {
     const before = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "Before",
         surfaces: [
@@ -94,7 +94,7 @@ describe("profile exports", () => {
     );
     const after = await inspectEvidenceBundle(
       {
-        schemaVersion: 3,
+        schemaVersion: 4,
         identity: evidenceIdentity,
         name: "After",
         surfaces: [
@@ -121,7 +121,7 @@ describe("profile exports", () => {
     const exported = exportEvidenceReportComparison(comparison);
 
     expect(JSON.parse(exported)).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: 3,
       beforeIdentity: evidenceIdentity,
       afterIdentity: evidenceIdentity
     });

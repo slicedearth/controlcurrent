@@ -1,13 +1,21 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "name": "Release evidence baseline",
-  "expectedAnalyserVersion": "3.0.0",
+  "expectedAnalyserVersion": "4.0.0",
   "expectedCatalogueVersion": "2.2.0",
   "expectedBcdVersion": "8.0.7",
   "attestation": {
     "required": false,
     "certificateIssuer": "https://token.actions.githubusercontent.com/",
     "certificateIdentity": "https://github.com/example/example/.github/workflows/evidence.yml@refs/heads/main"
+  },
+  "scopeInventory": {
+    "required": true,
+    "allowedKinds": ["framework_manifest", "authorised_crawl", "test_suite"],
+    "requireComplete": true,
+    "expectedFingerprint": "208864f36129dadbec6ca6bf956e8ff7d52fa88778545f4e39d5bd3c7ec8968c",
+    "maxAgeDays": 7,
+    "maxExcludedEntries": 0
   },
   "identity": {
     "applicationId": "example-app",

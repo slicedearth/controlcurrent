@@ -23,7 +23,7 @@ The project treats these as hostile:
 - exported profile names;
 - pasted response-header blocks and local header snapshot files;
 - local evidence bundles, supplied HTML and resource bytes, request snapshots,
-  and reduced WebAuthn configurations;
+  reduced WebAuthn configurations, and opaque scope inventories;
 - reduced evidence reports, Sigstore bundles, and evidence-attestation policy
   identities;
 - dependency packages and build output.
@@ -93,18 +93,27 @@ inside the reduced-report fingerprint, so later edits are detectable. The
 fingerprint is not a signature and does not prove which workflow, repository, or
 person produced the report.
 
+Scope inventory entries use the same opaque identifier grammar as assessed
+surfaces. They cannot contain URLs or free-form descriptions. At most 256
+entries are accepted; included IDs must match assessed surfaces exactly,
+excluded entries require one enumerated reason, and contradictory completeness
+claims are refused. Inventory generation cannot follow capture start. Reduction
+sorts semantic entries before hashing and retains no entry IDs or exclusion
+reasons in the report.
+
 ### Attestation confusion and trust substitution
 
 The optional verifier accepts at most 512 KiB, requires a DSSE envelope with
 the in-toto payload type, caps the decoded statement at 48 KiB, and validates
 one exact statement and predicate schema. It verifies the bundle before
-interpreting its statement. The statement subject digest and deployment
-predicate must match the independently validated reduced report.
+interpreting its statement. The statement subject digest, deployment predicate,
+and reduced scope inventory must match the independently validated reduced
+report.
 
 The expected certificate issuer and URI identity come from the evidence policy,
 not the bundle. URI identity is escaped and anchored before verification.
-Attestation, identity, and freshness findings cannot receive a surface
-exception. The reduced result omits certificates, complete bundles,
+Attestation, inventory, identity, and freshness findings cannot receive a
+surface exception. The reduced result omits certificates, complete bundles,
 transparency entries, and upstream diagnostic messages.
 
 The verifier uses Sigstore's packaged TUF seed with live refresh disabled in a
@@ -118,23 +127,30 @@ the signer should be trusted, that its identity provider or workflow was
 uncompromised, that evidence collection was complete, or that the signed claims
 were truthful.
 
-An expected-surface manifest can itself be incomplete or misleading. The tool
-therefore describes coverage only for declared opaque surfaces and never calls
-the manifest a discovered route inventory. Per-surface control and composite
-requirements must be explicit; semantic roles do not silently add policy.
-Comparison refuses invalid or future report schemas, fails closed across
-incompatible analyser, catalogue, application, or environment identities, and
-does not infer a resolution from absent, `not_evaluated`, `not_applicable`, or
-incomparable evidence.
+An opaque scope inventory and expected-surface manifest can themselves be
+incomplete or misleading. The tool therefore describes coverage only for
+supplied inventory entries and declared opaque surfaces and never calls either
+one independently verified route discovery. Policy can require the inventory,
+restrict its asserted source kind, require a complete claim, pin its exact
+semantic fingerprint, enforce freshness, and limit excluded entries. These
+checks make omission visible but cannot prove the inventory source was
+exhaustive.
+
+Per-surface control and composite requirements must be explicit; semantic roles
+do not silently add policy. Comparison refuses invalid or future report
+schemas, fails closed across incompatible analyser, catalogue, application,
+environment, or scope-inventory identities, and does not infer a resolution
+from absent, `not_evaluated`, `not_applicable`, or incomparable evidence.
 
 Evidence-policy profiles are supplied separately from evidence reports. This
 prevents a report producer from weakening a gate by omitting requirements from
 the bundle. Model, application, environment, optional revision, producer,
-build-presence, capture-duration, and age mismatches fail. Future-dated evidence
-also fails. Exceptions are bounded, specific, and expiring; active exceptions
-produce review rather than pass, while expired exceptions remain visible.
-Attestation, identity, and freshness cannot be exempted through surface
-exceptions.
+build-presence, inventory presence, inventory fingerprint, inventory
+completeness, exclusion count, inventory age, capture-duration, and evidence age
+mismatches fail. Future-dated evidence or inventory also fails. Exceptions are
+bounded, specific, and expiring; active exceptions produce review rather than
+pass, while expired exceptions remain visible. Attestation, inventory, identity,
+and freshness cannot be exempted through surface exceptions.
 
 ## Build and workflow risks
 
@@ -158,3 +174,4 @@ exceptions.
 - Live WPT execution or wpt.fyi result ingestion
 - Evidence signing, OIDC token acquisition, or transparency-log publication
 - Trust decisions for unreviewed certificate identities
+- Route or state discovery by ControlCurrent

@@ -82,6 +82,8 @@ Browser-support policy and deployment-evidence policy are separate contracts.
 
 - an optional or mandatory Sigstore evidence attestation from one exact
   certificate issuer and URI identity;
+- an optional or mandatory opaque scope inventory, allowed source kinds,
+  completeness, exact semantic fingerprint, maximum age, and exclusion limit;
 - exact analyser and catalogue versions;
 - an exact BCD version when the consumer wants source pinning;
 - an exact application ID and an allowed deployment environment;
@@ -95,7 +97,14 @@ Browser-support policy and deployment-evidence policy are separate contracts.
   composite-review outcomes;
 - bounded exceptions tied to one surface and target.
 
-The profile is evaluated against an exported schema 5 reduced report, not
+Generate the stable semantic fingerprint for an independently produced opaque
+inventory before placing it in policy:
+
+```sh
+npm run cli -- reduce-scope-inventory examples/scope-inventory.json --json
+```
+
+The profile is evaluated against an exported schema 6 reduced report, not
 against raw evidence:
 
 ```sh
@@ -110,12 +119,13 @@ The policy is intentionally independent of the evidence bundle. A producer
 cannot remove a required control, composite, or evidence kind from its bundle
 manifest to weaken the consumer's gate. The evaluator recomputes the report
 fingerprint before applying policy. Model, application, environment, revision,
-producer, build-identity, freshness, and capture-duration mismatches fail.
-Without a verified attestation, identity and timestamps remain unauthenticated
-producer assertions. Even with one, they remain signed claims rather than
-independent collection facts.
+producer, build-identity, inventory, freshness, and capture-duration mismatches
+fail. The inventory's included IDs must already match the report's assessed
+surfaces exactly. Without a verified attestation, identity, inventory, and
+timestamps remain unauthenticated producer assertions. Even with one, they
+remain signed claims rather than independent collection facts.
 
-Evidence-policy schema 3 can require a Sigstore DSSE attestation. The
+Evidence-policy schema 4 can require a Sigstore DSSE attestation. The
 certificate issuer and URI identity are owned by the independent policy rather
 than the report or bundle. Use `create-attestation-statement` to emit the
 canonical in-toto statement and `verify-evidence` to verify an externally
@@ -133,7 +143,7 @@ only when the policy sets `attestation.required` to `false`. A supplied invalid,
 unsupported, mismatched, or unverifiable attestation always fails.
 
 Active surface exceptions convert a matching negative finding to `review`,
-never `pass`; they cannot exempt attestation, identity, or freshness. Expired
-exceptions remain visible and stop affecting the decision. See
+never `pass`; they cannot exempt attestation, inventory, identity, or freshness.
+Expired exceptions remain visible and stop affecting the decision. See
 [`attested-evidence.md`](attested-evidence.md) for the trust and signing
 boundaries.

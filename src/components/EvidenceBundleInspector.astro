@@ -15,9 +15,10 @@ import { selectedSnapshot } from "../data";
     <span class="eyebrow">Multi-surface, local evidence</span>
     <h2 id="bundle-heading">Assess a bounded evidence bundle</h2>
     <p>
-      Combine up to 16 response snapshots, 16 HTML documents, 32 bounded local resource bodies, 32
-      request snapshots, and 16 reduced WebAuthn configurations. Markup is parsed without execution
-      or resource loading. Supplied resource bytes are hashed locally and omitted from the report.
+      Bind up to 256 opaque scope entries to 32 assessed surfaces, then combine up to 16 response
+      snapshots, 16 HTML documents, 32 bounded local resource bodies, 32 request snapshots, and 16
+      reduced WebAuthn configurations. Markup is parsed without execution or resource loading.
+      Supplied inventory entries and resource bytes are reduced locally and omitted from the report.
     </p>
   </div>
 
@@ -30,12 +31,13 @@ import { selectedSnapshot } from "../data";
       rows="24"
       spellcheck="false"
       aria-describedby="bundle-guidance"
-      placeholder='{"schemaVersion":3,"name":"Release candidate","identity":{"subject":{},"capture":{}},"surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
+      placeholder='{"schemaVersion":4,"name":"Release candidate","identity":{"subject":{},"capture":{}},"scopeInventory":{"schemaVersion":1,"entries":[]},"surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
     ></textarea>
     <p id="bundle-guidance" class="form-message">
-      Use opaque application, environment, revision, build, surface, and producer identifiers rather
-      than URLs or personal data. Remove secrets, page content that is not needed for resource
-      analysis, raw WebAuthn challenges, user IDs, and relying-party IDs.
+      Use opaque application, environment, revision, build, inventory, surface, and producer
+      identifiers rather than URLs or personal data. Remove secrets, route locations, page content
+      that is not needed for resource analysis, raw WebAuthn challenges, user IDs, and relying-party
+      IDs.
     </p>
     <div class="button-row">
       <button type="submit" class="button button--primary">Assess bundle</button>
@@ -72,8 +74,9 @@ import { selectedSnapshot } from "../data";
     <details class="content-card comparison-panel header-form">
       <summary>Compare with a previous reduced report</summary>
       <p>
-        Paste an earlier exported report. Comparison uses normalised findings, composites, and
-        declared surface coverage only.
+        Paste an earlier exported report. Comparison requires the same scope-inventory fingerprint,
+        application, environment, analyser, and catalogue before comparing normalised findings,
+        composites, and declared surface coverage.
       </p>
       <label for="previous-report">Previous reduced report JSON</label>
       <textarea id="previous-report" maxlength="1048576" rows="10" spellcheck="false"></textarea>
@@ -111,7 +114,7 @@ import { selectedSnapshot } from "../data";
   import { exportEvidenceBundleReport, exportEvidenceReportComparison } from "../export";
 
   const example = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     name: "Release candidate",
     identity: {
       subject: {
@@ -129,6 +132,19 @@ import { selectedSnapshot } from "../data";
           version: "1.0.0"
         }
       }
+    },
+    scopeInventory: {
+      schemaVersion: 1,
+      name: "Reviewed application route manifest",
+      kind: "framework_manifest",
+      generatedAt: "2026-07-20T08:55:00.000Z",
+      completeness: "complete",
+      entries: [
+        {
+          id: "sign-in",
+          disposition: "included"
+        }
+      ]
     },
     surfaces: [
       {
@@ -412,6 +428,21 @@ import { selectedSnapshot } from "../data";
     );
   }
 
+  function scopeInventoryCard(report: EvidenceBundleReport["scopeInventory"]): HTMLElement {
+    if (report.state === "absent") {
+      return inventoryCard(
+        "Scope inventory",
+        "No independently produced opaque inventory was supplied",
+        "Declared evidence surfaces remain operator-selected and cannot establish route completeness"
+      );
+    }
+    return inventoryCard(
+      `Scope inventory · ${report.name}`,
+      `${report.kind} · ${report.completeness} · generated ${report.generatedAt}`,
+      `${String(report.includedEntries)} included · ${String(report.excludedEntries)} excluded · ${String(report.totalEntries)} total · fingerprint ${report.fingerprint}`
+    );
+  }
+
   function surfaceAssessmentInventory(
     report: EvidenceBundleReport["surfaceAssessments"][number]
   ): HTMLElement {
@@ -477,6 +508,7 @@ import { selectedSnapshot } from "../data";
       )
     );
     inventory!.replaceChildren(
+      scopeInventoryCard(report.scopeInventory),
       ...report.responseReports.map(responseInventory),
       ...report.htmlReports.map(htmlInventory),
       resourceVerificationInventory(report.resourceVerificationReport),
@@ -502,7 +534,7 @@ import { selectedSnapshot } from "../data";
     try {
       render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown, sourceContext));
       message!.textContent =
-        "Bundle assessed locally. Raw HTML, resource locations and bytes, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
+        "Bundle assessed locally. Scope entries, raw HTML, resource locations and bytes, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
     } catch (error) {
       latestReport = undefined;
       exportButton!.disabled = true;

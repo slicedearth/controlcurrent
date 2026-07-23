@@ -59,10 +59,12 @@ import Layout from "../components/Layout.astro";
     <ul>
       <li>No website is scanned and no runtime behaviour is observed.</li>
       <li>
-        The optional assessment sees only supplied evidence. A bundle can reveal variation among
-        included routes, applies explicit per-surface requirements, and can identify missing
-        evidence from a declared surface manifest. It cannot discover omitted routes, redirects,
-        status codes, cached responses, user states, or environments.
+        The optional assessment sees only supplied evidence. A bundle can bind assessed surfaces to
+        an opaque inventory, make excluded entries explicit, reveal variation among included
+        surfaces, and apply per-surface requirements. Independent policy can pin the inventory
+        fingerprint, source kind, freshness, completeness, and exclusion count. ControlCurrent
+        cannot discover omitted routes, redirects, status codes, cached responses, user states, or
+        environments.
       </li>
       <li>
         CSP can be correlated with supplied inline markup and bounded local resource bytes can be
@@ -91,18 +93,18 @@ import Layout from "../components/Layout.astro";
         WPT, compatibility-policy, deployment-evidence, and evidence-policy layers are kept distinct.
       </li>
       <li>
-        <strong>9.8/10 as an engineering decision aid:</strong> explicit surface applicability, subject-identified
-        fingerprints, application and environment comparison boundaries, revision-aware freshness policy,
-        exact Sigstore signer policy, detail-aware comparisons, bounded exceptions, local export, and
-        transparent composites support design and release decisions.
+        <strong>9.9/10 as an engineering decision aid:</strong> explicit inventory and surface applicability,
+        subject-identified fingerprints, application and environment comparison boundaries, revision-aware
+        freshness policy, exact scope and Sigstore signer policy, detail-aware comparisons, bounded exceptions,
+        local export, and transparent composites support design and release decisions.
       </li>
       <li>
-        <strong>6.8/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
+        <strong>7.2/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
         and local resource evidence can reveal real configuration gaps; the independent gate now rejects
-        the wrong application, environment, revision, producer class, capture duration, evidence age,
-        report digest, and verified signer identity. There is still no authenticated collection, discovered
-        route inventory, runtime enforcement test, remote resource verification, adversarial test, or
-        continuous monitoring.
+        the wrong scope inventory, completeness, source kind, inventory age, application, environment,
+        revision, producer class, capture duration, evidence age, report digest, and verified signer identity.
+        There is still no authenticated collector, independently verified route discovery, runtime enforcement
+        test, remote resource verification, adversarial test, or continuous monitoring.
       </li>
     </ul>
   </article>

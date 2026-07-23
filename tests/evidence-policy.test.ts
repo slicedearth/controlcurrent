@@ -6,14 +6,29 @@ import {
   EVIDENCE_ATTESTATION_PREDICATE_TYPE,
   EVIDENCE_ATTESTATION_VERIFIER_VERSION
 } from "../src/evidence-model";
+import { reduceScopeInventory } from "../src/scope-inventory";
 import { evidenceIdentity, evidenceSourceContext } from "./helpers";
 
-async function report(headers: Record<string, string>, identity: unknown = evidenceIdentity) {
+const completeInventory = {
+  schemaVersion: 1,
+  name: "Reviewed route manifest",
+  kind: "framework_manifest",
+  generatedAt: "2026-07-20T08:55:00.000Z",
+  completeness: "complete",
+  entries: [{ id: "document", disposition: "included" }]
+} as const;
+
+async function report(
+  headers: Record<string, string>,
+  identity: unknown = evidenceIdentity,
+  scopeInventory?: unknown
+) {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 3,
+      schemaVersion: 4,
       name: "Release candidate",
       identity,
+      ...(scopeInventory ? { scopeInventory } : {}),
       surfaces: [
         {
           id: "document",
@@ -38,9 +53,9 @@ async function report(headers: Record<string, string>, identity: unknown = evide
 
 function profile(overrides: Partial<EvidencePolicyProfile> = {}): EvidencePolicyProfile {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     name: "Release evidence baseline",
-    expectedAnalyserVersion: "3.0.0",
+    expectedAnalyserVersion: "4.0.0",
     expectedCatalogueVersion: "2.2.0",
     expectedBcdVersion: "1.0.0",
     attestation: {
@@ -48,6 +63,13 @@ function profile(overrides: Partial<EvidencePolicyProfile> = {}): EvidencePolicy
       certificateIssuer: "https://token.actions.githubusercontent.com/",
       certificateIdentity:
         "https://github.com/example/example/.github/workflows/evidence.yml@refs/heads/main"
+    },
+    scopeInventory: {
+      required: false,
+      allowedKinds: ["declared", "framework_manifest", "authorised_crawl", "test_suite"],
+      requireComplete: false,
+      maxAgeDays: 30,
+      maxExcludedEntries: 32
     },
     identity: {
       applicationId: "example-app",
@@ -87,7 +109,7 @@ describe("evidence policy evaluation", () => {
       "2026-07-23"
     );
 
-    expect(evaluation.summary).toEqual({ pass: 14, review: 0, fail: 0 });
+    expect(evaluation.summary).toEqual({ pass: 15, review: 0, fail: 0 });
     expect(evaluation.attestation.state).toBe("absent");
     expect(evaluation.reportIdentity).toEqual(evidenceIdentity);
     expect(evaluation.reportFingerprint).toMatch(/^[a-f0-9]{64}$/u);
@@ -129,6 +151,128 @@ describe("evidence policy evaluation", () => {
         targetKind: "attestation",
         outcome: "verified",
         decision: "pass"
+      })
+    );
+  });
+
+  it("requires one exact, complete, fresh scope inventory when configured", async () => {
+    const reducedInventory = await reduceScopeInventory(completeInventory);
+    if (reducedInventory.state !== "present") throw new Error("Expected a present inventory.");
+    const evidenceReport = await report(
+      { "Strict-Transport-Security": "max-age=31536000" },
+      evidenceIdentity,
+      completeInventory
+    );
+    const evaluation = await evaluateEvidencePolicy(
+      evidenceReport,
+      profile({
+        scopeInventory: {
+          required: true,
+          allowedKinds: ["framework_manifest"],
+          requireComplete: true,
+          expectedFingerprint: reducedInventory.fingerprint,
+          maxAgeDays: 7,
+          maxExcludedEntries: 0
+        }
+      }),
+      "2026-07-23"
+    );
+
+    expect(evaluation.reportScopeInventory).toEqual(reducedInventory);
+    expect(evaluation.findings.filter((finding) => finding.targetKind === "inventory")).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ targetId: "scope-inventory", decision: "pass" }),
+        expect.objectContaining({ targetId: "scope-kind", decision: "pass" }),
+        expect.objectContaining({ targetId: "scope-completeness", decision: "pass" }),
+        expect.objectContaining({ targetId: "scope-exclusions", decision: "pass" }),
+        expect.objectContaining({ targetId: "scope-fingerprint", decision: "pass" }),
+        expect.objectContaining({ targetId: "scope-age", decision: "pass" })
+      ])
+    );
+  });
+
+  it("fails partial, stale, excluded, or mismatched inventory claims without exceptions", async () => {
+    const partialInventory = {
+      ...completeInventory,
+      completeness: "partial",
+      generatedAt: "2026-07-01T08:55:00.000Z",
+      entries: [
+        ...completeInventory.entries,
+        {
+          id: "administration",
+          disposition: "excluded",
+          exclusionReason: "requires_separate_capture"
+        }
+      ]
+    } as const;
+    const evidenceReport = await report(
+      { "Strict-Transport-Security": "max-age=31536000" },
+      evidenceIdentity,
+      partialInventory
+    );
+    const evaluation = await evaluateEvidencePolicy(
+      evidenceReport,
+      profile({
+        scopeInventory: {
+          required: true,
+          allowedKinds: ["framework_manifest"],
+          requireComplete: true,
+          expectedFingerprint: "f".repeat(64),
+          maxAgeDays: 7,
+          maxExcludedEntries: 0
+        }
+      }),
+      "2026-07-23"
+    );
+
+    expect(evaluation.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          targetKind: "inventory",
+          targetId: "scope-completeness",
+          outcome: "partial",
+          decision: "fail"
+        }),
+        expect.objectContaining({
+          targetKind: "inventory",
+          targetId: "scope-exclusions",
+          outcome: "too_many_exclusions",
+          decision: "fail"
+        }),
+        expect.objectContaining({
+          targetKind: "inventory",
+          targetId: "scope-fingerprint",
+          outcome: "scope_mismatch",
+          decision: "fail"
+        }),
+        expect.objectContaining({
+          targetKind: "inventory",
+          targetId: "scope-age",
+          outcome: "stale",
+          decision: "fail"
+        })
+      ])
+    );
+  });
+
+  it("fails when policy requires an absent scope inventory", async () => {
+    const evaluation = await evaluateEvidencePolicy(
+      await report({ "Strict-Transport-Security": "max-age=31536000" }),
+      profile({
+        scopeInventory: {
+          ...profile().scopeInventory,
+          required: true
+        }
+      }),
+      "2026-07-23"
+    );
+
+    expect(evaluation.findings).toContainEqual(
+      expect.objectContaining({
+        targetKind: "inventory",
+        targetId: "scope-inventory",
+        outcome: "absent",
+        decision: "fail"
       })
     );
   });
@@ -391,7 +535,7 @@ describe("evidence policy evaluation", () => {
   it("fails closed when the expected analysis model differs", async () => {
     const evaluation = await evaluateEvidencePolicy(
       await report({ "Strict-Transport-Security": "max-age=31536000" }),
-      profile({ expectedAnalyserVersion: "4.0.0" }),
+      profile({ expectedAnalyserVersion: "99.0.0" }),
       "2026-07-23"
     );
 

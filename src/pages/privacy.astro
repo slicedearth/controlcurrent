@@ -37,19 +37,21 @@ import Layout from "../components/Layout.astro";
       finished.
     </p>
     <p>
-      Evidence bundles can also contain HTML, bounded local resource bytes, selected request
-      headers, reduced WebAuthn configuration, and an expected-surface manifest. Markup is parsed
-      without execution or resource loading. Resource bytes are hashed locally and omitted from
-      reports. Reduced reports also omit HTML, resource locations, inline content, CSP nonces and
-      hashes, request targets, credentials, cookie data, WebAuthn challenges, relying-party
-      identifiers, user identifiers, and credential identifiers. Labels and opaque surface IDs
-      remain in an export, as do surface requirements, application and environment IDs, revision,
-      optional build ID, producer ID, capture timestamps, model provenance, and a SHA-256
-      fingerprint of the reduced report. The fingerprint does not cover raw inputs or authenticate
-      the producer by itself. An optional CLI-only Sigstore verifier retains only its state and the
-      bounded certificate issuer and URI identity after successful verification; it does not retain
-      the complete bundle, certificate, transparency entry, or trust metadata. Keep every label,
-      identifier, surface ID, and evidence-policy exception reason non-identifying.
+      Evidence bundles can also contain an opaque scope inventory, HTML, bounded local resource
+      bytes, selected request headers, reduced WebAuthn configuration, and an expected-surface
+      manifest. Markup is parsed without execution or resource loading. Inventory entries and
+      resource bytes are reduced locally and omitted from reports. Reduced reports also omit
+      exclusion reasons, HTML, resource locations, inline content, CSP nonces and hashes, request
+      targets, credentials, cookie data, WebAuthn challenges, relying-party identifiers, user
+      identifiers, and credential identifiers. Labels and opaque surface IDs remain in an export, as
+      do reduced inventory kind, completeness, time, counts and fingerprint, surface requirements,
+      application and environment IDs, revision, optional build ID, producer ID, capture timestamps,
+      model provenance, and a SHA-256 fingerprint of the reduced report. The fingerprints do not
+      authenticate the producer or prove inventory completeness by themselves. An optional CLI-only
+      Sigstore verifier retains only its state and the bounded certificate issuer and URI identity
+      after successful verification; it does not retain the complete bundle, certificate,
+      transparency entry, or trust metadata. Keep every label, identifier, surface ID, and
+      evidence-policy exception reason non-identifying.
     </p>
 
     <h2>Network boundary</h2>

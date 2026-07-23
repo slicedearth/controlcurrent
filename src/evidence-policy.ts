@@ -176,6 +176,96 @@ export async function evaluateEvidencePolicy(
         : attestation.explanation
   });
 
+  const inventory = report.scopeInventory;
+  const inventoryPresent = inventory.state === "present";
+  findings.push({
+    targetKind: "inventory",
+    targetId: "scope-inventory",
+    outcome: inventoryPresent ? "observed" : "absent",
+    decision: inventoryPresent || !profile.scopeInventory.required ? "pass" : "fail",
+    explanation: inventoryPresent
+      ? "The reduced report is bound to a supplied opaque scope inventory."
+      : profile.scopeInventory.required
+        ? "The policy requires a scope inventory, but the report does not contain one."
+        : "The policy permits a report without a scope inventory."
+  });
+
+  if (inventory.state === "present") {
+    const kindAllowed = profile.scopeInventory.allowedKinds.includes(inventory.kind);
+    findings.push({
+      targetKind: "inventory",
+      targetId: "scope-kind",
+      outcome: kindAllowed ? "observed" : "unsupported",
+      decision: kindAllowed ? "pass" : "fail",
+      explanation: kindAllowed
+        ? `Scope inventory kind ${inventory.kind} is allowed.`
+        : `Scope inventory kind ${inventory.kind} is not one of ${profile.scopeInventory.allowedKinds.join(", ")}.`
+    });
+
+    const completenessAllowed =
+      !profile.scopeInventory.requireComplete || inventory.completeness === "complete";
+    findings.push({
+      targetKind: "inventory",
+      targetId: "scope-completeness",
+      outcome:
+        inventory.completeness === "complete"
+          ? "complete"
+          : inventory.completeness === "partial"
+            ? "partial"
+            : "unknown",
+      decision: completenessAllowed ? "pass" : "fail",
+      explanation: completenessAllowed
+        ? `Scope inventory completeness is ${inventory.completeness}.`
+        : `The policy requires a complete scope inventory, but this inventory is ${inventory.completeness}.`
+    });
+
+    const exclusionCountAllowed =
+      inventory.excludedEntries <= profile.scopeInventory.maxExcludedEntries;
+    findings.push({
+      targetKind: "inventory",
+      targetId: "scope-exclusions",
+      outcome: exclusionCountAllowed ? "observed" : "too_many_exclusions",
+      decision: exclusionCountAllowed ? "pass" : "fail",
+      explanation: exclusionCountAllowed
+        ? `${String(inventory.excludedEntries)} excluded scope entries are within the ${String(profile.scopeInventory.maxExcludedEntries)}-entry limit.`
+        : `${String(inventory.excludedEntries)} excluded scope entries exceed the ${String(profile.scopeInventory.maxExcludedEntries)}-entry limit.`
+    });
+
+    if (profile.scopeInventory.expectedFingerprint) {
+      const inventoryMatches = inventory.fingerprint === profile.scopeInventory.expectedFingerprint;
+      findings.push({
+        targetKind: "inventory",
+        targetId: "scope-fingerprint",
+        outcome: inventoryMatches ? "observed" : "scope_mismatch",
+        decision: inventoryMatches ? "pass" : "fail",
+        explanation: inventoryMatches
+          ? "Scope inventory fingerprint matches policy."
+          : "Scope inventory fingerprint does not match the independently configured policy value."
+      });
+    }
+
+    const generatedOn = utcDate(inventory.generatedAt);
+    const inventoryAgeDays = dayIndex(evaluatedAsOf) - dayIndex(generatedOn);
+    const inventoryFreshness =
+      inventoryAgeDays < 0
+        ? "future"
+        : inventoryAgeDays > profile.scopeInventory.maxAgeDays
+          ? "stale"
+          : "observed";
+    findings.push({
+      targetKind: "inventory",
+      targetId: "scope-age",
+      outcome: inventoryFreshness,
+      decision: inventoryFreshness === "observed" ? "pass" : "fail",
+      explanation:
+        inventoryFreshness === "future"
+          ? `Scope inventory was generated on ${generatedOn}, after the ${evaluatedAsOf} evaluation date.`
+          : inventoryFreshness === "stale"
+            ? `Scope inventory was generated on ${generatedOn} and expired after ${addDays(generatedOn, profile.scopeInventory.maxAgeDays)} under the ${String(profile.scopeInventory.maxAgeDays)}-day policy.`
+            : `Scope inventory was generated on ${generatedOn}, is ${String(inventoryAgeDays)} day${inventoryAgeDays === 1 ? "" : "s"} old, and remains within the ${String(profile.scopeInventory.maxAgeDays)}-day policy.`
+    });
+  }
+
   const applicationMatches =
     report.identity.subject.applicationId === profile.identity.applicationId;
   findings.push({
@@ -429,10 +519,11 @@ export async function evaluateEvidencePolicy(
   }
 
   return evidencePolicyEvaluationSchema.parse({
-    schemaVersion: 3,
+    schemaVersion: 4,
     evaluatedAsOf,
     reportFingerprint: report.reportFingerprint,
     reportIdentity: report.identity,
+    reportScopeInventory: report.scopeInventory,
     reportProvenance: report.provenance,
     attestation,
     profile,

@@ -162,9 +162,9 @@ contain a raw header value, cookie name, or cookie value.
 
 ## Evidence bundle
 
-Evidence-bundle input schema 3 contains a bounded name, required evidence
-identity, a required manifest of one to 32 expected surfaces, and five bounded
-collections. Identity contains:
+Evidence-bundle input schema 4 contains a bounded name, required evidence
+identity, an optional opaque scope inventory, a required manifest of one to 32
+expected surfaces, and five bounded collections. Identity contains:
 
 - an opaque application ID and environment;
 - a bounded revision and optional build ID;
@@ -175,6 +175,13 @@ collections. Identity contains:
 
 These values are producer assertions. The schema validates and preserves them
 but does not authenticate their origin.
+
+- an optional schema 1 scope inventory with a bounded source kind, generation
+  time, completeness claim, and at most 256 opaque entries;
+- each inventory entry has only an opaque ID, included or excluded disposition,
+  and one bounded exclusion reason when excluded;
+- included inventory IDs must match declared evidence-surface IDs exactly;
+- inventory generation must not follow evidence capture start;
 
 - expected surfaces with an opaque ID, semantic role, unique required evidence
   kinds, explicit required control IDs, and explicit required composite IDs;
@@ -198,7 +205,7 @@ Fetch Metadata reports retain one reduced finding and counts. Credential
 headers are refused. WebAuthn reports retain only the explicit reduced
 configuration and three catalogue-aligned findings.
 
-Bundle report schema 5 evaluates each surface against its declared control and
+Bundle report schema 6 evaluates each surface against its declared control and
 composite applicability before producing a bounded cross-surface merge.
 Conflicting applicable states become `inconclusive`; invalid evidence cannot be
 overridden by a favourable snapshot. Controls and composites required by no
@@ -207,6 +214,8 @@ an unevaluated required control.
 
 The report contains:
 
+- an absent state or a reduced scope inventory containing only its name, kind,
+  generation time, completeness, semantic fingerprint, and counts;
 - surface coverage and surface-scoped policy assessments;
 - bounded reduced subreports;
 - the application, environment, revision, optional build, producer, and
@@ -216,43 +225,55 @@ The report contains:
 - a SHA-256 fingerprint over the canonical reduced report before the
   fingerprint field is added.
 
-The fingerprint identifies the reduced report and binds its retained identity,
-not the raw evidence or an authenticated producer. Raw HTML,
-resource bytes, request targets, nonce values, digest values, cookie identities,
-and WebAuthn identifiers do not enter the fingerprint.
+The scope-inventory fingerprint is calculated from its version, kind,
+completeness, and sorted opaque entry semantics. It intentionally excludes the
+display name and generation time, so an identical semantic inventory is stable
+across collection runs. Raw inventory entries and exclusion reasons do not enter
+the reduced report.
+
+The report fingerprint identifies the complete reduced report and binds its
+retained identity and reduced inventory, not the raw evidence or an
+authenticated producer. Raw HTML, resource bytes, request targets, nonce
+values, digest values, cookie identities, inventory entries, exclusion reasons,
+and WebAuthn identifiers do not enter the report fingerprint.
 Comparison and evidence-policy evaluation recompute this fingerprint and refuse
 modified report content.
 
-Evidence comparison schema 2 accepts two validated schema 5 reports and emits at
+Evidence comparison schema 3 accepts two validated schema 6 reports and emits at
 most 512 deterministic events while retaining bounded total counts. Analyser or
 catalogue model mismatches make the reports semantically incomparable. Reports
-for different application IDs or environments are also incomparable; revision,
-build, producer, and capture differences remain visible identity context rather
-than false configuration changes.
+for different application IDs, environments, inventory presence, or semantic
+inventory fingerprints are also incomparable; revision, build, producer,
+inventory generation time, and capture differences remain visible context
+rather than false configuration changes.
 Compatible comparisons detect state changes, surface-policy and coverage
 changes, and changes in retained reduced detail even when a state remains the
 same. Events contain stable keys and before/after states, not original headers,
 HTML, resource data, or private identifiers.
 
-Evidence policy schema 3 is independent of the submitted evidence bundle. It
+Evidence policy schema 4 is independent of the submitted evidence bundle. It
 pins expected analyser, catalogue, and optionally BCD versions; requires an
 application ID, allowed environments and producer kinds, optional exact
 revision, optional build ID presence, maximum capture duration, and maximum
 evidence age; configures an exact Sigstore certificate issuer and URI identity;
-then declares required surfaces, evidence kinds, controls, composites, rules,
-and at most 128 expiring exceptions. Future-dated, stale, overlong, or
-identity-mismatched evidence fails. Active surface exceptions can downgrade a
-matching negative finding to `review`; they never apply to attestation,
-identity, or freshness and never create a pass. Expired exceptions remain
-visible and no longer affect the decision.
+can require a scope inventory, allowed source kinds, complete coverage, an exact
+semantic fingerprint, maximum inventory age, and an exclusion-count limit; then
+declares required surfaces, evidence kinds, controls, composites, rules, and at
+most 128 expiring exceptions. Future-dated, stale, overlong,
+identity-mismatched, inventory-mismatched, partial, unknown, or excessively
+excluded evidence fails when policy requires the stronger state. Active surface
+exceptions can downgrade a matching negative finding to `review`; they never
+apply to attestation, inventory, identity, or freshness and never create a
+pass. Expired exceptions remain visible and no longer affect the decision.
 
 ## Evidence attestation
 
-Attestation statement schema 1 is an in-toto Statement v1 with exactly one
+Attestation statement schema 2 is an in-toto Statement v1 with exactly one
 `controlcurrent-evidence-report` subject. Its SHA-256 subject digest must equal
 the validated report fingerprint. Its bounded predicate repeats the report
 schema, name, application, environment, revision, optional build, producer, and
-capture window so a verified statement for another deployment cannot be reused.
+capture window plus the reduced scope inventory, so a verified statement for
+another deployment or inventory cannot be reused.
 
 Attestation verification schema 1 retains only:
 
@@ -265,7 +286,7 @@ Attestation verification schema 1 retains only:
 
 Complete Sigstore bundles, certificates, transparency entries, trust metadata,
 and dependency diagnostics are not retained in a verification result. Evidence
-policy evaluation schema 3 contains this reduced result. An absent attestation
+policy evaluation schema 4 contains this reduced result. An absent attestation
 passes only when policy explicitly sets `required` to `false`; every supplied
 but unsuitable attestation fails and cannot receive a surface exception.
 

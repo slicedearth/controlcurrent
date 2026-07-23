@@ -653,6 +653,120 @@ export const evidenceIdentitySchema = z
   });
 export type EvidenceIdentity = z.infer<typeof evidenceIdentitySchema>;
 
+export const evidenceScopeInventoryKindSchema = z.enum([
+  "declared",
+  "framework_manifest",
+  "authorised_crawl",
+  "test_suite"
+]);
+export type EvidenceScopeInventoryKind = z.infer<typeof evidenceScopeInventoryKindSchema>;
+
+export const evidenceScopeCompletenessSchema = z.enum(["complete", "partial", "unknown"]);
+export type EvidenceScopeCompleteness = z.infer<typeof evidenceScopeCompletenessSchema>;
+
+export const evidenceScopeInventoryEntrySchema = z
+  .object({
+    id: evidenceSurfaceIdSchema,
+    disposition: z.enum(["included", "excluded"]),
+    exclusionReason: z
+      .enum([
+        "out_of_scope",
+        "unsupported",
+        "unavailable",
+        "requires_separate_capture",
+        "duplicate"
+      ])
+      .optional()
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    if (entry.disposition === "included" && entry.exclusionReason !== undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "Included scope entries must not provide an exclusion reason.",
+        path: ["exclusionReason"]
+      });
+    }
+    if (entry.disposition === "excluded" && entry.exclusionReason === undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "Excluded scope entries must provide a bounded exclusion reason.",
+        path: ["exclusionReason"]
+      });
+    }
+  });
+export type EvidenceScopeInventoryEntry = z.infer<typeof evidenceScopeInventoryEntrySchema>;
+
+export const evidenceScopeInventoryInputSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    kind: evidenceScopeInventoryKindSchema,
+    generatedAt: z.iso.datetime(),
+    completeness: evidenceScopeCompletenessSchema,
+    entries: z.array(evidenceScopeInventoryEntrySchema).min(1).max(256)
+  })
+  .strict()
+  .superRefine((inventory, context) => {
+    const ids = inventory.entries.map((entry) => entry.id);
+    if (new Set(ids).size !== ids.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Scope inventory entry IDs must be unique.",
+        path: ["entries"]
+      });
+    }
+    const excludedEntries = inventory.entries.filter(
+      (entry) => entry.disposition === "excluded"
+    ).length;
+    if (excludedEntries === inventory.entries.length) {
+      context.addIssue({
+        code: "custom",
+        message: "A scope inventory must contain at least one included entry.",
+        path: ["entries"]
+      });
+    }
+    if (inventory.completeness === "complete" && excludedEntries > 0) {
+      context.addIssue({
+        code: "custom",
+        message: "A complete scope inventory must not contain excluded entries.",
+        path: ["completeness"]
+      });
+    }
+    if (inventory.completeness === "partial" && excludedEntries === 0) {
+      context.addIssue({
+        code: "custom",
+        message: "A partial scope inventory must identify at least one excluded entry.",
+        path: ["entries"]
+      });
+    }
+  });
+export type EvidenceScopeInventoryInput = z.infer<typeof evidenceScopeInventoryInputSchema>;
+
+export const evidenceScopeInventoryReportSchema = z.discriminatedUnion("state", [
+  z
+    .object({
+      schemaVersion: z.literal(1),
+      state: z.literal("absent")
+    })
+    .strict(),
+  z
+    .object({
+      schemaVersion: z.literal(1),
+      state: z.literal("present"),
+      name: z.string().trim().min(1).max(80),
+      kind: evidenceScopeInventoryKindSchema,
+      generatedAt: z.iso.datetime(),
+      completeness: evidenceScopeCompletenessSchema,
+      fingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+      totalEntries: z.number().int().min(1).max(256),
+      includedEntries: z.number().int().min(1).max(32),
+      excludedEntries: z.number().int().min(0).max(255)
+    })
+    .strict()
+]);
+export type EvidenceScopeInventoryReport = z.infer<typeof evidenceScopeInventoryReportSchema>;
+
 export const evidenceAttestationStatementSchema = z
   .object({
     _type: z.literal(EVIDENCE_ATTESTATION_STATEMENT_TYPE),
@@ -673,10 +787,11 @@ export const evidenceAttestationStatementSchema = z
     predicateType: z.literal(EVIDENCE_ATTESTATION_PREDICATE_TYPE),
     predicate: z
       .object({
-        schemaVersion: z.literal(1),
-        reportSchemaVersion: z.literal(5),
+        schemaVersion: z.literal(2),
+        reportSchemaVersion: z.literal(6),
         reportName: z.string().trim().min(1).max(80),
-        identity: evidenceIdentitySchema
+        identity: evidenceIdentitySchema,
+        scopeInventory: evidenceScopeInventoryReportSchema
       })
       .strict()
   })
@@ -711,6 +826,30 @@ export const evidenceAttestationPolicySchema = z
   })
   .strict();
 export type EvidenceAttestationPolicy = z.infer<typeof evidenceAttestationPolicySchema>;
+
+export const evidenceScopeInventoryPolicySchema = z
+  .object({
+    required: z.boolean(),
+    allowedKinds: z.array(evidenceScopeInventoryKindSchema).min(1).max(4),
+    requireComplete: z.boolean(),
+    expectedFingerprint: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/u)
+      .optional(),
+    maxAgeDays: z.number().int().min(0).max(365),
+    maxExcludedEntries: z.number().int().min(0).max(255)
+  })
+  .strict()
+  .superRefine((policy, context) => {
+    if (new Set(policy.allowedKinds).size !== policy.allowedKinds.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Allowed scope inventory kinds must be unique.",
+        path: ["allowedKinds"]
+      });
+    }
+  });
+export type EvidenceScopeInventoryPolicy = z.infer<typeof evidenceScopeInventoryPolicySchema>;
 
 export const evidenceAttestationStateSchema = z.enum([
   "absent",
@@ -811,9 +950,10 @@ export type SurfaceCoverage = z.infer<typeof surfaceCoverageSchema>;
 
 export const evidenceBundleInputSchema = z
   .object({
-    schemaVersion: z.literal(3),
+    schemaVersion: z.literal(4),
     name: z.string().trim().min(1).max(80),
     identity: evidenceIdentitySchema,
+    scopeInventory: evidenceScopeInventoryInputSchema.optional(),
     surfaces: z.array(expectedSurfaceSchema).min(1).max(32),
     responses: z.array(headerSnapshotSchema).max(16).default([]),
     htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
@@ -830,6 +970,34 @@ export const evidenceBundleInputSchema = z
         message: "Expected surface IDs must be unique.",
         path: ["surfaces"]
       });
+    }
+    if (bundle.scopeInventory) {
+      const includedInventoryIds = bundle.scopeInventory.entries
+        .filter((entry) => entry.disposition === "included")
+        .map((entry) => entry.id)
+        .sort();
+      const declaredSurfaceIds = [...surfaceIds].sort();
+      if (
+        includedInventoryIds.length !== declaredSurfaceIds.length ||
+        includedInventoryIds.some((id, index) => id !== declaredSurfaceIds[index])
+      ) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "Included scope inventory entries must match the declared evidence surfaces exactly.",
+          path: ["scopeInventory", "entries"]
+        });
+      }
+      if (
+        Date.parse(bundle.scopeInventory.generatedAt) >
+        Date.parse(bundle.identity.capture.startedAt)
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "Scope inventory generation must not follow evidence capture start.",
+          path: ["scopeInventory", "generatedAt"]
+        });
+      }
     }
     if (bundle.surfaces.length > 0) {
       const known = new Set(surfaceIds);
@@ -912,9 +1080,10 @@ export type SurfaceAssessment = z.infer<typeof surfaceAssessmentSchema>;
 
 export const evidenceBundleReportSchema = z
   .object({
-    schemaVersion: z.literal(5),
+    schemaVersion: z.literal(6),
     name: z.string().min(1).max(80),
     identity: evidenceIdentitySchema,
+    scopeInventory: evidenceScopeInventoryReportSchema,
     provenance: evidenceProvenanceSchema,
     reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
     coverage: z
@@ -980,7 +1149,7 @@ export type EvidenceComparisonEvent = z.infer<typeof evidenceComparisonEventSche
 
 export const evidenceReportComparisonSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     beforeName: z.string().min(1).max(80),
     afterName: z.string().min(1).max(80),
     summary: z
@@ -998,6 +1167,8 @@ export const evidenceReportComparisonSchema = z
     compatibilityReasons: z.array(z.string().min(1).max(256)).max(8),
     beforeIdentity: evidenceIdentitySchema,
     afterIdentity: evidenceIdentitySchema,
+    beforeScopeInventory: evidenceScopeInventoryReportSchema,
+    afterScopeInventory: evidenceScopeInventoryReportSchema,
     beforeProvenance: evidenceProvenanceSchema,
     afterProvenance: evidenceProvenanceSchema,
     events: z.array(evidenceComparisonEventSchema).max(512)
@@ -1029,7 +1200,11 @@ export const evidencePolicyOutcomeSchema = z.enum([
   "unsupported",
   "stale",
   "future",
-  "window_too_long"
+  "window_too_long",
+  "scope_mismatch",
+  "partial",
+  "unknown",
+  "too_many_exclusions"
 ]);
 export type EvidencePolicyOutcome = z.infer<typeof evidencePolicyOutcomeSchema>;
 
@@ -1047,12 +1222,13 @@ export type EvidencePolicyException = z.infer<typeof evidencePolicyExceptionSche
 
 export const evidencePolicyProfileSchema = z
   .object({
-    schemaVersion: z.literal(3),
+    schemaVersion: z.literal(4),
     name: z.string().trim().min(1).max(80),
     expectedAnalyserVersion: z.string().regex(/^\d+\.\d+\.\d+$/u),
     expectedCatalogueVersion: z.string().min(1).max(64),
     expectedBcdVersion: z.string().min(1).max(64).optional(),
     attestation: evidenceAttestationPolicySchema,
+    scopeInventory: evidenceScopeInventoryPolicySchema,
     identity: z
       .object({
         applicationId: evidenceApplicationIdSchema,
@@ -1118,6 +1294,7 @@ export const evidencePolicyFindingSchema = z
     targetKind: z.enum([
       "model",
       "attestation",
+      "inventory",
       "identity",
       "freshness",
       "surface",
@@ -1138,10 +1315,11 @@ export type EvidencePolicyFinding = z.infer<typeof evidencePolicyFindingSchema>;
 
 export const evidencePolicyEvaluationSchema = z
   .object({
-    schemaVersion: z.literal(3),
+    schemaVersion: z.literal(4),
     evaluatedAsOf: z.iso.date(),
     reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
     reportIdentity: evidenceIdentitySchema,
+    reportScopeInventory: evidenceScopeInventoryReportSchema,
     reportProvenance: evidenceProvenanceSchema,
     attestation: evidenceAttestationVerificationSchema,
     profile: evidencePolicyProfileSchema,

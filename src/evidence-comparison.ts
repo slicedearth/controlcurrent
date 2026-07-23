@@ -198,6 +198,29 @@ export async function compareEvidenceReports(
       summary: "The reports describe different deployment environments."
     });
   }
+  if (before.scopeInventory.state !== after.scopeInventory.state) {
+    compatibilityReasons.push("Scope inventory presence differs.");
+    payloads.push({
+      type: "evidence_became_incomparable",
+      key: "scope:inventory-presence",
+      beforeState: before.scopeInventory.state,
+      afterState: after.scopeInventory.state,
+      summary: "Only one report is bound to a reduced scope inventory."
+    });
+  } else if (
+    before.scopeInventory.state === "present" &&
+    after.scopeInventory.state === "present" &&
+    before.scopeInventory.fingerprint !== after.scopeInventory.fingerprint
+  ) {
+    compatibilityReasons.push("Scope inventory fingerprints differ.");
+    payloads.push({
+      type: "evidence_became_incomparable",
+      key: "scope:inventory-fingerprint",
+      beforeState: before.scopeInventory.fingerprint,
+      afterState: after.scopeInventory.fingerprint,
+      summary: "The reports were produced against different scope inventories."
+    });
+  }
 
   const compatible = compatibilityReasons.length === 0;
   if (compatible) {
@@ -324,13 +347,15 @@ export async function compareEvidenceReports(
   const events = await Promise.all(emittedPayloads.map((payload) => event(payload)));
 
   return evidenceReportComparisonSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     beforeName: before.name,
     afterName: after.name,
     compatible,
     compatibilityReasons,
     beforeIdentity: before.identity,
     afterIdentity: after.identity,
+    beforeScopeInventory: before.scopeInventory,
+    afterScopeInventory: after.scopeInventory,
     beforeProvenance: before.provenance,
     afterProvenance: after.provenance,
     summary: {
