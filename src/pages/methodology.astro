@@ -25,8 +25,8 @@ import Layout from "../components/Layout.astro";
         <strong>Guidance:</strong> project-authored prerequisites, fallbacks, and limitations.
       </li>
       <li>
-        <strong>Observed configuration:</strong> optional local evidence from one supplied response header
-        block.
+        <strong>Observed configuration:</strong> optional local evidence from supplied response, HTML
+        resource, request-context, and reduced WebAuthn observations.
       </li>
       <li>
         <strong>Conformance context:</strong> exact reviewed WPT suite paths and explicit limits.
@@ -78,14 +78,15 @@ import Layout from "../components/Layout.astro";
       that exact time.
     </p>
 
-    <h2>Offline response-header assessment</h2>
+    <h2>Offline deployment assessment</h2>
     <p>
       The inspector parses one bounded, user-supplied final response. It makes no URL request and
       reports only redacted evidence. “Observed” means recognizable syntax was present in an
       applicable enforced policy or header in that response; it does not prove browser enforcement,
       coverage across routes, rollout safety, or runtime behaviour. Report-only policy, incompatible
-      multiple-policy evidence, and controls requiring HTML, DOM, request, WebAuthn, or conformance
-      evidence remain explicitly separate.
+      multiple-policy evidence, and controls requiring another evidence surface remain explicitly
+      separate. A bounded bundle can add non-executing HTML/SRI, Fetch Metadata, and reduced
+      WebAuthn evidence while preserving those limits.
     </p>
 
     <h2>Conformance evidence</h2>

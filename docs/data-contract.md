@@ -69,6 +69,16 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Header names                            |               64 |
 | Values per header name                  |                8 |
 | Assurance findings                      |               64 |
+| Response snapshots per evidence bundle  |               16 |
+| HTML documents per evidence bundle      |               16 |
+| HTML bytes per document                 |          128 KiB |
+| HTML bytes per evidence bundle          |          512 KiB |
+| HTML elements per document              |            8,192 |
+| Eligible resources per HTML document    |              512 |
+| Request snapshots per evidence bundle   |               32 |
+| WebAuthn configurations per bundle      |               16 |
+| Evidence bundle input                   |            1 MiB |
+| Reduced evidence export                 |          512 KiB |
 | WPT mappings                            |               64 |
 | WPT suites per control                  |                4 |
 | Public file                             |            2 MiB |
@@ -133,6 +143,29 @@ Assurance findings use six states:
 
 Reports contain bounded summaries and redacted evidence only. They never
 contain a raw header value, cookie name, or cookie value.
+
+## Evidence bundle
+
+Evidence-bundle input schema 1 contains a bounded name and four optional
+collections:
+
+- response header snapshots using the established header schema;
+- HTML document inputs capped at 128 KiB each;
+- request header snapshots used only for selected `Sec-Fetch-*` fields;
+- reduced WebAuthn configuration with no raw identifiers or binary values.
+
+HTML reports retain counts for eligible resources, SRI coverage, recognised
+hash algorithms, parser errors, resource kinds, and reference classes. They do
+not retain HTML, attributes, paths, origins, or resource bytes.
+
+Fetch Metadata reports retain one reduced finding and counts. Credential
+headers are refused. WebAuthn reports retain only the explicit reduced
+configuration and three catalogue-aligned findings.
+
+The bundle report merges applicable findings per control. Conflicting states
+become `inconclusive`; invalid evidence cannot be overridden by a favourable
+snapshot. Three project-authored composite candidates report `satisfied`,
+`review`, `gap`, or `not_evaluated` independently of browser compatibility.
 
 ## WPT evidence registry
 

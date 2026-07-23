@@ -111,7 +111,7 @@ test("assesses and clears a redacted header snapshot without a network request",
   });
 
   await page.goto("/assess/");
-  await page.getByRole("button", { name: "Load redacted example" }).click();
+  await page.getByRole("button", { name: "Load redacted example" }).first().click();
   await page.getByRole("button", { name: "Assess headers" }).click();
 
   await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeVisible();
@@ -120,10 +120,39 @@ test("assesses and clears a redacted header snapshot without a network request",
   await expect(page.getByText("19")).toBeVisible();
   expect(externalRequests).toEqual([]);
 
-  await page.getByRole("button", { name: "Clear" }).click();
+  await page.getByRole("button", { name: "Clear" }).first().click();
   await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeHidden();
   await expect(page.getByLabel("HTTP response headers")).toHaveValue("");
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
+});
+
+test("reduces a multi-surface evidence bundle without exposing raw inputs", async ({ page }) => {
+  const externalRequests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (!["127.0.0.1", "localhost"].includes(url.hostname)) externalRequests.push(request.url());
+  });
+
+  await page.goto("/assess/");
+  await page.getByRole("button", { name: "Load redacted example" }).last().click();
+  await page.getByRole("button", { name: "Assess bundle" }).click();
+
+  const results = page.locator("#bundle-results");
+  await expect(page.getByRole("heading", { name: "Reduced evidence report" })).toBeVisible();
+  await expect(results.getByRole("heading", { name: "Strict CSP candidate" })).toBeVisible();
+  await expect(
+    results.getByRole("heading", { name: "Cross-origin isolation header candidate" })
+  ).toBeVisible();
+  await expect(results.getByRole("heading", { name: "Cookie attribute coverage" })).toBeVisible();
+  const reportText = await results.textContent();
+  expect(reportText).not.toContain("/assets/app.css");
+  expect(reportText).not.toContain("__Host-session");
+  expect(reportText).not.toContain("REDACTED");
+  expect(externalRequests).toEqual([]);
+
+  await page.getByRole("button", { name: "Clear" }).last().click();
+  await expect(page.getByRole("heading", { name: "Reduced evidence report" })).toBeHidden();
+  await expect(page.getByLabel("Evidence bundle JSON")).toHaveValue("");
 });
 
 test("shows the reviewed source manifest without inventing review timestamps", async ({ page }) => {

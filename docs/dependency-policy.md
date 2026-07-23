@@ -17,6 +17,8 @@ Dependencies must be:
 `@mdn/browser-compat-data` is the browser-specific compatibility source.
 `web-features` supplies exact path associations and Baseline adoptability
 metadata. Zod validates selected source and public calculation contracts.
+parse5 provides a maintained WHATWG-compatible HTML parser so supplied markup
+can be inspected as a tree without browser execution or resource loading.
 
 The deployed application has no server runtime dependency.
 

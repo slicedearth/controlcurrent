@@ -132,14 +132,15 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
       <div class="content-card">
         <h3>What it does not answer</h3>
         <ul>
-          <li>Whether one observed header is effective across every route and response.</li>
+          <li>Whether supplied evidence covers every route, response, state, and environment.</li>
           <li>Whether a browser implementation is free of defects.</li>
           <li>Whether other security controls can be removed.</li>
           <li>Whether a selected browser policy is appropriate for an organisation.</li>
         </ul>
         <p>
-          The offline header inspector can add bounded configuration evidence without fetching a
-          site. It remains an observation, not a security certification.
+          Offline assessment can combine bounded response, HTML resource, request-context, and
+          reduced WebAuthn evidence without fetching a site. It remains an observation, not a
+          security certification.
         </p>
       </div>
     </div>

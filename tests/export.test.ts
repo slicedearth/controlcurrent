@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { csvSafeCell, exportProfileEvaluation } from "../src/export";
+import { csvSafeCell, exportEvidenceBundleReport, exportProfileEvaluation } from "../src/export";
+import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateProfile } from "../src/evaluate";
 import { feature, snapshot } from "./helpers";
 
@@ -24,5 +25,24 @@ describe("profile exports", () => {
     );
     expect(csvSafeCell("line\r\nnext")).toBe('"line\nnext"');
     expect(csvSafeCell("\u0000plain")).toBe('"plain"');
+  });
+
+  it("exports only the reduced evidence report", () => {
+    const report = inspectEvidenceBundle({
+      schemaVersion: 1,
+      name: "Export",
+      htmlDocuments: [
+        {
+          schemaVersion: 1,
+          name: "Document",
+          html: '<script src="/private.js" integrity="sha384-YWJj"></script>'
+        }
+      ]
+    });
+    const exported = exportEvidenceBundleReport(report);
+
+    expect(exported).toContain('"eligibleResourceCount": 1');
+    expect(exported).not.toContain("/private.js");
+    expect(exportEvidenceBundleReport(report)).toBe(exported);
   });
 });

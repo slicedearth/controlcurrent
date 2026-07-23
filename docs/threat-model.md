@@ -21,6 +21,8 @@ The project treats these as hostile:
 - localStorage values;
 - exported profile names;
 - pasted response-header blocks and local header snapshot files;
+- local evidence bundles, supplied HTML, request snapshots, and reduced WebAuthn
+  configurations;
 - dependency packages and build output.
 
 ## Source risks
@@ -71,6 +73,13 @@ The header inspector refuses request credentials, caps input size and
 duplicates, and never emits raw values, cookie names, or cookie values. Input
 exists in page or process memory only for the local calculation. Users are
 still told to redact secrets before inspection.
+
+The evidence bundle parses HTML without a browser DOM, script execution,
+resource loading, or serialization into output. It caps input bytes, parse
+errors, nodes, resources, and observation counts. Reports retain no resource
+locations or raw HTML. Request evidence refuses credentials, while the strict
+WebAuthn schema refuses challenges and relying-party, user, and credential
+identifiers.
 
 ## Build and workflow risks
 

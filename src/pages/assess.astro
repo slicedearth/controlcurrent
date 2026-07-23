@@ -1,22 +1,24 @@
 ---
+import EvidenceBundleInspector from "../components/EvidenceBundleInspector.astro";
 import HeaderInspector from "../components/HeaderInspector.astro";
 import Layout from "../components/Layout.astro";
 ---
 
 <Layout
-  title="Offline header assessment"
-  description="Parse a bounded response-header block locally and compare observed policy evidence with the ControlCurrent control catalogue."
+  title="Offline deployment assessment"
+  description="Assess bounded response, HTML resource, request-context, and reduced WebAuthn evidence locally."
 >
   <header class="shell page-header">
     <span class="eyebrow">Configuration evidence without scanning</span>
-    <h1>Inspect response headers offline</h1>
+    <h1>Inspect deployment evidence offline</h1>
     <p>
-      Move beyond feature availability by checking policy syntax and declared header controls.
-      Results describe this one pasted response only; they do not certify a site or replace runtime
-      testing.
+      Move beyond feature availability by checking response policies, route variation, SRI
+      declarations, Fetch Metadata request context, and reduced WebAuthn configuration. Results
+      describe supplied evidence only; they do not certify a site or replace runtime testing.
     </p>
   </header>
   <div class="shell">
     <HeaderInspector />
+    <EvidenceBundleInspector />
   </div>
 </Layout>

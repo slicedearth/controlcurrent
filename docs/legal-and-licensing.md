@@ -52,6 +52,18 @@ result data. It retains exact suite paths, pinned source links, current
 dashboard links, and original scope and limitation statements. Links do not
 incorporate WPT or dashboard content into the project licence.
 
+## Client-side HTML parsing
+
+The offline evidence inspector uses:
+
+- **parse5:** MIT, copyright Ivan Nikulin;
+- **entities:** BSD 2-Clause, copyright Felix Böhm.
+
+The applicable copyright and licence notices are reproduced in `NOTICE`.
+ControlCurrent uses the parser only to create a bounded, non-executing syntax
+tree from user-supplied markup. It does not load resources or redistribute
+submitted HTML.
+
 ## Licence separation
 
 The MIT licence applies to ControlCurrent source code. It does not relicense:

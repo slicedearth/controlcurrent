@@ -59,15 +59,38 @@ import Layout from "../components/Layout.astro";
     <ul>
       <li>No website is scanned and no runtime behaviour is observed.</li>
       <li>
-        The optional inspector sees only a pasted response snapshot and cannot establish policy
-        coverage across routes, redirects, status codes, or cached responses.
+        The optional assessment sees only supplied evidence. A bundle can reveal variation among
+        included routes, but cannot establish coverage of routes, redirects, status codes, cached
+        responses, user states, or environments that were not supplied.
       </li>
       <li>
-        Recognised header syntax can be checked, but no result establishes complete correctness,
-        rollout safety, or effective policy enforcement.
+        Recognised header and SRI syntax can be checked, but resource bytes are not fetched and no
+        result establishes complete correctness, rollout safety, or effective policy enforcement.
+      </li>
+      <li>
+        Fetch Metadata and WebAuthn inputs describe reduced configuration evidence; the tool does
+        not test server enforcement, authenticator behaviour, or ceremony outcomes.
       </li>
       <li>Fallback controls remain necessary for unsupported browsers and defence in depth.</li>
       <li>No result should be treated as legal, compliance, or certification advice.</li>
+    </ul>
+
+    <h2>Practical usefulness</h2>
+    <p>These are project self-assessments, not benchmark scores.</p>
+    <ul>
+      <li>
+        <strong>9/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
+        WPT, policy-profile, and deployment-evidence layers are kept distinct.
+      </li>
+      <li>
+        <strong>8/10 as an engineering decision aid:</strong> bounded multi-route evidence, conservative
+        merging, local export, and transparent composite candidates support design and review decisions.
+      </li>
+      <li>
+        <strong>4/10 as production security assurance:</strong> supplied evidence can reveal real configuration
+        gaps, but there is no authenticated collection, full route inventory, runtime enforcement test,
+        resource verification, adversarial test, or continuous monitoring.
+      </li>
     </ul>
   </article>
 </Layout>

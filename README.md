@@ -22,6 +22,10 @@ It is not a general compatibility index and it does not scan websites.
 - Version-controlled policy profiles with expiring, visible exceptions
 - A local CLI for policy checks, explanations, and minimum-baseline calculation
 - An offline response-header inspector with redacted evidence and no URL fetch
+- A bounded evidence bundle for route variation, non-executing HTML/SRI
+  inventory, Fetch Metadata request context, and reduced WebAuthn configuration
+- Project-authored composite checks that keep candidate deployment recipes
+  separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
 - Deterministic selected-source snapshots, change events, and source history
 - Static pages suitable for GitHub Pages
@@ -29,9 +33,10 @@ It is not a general compatibility index and it does not scan websites.
 
 Compatibility is not configuration assurance. A supported feature can still be
 configured incorrectly, implemented with defects, or insufficient for an
-application's threat model. The optional offline inspector can establish that
-recognised policy syntax was present in one supplied response snapshot, but it
-does not certify effectiveness across an application.
+application's threat model. The optional offline assessment can establish that
+recognised policy syntax or reduced configuration evidence was present in
+supplied snapshots, but it does not certify effectiveness across an
+application.
 
 ## Data source
 
@@ -62,6 +67,7 @@ The deployed site has:
 - no runtime API or application database;
 - no website scanning;
 - no URL fetch in the offline header inspector;
+- no HTML execution or resource loading in evidence-bundle analysis;
 - no automatic profile persistence.
 
 A profile is saved to one bounded, versioned `localStorage` key only after the
@@ -137,6 +143,16 @@ The command exits non-zero for invalid or ambiguous header evidence. Add
 `--fail-missing` when a policy gate should also fail for controls not observed
 in that one response.
 
+Inspect a bounded multi-surface evidence bundle:
+
+```sh
+npm run cli -- inspect-bundle examples/evidence-bundle.example.json --json
+```
+
+The bundle command exits non-zero for invalid or inconsistent evidence. Add
+`--fail-missing` to include absent controls, or `--strict-composites` to require
+each project-authored composite candidate to avoid a review or gap state.
+
 ## Architecture
 
 ```text
@@ -158,6 +174,14 @@ Locked BCD and Web Platform Features packages
           |
           v
        static Astro site
+
+local response, HTML, request, and WebAuthn inputs
+          |
+          v
+ non-executing bounded evidence reduction
+          |
+          v
+ redacted findings and composite candidates
 ```
 
 The selected data is a build input. The deployed site makes no runtime request

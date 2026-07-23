@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "name": "Example release candidate",
+  "responses": [
+    {
+      "schemaVersion": 1,
+      "name": "Document response",
+      "headers": {
+        "Content-Security-Policy": "default-src 'self'; script-src 'nonce-REDACTED'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "credentialless",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Set-Cookie": "__Host-example=REDACTED; Path=/; Secure; HttpOnly; SameSite=Lax",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "X-Content-Type-Options": "nosniff"
+      }
+    }
+  ],
+  "htmlDocuments": [
+    {
+      "schemaVersion": 1,
+      "name": "Document HTML",
+      "html": "<link rel=\"stylesheet\" href=\"/assets/app.css\" integrity=\"sha384-REDACTED\">"
+    }
+  ],
+  "requests": [
+    {
+      "schemaVersion": 1,
+      "name": "Navigation request",
+      "headers": {
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-User": "?1"
+      }
+    }
+  ],
+  "webauthn": [
+    {
+      "schemaVersion": 1,
+      "name": "Passkey retrieval",
+      "operation": "get",
+      "authenticatorAttachment": "platform",
+      "userVerification": "required",
+      "residentKey": "unspecified",
+      "attestation": "unspecified",
+      "mediation": "conditional",
+      "prfRequested": true
+    }
+  ]
+}

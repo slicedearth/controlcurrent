@@ -431,3 +431,154 @@ export const assuranceReportSchema = z
   })
   .strict();
 export type AssuranceReport = z.infer<typeof assuranceReportSchema>;
+
+export const htmlDocumentInputSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    html: z.string().max(128 * 1_024)
+  })
+  .strict();
+export type HtmlDocumentInput = z.infer<typeof htmlDocumentInputSchema>;
+
+export const htmlResourceReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().min(1).max(80),
+    inputBytes: z
+      .number()
+      .int()
+      .min(0)
+      .max(128 * 1_024),
+    elementCount: z.number().int().min(0).max(8_192),
+    parseErrorCount: z.number().int().min(0).max(64),
+    eligibleResourceCount: z.number().int().min(0).max(512),
+    protectedResourceCount: z.number().int().min(0).max(512),
+    unprotectedResourceCount: z.number().int().min(0).max(512),
+    invalidIntegrityCount: z.number().int().min(0).max(512),
+    scriptCount: z.number().int().min(0).max(512),
+    styleCount: z.number().int().min(0).max(512),
+    preloadCount: z.number().int().min(0).max(512),
+    relativeReferenceCount: z.number().int().min(0).max(512),
+    absoluteReferenceCount: z.number().int().min(0).max(512),
+    otherReferenceCount: z.number().int().min(0).max(512),
+    algorithms: z.array(z.enum(["sha256", "sha384", "sha512"])).max(3),
+    finding: assuranceFindingSchema
+  })
+  .strict();
+export type HtmlResourceReport = z.infer<typeof htmlResourceReportSchema>;
+
+export const fetchMetadataReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().min(1).max(80),
+    inputHeaderCount: z.number().int().min(0).max(64),
+    recognisedHeaderCount: z.number().int().min(0).max(4),
+    finding: assuranceFindingSchema
+  })
+  .strict();
+export type FetchMetadataReport = z.infer<typeof fetchMetadataReportSchema>;
+
+export const webauthnConfigurationSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    operation: z.enum(["create", "get"]),
+    authenticatorAttachment: z.enum(["platform", "cross-platform", "unspecified"]),
+    userVerification: z.enum(["required", "preferred", "discouraged", "unspecified"]),
+    residentKey: z.enum(["required", "preferred", "discouraged", "unspecified"]),
+    attestation: z.enum(["none", "indirect", "direct", "enterprise", "unspecified"]),
+    mediation: z.enum(["conditional", "optional", "required", "silent", "unspecified"]),
+    prfRequested: z.boolean().optional()
+  })
+  .strict();
+export type WebauthnConfiguration = z.infer<typeof webauthnConfigurationSchema>;
+
+export const webauthnReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().min(1).max(80),
+    operation: z.enum(["create", "get"]),
+    configuration: z
+      .object({
+        authenticatorAttachment: z.enum(["platform", "cross-platform", "unspecified"]),
+        userVerification: z.enum(["required", "preferred", "discouraged", "unspecified"]),
+        residentKey: z.enum(["required", "preferred", "discouraged", "unspecified"]),
+        attestation: z.enum(["none", "indirect", "direct", "enterprise", "unspecified"]),
+        mediation: z.enum(["conditional", "optional", "required", "silent", "unspecified"]),
+        prfRequested: z.boolean().optional()
+      })
+      .strict(),
+    findings: z.array(assuranceFindingSchema).length(3)
+  })
+  .strict();
+export type WebauthnReport = z.infer<typeof webauthnReportSchema>;
+
+export const evidenceBundleInputSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    responses: z.array(headerSnapshotSchema).max(16).default([]),
+    htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
+    requests: z.array(headerSnapshotSchema).max(32).default([]),
+    webauthn: z.array(webauthnConfigurationSchema).max(16).default([])
+  })
+  .strict()
+  .superRefine((bundle, context) => {
+    if (
+      bundle.responses.length +
+        bundle.htmlDocuments.length +
+        bundle.requests.length +
+        bundle.webauthn.length ===
+      0
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "An evidence bundle must contain at least one observation."
+      });
+    }
+  });
+export type EvidenceBundleInput = z.infer<typeof evidenceBundleInputSchema>;
+
+export const compositeAssessmentSchema = z
+  .object({
+    id: z.string().min(1).max(80),
+    name: z.string().min(1).max(120),
+    state: z.enum(["satisfied", "review", "gap", "not_evaluated"]),
+    summary: z.string().min(1).max(1_024),
+    requirements: z.array(z.string().min(1).max(256)).max(8)
+  })
+  .strict();
+export type CompositeAssessment = z.infer<typeof compositeAssessmentSchema>;
+
+export const evidenceBundleReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().min(1).max(80),
+    coverage: z
+      .object({
+        responses: z.number().int().min(0).max(16),
+        htmlDocuments: z.number().int().min(0).max(16),
+        requests: z.number().int().min(0).max(32),
+        webauthn: z.number().int().min(0).max(16)
+      })
+      .strict(),
+    summary: z
+      .object({
+        observed: z.number().int().min(0).max(64),
+        missing: z.number().int().min(0).max(64),
+        invalid: z.number().int().min(0).max(64),
+        notEvaluated: z.number().int().min(0).max(64),
+        reportOnly: z.number().int().min(0).max(64),
+        inconclusive: z.number().int().min(0).max(64)
+      })
+      .strict(),
+    findings: z.array(assuranceFindingSchema).max(64),
+    composites: z.array(compositeAssessmentSchema).max(8),
+    responseReports: z.array(assuranceReportSchema).max(16),
+    htmlReports: z.array(htmlResourceReportSchema).max(16),
+    requestReports: z.array(fetchMetadataReportSchema).max(32),
+    webauthnReports: z.array(webauthnReportSchema).max(16)
+  })
+  .strict();
+export type EvidenceBundleReport = z.infer<typeof evidenceBundleReportSchema>;

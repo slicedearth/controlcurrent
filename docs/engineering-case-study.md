@@ -69,6 +69,19 @@ unmapped because a nearby HTTPS or cookie suite would overstate the evidence.
 Current wpt.fyi results are linked for investigation but not reduced to a pass
 percentage or used as a policy decision.
 
+## Configuration evidence without a scanner
+
+The local evidence bundle narrows the gap between compatibility and engineering
+review without introducing active collection. It combines several bounded
+response snapshots with non-executing HTML resource analysis, selected Fetch
+Metadata request context, and strict reduced WebAuthn configuration.
+
+Raw HTML, resource locations, cookie identities, credentials, request targets,
+and WebAuthn identifiers never enter the reduced report. Conflicting route
+observations become `inconclusive`, invalid evidence cannot be hidden by a
+favourable snapshot, and composite deployment candidates remain separate from
+browser-support outcomes.
+
 ## Privacy through absence
 
 The product does not need to know the visitor's installed browser. It asks for

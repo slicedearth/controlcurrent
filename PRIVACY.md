@@ -49,7 +49,7 @@ JSON exports are generated locally from the displayed calculation. They contain
 the selected browser profile, BCD version, catalogue version, and calculated
 results. They contain no visitor identifier or browser telemetry.
 
-## Offline header assessment
+## Offline deployment assessment
 
 Pasted response headers remain in page memory. ControlCurrent does not fetch a
 URL, upload the text, save it to local storage, or include raw header values in
@@ -60,6 +60,16 @@ Request credentials such as `Authorization` and `Cookie` are refused. A
 cookie names and values. Replace values and other secrets with `REDACTED`
 before pasting because the browser still has to hold the input temporarily to
 parse it.
+
+Evidence bundles can also contain supplied HTML, selected request headers, and
+reduced WebAuthn configuration. They remain in page or process memory and are
+never uploaded or saved by ControlCurrent. The HTML parser does not execute
+markup or load resources. Reduced reports omit HTML, resource paths and origins,
+cookie data, request targets, credentials, WebAuthn challenges, relying-party
+identifiers, user identifiers, and credential identifiers.
+
+Bundle labels and reduced WebAuthn selections remain in exported reports. Use
+non-identifying labels and review a generated file before sharing it.
 
 ## Source data
 

@@ -86,7 +86,7 @@ remains absent rather than being inferred from a nearby feature.
 
 ## Offline configuration evidence
 
-The optional inspector parses one supplied response-header block. It validates
+The simple inspector parses one supplied response-header block. It validates
 recognised CSP directives and source-expression shapes only in their applicable
 effective source-list chains, cross-origin policy values and reporting
 parameters, HSTS, response hardening headers, Permissions Policy, Referrer
@@ -104,6 +104,32 @@ Fetch Metadata request behaviour, and WebAuthn.
 The parser neither fetches a URL nor evaluates enforcement, origin coverage,
 route consistency, application behaviour, browser conformance, or rollout
 safety.
+
+## Multi-surface evidence bundles
+
+The bundle inspector applies the same response-header analysis to several
+named snapshots, parses HTML with a WHATWG-compatible non-executing parser,
+reduces selected Fetch Metadata request headers, and accepts a deliberately
+small WebAuthn configuration contract.
+
+SRI is `observed` only when every eligible external script and every `link`
+resource whose `rel` contains `stylesheet`, `preload`, or `modulepreload`
+carries at least one recognised SHA-256, SHA-384, or SHA-512 metadata token and
+the HTML required no parser recovery. That scope follows the HTML Standard's
+current applicability rules for the `integrity` attribute. ControlCurrent does
+not fetch resources, calculate digests, or prove that a declared digest matches
+bytes.
+
+Fetch Metadata evidence establishes only that recognised browser request
+context was supplied. It does not prove that an application server rejects
+inappropriate requests. WebAuthn evidence describes selected configuration
+fields; it does not run a ceremony or establish authenticator support.
+
+Control findings are merged across applicable evidence. A favourable snapshot
+cannot erase invalid evidence, and conflicting observed/missing states become
+`inconclusive`. Project-authored strict CSP, cross-origin isolation, and cookie
+attribute composites are transparent candidate recipes rather than
+certification or policy scores.
 
 ## Conformance evidence
 

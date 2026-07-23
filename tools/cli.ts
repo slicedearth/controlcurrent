@@ -5,6 +5,7 @@ import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
 import { selectedSnapshot } from "../src/data";
 import { browserIdSchema, policyProfileSchema } from "../src/contracts";
+import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
 
@@ -15,7 +16,8 @@ function usage(): never {
   npm run cli -- check <profile.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
   npm run cli -- minimum <control-id,...> [--browsers chrome,edge,...] [--allow-qualified] [--json]
   npm run cli -- explain <control-id> [--json]
-  npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]`);
+  npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
+  npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]`);
   process.exitCode = 2;
   throw new Error("Invalid command.");
 }
@@ -29,10 +31,10 @@ function utcDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function readBoundedJson(path: string): Promise<unknown> {
+async function readBoundedJson(path: string, maximumBytes = MAX_INPUT_BYTES): Promise<unknown> {
   const contents = await readFile(resolve(path), "utf8");
-  if (Buffer.byteLength(contents, "utf8") > MAX_INPUT_BYTES) {
-    throw new Error(`Input exceeds ${String(MAX_INPUT_BYTES)} bytes.`);
+  if (Buffer.byteLength(contents, "utf8") > maximumBytes) {
+    throw new Error(`Input exceeds ${String(maximumBytes)} bytes.`);
   }
   return JSON.parse(contents) as unknown;
 }
@@ -131,6 +133,35 @@ async function inspectHeaderSnapshot(): Promise<void> {
   process.exitCode = failed ? 1 : 0;
 }
 
+async function inspectBundle(): Promise<void> {
+  const path = process.argv[3] ?? usage();
+  const report = inspectEvidenceBundle(await readBoundedJson(path, 1_024 * 1_024));
+  const strictComposites = process.argv.includes("--strict-composites");
+  const failed =
+    report.summary.invalid > 0 ||
+    report.summary.inconclusive > 0 ||
+    (process.argv.includes("--fail-missing") &&
+      report.summary.missing + report.summary.reportOnly > 0) ||
+    (strictComposites &&
+      report.composites.some((composite) => ["review", "gap"].includes(composite.state)));
+
+  if (process.argv.includes("--json")) {
+    process.stdout.write(canonicalJson(report));
+  } else {
+    console.log(`${report.name}: ${failed ? "review required" : "inspection complete"}`);
+    console.log(
+      `${String(report.coverage.responses)} responses, ${String(report.coverage.htmlDocuments)} HTML documents, ${String(report.coverage.requests)} requests, ${String(report.coverage.webauthn)} WebAuthn configurations`
+    );
+    console.log(
+      `${String(report.summary.observed)} observed, ${String(report.summary.missing)} not observed, ${String(report.summary.invalid)} invalid, ${String(report.summary.reportOnly)} report only, ${String(report.summary.inconclusive)} inconclusive, ${String(report.summary.notEvaluated)} not evaluated`
+    );
+    for (const composite of report.composites) {
+      console.log(`- ${composite.state.toUpperCase()} ${composite.name}: ${composite.summary}`);
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
 try {
   switch (process.argv[2]) {
     case "check":
@@ -144,6 +175,9 @@ try {
       break;
     case "inspect-headers":
       await inspectHeaderSnapshot();
+      break;
+    case "inspect-bundle":
+      await inspectBundle();
       break;
     default:
       usage();

@@ -65,7 +65,8 @@ The project keeps these claims separate:
 1. BCD records browser compatibility statements.
 2. WebDX Baseline records cross-browser adoptability context.
 3. WPT exercises standardised browser behaviour.
-4. The offline inspector parses one supplied response snapshot.
+4. The offline assessment reduces supplied response, resource, request-context,
+   and WebAuthn configuration evidence.
 5. Application testing evaluates the actual routes, policies, content, and
    runtime behaviour of a deployment.
 

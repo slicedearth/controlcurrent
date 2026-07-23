@@ -796,6 +796,30 @@ select:disabled {
   color: var(--violet);
 }
 
+.composite {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font:
+    650 0.7rem/1.25 ui-monospace,
+    monospace;
+}
+
+.composite--satisfied {
+  color: var(--accent);
+}
+
+.composite--review,
+.composite--not_evaluated {
+  color: var(--violet);
+}
+
+.composite--gap {
+  color: var(--amber);
+}
+
 .assurance-evidence {
   padding-top: 0.7rem;
   border-top: 1px solid var(--line);
@@ -806,6 +830,20 @@ select:disabled {
 
 .inspector-panel {
   padding-bottom: 6rem;
+}
+
+.bundle-panel {
+  padding-top: 5rem;
+  border-top: 1px solid var(--line);
+}
+
+.bundle-panel h3 {
+  margin-top: 2.5rem;
+}
+
+.bundle-composites,
+.bundle-inventory {
+  margin-bottom: 2rem;
 }
 
 .prose {
