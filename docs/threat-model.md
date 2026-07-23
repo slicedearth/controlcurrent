@@ -19,6 +19,7 @@ The project treats these as hostile:
 - committed selected snapshots and change events;
 - localStorage values;
 - exported profile names;
+- pasted response-header blocks and local header snapshot files;
 - dependency packages and build output.
 
 ## Source risks
@@ -61,6 +62,11 @@ The planner does not inspect the actual browser or make a network request. It
 uses local persistence only after a deliberate action. The static CSP denies
 runtime connections.
 
+The header inspector refuses request credentials, caps input size and
+duplicates, and never emits raw values, cookie names, or cookie values. Input
+exists in page or process memory only for the local calculation. Users are
+still told to redact secrets before inspection.
+
 ## Build and workflow risks
 
 - The lockfile fixes dependency resolution.
@@ -69,12 +75,13 @@ runtime connections.
 - Pages deployment has only required Pages and identity permissions.
 - Actions are pinned to full commit SHAs.
 - No workflow commits, pushes, creates issues, or uses `pull_request_target`.
-- No schedule is enabled for source updates.
+- The scheduled source review is read-only and cannot modify repository or
+  deployment state.
 
 ## Out of scope
 
 - Browser implementation testing
-- Website header or runtime testing
+- Active website collection or runtime testing
 - Conformance certification
 - Compliance advice
 - Market-share analysis

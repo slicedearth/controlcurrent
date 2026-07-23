@@ -20,6 +20,7 @@ It is not a general compatibility index and it does not scan websites.
 - A local deployment-profile planner with no browser detection or telemetry
 - Version-controlled policy profiles with expiring, visible exceptions
 - A local CLI for policy checks, explanations, and minimum-baseline calculation
+- An offline response-header inspector with redacted evidence and no URL fetch
 - Current-channel compatibility matrix and browser release views
 - Deterministic selected-source snapshots, change events, and source history
 - Static pages suitable for GitHub Pages
@@ -27,7 +28,9 @@ It is not a general compatibility index and it does not scan websites.
 
 Compatibility is not configuration assurance. A supported feature can still be
 configured incorrectly, implemented with defects, or insufficient for an
-application's threat model.
+application's threat model. The optional offline inspector can establish that
+recognised policy syntax was present in one supplied response snapshot, but it
+does not certify effectiveness across an application.
 
 ## Data source
 
@@ -52,6 +55,7 @@ The deployed site has:
 - no browser fingerprinting or user-agent detection;
 - no runtime API or application database;
 - no website scanning;
+- no URL fetch in the offline header inspector;
 - no automatic profile persistence.
 
 A profile is saved to one bounded, versioned `localStorage` key only after the
@@ -116,6 +120,16 @@ silently becoming supported.
 | `npm run audit:public`   | Inspect the public build for bounds and prohibited content           |
 | `npm run test:e2e`       | Run local browser and accessibility tests                            |
 | `npm run verify`         | Run the non-browser verification suite                               |
+
+Inspect a redacted local header snapshot:
+
+```sh
+npm run cli -- inspect-headers examples/headers.example.json --json
+```
+
+The command exits non-zero for invalid or ambiguous header evidence. Add
+`--fail-missing` when a policy gate should also fail for controls not observed
+in that one response.
 
 ## Architecture
 

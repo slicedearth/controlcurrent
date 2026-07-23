@@ -16,13 +16,17 @@ import Layout from "../components/Layout.astro";
   </header>
   <article class="shell prose">
     <h2>Evidence layers</h2>
-    <p>The application keeps four statements separate:</p>
+    <p>The application keeps five statements separate:</p>
     <ol>
       <li><strong>Source data:</strong> BCD paths, browser statements, versions, and notes.</li>
       <li><strong>Catalogue mapping:</strong> which source paths represent a security control.</li>
       <li><strong>Calculation:</strong> whether a selected baseline meets every required path.</li>
       <li>
         <strong>Guidance:</strong> project-authored prerequisites, fallbacks, and limitations.
+      </li>
+      <li>
+        <strong>Observed configuration:</strong> optional local evidence from one supplied response header
+        block.
       </li>
     </ol>
 
@@ -64,6 +68,15 @@ import Layout from "../components/Layout.astro";
       The change feed records the BCD package timestamp and the version in which ControlCurrent first
       observed a selected-subset change. It does not claim that a browser implementation changed at
       that exact time.
+    </p>
+
+    <h2>Offline response-header assessment</h2>
+    <p>
+      The inspector parses one bounded, user-supplied final response. It makes no URL request and
+      reports only redacted evidence. “Observed” means recognizable syntax was present in that
+      response; it does not prove enforcement, coverage across routes, rollout safety, or runtime
+      behaviour. Controls that require HTML, DOM, request, WebAuthn, or conformance evidence remain
+      “not evaluated”.
     </p>
 
     <h2>Determinism and bounds</h2>

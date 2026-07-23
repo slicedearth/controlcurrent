@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "name": "Example hardened response",
+  "headers": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'nonce-REDACTED' 'strict-dynamic'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; upgrade-insecure-requests",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "require-corp",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Origin-Agent-Cluster": "?1",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Referrer-Policy": "no-referrer",
+    "Set-Cookie": "__Host-example=REDACTED; Path=/; Secure; HttpOnly; SameSite=Lax",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "X-Content-Type-Options": "nosniff"
+  }
+}

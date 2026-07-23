@@ -28,6 +28,7 @@ ControlCurrent is a static application:
 
 - no production server, database, account, or authentication;
 - no website scanning or arbitrary URL input;
+- bounded offline parsing of user-supplied response-header text;
 - no runtime compatibility API;
 - no browser fingerprinting;
 - no analytics or third-party script;
@@ -35,7 +36,8 @@ ControlCurrent is a static application:
 - restrictive static Content Security Policy;
 - `connect-src 'none'` for the deployed application;
 - bounded, deliberate local profile storage;
-- escaped text rendering for source-derived values.
+- escaped text rendering for source-derived values;
+- no raw header, cookie name, or cookie value in assurance reports.
 
 The build treats the BCD package as hostile structured input. Selected paths,
 string lengths, statement counts, browser releases, schema versions, and output
@@ -54,6 +56,8 @@ schema stops publication.
 
 ## Not a security assessment
 
-ControlCurrent does not test an application or browser. A compatibility result
-must not be interpreted as a vulnerability finding, compliance result, or
-assurance that a control is correctly configured.
+ControlCurrent does not fetch or test an application or browser. The offline
+inspector parses one user-supplied response snapshot and can identify
+recognised syntax or missing declarations. Neither a compatibility result nor
+a header observation is a vulnerability finding, compliance result, or
+assurance that a control is effective across an application.

@@ -106,6 +106,26 @@ The planner does not use:
 
 Local persistence is opt-in and limited to one schema-versioned key.
 
+## Offline assurance boundary
+
+The response-header inspector accepts at most 64 KiB and 256 lines. It rejects
+folded headers, request credentials, invalid names, excessive duplicate values,
+and future contract versions. Recognised policy parsers emit one bounded
+finding per catalogue control.
+
+The inspector:
+
+- makes no URL or network request;
+- stores no input;
+- renders findings with `textContent`;
+- omits raw header values, cookie names, and cookie values from reports;
+- distinguishes observed, not observed, invalid, and not evaluated states;
+- evaluates only the final response block when a redirect-style paste contains
+  more than one HTTP status line.
+
+Controls that require HTML, DOM, request, WebAuthn, or runtime evidence remain
+`not_evaluated`.
+
 ## Change history
 
 The first generated selected subset creates a baseline event. Later package or

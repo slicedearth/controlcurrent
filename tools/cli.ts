@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { inspectHeaders } from "../src/assurance";
 import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
 import { selectedSnapshot } from "../src/data";
@@ -7,13 +8,14 @@ import { browserIdSchema, policyProfileSchema } from "../src/contracts";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
 
-const MAX_PROFILE_BYTES = 64 * 1_024;
+const MAX_INPUT_BYTES = 64 * 1_024;
 
 function usage(): never {
   console.error(`Usage:
   npm run cli -- check <profile.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
   npm run cli -- minimum <control-id,...> [--browsers chrome,edge,...] [--allow-qualified] [--json]
-  npm run cli -- explain <control-id> [--json]`);
+  npm run cli -- explain <control-id> [--json]
+  npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]`);
   process.exitCode = 2;
   throw new Error("Invalid command.");
 }
@@ -29,8 +31,8 @@ function utcDate(): string {
 
 async function readBoundedJson(path: string): Promise<unknown> {
   const contents = await readFile(resolve(path), "utf8");
-  if (Buffer.byteLength(contents, "utf8") > MAX_PROFILE_BYTES) {
-    throw new Error(`Profile exceeds ${String(MAX_PROFILE_BYTES)} bytes.`);
+  if (Buffer.byteLength(contents, "utf8") > MAX_INPUT_BYTES) {
+    throw new Error(`Input exceeds ${String(MAX_INPUT_BYTES)} bytes.`);
   }
   return JSON.parse(contents) as unknown;
 }
@@ -106,6 +108,27 @@ function explain(): void {
   }
 }
 
+async function inspectHeaderSnapshot(): Promise<void> {
+  const path = process.argv[3] ?? usage();
+  const report = inspectHeaders(await readBoundedJson(path));
+  const failed =
+    report.summary.invalid > 0 ||
+    (process.argv.includes("--fail-missing") && report.summary.missing > 0);
+
+  if (process.argv.includes("--json")) {
+    process.stdout.write(canonicalJson(report));
+  } else {
+    console.log(`${report.name}: ${failed ? "review required" : "inspection complete"}`);
+    console.log(
+      `${String(report.summary.observed)} observed, ${String(report.summary.missing)} not observed, ${String(report.summary.invalid)} invalid, ${String(report.summary.notEvaluated)} not evaluated`
+    );
+    for (const result of report.findings.filter((finding) => finding.state !== "observed")) {
+      console.log(`- ${result.state.toUpperCase()} ${result.controlId}: ${result.summary}`);
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
 try {
   switch (process.argv[2]) {
     case "check":
@@ -116,6 +139,9 @@ try {
       break;
     case "explain":
       explain();
+      break;
+    case "inspect-headers":
+      await inspectHeaderSnapshot();
       break;
     default:
       usage();

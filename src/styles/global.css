@@ -566,6 +566,16 @@ tbody tr:last-child td {
   margin-top: 2rem;
 }
 
+.header-form {
+  display: grid;
+  margin-top: 2rem;
+  gap: 0.6rem;
+}
+
+.header-form > label {
+  font-weight: 700;
+}
+
 .profile-name {
   display: grid;
   max-width: 32rem;
@@ -573,7 +583,8 @@ tbody tr:last-child td {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.58rem 0.7rem;
@@ -582,6 +593,14 @@ select {
   background: #081214;
   color: var(--ink);
   font: inherit;
+}
+
+textarea {
+  min-height: 24rem;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  line-height: 1.5;
+  tab-size: 2;
 }
 
 select:disabled {
@@ -660,6 +679,49 @@ select:disabled {
   margin: 0;
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.assurance-card > p {
+  color: var(--muted);
+}
+
+.assurance {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font:
+    650 0.7rem/1.25 ui-monospace,
+    monospace;
+}
+
+.assurance--observed {
+  color: var(--accent);
+}
+
+.assurance--missing {
+  color: var(--amber);
+}
+
+.assurance--invalid {
+  color: var(--red);
+}
+
+.assurance--not_evaluated {
+  color: var(--violet);
+}
+
+.assurance-evidence {
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+.inspector-panel {
+  padding-bottom: 6rem;
 }
 
 .prose {

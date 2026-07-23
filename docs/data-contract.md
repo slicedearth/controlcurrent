@@ -64,6 +64,11 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Profile export                          |          512 KiB |
 | Change events                           |           10,000 |
 | Source-history entries                  |              512 |
+| Header snapshot bytes                   |           64 KiB |
+| Header snapshot lines                   |              256 |
+| Header names                            |               64 |
+| Values per header name                  |                8 |
+| Assurance findings                      |               64 |
 | Public file                             |            2 MiB |
 | Public build                            |           25 MiB |
 
@@ -102,3 +107,21 @@ emitted for that state.
 Entry identifiers are content-derived. Re-running generation for an identical
 source state does not append another entry. The bounded manifest does not
 reconstruct source versions that ControlCurrent never retained.
+
+## Offline header assurance
+
+Header snapshot schema 1 accepts a name and a bounded record of response-header
+values. Names are validated against the HTTP token grammar. `Authorization`,
+`Cookie`, and proxy credential fields are refused.
+
+Assurance findings use four states:
+
+- `observed`: recognised syntax was present in this response;
+- `missing`: the relevant declaration was not present;
+- `invalid`: duplicate, malformed, or ambiguous evidence prevented a reliable
+  observation;
+- `not_evaluated`: response headers cannot establish the control, or the
+  response did not contain the context needed for that check.
+
+Reports contain bounded summaries and redacted evidence only. They never
+contain a raw header value, cookie name, or cookie value.

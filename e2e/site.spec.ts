@@ -51,7 +51,7 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
 
 test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
-  for (const path of ["/", "/matrix/", "/planner/", "/changes/"]) {
+  for (const path of ["/", "/matrix/", "/planner/", "/assess/", "/changes/"]) {
     await page.goto(path);
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
@@ -68,6 +68,31 @@ test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => 
     scrollWidth: element.scrollWidth
   }));
   expect(matrixDimensions.scrollWidth).toBeGreaterThan(matrixDimensions.clientWidth);
+});
+
+test("assesses and clears a redacted header snapshot without a network request", async ({
+  page
+}) => {
+  const externalRequests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.hostname !== "127.0.0.1") externalRequests.push(request.url());
+  });
+
+  await page.goto("/assess/");
+  await page.getByRole("button", { name: "Load redacted example" }).click();
+  await page.getByRole("button", { name: "Assess headers" }).click();
+
+  await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeVisible();
+  await expect(page.locator(".assurance-card")).toHaveCount(29);
+  await expect(page.getByText("Headers assessed locally")).toBeVisible();
+  await expect(page.getByText("19")).toBeVisible();
+  expect(externalRequests).toEqual([]);
+
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeHidden();
+  await expect(page.getByLabel("HTTP response headers")).toHaveValue("");
+  expect(await page.evaluate(() => localStorage.length)).toBe(0);
 });
 
 test("shows the reviewed source manifest without inventing review timestamps", async ({ page }) => {

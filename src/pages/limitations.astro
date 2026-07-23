@@ -49,7 +49,11 @@ import Layout from "../components/Layout.astro";
 
     <h2>Security limitations</h2>
     <ul>
-      <li>No website is scanned and no response header or runtime behaviour is observed.</li>
+      <li>No website is scanned and no runtime behaviour is observed.</li>
+      <li>
+        The optional inspector sees only a pasted response snapshot and cannot establish policy
+        coverage across routes, redirects, status codes, or cached responses.
+      </li>
       <li>
         No result establishes correct syntax, rollout safety, or effective policy enforcement.
       </li>

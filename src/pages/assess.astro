@@ -1,0 +1,22 @@
+---
+import HeaderInspector from "../components/HeaderInspector.astro";
+import Layout from "../components/Layout.astro";
+---
+
+<Layout
+  title="Offline header assessment"
+  description="Parse a bounded response-header block locally and compare observed policy evidence with the ControlCurrent control catalogue."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Configuration evidence without scanning</span>
+    <h1>Inspect response headers offline</h1>
+    <p>
+      Move beyond feature availability by checking policy syntax and declared header controls.
+      Results describe this one pasted response only; they do not certify a site or replace runtime
+      testing.
+    </p>
+  </header>
+  <div class="shell">
+    <HeaderInspector />
+  </div>
+</Layout>

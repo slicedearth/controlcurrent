@@ -1,0 +1,166 @@
+<section class="inspector-panel" aria-labelledby="inspector-heading">
+  <div class="planner-intro">
+    <span class="eyebrow">Local, bounded, and non-persistent</span>
+    <h2 id="inspector-heading">Paste one response-header block</h2>
+    <p>
+      ControlCurrent parses recognised security headers in this browser. It does not fetch the URL,
+      retain the text, or send it anywhere. Replace cookie values and other secrets with
+      <code>REDACTED</code> before pasting.
+    </p>
+  </div>
+
+  <form id="header-form" class="header-form">
+    <label for="header-block">HTTP response headers</label>
+    <textarea
+      id="header-block"
+      name="header-block"
+      maxlength="65536"
+      rows="18"
+      spellcheck="false"
+      aria-describedby="header-guidance"
+      placeholder="Content-Security-Policy: default-src 'self'; base-uri 'none'
+Strict-Transport-Security: max-age=31536000
+X-Content-Type-Options: nosniff"
+    ></textarea>
+    <p id="header-guidance" class="form-message">
+      Paste response headers only. Request credentials such as Authorization and Cookie are refused.
+      Multiple HTTP status blocks are allowed; only the final response block is evaluated.
+    </p>
+    <div class="button-row">
+      <button type="submit" class="button button--primary">Assess headers</button>
+      <button type="button" class="button" id="load-header-example">Load redacted example</button>
+      <button type="button" class="button" id="clear-headers">Clear</button>
+    </div>
+    <p id="header-message" class="form-message" role="status" aria-live="polite"></p>
+  </form>
+
+  <section
+    id="header-results"
+    class="profile-results"
+    aria-labelledby="header-results-heading"
+    hidden
+  >
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Observed configuration evidence</span>
+        <h2 id="header-results-heading">Response-header assessment</h2>
+      </div>
+      <p id="header-source"></p>
+    </div>
+    <div id="assurance-summary" class="stats-grid"></div>
+    <div id="assurance-findings" class="results-list assurance-findings"></div>
+  </section>
+</section>
+
+<script>
+  import { inspectHeaders, parseHeaderBlock } from "../assurance";
+  import { SECURITY_CONTROLS } from "../catalogue";
+  import type { AssuranceReport } from "../contracts";
+
+  const example = `HTTP/1.1 200 OK
+Content-Security-Policy: default-src 'self'; script-src 'nonce-REDACTED' 'strict-dynamic'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+Referrer-Policy: no-referrer
+Set-Cookie: __Host-example=REDACTED; Path=/; Secure; HttpOnly; SameSite=Lax
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff`;
+
+  const form = document.querySelector<HTMLFormElement>("#header-form");
+  const input = document.querySelector<HTMLTextAreaElement>("#header-block");
+  const message = document.querySelector<HTMLElement>("#header-message");
+  const results = document.querySelector<HTMLElement>("#header-results");
+  const source = document.querySelector<HTMLElement>("#header-source");
+  const summary = document.querySelector<HTMLElement>("#assurance-summary");
+  const findings = document.querySelector<HTMLElement>("#assurance-findings");
+
+  if (!form || !input || !message || !results || !source || !summary || !findings) {
+    throw new Error("Header inspector controls are unavailable.");
+  }
+
+  const controlNames = new Map<string, string>(
+    SECURITY_CONTROLS.map((control) => [control.id, control.name] as const)
+  );
+  const stateLabels = {
+    observed: "Observed",
+    missing: "Not observed",
+    invalid: "Invalid or ambiguous",
+    not_evaluated: "Not evaluated"
+  } as const;
+
+  function stat(value: number, label: string): HTMLElement {
+    const card = document.createElement("div");
+    card.className = "stat-card";
+    const count = document.createElement("strong");
+    count.textContent = String(value);
+    const description = document.createElement("span");
+    description.textContent = label;
+    card.append(count, description);
+    return card;
+  }
+
+  function render(report: AssuranceReport): void {
+    summary!.replaceChildren(
+      stat(report.summary.observed, "controls with observed evidence"),
+      stat(report.summary.missing, "controls not observed"),
+      stat(report.summary.invalid, "invalid or ambiguous observations"),
+      stat(report.summary.notEvaluated, "controls outside header evidence")
+    );
+    findings!.replaceChildren();
+    for (const finding of report.findings) {
+      const article = document.createElement("article");
+      article.className = "result-card assurance-card";
+      const header = document.createElement("div");
+      header.className = "result-card__header";
+      const heading = document.createElement("h3");
+      heading.textContent = controlNames.get(finding.controlId) ?? finding.controlId;
+      const badge = document.createElement("span");
+      badge.className = `assurance assurance--${finding.state}`;
+      badge.textContent = stateLabels[finding.state];
+      header.append(heading, badge);
+      const explanation = document.createElement("p");
+      explanation.textContent = finding.summary;
+      article.append(header, explanation);
+      if (finding.evidence) {
+        const evidence = document.createElement("p");
+        evidence.className = "assurance-evidence";
+        evidence.textContent = finding.evidence;
+        article.append(evidence);
+      }
+      findings!.append(article);
+    }
+    source!.textContent = `${String(report.recognisedHeaderCount)} recognised of ${String(report.inputHeaderCount)} header names · no values retained`;
+    results!.hidden = false;
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    try {
+      const report = inspectHeaders(parseHeaderBlock(input!.value));
+      render(report);
+      message!.textContent =
+        "Headers assessed locally. The report contains no cookie names, cookie values, or raw header values.";
+    } catch (error) {
+      results!.hidden = true;
+      message!.textContent =
+        error instanceof Error ? error.message : "The header block could not be assessed.";
+    }
+  });
+
+  document.querySelector("#load-header-example")?.addEventListener("click", () => {
+    input!.value = example;
+    message!.textContent = "Redacted example loaded. Select Assess headers to evaluate it.";
+  });
+
+  document.querySelector("#clear-headers")?.addEventListener("click", () => {
+    input!.value = "";
+    results!.hidden = true;
+    summary!.replaceChildren();
+    findings!.replaceChildren();
+    message!.textContent = "Header input and calculated report cleared.";
+    input!.focus();
+  });
+</script>

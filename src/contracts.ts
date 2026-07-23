@@ -357,3 +357,68 @@ export const sourceHistorySchema = z
   })
   .strict();
 export type SourceHistory = z.infer<typeof sourceHistorySchema>;
+
+const headerValueSchema = z.union([
+  z.string().max(8_192),
+  z.array(z.string().max(8_192)).min(1).max(8)
+]);
+
+export const headerSnapshotSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    headers: z.record(z.string().min(1).max(128), headerValueSchema)
+  })
+  .strict()
+  .superRefine((snapshot, context) => {
+    if (Object.keys(snapshot.headers).length > 64) {
+      context.addIssue({
+        code: "custom",
+        message: "A header snapshot may contain at most 64 header names.",
+        path: ["headers"]
+      });
+    }
+    for (const name of Object.keys(snapshot.headers)) {
+      if (!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/u.test(name)) {
+        context.addIssue({
+          code: "custom",
+          message: `Invalid HTTP header name: ${name}`,
+          path: ["headers", name]
+        });
+      }
+    }
+  });
+export type HeaderSnapshot = z.infer<typeof headerSnapshotSchema>;
+
+export const assuranceStateSchema = z.enum(["observed", "missing", "invalid", "not_evaluated"]);
+export type AssuranceState = z.infer<typeof assuranceStateSchema>;
+
+export const assuranceFindingSchema = z
+  .object({
+    controlId: z.string().min(1).max(80),
+    state: assuranceStateSchema,
+    sourceHeaders: z.array(z.string().min(1).max(128)).max(4),
+    summary: z.string().min(1).max(1_024),
+    evidence: z.string().min(1).max(512).optional()
+  })
+  .strict();
+export type AssuranceFinding = z.infer<typeof assuranceFindingSchema>;
+
+export const assuranceReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().min(1).max(80),
+    inputHeaderCount: z.number().int().min(0).max(64),
+    recognisedHeaderCount: z.number().int().min(0).max(64),
+    summary: z
+      .object({
+        observed: z.number().int().min(0).max(64),
+        missing: z.number().int().min(0).max(64),
+        invalid: z.number().int().min(0).max(64),
+        notEvaluated: z.number().int().min(0).max(64)
+      })
+      .strict(),
+    findings: z.array(assuranceFindingSchema).max(64)
+  })
+  .strict();
+export type AssuranceReport = z.infer<typeof assuranceReportSchema>;
