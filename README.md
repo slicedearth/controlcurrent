@@ -2,7 +2,21 @@
   <img src="public/logo.svg" width="520" alt="ControlCurrent">
 </p>
 
-**Which browser security controls can you safely deploy today?**
+<p align="center">
+  <a href="https://slicedearth.github.io/controlcurrent/"><strong>Open the live application</strong></a>
+  ·
+  <a href="https://slicedearth.github.io/controlcurrent/methodology/">Methodology</a>
+  ·
+  <a href="https://slicedearth.github.io/controlcurrent/limitations/">Limitations</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/slicedearth/controlcurrent/actions/workflows/ci.yml"><img src="https://github.com/slicedearth/controlcurrent/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
+  <a href="https://github.com/slicedearth/controlcurrent/actions/workflows/codeql.yml"><img src="https://github.com/slicedearth/controlcurrent/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL status"></a>
+  <a href="https://github.com/slicedearth/controlcurrent/actions/workflows/pages.yml"><img src="https://github.com/slicedearth/controlcurrent/actions/workflows/pages.yml/badge.svg?branch=main" alt="GitHub Pages deployment status"></a>
+</p>
+
+<p align="center"><strong>Which browser security controls can you safely deploy today?</strong></p>
 
 ControlCurrent is a security-specific browser compatibility and deployment
 planning application. It maps a curated catalogue of defensive browser controls
@@ -10,6 +24,18 @@ to exact paths in MDN Browser Compatibility Data (BCD), preserves support
 qualifications, and evaluates explicit browser minimums entirely in the browser.
 
 It is not a general compatibility index and it does not scan websites.
+
+## Public deployment
+
+[ControlCurrent is available on GitHub Pages](https://slicedearth.github.io/controlcurrent/).
+The deployment is static and requires no account. Browser-policy selections,
+header evidence, scope inventories, and exported reports remain on the
+visitor's device.
+
+Changes pushed or merged to `main` deploy automatically only after the complete
+CI workflow succeeds. The Pages workflow publishes the exact commit verified
+by CI. Source-review and Dependabot workflows can identify or propose updates,
+but they cannot merge or publish changes by themselves.
 
 ## What it provides
 
@@ -47,7 +73,7 @@ It is not a general compatibility index and it does not scan websites.
   separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
 - Deterministic selected-source snapshots, change events, and source history
-- Static pages suitable for GitHub Pages
+- A public static GitHub Pages deployment gated by the complete CI workflow
 - Original deployment guidance, fallbacks, and limitations
 
 Compatibility is not configuration assurance. A supported feature can still be
