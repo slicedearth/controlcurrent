@@ -9,7 +9,7 @@ export const outcomeLabels: Record<Outcome, string> = {
   unavailable: "Unavailable",
   removed: "Removed",
   unknown: "Unknown",
-  unsupported_mapping: "Not mapped",
+  unsupported_mapping: "No BCD mapping",
   source_inconsistent: "Source issue"
 };
 

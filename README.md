@@ -36,7 +36,7 @@ does not certify effectiveness across an application.
 ## Data source
 
 The current release uses `@mdn/browser-compat-data` 8.0.7 and `web-features`
-3.34.1. The selected snapshot contains only the 33 BCD paths required by the
+3.34.1. The selected snapshot contains only the 34 BCD paths required by the
 current catalogue, bounded release metadata for nine browser families, and
 exact Baseline associations declared for those paths.
 

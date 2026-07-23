@@ -788,6 +788,14 @@ select:disabled {
   color: var(--violet);
 }
 
+.assurance--report_only {
+  color: var(--amber);
+}
+
+.assurance--inconclusive {
+  color: var(--violet);
+}
+
 .assurance-evidence {
   padding-top: 0.7rem;
   border-top: 1px solid var(--line);

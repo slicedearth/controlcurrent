@@ -87,7 +87,9 @@ const wptEvidence = getWptEvidence(control.id);
     <aside>
       <section class="content-card">
         <span class="eyebrow">BCD mapping</span>
-        <h2>{control.mappingState === "active" ? "Mapped" : "Not mapped"}</h2>
+        <h2>
+          {control.mappingState === "active" ? "Mapped" : "No standalone BCD mapping"}
+        </h2>
         {control.mappingNote && <p>{control.mappingNote}</p>}
         {
           control.bcdPaths.length > 0 ? (

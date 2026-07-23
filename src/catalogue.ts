@@ -1,4 +1,4 @@
-export const CATALOGUE_VERSION = "2.0.0";
+export const CATALOGUE_VERSION = "2.1.0";
 
 export type ControlMappingState = "active" | "unsupported";
 export type CombinationRule = "all" | "any";
@@ -532,14 +532,18 @@ export const SECURITY_CONTROLS = [
     name: "Secure cookie prefixes",
     shortName: "Cookie prefixes",
     category: "Browser privacy",
-    summary: "Applies browser-enforced naming constraints to selected secure cookies.",
+    summary:
+      "Applies browser-enforced naming constraints to __Secure-, __Host-, __Http-, and __Host-Http- cookies.",
     threatClasses: ["Cookie scope confusion", "Insecure cookie replacement"],
     doesNotAddress: ["All cookie tossing", "Cross-site scripting", "Weak session design"],
     prerequisites: ["HTTPS", "Correct Secure, Path, and Domain attributes"],
     fallback: "Use host-only Secure cookies with narrow scope and server-side session controls.",
     mappingState: "active",
     combination: "all",
-    bcdPaths: ["http.headers.Set-Cookie.host_secure_prefixes"],
+    bcdPaths: [
+      "http.headers.Set-Cookie.host_secure_prefixes",
+      "http.headers.Set-Cookie.http_host-http_prefixes"
+    ],
     specificationUrls: ["https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html"]
   },
   {

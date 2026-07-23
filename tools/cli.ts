@@ -113,14 +113,16 @@ async function inspectHeaderSnapshot(): Promise<void> {
   const report = inspectHeaders(await readBoundedJson(path));
   const failed =
     report.summary.invalid > 0 ||
-    (process.argv.includes("--fail-missing") && report.summary.missing > 0);
+    report.summary.inconclusive > 0 ||
+    (process.argv.includes("--fail-missing") &&
+      report.summary.missing + report.summary.reportOnly > 0);
 
   if (process.argv.includes("--json")) {
     process.stdout.write(canonicalJson(report));
   } else {
     console.log(`${report.name}: ${failed ? "review required" : "inspection complete"}`);
     console.log(
-      `${String(report.summary.observed)} observed, ${String(report.summary.missing)} not observed, ${String(report.summary.invalid)} invalid, ${String(report.summary.notEvaluated)} not evaluated`
+      `${String(report.summary.observed)} observed, ${String(report.summary.missing)} not observed, ${String(report.summary.invalid)} invalid, ${String(report.summary.reportOnly)} report only, ${String(report.summary.inconclusive)} inconclusive, ${String(report.summary.notEvaluated)} not evaluated`
     );
     for (const result of report.findings.filter((finding) => finding.state !== "observed")) {
       console.log(`- ${result.state.toUpperCase()} ${result.controlId}: ${result.summary}`);

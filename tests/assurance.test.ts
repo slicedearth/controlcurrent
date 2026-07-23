@@ -75,9 +75,111 @@ X-Content-Type-Options: nosniff`);
     const result = finding(report, "secure-cookie-prefixes");
 
     expect(result.state).toBe("invalid");
-    expect(result.evidence).toBe("1 prefixed cookies; 1 invalid");
+    expect(result.evidence).toBe("1 prefixed cookies; 1 invalid; 0 malformed attribute sets");
     expect(JSON.stringify(result)).not.toContain("__Host-private");
     expect(JSON.stringify(result)).not.toContain("secret");
+  });
+
+  it("keeps report-only CSP separate from enforced policy", () => {
+    const report = inspectHeaders(
+      parseHeaderBlock(
+        "Content-Security-Policy-Report-Only: default-src 'self'; script-src 'nonce-abc123'; base-uri 'none'"
+      )
+    );
+
+    expect(finding(report, "content-security-policy").state).toBe("report_only");
+    expect(finding(report, "csp-nonces").state).toBe("report_only");
+    expect(finding(report, "csp-base-uri").state).toBe("report_only");
+    expect(report.summary.reportOnly).toBeGreaterThanOrEqual(3);
+  });
+
+  it("checks CSP hashes only in effective script and style source lists", () => {
+    const irrelevant = inspectHeaders(
+      parseHeaderBlock("Content-Security-Policy: img-src 'sha256-YWJj'")
+    );
+    const fallback = inspectHeaders(
+      parseHeaderBlock("Content-Security-Policy: default-src 'sha256-YWJj'")
+    );
+
+    expect(finding(irrelevant, "csp-hashes").state).toBe("missing");
+    expect(finding(fallback, "csp-hashes").state).toBe("observed");
+  });
+
+  it("does not overstate hash evidence across multiple enforced CSP policies", () => {
+    const report = inspectHeaders({
+      schemaVersion: 1,
+      name: "Intersecting CSP policies",
+      headers: {
+        "Content-Security-Policy": ["script-src 'sha256-YWJj'", "script-src 'self'"]
+      }
+    });
+
+    expect(finding(report, "content-security-policy").state).toBe("observed");
+    expect(finding(report, "csp-hashes").state).toBe("inconclusive");
+    expect(report.summary.inconclusive).toBeGreaterThanOrEqual(1);
+  });
+
+  it("validates HSTS directives without treating max-age zero as protection", () => {
+    const disabled = inspectHeaders(parseHeaderBlock("Strict-Transport-Security: max-age=0"));
+    const duplicate = inspectHeaders(
+      parseHeaderBlock("Strict-Transport-Security: max-age=31536000; max-age=60")
+    );
+    const unknown = inspectHeaders(
+      parseHeaderBlock("Strict-Transport-Security: max-age=31536000; invented")
+    );
+
+    expect(finding(disabled, "strict-transport-security").state).toBe("missing");
+    expect(finding(duplicate, "strict-transport-security").state).toBe("invalid");
+    expect(finding(unknown, "strict-transport-security").state).toBe("invalid");
+  });
+
+  it("accepts reporting parameters on COOP and COEP while preserving the base value", () => {
+    const report = inspectHeaders(
+      parseHeaderBlock(`Cross-Origin-Opener-Policy: same-origin; report-to="endpoint"
+Cross-Origin-Embedder-Policy: credentialless; report-to=endpoint`)
+    );
+
+    expect(finding(report, "cross-origin-opener-policy").state).toBe("observed");
+    expect(finding(report, "cross-origin-embedder-policy").state).toBe("observed");
+    expect(finding(report, "coep-credentialless").state).toBe("observed");
+  });
+
+  it("validates Permissions Policy structure and duplicate directives", () => {
+    const valid = inspectHeaders(
+      parseHeaderBlock('Permissions-Policy: camera=(), geolocation=(self "https://maps.example")')
+    );
+    const invalidAllowlist = inspectHeaders(parseHeaderBlock("Permissions-Policy: camera=(self*)"));
+    const duplicate = inspectHeaders(
+      parseHeaderBlock("Permissions-Policy: camera=(), camera=(self)")
+    );
+
+    expect(finding(valid, "permissions-policy").state).toBe("observed");
+    expect(finding(invalidAllowlist, "permissions-policy").state).toBe("invalid");
+    expect(finding(duplicate, "permissions-policy").state).toBe("invalid");
+  });
+
+  it("validates cookie attributes and the expanded prefix family", () => {
+    const invalidAttributes = inspectHeaders(
+      parseHeaderBlock(`Set-Cookie: first=secret; SameSite=None
+Set-Cookie: second=secret; Partitioned`)
+    );
+    const validPrefixes = inspectHeaders(
+      parseHeaderBlock(`Set-Cookie: __Http-one=secret; Secure; HttpOnly
+Set-Cookie: __Host-Http-two=secret; Secure; HttpOnly; Path=/`)
+    );
+    const partialCoverage = inspectHeaders(
+      parseHeaderBlock(`Set-Cookie: first=secret; Secure; HttpOnly; SameSite=Lax
+Set-Cookie: second=secret; Secure`)
+    );
+
+    expect(finding(invalidAttributes, "samesite-cookies").state).toBe("invalid");
+    expect(finding(invalidAttributes, "partitioned-cookies").state).toBe("invalid");
+    expect(finding(validPrefixes, "secure-cookie-prefixes").state).toBe("observed");
+    expect(finding(partialCoverage, "samesite-cookies").state).toBe("inconclusive");
+    expect(finding(partialCoverage, "httponly-cookies").state).toBe("inconclusive");
+    expect(JSON.stringify(validPrefixes)).not.toContain("__Http-one");
+    expect(JSON.stringify(validPrefixes)).not.toContain("__Host-Http-two");
+    expect(JSON.stringify(validPrefixes)).not.toContain("secret");
   });
 
   it("refuses credentials, folded lines, and oversized input", () => {

@@ -390,7 +390,14 @@ export const headerSnapshotSchema = z
   });
 export type HeaderSnapshot = z.infer<typeof headerSnapshotSchema>;
 
-export const assuranceStateSchema = z.enum(["observed", "missing", "invalid", "not_evaluated"]);
+export const assuranceStateSchema = z.enum([
+  "observed",
+  "missing",
+  "invalid",
+  "not_evaluated",
+  "report_only",
+  "inconclusive"
+]);
 export type AssuranceState = z.infer<typeof assuranceStateSchema>;
 
 export const assuranceFindingSchema = z
@@ -406,7 +413,7 @@ export type AssuranceFinding = z.infer<typeof assuranceFindingSchema>;
 
 export const assuranceReportSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     name: z.string().min(1).max(80),
     inputHeaderCount: z.number().int().min(0).max(64),
     recognisedHeaderCount: z.number().int().min(0).max(64),
@@ -415,7 +422,9 @@ export const assuranceReportSchema = z
         observed: z.number().int().min(0).max(64),
         missing: z.number().int().min(0).max(64),
         invalid: z.number().int().min(0).max(64),
-        notEvaluated: z.number().int().min(0).max(64)
+        notEvaluated: z.number().int().min(0).max(64),
+        reportOnly: z.number().int().min(0).max(64),
+        inconclusive: z.number().int().min(0).max(64)
       })
       .strict(),
     findings: z.array(assuranceFindingSchema).max(64)

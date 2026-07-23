@@ -88,7 +88,9 @@ X-Content-Type-Options: nosniff`;
     observed: "Observed",
     missing: "Not observed",
     invalid: "Invalid or ambiguous",
-    not_evaluated: "Not evaluated"
+    not_evaluated: "Not evaluated",
+    report_only: "Report only",
+    inconclusive: "Needs review"
   } as const;
 
   function stat(value: number, label: string): HTMLElement {
@@ -107,6 +109,8 @@ X-Content-Type-Options: nosniff`;
       stat(report.summary.observed, "controls with observed evidence"),
       stat(report.summary.missing, "controls not observed"),
       stat(report.summary.invalid, "invalid or ambiguous observations"),
+      stat(report.summary.reportOnly, "controls present only in report-only policy"),
+      stat(report.summary.inconclusive, "controls needing contextual review"),
       stat(report.summary.notEvaluated, "controls outside header evidence")
     );
     findings!.replaceChildren();

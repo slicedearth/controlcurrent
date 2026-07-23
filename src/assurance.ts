@@ -12,6 +12,7 @@ export const MAX_HEADER_BLOCK_BYTES = 64 * 1_024;
 const RECOGNIZED_HEADERS = new Set([
   "clear-site-data",
   "content-security-policy",
+  "content-security-policy-report-only",
   "cross-origin-embedder-policy",
   "cross-origin-opener-policy",
   "cross-origin-resource-policy",
@@ -32,9 +33,21 @@ const SENSITIVE_REQUEST_HEADERS = new Set([
 
 type NormalisedHeaders = Map<string, string[]>;
 type CspPolicy = Map<string, string[]>;
+type CspParseResult =
+  | { state: "missing" }
+  | { state: "invalid"; summary: string }
+  | { state: "present"; policies: CspPolicy[]; directiveCount: number };
 
 function byteLength(value: string): number {
   return new TextEncoder().encode(value).byteLength;
+}
+
+function hasAsciiControl(value: string): boolean {
+  for (let index = 0; index < value.length; index += 1) {
+    const codeUnit = value.charCodeAt(index);
+    if (codeUnit <= 31 || codeUnit === 127) return true;
+  }
+  return false;
 }
 
 function appendHeader(headers: Record<string, string[]>, name: string, value: string): void {
@@ -131,13 +144,8 @@ function singleton(headers: NormalisedHeaders, name: string) {
   return { state: "present" as const, value: values[0] ?? "" };
 }
 
-function parseCsp(
-  headers: NormalisedHeaders
-):
-  | { state: "missing" }
-  | { state: "invalid"; summary: string }
-  | { state: "present"; policies: CspPolicy[]; directiveCount: number } {
-  const values = headers.get("content-security-policy");
+function parseCsp(headers: NormalisedHeaders, headerName: string): CspParseResult {
+  const values = headers.get(headerName);
   if (!values) return { state: "missing" };
   const policies: CspPolicy[] = [];
   let directiveCount = 0;
@@ -165,75 +173,159 @@ function parseCsp(
 }
 
 function cspDirectiveFinding(
-  csp: ReturnType<typeof parseCsp>,
+  enforced: CspParseResult,
+  reportOnly: CspParseResult,
   controlId: string,
   directive: string
 ): AssuranceFinding {
-  if (csp.state === "missing") {
+  if (enforced.state === "invalid") {
+    return finding(controlId, "invalid", ["content-security-policy"], enforced.summary);
+  }
+  if (reportOnly.state === "invalid") {
     return finding(
       controlId,
-      "missing",
-      ["content-security-policy"],
-      `The ${directive} directive was not observed because CSP is absent.`
+      "invalid",
+      ["content-security-policy-report-only"],
+      reportOnly.summary
     );
   }
-  if (csp.state === "invalid") {
-    return finding(controlId, "invalid", ["content-security-policy"], csp.summary);
-  }
-  const present = csp.policies.some((policy) => policy.has(directive));
+  const present =
+    enforced.state === "present" && enforced.policies.some((policy) => policy.has(directive));
+  const reported =
+    reportOnly.state === "present" && reportOnly.policies.some((policy) => policy.has(directive));
   return finding(
     controlId,
-    present ? "observed" : "missing",
-    ["content-security-policy"],
+    present ? "observed" : reported ? "report_only" : "missing",
+    present
+      ? ["content-security-policy"]
+      : reported
+        ? ["content-security-policy-report-only"]
+        : ["content-security-policy"],
     present
       ? `CSP declares the ${directive} directive.`
-      : `CSP does not declare the ${directive} directive.`,
+      : reported
+        ? `Report-only CSP declares ${directive}, but it is not enforced.`
+        : `CSP does not declare the ${directive} directive.`,
     present ? `${directive} present` : undefined
   );
 }
 
+const SCRIPT_SOURCE_CHAINS = [
+  ["script-src-elem", "script-src", "default-src"],
+  ["script-src", "default-src"]
+] as const;
+const STYLE_SOURCE_CHAINS = [
+  ["style-src-elem", "style-src", "default-src"],
+  ["style-src", "default-src"]
+] as const;
+
+function effectiveDirectiveTokens(
+  policy: CspPolicy,
+  chains: readonly (readonly string[])[]
+): string[][] {
+  return chains.flatMap((chain) => {
+    const directive = chain.find((candidate) => policy.has(candidate));
+    return directive ? [policy.get(directive) ?? []] : [];
+  });
+}
+
+function cspHasToken(
+  result: CspParseResult,
+  chains: readonly (readonly string[])[],
+  predicate: (token: string) => boolean
+): boolean {
+  return (
+    result.state === "present" &&
+    result.policies.some((policy) =>
+      effectiveDirectiveTokens(policy, chains).some((tokens) => tokens.some(predicate))
+    )
+  );
+}
+
 function cspTokenFinding(
-  csp: ReturnType<typeof parseCsp>,
+  enforced: CspParseResult,
+  reportOnly: CspParseResult,
   controlId: string,
+  chains: readonly (readonly string[])[],
   predicate: (token: string) => boolean,
   label: string
 ): AssuranceFinding {
-  if (csp.state === "missing") {
-    return finding(controlId, "missing", ["content-security-policy"], `${label} was not observed.`);
+  if (enforced.state === "invalid") {
+    return finding(controlId, "invalid", ["content-security-policy"], enforced.summary);
   }
-  if (csp.state === "invalid") {
-    return finding(controlId, "invalid", ["content-security-policy"], csp.summary);
+  if (reportOnly.state === "invalid") {
+    return finding(
+      controlId,
+      "invalid",
+      ["content-security-policy-report-only"],
+      reportOnly.summary
+    );
   }
-  const present = csp.policies.some((policy) =>
-    [...policy.values()].some((tokens) => tokens.some(predicate))
-  );
+  const present = cspHasToken(enforced, chains, predicate);
+  const reported = cspHasToken(reportOnly, chains, predicate);
+  const multiplePolicies = enforced.state === "present" && enforced.policies.length > 1;
   return finding(
     controlId,
-    present ? "observed" : "missing",
-    ["content-security-policy"],
-    present ? `${label} was declared in CSP.` : `${label} was not declared in CSP.`
+    present && multiplePolicies
+      ? "inconclusive"
+      : present
+        ? "observed"
+        : reported
+          ? "report_only"
+          : "missing",
+    present
+      ? ["content-security-policy"]
+      : reported
+        ? ["content-security-policy-report-only"]
+        : ["content-security-policy"],
+    present && multiplePolicies
+      ? `${label} is declared, but effective authorisation depends on the intersection of ${String(enforced.policies.length)} enforced policies.`
+      : present
+        ? `${label} was declared in an applicable CSP source list.`
+        : reported
+          ? `${label} appears only in report-only CSP and is not enforced.`
+          : `${label} was not declared in an applicable CSP source list.`
   );
 }
 
 function cspDirectiveTokenFinding(
-  csp: ReturnType<typeof parseCsp>,
+  enforced: CspParseResult,
+  reportOnly: CspParseResult,
   controlId: string,
   directive: string,
   predicate: (token: string) => boolean,
   label: string
 ): AssuranceFinding {
-  if (csp.state === "missing") {
-    return finding(controlId, "missing", ["content-security-policy"], `${label} was not observed.`);
+  if (enforced.state === "invalid") {
+    return finding(controlId, "invalid", ["content-security-policy"], enforced.summary);
   }
-  if (csp.state === "invalid") {
-    return finding(controlId, "invalid", ["content-security-policy"], csp.summary);
+  if (reportOnly.state === "invalid") {
+    return finding(
+      controlId,
+      "invalid",
+      ["content-security-policy-report-only"],
+      reportOnly.summary
+    );
   }
-  const present = csp.policies.some((policy) => (policy.get(directive) ?? []).some(predicate));
+  const present =
+    enforced.state === "present" &&
+    enforced.policies.some((policy) => (policy.get(directive) ?? []).some(predicate));
+  const reported =
+    reportOnly.state === "present" &&
+    reportOnly.policies.some((policy) => (policy.get(directive) ?? []).some(predicate));
   return finding(
     controlId,
-    present ? "observed" : "missing",
-    ["content-security-policy"],
-    present ? `${label} was declared in CSP.` : `${label} was not declared in CSP.`
+    present ? "observed" : reported ? "report_only" : "missing",
+    present
+      ? ["content-security-policy"]
+      : reported
+        ? ["content-security-policy-report-only"]
+        : ["content-security-policy"],
+    present
+      ? `${label} was declared in enforced CSP.`
+      : reported
+        ? `${label} appears only in report-only CSP and is not enforced.`
+        : `${label} was not declared in CSP.`
   );
 }
 
@@ -241,7 +333,8 @@ function enumHeaderFinding(
   headers: NormalisedHeaders,
   controlId: string,
   headerName: string,
-  accepted: readonly string[]
+  accepted: readonly string[],
+  allowReportTo = false
 ): AssuranceFinding {
   const header = singleton(headers, headerName);
   if (header.state === "missing") {
@@ -250,13 +343,23 @@ function enumHeaderFinding(
   if (header.state === "invalid") {
     return finding(controlId, "invalid", [headerName], header.summary);
   }
-  const normalised = header.value.trim().toLowerCase();
-  if (!accepted.includes(normalised)) {
+  const [rawValue = "", ...rawParameters] = header.value.split(";");
+  const normalised = rawValue.trim().toLowerCase();
+  const parameters = rawParameters.map((value) => value.trim()).filter(Boolean);
+  const validParameters =
+    parameters.length === 0 ||
+    (allowReportTo &&
+      parameters.every(
+        (parameter) =>
+          !hasAsciiControl(parameter) &&
+          /^report-to=(?:"[^"]{1,256}"|[A-Za-z0-9!#$%&'*+\-.^_`|~]{1,256})$/u.test(parameter)
+      ));
+  if (!accepted.includes(normalised) || !validParameters) {
     return finding(
       controlId,
       "invalid",
       [headerName],
-      `${headerName} does not contain a recognised value.`
+      `${headerName} does not contain a recognised value or parameter set.`
     );
   }
   return finding(
@@ -264,7 +367,7 @@ function enumHeaderFinding(
     "observed",
     [headerName],
     `${headerName} contains a recognised value.`,
-    normalised
+    parameters.length > 0 ? `${normalised}; report-to present` : normalised
   );
 }
 
@@ -286,8 +389,21 @@ function hstsFinding(headers: NormalisedHeaders): AssuranceFinding {
       header.summary
     );
   }
-  const directives = header.value.split(";").map((value) => value.trim());
-  const maxAge = directives.find((value) => /^max-age=/iu.test(value))?.split("=")[1];
+  const directives = header.value
+    .split(";")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const directiveNames = directives.map((value) => value.split("=", 1)[0]?.toLowerCase() ?? "");
+  if (new Set(directiveNames).size !== directiveNames.length) {
+    return finding(
+      "strict-transport-security",
+      "invalid",
+      ["strict-transport-security"],
+      "Strict-Transport-Security repeats a directive."
+    );
+  }
+  const maxAgeDirective = directives.find((value) => /^max-age=/iu.test(value));
+  const maxAge = maxAgeDirective?.slice(maxAgeDirective.indexOf("=") + 1);
   if (!maxAge || !/^\d+$/u.test(maxAge)) {
     return finding(
       "strict-transport-security",
@@ -296,12 +412,32 @@ function hstsFinding(headers: NormalisedHeaders): AssuranceFinding {
       "Strict-Transport-Security lacks a numeric max-age directive."
     );
   }
+  const unknown = directives.filter(
+    (value) => !/^max-age=\d+$/iu.test(value) && !/^(?:includesubdomains|preload)$/iu.test(value)
+  );
+  if (unknown.length > 0) {
+    return finding(
+      "strict-transport-security",
+      "invalid",
+      ["strict-transport-security"],
+      "Strict-Transport-Security contains an unrecognised directive."
+    );
+  }
   const lowered = directives.map((value) => value.toLowerCase());
+  if (/^0+$/u.test(maxAge)) {
+    return finding(
+      "strict-transport-security",
+      "missing",
+      ["strict-transport-security"],
+      "Strict-Transport-Security declares max-age=0 and requests removal of stored HSTS state.",
+      "max-age 0"
+    );
+  }
   return finding(
     "strict-transport-security",
     "observed",
     ["strict-transport-security"],
-    "Strict-Transport-Security contains a numeric max-age.",
+    "Strict-Transport-Security requests a positive max-age; delivery over authenticated HTTPS was not established.",
     `max-age ${maxAge}; includeSubDomains ${String(lowered.includes("includesubdomains"))}; preload ${String(lowered.includes("preload"))}`
   );
 }
@@ -385,6 +521,50 @@ function referrerPolicyFinding(headers: NormalisedHeaders): AssuranceFinding {
   );
 }
 
+function splitStructuredList(value: string): string[] | undefined {
+  const parts: string[] = [];
+  let current = "";
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (const character of value) {
+    if (escaped) {
+      current += character;
+      escaped = false;
+      continue;
+    }
+    if (quoted && character === "\\") {
+      current += character;
+      escaped = true;
+      continue;
+    }
+    if (character === '"') quoted = !quoted;
+    if (!quoted && character === "(") depth += 1;
+    if (!quoted && character === ")") depth -= 1;
+    if (depth < 0) return undefined;
+    if (!quoted && depth === 0 && character === ",") {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += character;
+  }
+  if (quoted || depth !== 0 || escaped) return undefined;
+  parts.push(current.trim());
+  return parts;
+}
+
+function validPermissionsAllowlist(value: string): boolean {
+  const normalised = value.trim();
+  if (hasAsciiControl(normalised)) return false;
+  return (
+    normalised === "" ||
+    /^(?:\*|self|src|"(?:[^"\\]|\\["\\])*")(?:\s+(?:\*|self|src|"(?:[^"\\]|\\["\\])*"))*$/u.test(
+      normalised
+    )
+  );
+}
+
 function permissionsPolicyFinding(headers: NormalisedHeaders): AssuranceFinding {
   const header = singleton(headers, "permissions-policy");
   if (header.state === "missing") {
@@ -398,20 +578,36 @@ function permissionsPolicyFinding(headers: NormalisedHeaders): AssuranceFinding 
   if (header.state === "invalid") {
     return finding("permissions-policy", "invalid", ["permissions-policy"], header.summary);
   }
-  const directives = header.value
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-  if (
-    directives.length === 0 ||
-    directives.some((value) => !/^[a-z][a-z0-9-]*\s*=\s*\([^)]*\)$/iu.test(value))
-  ) {
+  const directives = splitStructuredList(header.value)?.filter(Boolean);
+  if (!directives || directives.length === 0) {
     return finding(
       "permissions-policy",
       "invalid",
       ["permissions-policy"],
       "Permissions-Policy contains an unrecognised directive shape."
     );
+  }
+  const names = new Set<string>();
+  for (const directive of directives) {
+    const match = /^([a-z][a-z0-9-]*)\s*=\s*\((.*)\)$/iu.exec(directive);
+    if (!match || !validPermissionsAllowlist(match[2] ?? "")) {
+      return finding(
+        "permissions-policy",
+        "invalid",
+        ["permissions-policy"],
+        "Permissions-Policy contains an invalid directive or allowlist."
+      );
+    }
+    const name = (match[1] ?? "").toLowerCase();
+    if (names.has(name)) {
+      return finding(
+        "permissions-policy",
+        "invalid",
+        ["permissions-policy"],
+        "Permissions-Policy repeats a directive."
+      );
+    }
+    names.add(name);
   }
   return finding(
     "permissions-policy",
@@ -425,10 +621,13 @@ function permissionsPolicyFinding(headers: NormalisedHeaders): AssuranceFinding 
 type CookieSummary = {
   total: number;
   sameSite: number;
+  invalidSameSite: number;
   partitioned: number;
+  invalidPartitioned: number;
   httpOnly: number;
   prefixCookies: number;
   invalidPrefixCookies: number;
+  malformedAttributes: number;
 };
 
 function summariseCookies(headers: NormalisedHeaders): CookieSummary {
@@ -436,10 +635,13 @@ function summariseCookies(headers: NormalisedHeaders): CookieSummary {
   const summary: CookieSummary = {
     total: 0,
     sameSite: 0,
+    invalidSameSite: 0,
     partitioned: 0,
+    invalidPartitioned: 0,
     httpOnly: 0,
     prefixCookies: 0,
-    invalidPrefixCookies: 0
+    invalidPrefixCookies: 0,
+    malformedAttributes: 0
   };
   for (const value of values) {
     const [pair = "", ...rawAttributes] = value.split(";");
@@ -447,22 +649,59 @@ function summariseCookies(headers: NormalisedHeaders): CookieSummary {
     if (separator <= 0) continue;
     summary.total += 1;
     const name = pair.slice(0, separator).trim();
-    const attributes = rawAttributes.map((attribute) => attribute.trim().toLowerCase());
-    const hasSecure = attributes.includes("secure");
-    const hasHttpOnly = attributes.includes("httponly");
-    const hasPartitioned = attributes.includes("partitioned");
-    const hasSameSite = attributes.some((attribute) => attribute.startsWith("samesite="));
-    if (hasSameSite) summary.sameSite += 1;
-    if (hasPartitioned) summary.partitioned += 1;
+    const attributes = new Map<string, string | undefined>();
+    let duplicateAttribute = false;
+    for (const rawAttribute of rawAttributes) {
+      const normalised = rawAttribute.trim();
+      if (!normalised) continue;
+      const attributeSeparator = normalised.indexOf("=");
+      const attributeName = (
+        attributeSeparator === -1 ? normalised : normalised.slice(0, attributeSeparator)
+      ).toLowerCase();
+      const attributeValue =
+        attributeSeparator === -1 ? undefined : normalised.slice(attributeSeparator + 1).trim();
+      if (!/^[!#$%&'*+.^_`|~0-9a-z-]+$/u.test(attributeName) || attributes.has(attributeName)) {
+        duplicateAttribute = true;
+        continue;
+      }
+      attributes.set(attributeName, attributeValue);
+    }
+    if (duplicateAttribute) summary.malformedAttributes += 1;
+    const hasSecure = attributes.has("secure") && attributes.get("secure") === undefined;
+    const hasHttpOnly = attributes.has("httponly") && attributes.get("httponly") === undefined;
+    const hasPartitioned =
+      attributes.has("partitioned") && attributes.get("partitioned") === undefined;
+    const sameSiteValue = attributes.get("samesite")?.toLowerCase();
+    const hasSameSite = attributes.has("samesite");
+    if (hasSameSite) {
+      summary.sameSite += 1;
+      if (
+        !sameSiteValue ||
+        !["strict", "lax", "none"].includes(sameSiteValue) ||
+        (sameSiteValue === "none" && !hasSecure)
+      ) {
+        summary.invalidSameSite += 1;
+      }
+    }
+    if (hasPartitioned) {
+      summary.partitioned += 1;
+      if (!hasSecure) summary.invalidPartitioned += 1;
+    }
     if (hasHttpOnly) summary.httpOnly += 1;
-    if (name.startsWith("__Host-") || name.startsWith("__Secure-")) {
+    if (
+      name.startsWith("__Host-Http-") ||
+      name.startsWith("__Http-") ||
+      name.startsWith("__Host-") ||
+      name.startsWith("__Secure-")
+    ) {
       summary.prefixCookies += 1;
-      const hostValid =
-        !name.startsWith("__Host-") ||
-        (hasSecure &&
-          attributes.includes("path=/") &&
-          !attributes.some((attribute) => attribute.startsWith("domain=")));
-      if (!hasSecure || !hostValid) summary.invalidPrefixCookies += 1;
+      const hostScoped = name.startsWith("__Host-");
+      const httpBound = name.startsWith("__Http-") || name.startsWith("__Host-Http-");
+      const valid =
+        hasSecure &&
+        (!httpBound || hasHttpOnly) &&
+        (!hostScoped || (attributes.get("path") === "/" && !attributes.has("domain")));
+      if (!valid) summary.invalidPrefixCookies += 1;
     }
   }
   return summary;
@@ -472,6 +711,7 @@ function cookieFinding(
   cookies: CookieSummary,
   controlId: string,
   observed: number,
+  invalid: number,
   label: string,
   optional: boolean
 ): AssuranceFinding {
@@ -491,6 +731,24 @@ function cookieFinding(
       `No ${label} cookie was declared; this response may not require one.`
     );
   }
+  if (invalid > 0 || cookies.malformedAttributes > 0) {
+    return finding(
+      controlId,
+      "invalid",
+      ["set-cookie"],
+      `${label} evidence contains invalid or duplicate attributes.`,
+      `${String(observed)} observed; ${String(invalid)} invalid; ${String(cookies.malformedAttributes)} malformed attribute sets`
+    );
+  }
+  if (!optional && observed > 0 && observed < cookies.total) {
+    return finding(
+      controlId,
+      "inconclusive",
+      ["set-cookie"],
+      `${label} was present on only some cookies in this response; cookie purpose and route coverage require review.`,
+      `${String(observed)} of ${String(cookies.total)} cookies`
+    );
+  }
   return finding(
     controlId,
     observed > 0 ? "observed" : "missing",
@@ -504,35 +762,53 @@ function cookieFinding(
 
 export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
   const { snapshot, headers } = normalisedHeaders(snapshotInput);
-  const csp = parseCsp(headers);
+  const csp = parseCsp(headers, "content-security-policy");
+  const reportOnlyCsp = parseCsp(headers, "content-security-policy-report-only");
   const cookies = summariseCookies(headers);
   const byControl = new Map<string, AssuranceFinding>();
 
   byControl.set(
     "content-security-policy",
-    csp.state === "missing"
-      ? finding(
-          "content-security-policy",
-          "missing",
-          ["content-security-policy"],
-          "Content-Security-Policy was not observed."
-        )
-      : csp.state === "invalid"
-        ? finding("content-security-policy", "invalid", ["content-security-policy"], csp.summary)
-        : finding(
+    csp.state === "invalid"
+      ? finding("content-security-policy", "invalid", ["content-security-policy"], csp.summary)
+      : reportOnlyCsp.state === "invalid"
+        ? finding(
             "content-security-policy",
-            "observed",
-            ["content-security-policy"],
-            "Content-Security-Policy contains parseable directives.",
-            `${String(csp.policies.length)} policies and ${String(csp.directiveCount)} directives`
+            "invalid",
+            ["content-security-policy-report-only"],
+            reportOnlyCsp.summary
           )
+        : csp.state === "missing" && reportOnlyCsp.state === "present"
+          ? finding(
+              "content-security-policy",
+              "report_only",
+              ["content-security-policy-report-only"],
+              "Only report-only CSP was observed; it does not enforce restrictions.",
+              `${String(reportOnlyCsp.policies.length)} report-only policies`
+            )
+          : csp.state === "missing"
+            ? finding(
+                "content-security-policy",
+                "missing",
+                ["content-security-policy"],
+                "Content-Security-Policy was not observed."
+              )
+            : finding(
+                "content-security-policy",
+                "observed",
+                ["content-security-policy"],
+                "Content-Security-Policy contains parseable directives.",
+                `${String(csp.policies.length)} policies and ${String(csp.directiveCount)} directives`
+              )
   );
   byControl.set(
     "csp-nonces",
     cspTokenFinding(
       csp,
+      reportOnlyCsp,
       "csp-nonces",
-      (token) => token.toLowerCase().startsWith("'nonce-"),
+      [...SCRIPT_SOURCE_CHAINS, ...STYLE_SOURCE_CHAINS],
+      (token) => /^'nonce-[A-Za-z0-9+/_-]+={0,2}'$/u.test(token),
       "A CSP nonce source expression"
     )
   );
@@ -540,8 +816,10 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
     "csp-hashes",
     cspTokenFinding(
       csp,
+      reportOnlyCsp,
       "csp-hashes",
-      (token) => /^'(?:sha256|sha384|sha512)-/iu.test(token),
+      [...SCRIPT_SOURCE_CHAINS, ...STYLE_SOURCE_CHAINS],
+      (token) => /^'(?:sha256|sha384|sha512)-[A-Za-z0-9+/_-]+={0,2}'$/u.test(token),
       "A CSP hash source expression"
     )
   );
@@ -549,7 +827,9 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
     "strict-dynamic",
     cspTokenFinding(
       csp,
+      reportOnlyCsp,
       "strict-dynamic",
+      SCRIPT_SOURCE_CHAINS,
       (token) => token.toLowerCase() === "'strict-dynamic'",
       "The CSP strict-dynamic source expression"
     )
@@ -561,12 +841,13 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
     ["csp-upgrade-insecure-requests", "upgrade-insecure-requests"],
     ["csp-sandbox", "sandbox"]
   ] as const) {
-    byControl.set(controlId, cspDirectiveFinding(csp, controlId, directive));
+    byControl.set(controlId, cspDirectiveFinding(csp, reportOnlyCsp, controlId, directive));
   }
   byControl.set(
     "trusted-types",
     cspDirectiveTokenFinding(
       csp,
+      reportOnlyCsp,
       "trusted-types",
       "require-trusted-types-for",
       (token) => token.toLowerCase() === "'script'",
@@ -584,19 +865,22 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
   );
   byControl.set(
     "cross-origin-opener-policy",
-    enumHeaderFinding(headers, "cross-origin-opener-policy", "cross-origin-opener-policy", [
-      "same-origin",
-      "same-origin-allow-popups",
-      "noopener-allow-popups"
-    ])
+    enumHeaderFinding(
+      headers,
+      "cross-origin-opener-policy",
+      "cross-origin-opener-policy",
+      ["same-origin", "same-origin-allow-popups", "noopener-allow-popups"],
+      true
+    )
   );
-  byControl.set(
+  const coepFinding = enumHeaderFinding(
+    headers,
     "cross-origin-embedder-policy",
-    enumHeaderFinding(headers, "cross-origin-embedder-policy", "cross-origin-embedder-policy", [
-      "require-corp",
-      "credentialless"
-    ])
+    "cross-origin-embedder-policy",
+    ["require-corp", "credentialless"],
+    true
   );
+  byControl.set("cross-origin-embedder-policy", coepFinding);
   byControl.set(
     "cross-origin-resource-policy",
     enumHeaderFinding(headers, "cross-origin-resource-policy", "cross-origin-resource-policy", [
@@ -606,22 +890,29 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
     ])
   );
   const coep = singleton(headers, "cross-origin-embedder-policy");
+  const coepValue =
+    coep.state === "present" ? (coep.value.split(";", 1)[0]?.trim().toLowerCase() ?? "") : "";
   byControl.set(
     "coep-credentialless",
-    coep.state === "missing"
+    coepFinding.state === "missing"
       ? finding(
           "coep-credentialless",
           "missing",
           ["cross-origin-embedder-policy"],
           "COEP credentialless was not observed."
         )
-      : coep.state === "invalid"
-        ? finding("coep-credentialless", "invalid", ["cross-origin-embedder-policy"], coep.summary)
+      : coepFinding.state === "invalid" || coep.state !== "present"
+        ? finding(
+            "coep-credentialless",
+            "invalid",
+            ["cross-origin-embedder-policy"],
+            coepFinding.summary
+          )
         : finding(
             "coep-credentialless",
-            coep.value.trim().toLowerCase() === "credentialless" ? "observed" : "missing",
+            coepValue === "credentialless" ? "observed" : "missing",
             ["cross-origin-embedder-policy"],
-            coep.value.trim().toLowerCase() === "credentialless"
+            coepValue === "credentialless"
               ? "Cross-Origin-Embedder-Policy declares credentialless."
               : "Cross-Origin-Embedder-Policy does not declare credentialless."
           )
@@ -649,15 +940,29 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
   byControl.set("referrer-policy", referrerPolicyFinding(headers));
   byControl.set(
     "samesite-cookies",
-    cookieFinding(cookies, "samesite-cookies", cookies.sameSite, "SameSite", false)
+    cookieFinding(
+      cookies,
+      "samesite-cookies",
+      cookies.sameSite,
+      cookies.invalidSameSite,
+      "SameSite",
+      false
+    )
   );
   byControl.set(
     "partitioned-cookies",
-    cookieFinding(cookies, "partitioned-cookies", cookies.partitioned, "Partitioned", true)
+    cookieFinding(
+      cookies,
+      "partitioned-cookies",
+      cookies.partitioned,
+      cookies.invalidPartitioned,
+      "Partitioned",
+      true
+    )
   );
   byControl.set(
     "httponly-cookies",
-    cookieFinding(cookies, "httponly-cookies", cookies.httpOnly, "HttpOnly", false)
+    cookieFinding(cookies, "httponly-cookies", cookies.httpOnly, 0, "HttpOnly", false)
   );
   byControl.set(
     "secure-cookie-prefixes",
@@ -666,16 +971,18 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
           "secure-cookie-prefixes",
           "not_evaluated",
           ["set-cookie"],
-          "No __Host- or __Secure- cookie name was present; prefix use is optional."
+          "No recognised secure cookie prefix was present; prefix use is optional."
         )
       : finding(
           "secure-cookie-prefixes",
-          cookies.invalidPrefixCookies === 0 ? "observed" : "invalid",
+          cookies.invalidPrefixCookies === 0 && cookies.malformedAttributes === 0
+            ? "observed"
+            : "invalid",
           ["set-cookie"],
-          cookies.invalidPrefixCookies === 0
+          cookies.invalidPrefixCookies === 0 && cookies.malformedAttributes === 0
             ? "Cookie prefix requirements were satisfied for every prefixed cookie."
-            : "One or more prefixed cookies did not satisfy their Secure, Path, or Domain requirements.",
-          `${String(cookies.prefixCookies)} prefixed cookies; ${String(cookies.invalidPrefixCookies)} invalid`
+            : "One or more prefixed cookies did not satisfy their Secure, HttpOnly, Path, or Domain requirements, or another cookie contained duplicate attributes.",
+          `${String(cookies.prefixCookies)} prefixed cookies; ${String(cookies.invalidPrefixCookies)} invalid; ${String(cookies.malformedAttributes)} malformed attribute sets`
         )
   );
   for (const controlId of [
@@ -711,7 +1018,7 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
   ).length;
 
   return assuranceReportSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: snapshot.name,
     inputHeaderCount: headers.size,
     recognisedHeaderCount,
@@ -719,7 +1026,9 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
       observed: findings.filter((result) => result.state === "observed").length,
       missing: findings.filter((result) => result.state === "missing").length,
       invalid: findings.filter((result) => result.state === "invalid").length,
-      notEvaluated: findings.filter((result) => result.state === "not_evaluated").length
+      notEvaluated: findings.filter((result) => result.state === "not_evaluated").length,
+      reportOnly: findings.filter((result) => result.state === "report_only").length,
+      inconclusive: findings.filter((result) => result.state === "inconclusive").length
     },
     findings
   });

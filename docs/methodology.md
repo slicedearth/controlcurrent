@@ -87,15 +87,19 @@ remains absent rather than being inferred from a nearby feature.
 ## Offline configuration evidence
 
 The optional inspector parses one supplied response-header block. It validates
-recognised CSP directives and source-expression shapes, cross-origin policy
-values, HSTS, response hardening headers, Permissions Policy, Referrer Policy,
-Clear-Site-Data, and selected cookie attributes.
+recognised CSP directives and source-expression shapes only in their applicable
+effective source-list chains, cross-origin policy values and reporting
+parameters, HSTS, response hardening headers, Permissions Policy, Referrer
+Policy, Clear-Site-Data, and selected cookie attributes.
 
 `observed` means only that the expected declaration or recognised syntax was
 present in that response. `missing` is an observation, not a universal
 recommendation: controls such as Clear-Site-Data and partitioned cookies are
-context-specific. `not_evaluated` is used when headers cannot establish a
-control, including SRI, Fetch Metadata request behaviour, and WebAuthn.
+context-specific. `report_only` keeps non-enforced CSP evidence separate.
+`inconclusive` identifies evidence that needs additional context, such as a
+token spread across multiple enforced policies or partial cookie coverage.
+`not_evaluated` is used when headers cannot establish a control, including SRI,
+Fetch Metadata request behaviour, and WebAuthn.
 
 The parser neither fetches a URL nor evaluates enforcement, origin coverage,
 route consistency, application behaviour, browser conformance, or rollout

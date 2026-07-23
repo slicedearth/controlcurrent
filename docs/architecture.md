@@ -132,7 +132,10 @@ The inspector:
 - stores no input;
 - renders findings with `textContent`;
 - omits raw header values, cookie names, and cookie values from reports;
-- distinguishes observed, not observed, invalid, and not evaluated states;
+- distinguishes observed, not observed, invalid, report-only, inconclusive, and
+  not evaluated states;
+- evaluates CSP source expressions only through applicable directive fallback
+  chains and does not merge multiple enforced policies optimistically;
 - evaluates only the final response block when a redirect-style paste contains
   more than one HTTP status line.
 

@@ -36,8 +36,10 @@ import Layout from "../components/Layout.astro";
     <h2>Mapping rule</h2>
     <p>
       A control may require one path or several. An <code>all</code> mapping is available only when every
-      path is available. A control remains <code>not mapped</code> when BCD cannot support the intended
-      claim. CSP nonces and CSP hashes are intentionally in that state in the current catalogue.
+      path is available. A control remains <code>without a standalone BCD mapping</code> when BCD cannot
+      support the intended claim. CSP nonces and CSP hashes are intentionally in that state in the current
+      catalogue, while the local evidence inspector can still identify their deployment syntax in an applicable
+      enforced CSP source list.
     </p>
 
     <h2>Support normalisation</h2>
@@ -60,7 +62,10 @@ import Layout from "../components/Layout.astro";
       </li>
       <li><strong>Removed:</strong> a required path was removed by the selected minimum.</li>
       <li><strong>Unknown:</strong> the source cannot support a comparable conclusion.</li>
-      <li><strong>Not mapped:</strong> the catalogue deliberately refuses an unsupported claim.</li>
+      <li>
+        <strong>No standalone BCD mapping:</strong> the catalogue deliberately refuses a compatibility
+        claim that BCD cannot express at the required granularity.
+      </li>
       <li>
         <strong>Source issue:</strong> the selected source subset and catalogue are inconsistent.
       </li>
@@ -76,10 +81,11 @@ import Layout from "../components/Layout.astro";
     <h2>Offline response-header assessment</h2>
     <p>
       The inspector parses one bounded, user-supplied final response. It makes no URL request and
-      reports only redacted evidence. “Observed” means recognizable syntax was present in that
-      response; it does not prove enforcement, coverage across routes, rollout safety, or runtime
-      behaviour. Controls that require HTML, DOM, request, WebAuthn, or conformance evidence remain
-      “not evaluated”.
+      reports only redacted evidence. “Observed” means recognizable syntax was present in an
+      applicable enforced policy or header in that response; it does not prove browser enforcement,
+      coverage across routes, rollout safety, or runtime behaviour. Report-only policy, incompatible
+      multiple-policy evidence, and controls requiring HTML, DOM, request, WebAuthn, or conformance
+      evidence remain explicitly separate.
     </p>
 
     <h2>Conformance evidence</h2>

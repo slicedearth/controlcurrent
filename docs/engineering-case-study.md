@@ -16,7 +16,7 @@ behaviour.
 ## Source contraction
 
 The full BCD and Web Platform Features packages are broad and change frequently.
-The importer narrows them to 33 exact paths selected by a 29-control catalogue.
+The importer narrows them to 34 exact paths selected by a 29-control catalogue.
 This creates a reviewable surface:
 
 - every path has a product reason;

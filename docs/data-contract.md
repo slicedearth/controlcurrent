@@ -114,14 +114,20 @@ reconstruct source versions that ControlCurrent never retained.
 
 Header snapshot schema 1 accepts a name and a bounded record of response-header
 values. Names are validated against the HTTP token grammar. `Authorization`,
-`Cookie`, and proxy credential fields are refused.
+`Cookie`, and proxy credential fields are refused. Assurance report schema 2
+keeps enforcement and uncertainty states distinct.
 
-Assurance findings use four states:
+Assurance findings use six states:
 
-- `observed`: recognised syntax was present in this response;
+- `observed`: recognised applicable syntax was present in an enforced policy or
+  response header;
 - `missing`: the relevant declaration was not present;
 - `invalid`: duplicate, malformed, or ambiguous evidence prevented a reliable
   observation;
+- `report_only`: the relevant CSP evidence appeared only in a report-only
+  policy and was not enforced;
+- `inconclusive`: bounded evidence was present but cannot support a single
+  conclusion without more context;
 - `not_evaluated`: response headers cannot establish the control, or the
   response did not contain the context needed for that check.
 
