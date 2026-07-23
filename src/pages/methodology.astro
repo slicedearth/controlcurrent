@@ -85,8 +85,9 @@ import Layout from "../components/Layout.astro";
       applicable enforced policy or header in that response; it does not prove browser enforcement,
       coverage across routes, rollout safety, or runtime behaviour. Report-only policy, incompatible
       multiple-policy evidence, and controls requiring another evidence surface remain explicitly
-      separate. A bounded bundle can add non-executing HTML/SRI, Fetch Metadata, and reduced
-      WebAuthn evidence while preserving those limits.
+      separate. A bounded bundle can add CSP-to-markup correlation, local SRI byte verification,
+      Fetch Metadata, reduced WebAuthn evidence, declared surface coverage, and deterministic
+      reduced-report comparison while preserving those limits.
     </p>
 
     <h2>Conformance evidence</h2>

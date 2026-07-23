@@ -1,4 +1,8 @@
-import { evidenceBundleReportSchema, profileEvaluationSchema } from "./contracts";
+import {
+  evidenceBundleReportSchema,
+  evidenceReportComparisonSchema,
+  profileEvaluationSchema
+} from "./contracts";
 import { canonicalJson } from "./canonical";
 
 export const MAX_EXPORT_BYTES = 512 * 1_024;
@@ -17,6 +21,15 @@ export function exportEvidenceBundleReport(input: unknown): string {
   const serialised = canonicalJson(report);
   if (new TextEncoder().encode(serialised).byteLength > MAX_EXPORT_BYTES) {
     throw new Error(`Evidence export exceeds the ${String(MAX_EXPORT_BYTES)}-byte limit.`);
+  }
+  return serialised;
+}
+
+export function exportEvidenceReportComparison(input: unknown): string {
+  const comparison = evidenceReportComparisonSchema.parse(input);
+  const serialised = canonicalJson(comparison);
+  if (new TextEncoder().encode(serialised).byteLength > MAX_EXPORT_BYTES) {
+    throw new Error(`Evidence comparison exceeds the ${String(MAX_EXPORT_BYTES)}-byte limit.`);
   }
   return serialised;
 }

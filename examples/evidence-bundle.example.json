@@ -1,6 +1,13 @@
 {
   "schemaVersion": 1,
   "name": "Example release candidate",
+  "surfaces": [
+    {
+      "id": "document",
+      "role": "document",
+      "requiredEvidence": ["response", "html", "request", "webauthn"]
+    }
+  ],
   "responses": [
     {
       "schemaVersion": 1,
@@ -32,6 +39,7 @@
     {
       "schemaVersion": 1,
       "name": "Navigation request",
+      "surfaceId": "document",
       "headers": {
         "Sec-Fetch-Site": "same-origin",
         "Sec-Fetch-Mode": "navigate",
@@ -44,6 +52,7 @@
     {
       "schemaVersion": 1,
       "name": "Passkey retrieval",
+      "surfaceId": "document",
       "operation": "get",
       "authenticatorAttachment": "platform",
       "userVerification": "required",

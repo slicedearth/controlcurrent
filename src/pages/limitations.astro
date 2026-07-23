@@ -60,12 +60,14 @@ import Layout from "../components/Layout.astro";
       <li>No website is scanned and no runtime behaviour is observed.</li>
       <li>
         The optional assessment sees only supplied evidence. A bundle can reveal variation among
-        included routes, but cannot establish coverage of routes, redirects, status codes, cached
-        responses, user states, or environments that were not supplied.
+        included routes and can identify missing evidence from a declared surface manifest, but it
+        cannot discover omitted routes, redirects, status codes, cached responses, user states, or
+        environments.
       </li>
       <li>
-        Recognised header and SRI syntax can be checked, but resource bytes are not fetched and no
-        result establishes complete correctness, rollout safety, or effective policy enforcement.
+        CSP can be correlated with supplied inline markup and bounded local resource bytes can be
+        checked against SRI metadata. Nothing is fetched, and no result establishes remote resource
+        identity, complete correctness, rollout safety, or effective browser enforcement.
       </li>
       <li>
         Fetch Metadata and WebAuthn inputs describe reduced configuration evidence; the tool does
@@ -79,17 +81,19 @@ import Layout from "../components/Layout.astro";
     <p>These are project self-assessments, not benchmark scores.</p>
     <ul>
       <li>
-        <strong>9/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
+        <strong>9.5/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
         WPT, policy-profile, and deployment-evidence layers are kept distinct.
       </li>
       <li>
-        <strong>8/10 as an engineering decision aid:</strong> bounded multi-route evidence, conservative
-        merging, local export, and transparent composite candidates support design and review decisions.
+        <strong>9/10 as an engineering decision aid:</strong> bounded multi-surface evidence, expected
+        coverage, deterministic regression reports, local export, and transparent composites support design
+        and CI review decisions.
       </li>
       <li>
-        <strong>4/10 as production security assurance:</strong> supplied evidence can reveal real configuration
-        gaps, but there is no authenticated collection, full route inventory, runtime enforcement test,
-        resource verification, adversarial test, or continuous monitoring.
+        <strong>5/10 as production security assurance:</strong> supplied policy, markup, and local resource
+        evidence can reveal real configuration gaps, but there is no authenticated collection, discovered
+        route inventory, runtime enforcement test, remote resource verification, adversarial test, or
+        continuous monitoring.
       </li>
     </ul>
   </article>

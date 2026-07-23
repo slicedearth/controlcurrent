@@ -37,11 +37,13 @@ import Layout from "../components/Layout.astro";
       finished.
     </p>
     <p>
-      Evidence bundles can also contain HTML, selected request headers, and reduced WebAuthn
-      configuration. Markup is parsed without execution or resource loading. Reduced reports omit
-      HTML, resource locations, request targets, credentials, cookie data, WebAuthn challenges,
-      relying-party identifiers, user identifiers, and credential identifiers. Labels remain in an
-      export, so keep them non-identifying.
+      Evidence bundles can also contain HTML, bounded local resource bytes, selected request
+      headers, reduced WebAuthn configuration, and an expected-surface manifest. Markup is parsed
+      without execution or resource loading. Resource bytes are hashed locally and omitted from
+      reports. Reduced reports also omit HTML, resource locations, inline content, CSP nonces and
+      hashes, request targets, credentials, cookie data, WebAuthn challenges, relying-party
+      identifiers, user identifiers, and credential identifiers. Labels and opaque surface IDs
+      remain in an export, so keep them non-identifying.
     </p>
 
     <h2>Network boundary</h2>

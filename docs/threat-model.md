@@ -83,6 +83,12 @@ values, or digest values. Request evidence refuses credentials, while the
 strict WebAuthn schema refuses challenges and relying-party, user, and
 credential identifiers.
 
+An expected-surface manifest can itself be incomplete or misleading. The tool
+therefore describes coverage only for declared opaque surfaces and never calls
+the manifest a discovered route inventory. Comparison refuses invalid or
+future report schemas and does not infer a resolution from absent,
+`not_evaluated`, or incomparable evidence.
+
 ## Build and workflow risks
 
 - The lockfile fixes dependency resolution.

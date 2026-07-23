@@ -56,6 +56,26 @@
     <div id="bundle-findings" class="results-list assurance-findings"></div>
     <h3>Evidence inventory</h3>
     <div id="bundle-inventory" class="results-list bundle-inventory"></div>
+    <details class="content-card comparison-panel header-form">
+      <summary>Compare with a previous reduced report</summary>
+      <p>
+        Paste an earlier exported report. Comparison uses normalised findings, composites, and
+        declared surface coverage only.
+      </p>
+      <label for="previous-report">Previous reduced report JSON</label>
+      <textarea id="previous-report" maxlength="1048576" rows="10" spellcheck="false"></textarea>
+      <div class="button-row">
+        <button type="button" class="button" id="compare-report">Compare reports</button>
+        <button type="button" class="button" id="export-comparison" disabled>
+          Export comparison
+        </button>
+      </div>
+      <p id="comparison-message" class="form-message" role="status" aria-live="polite"></p>
+      <div id="comparison-results" hidden>
+        <div id="comparison-summary" class="stats-grid"></div>
+        <div id="comparison-events" class="results-list"></div>
+      </div>
+    </details>
   </section>
 </section>
 
@@ -67,17 +87,26 @@
     CompositeAssessment,
     CspMarkupReport,
     EvidenceBundleReport,
+    EvidenceReportComparison,
     FetchMetadataReport,
     HtmlResourceReport,
     ResourceVerificationReport,
     WebauthnReport
   } from "../contracts";
+  import { compareEvidenceReports } from "../evidence-comparison";
   import { inspectEvidenceBundle } from "../evidence-bundle";
-  import { exportEvidenceBundleReport } from "../export";
+  import { exportEvidenceBundleReport, exportEvidenceReportComparison } from "../export";
 
   const example = {
     schemaVersion: 1,
     name: "Release candidate",
+    surfaces: [
+      {
+        id: "document",
+        role: "document",
+        requiredEvidence: ["response", "html", "request", "webauthn"]
+      }
+    ],
     responses: [
       {
         schemaVersion: 1,
@@ -112,6 +141,7 @@
       {
         schemaVersion: 1,
         name: "Navigation request",
+        surfaceId: "document",
         headers: {
           "Sec-Fetch-Site": "same-origin",
           "Sec-Fetch-Mode": "navigate",
@@ -124,6 +154,7 @@
       {
         schemaVersion: 1,
         name: "Passkey retrieval",
+        surfaceId: "document",
         operation: "get",
         authenticatorAttachment: "platform",
         userVerification: "required",
@@ -146,6 +177,13 @@
   const findings = document.querySelector<HTMLElement>("#bundle-findings");
   const inventory = document.querySelector<HTMLElement>("#bundle-inventory");
   const exportButton = document.querySelector<HTMLButtonElement>("#export-bundle");
+  const previousReportInput = document.querySelector<HTMLTextAreaElement>("#previous-report");
+  const compareButton = document.querySelector<HTMLButtonElement>("#compare-report");
+  const comparisonExportButton = document.querySelector<HTMLButtonElement>("#export-comparison");
+  const comparisonMessage = document.querySelector<HTMLElement>("#comparison-message");
+  const comparisonResults = document.querySelector<HTMLElement>("#comparison-results");
+  const comparisonSummary = document.querySelector<HTMLElement>("#comparison-summary");
+  const comparisonEvents = document.querySelector<HTMLElement>("#comparison-events");
 
   if (
     !form ||
@@ -158,7 +196,14 @@
     !composites ||
     !findings ||
     !inventory ||
-    !exportButton
+    !exportButton ||
+    !previousReportInput ||
+    !compareButton ||
+    !comparisonExportButton ||
+    !comparisonMessage ||
+    !comparisonResults ||
+    !comparisonSummary ||
+    !comparisonEvents
   ) {
     throw new Error("Evidence bundle controls are unavailable.");
   }
@@ -181,6 +226,7 @@
     not_evaluated: "Not evaluated"
   };
   let latestReport: EvidenceBundleReport | undefined;
+  let latestComparison: EvidenceReportComparison | undefined;
 
   function stat(value: number, label: string): HTMLElement {
     const card = document.createElement("div");
@@ -290,6 +336,24 @@
     );
   }
 
+  function surfaceInventory(report: EvidenceBundleReport["surfaceCoverage"][number]): HTMLElement {
+    return inventoryCard(
+      `Expected surface · ${report.surfaceId}`,
+      `${report.role} · ${report.state}`,
+      report.missingEvidence.length === 0
+        ? `Complete: ${report.observedEvidence.join(", ")}`
+        : `Missing: ${report.missingEvidence.join(", ")}`
+    );
+  }
+
+  function comparisonEventCard(event: EvidenceReportComparison["events"][number]): HTMLElement {
+    return inventoryCard(
+      event.type.replaceAll("_", " "),
+      event.key,
+      `${event.beforeState} → ${event.afterState} · ${event.summary}`
+    );
+  }
+
   function requestInventory(report: FetchMetadataReport): HTMLElement {
     return inventoryCard(
       report.name,
@@ -313,7 +377,9 @@
       stat(report.coverage.htmlDocuments, "HTML documents"),
       stat(report.coverage.resourceBytes, "local resource bodies"),
       stat(report.coverage.requests, "request snapshots"),
-      stat(report.coverage.webauthn, "WebAuthn configurations")
+      stat(report.coverage.webauthn, "WebAuthn configurations"),
+      stat(report.coverage.completeSurfaces, "complete expected surfaces"),
+      stat(report.coverage.surfaceGaps, "expected surface gaps")
     );
     summary!.replaceChildren(
       stat(report.summary.observed, "controls with consistent observed evidence"),
@@ -334,11 +400,18 @@
       ...report.htmlReports.map(htmlInventory),
       resourceVerificationInventory(report.resourceVerificationReport),
       ...report.cspMarkupReports.map(cspMarkupInventory),
+      ...report.surfaceCoverage.map(surfaceInventory),
       ...report.requestReports.map(requestInventory),
       ...report.webauthnReports.map(webauthnInventory)
     );
     source!.textContent = `${report.name} · reduced report only`;
     exportButton!.disabled = false;
+    latestComparison = undefined;
+    comparisonExportButton!.disabled = true;
+    comparisonResults!.hidden = true;
+    comparisonSummary!.replaceChildren();
+    comparisonEvents!.replaceChildren();
+    comparisonMessage!.textContent = "";
     results!.hidden = false;
   }
 
@@ -347,7 +420,7 @@
     try {
       render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown));
       message!.textContent =
-        "Bundle assessed locally. Raw HTML, resource locations, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
+        "Bundle assessed locally. Raw HTML, resource locations and bytes, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
     } catch (error) {
       latestReport = undefined;
       exportButton!.disabled = true;
@@ -376,9 +449,53 @@
     message!.textContent = "Reduced evidence report generated locally.";
   });
 
+  compareButton.addEventListener("click", async () => {
+    if (!latestReport) return;
+    try {
+      latestComparison = await compareEvidenceReports(
+        JSON.parse(previousReportInput!.value) as unknown,
+        latestReport
+      );
+      comparisonSummary!.replaceChildren(
+        stat(latestComparison.summary.regressions, "regressions"),
+        stat(latestComparison.summary.resolutions, "resolutions"),
+        stat(latestComparison.summary.changed, "other changes"),
+        stat(latestComparison.summary.incomparable, "incomparable changes")
+      );
+      comparisonEvents!.replaceChildren(...latestComparison.events.map(comparisonEventCard));
+      comparisonExportButton!.disabled = false;
+      comparisonResults!.hidden = false;
+      comparisonMessage!.textContent =
+        latestComparison.events.length === 0
+          ? "No normalised evidence changes were detected."
+          : `${String(latestComparison.events.length)} normalised evidence changes detected.`;
+    } catch (error) {
+      latestComparison = undefined;
+      comparisonExportButton!.disabled = true;
+      comparisonResults!.hidden = true;
+      comparisonMessage!.textContent =
+        error instanceof Error ? error.message : "The reports could not be compared.";
+    }
+  });
+
+  comparisonExportButton.addEventListener("click", () => {
+    if (!latestComparison) return;
+    const blob = new Blob([exportEvidenceReportComparison(latestComparison)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "controlcurrent-evidence-comparison.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    comparisonMessage!.textContent = "Reduced evidence comparison generated locally.";
+  });
+
   document.querySelector("#clear-bundle")?.addEventListener("click", () => {
     input!.value = "";
     latestReport = undefined;
+    latestComparison = undefined;
     exportButton!.disabled = true;
     results!.hidden = true;
     coverage!.replaceChildren();
@@ -386,6 +503,12 @@
     composites!.replaceChildren();
     findings!.replaceChildren();
     inventory!.replaceChildren();
+    previousReportInput!.value = "";
+    comparisonExportButton!.disabled = true;
+    comparisonResults!.hidden = true;
+    comparisonSummary!.replaceChildren();
+    comparisonEvents!.replaceChildren();
+    comparisonMessage!.textContent = "";
     message!.textContent = "Bundle input and reduced report cleared.";
     input!.focus();
   });

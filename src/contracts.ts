@@ -575,10 +575,50 @@ export const webauthnReportSchema = z
   .strict();
 export type WebauthnReport = z.infer<typeof webauthnReportSchema>;
 
+export const surfaceEvidenceKindSchema = z.enum([
+  "response",
+  "html",
+  "resource_bytes",
+  "request",
+  "webauthn"
+]);
+export type SurfaceEvidenceKind = z.infer<typeof surfaceEvidenceKindSchema>;
+
+export const expectedSurfaceSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    role: z.enum(["document", "api", "authentication", "logout", "embedded", "other"]),
+    requiredEvidence: z.array(surfaceEvidenceKindSchema).min(1).max(5)
+  })
+  .strict()
+  .superRefine((surface, context) => {
+    if (new Set(surface.requiredEvidence).size !== surface.requiredEvidence.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Required surface evidence kinds must be unique.",
+        path: ["requiredEvidence"]
+      });
+    }
+  });
+export type ExpectedSurface = z.infer<typeof expectedSurfaceSchema>;
+
+export const surfaceCoverageSchema = z
+  .object({
+    surfaceId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    role: z.enum(["document", "api", "authentication", "logout", "embedded", "other"]),
+    state: z.enum(["complete", "gap"]),
+    requiredEvidence: z.array(surfaceEvidenceKindSchema).min(1).max(5),
+    observedEvidence: z.array(surfaceEvidenceKindSchema).max(5),
+    missingEvidence: z.array(surfaceEvidenceKindSchema).max(5)
+  })
+  .strict();
+export type SurfaceCoverage = z.infer<typeof surfaceCoverageSchema>;
+
 export const evidenceBundleInputSchema = z
   .object({
     schemaVersion: z.literal(1),
     name: z.string().trim().min(1).max(80),
+    surfaces: z.array(expectedSurfaceSchema).max(32).default([]),
     responses: z.array(headerSnapshotSchema).max(16).default([]),
     htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
     resourceBytes: z.array(resourceBytesInputSchema).max(32).default([]),
@@ -587,6 +627,36 @@ export const evidenceBundleInputSchema = z
   })
   .strict()
   .superRefine((bundle, context) => {
+    const surfaceIds = bundle.surfaces.map((surface) => surface.id);
+    if (new Set(surfaceIds).size !== surfaceIds.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Expected surface IDs must be unique.",
+        path: ["surfaces"]
+      });
+    }
+    if (bundle.surfaces.length > 0) {
+      const known = new Set(surfaceIds);
+      const collections = [
+        ["responses", bundle.responses],
+        ["htmlDocuments", bundle.htmlDocuments],
+        ["resourceBytes", bundle.resourceBytes],
+        ["requests", bundle.requests],
+        ["webauthn", bundle.webauthn]
+      ] as const;
+      for (const [collectionName, observations] of collections) {
+        for (const [index, observation] of observations.entries()) {
+          if (!observation.surfaceId || !known.has(observation.surfaceId)) {
+            context.addIssue({
+              code: "custom",
+              message:
+                "Every observation must reference a declared surface when a surface manifest is present.",
+              path: [collectionName, index, "surfaceId"]
+            });
+          }
+        }
+      }
+    }
     if (
       bundle.responses.length +
         bundle.htmlDocuments.length +
@@ -616,7 +686,7 @@ export type CompositeAssessment = z.infer<typeof compositeAssessmentSchema>;
 
 export const evidenceBundleReportSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     name: z.string().min(1).max(80),
     coverage: z
       .object({
@@ -624,9 +694,13 @@ export const evidenceBundleReportSchema = z
         htmlDocuments: z.number().int().min(0).max(16),
         resourceBytes: z.number().int().min(0).max(32),
         requests: z.number().int().min(0).max(32),
-        webauthn: z.number().int().min(0).max(16)
+        webauthn: z.number().int().min(0).max(16),
+        expectedSurfaces: z.number().int().min(0).max(32),
+        completeSurfaces: z.number().int().min(0).max(32),
+        surfaceGaps: z.number().int().min(0).max(32)
       })
       .strict(),
+    surfaceCoverage: z.array(surfaceCoverageSchema).max(32),
     summary: z
       .object({
         observed: z.number().int().min(0).max(64),
@@ -648,3 +722,44 @@ export const evidenceBundleReportSchema = z
   })
   .strict();
 export type EvidenceBundleReport = z.infer<typeof evidenceBundleReportSchema>;
+
+export const evidenceComparisonEventSchema = z
+  .object({
+    id: z.string().regex(/^[a-f0-9]{24}$/u),
+    type: z.enum([
+      "finding_regressed",
+      "finding_resolved",
+      "finding_changed",
+      "composite_regressed",
+      "composite_resolved",
+      "composite_changed",
+      "surface_gap_added",
+      "surface_gap_resolved",
+      "surface_changed",
+      "evidence_became_incomparable"
+    ]),
+    key: z.string().min(1).max(160),
+    beforeState: z.string().min(1).max(40),
+    afterState: z.string().min(1).max(40),
+    summary: z.string().min(1).max(512)
+  })
+  .strict();
+export type EvidenceComparisonEvent = z.infer<typeof evidenceComparisonEventSchema>;
+
+export const evidenceReportComparisonSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    beforeName: z.string().min(1).max(80),
+    afterName: z.string().min(1).max(80),
+    summary: z
+      .object({
+        regressions: z.number().int().min(0).max(256),
+        resolutions: z.number().int().min(0).max(256),
+        changed: z.number().int().min(0).max(256),
+        incomparable: z.number().int().min(0).max(256)
+      })
+      .strict(),
+    events: z.array(evidenceComparisonEventSchema).max(256)
+  })
+  .strict();
+export type EvidenceReportComparison = z.infer<typeof evidenceReportComparisonSchema>;

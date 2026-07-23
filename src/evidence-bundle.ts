@@ -10,6 +10,7 @@ import {
   type HeaderSnapshot,
   type HtmlResourceReport,
   type ResourceVerificationReport,
+  type SurfaceCoverage,
   type WebauthnReport,
   assuranceFindingSchema,
   cspMarkupReportSchema,
@@ -596,6 +597,71 @@ async function cspMarkupReports(
   return reports.sort((left, right) => left.surfaceId.localeCompare(right.surfaceId));
 }
 
+function inspectSurfaceCoverage(
+  bundle: ReturnType<typeof evidenceBundleInputSchema.parse>
+): SurfaceCoverage[] {
+  const observed = new Map<string, Set<SurfaceCoverage["observedEvidence"][number]>>();
+  const add = (
+    surfaceId: string | undefined,
+    kind: SurfaceCoverage["observedEvidence"][number]
+  ): void => {
+    if (!surfaceId) return;
+    const kinds = observed.get(surfaceId) ?? new Set();
+    kinds.add(kind);
+    observed.set(surfaceId, kinds);
+  };
+  for (const item of bundle.responses) add(item.surfaceId, "response");
+  for (const item of bundle.htmlDocuments) add(item.surfaceId, "html");
+  for (const item of bundle.resourceBytes) add(item.surfaceId, "resource_bytes");
+  for (const item of bundle.requests) add(item.surfaceId, "request");
+  for (const item of bundle.webauthn) add(item.surfaceId, "webauthn");
+
+  return bundle.surfaces.map((surface) => {
+    const observedEvidence = [...(observed.get(surface.id) ?? new Set())].sort();
+    const missingEvidence = surface.requiredEvidence
+      .filter((kind) => !observedEvidence.includes(kind))
+      .sort();
+    return {
+      surfaceId: surface.id,
+      role: surface.role,
+      state: missingEvidence.length === 0 ? "complete" : "gap",
+      requiredEvidence: [...surface.requiredEvidence].sort(),
+      observedEvidence,
+      missingEvidence
+    };
+  });
+}
+
+function surfaceCoverageComposite(coverage: readonly SurfaceCoverage[]): CompositeAssessment {
+  const requirements = ["Every declared surface includes each required evidence kind"];
+  if (coverage.length === 0) {
+    return {
+      id: "expected-surface-coverage",
+      name: "Expected surface coverage",
+      state: "not_evaluated",
+      summary: "No expected-surface manifest was supplied.",
+      requirements
+    };
+  }
+  const gaps = coverage.filter((surface) => surface.state === "gap").length;
+  return gaps === 0
+    ? {
+        id: "expected-surface-coverage",
+        name: "Expected surface coverage",
+        state: "satisfied",
+        summary:
+          "Every declared surface includes its required evidence kinds; undeclared application surfaces remain outside this result.",
+        requirements
+      }
+    : {
+        id: "expected-surface-coverage",
+        name: "Expected surface coverage",
+        state: "gap",
+        summary: `${String(gaps)} of ${String(coverage.length)} declared surfaces are missing required evidence.`,
+        requirements
+      };
+}
+
 function requestHeaders(snapshotInput: unknown): {
   snapshot: HeaderSnapshot;
   headers: Map<string, string[]>;
@@ -1023,6 +1089,7 @@ export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBun
   const htmlReports = htmlAnalyses.map((analysis) => analysis.report);
   const resourceVerificationReport = await verifyResourceBytes(bundle, htmlAnalyses);
   const markupReports = await cspMarkupReports(bundle, htmlAnalyses);
+  const surfaceCoverage = inspectSurfaceCoverage(bundle);
   const requestReports = bundle.requests.map((request) => inspectFetchMetadata(request));
   const webauthnReports = bundle.webauthn.map((configuration) =>
     inspectWebauthnConfiguration(configuration)
@@ -1044,19 +1111,24 @@ export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBun
   const composites = [
     strictCspComposite(findings, markupReports),
     crossOriginComposite(responseReports),
-    cookieComposite(responseReports)
+    cookieComposite(responseReports),
+    surfaceCoverageComposite(surfaceCoverage)
   ];
 
   return evidenceBundleReportSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     name: bundle.name,
     coverage: {
       responses: responseReports.length,
       htmlDocuments: htmlReports.length,
       resourceBytes: bundle.resourceBytes.length,
       requests: requestReports.length,
-      webauthn: webauthnReports.length
+      webauthn: webauthnReports.length,
+      expectedSurfaces: surfaceCoverage.length,
+      completeSurfaces: surfaceCoverage.filter((surface) => surface.state === "complete").length,
+      surfaceGaps: surfaceCoverage.filter((surface) => surface.state === "gap").length
     },
+    surfaceCoverage,
     summary: {
       observed: findings.filter((result) => result.state === "observed").length,
       missing: findings.filter((result) => result.state === "missing").length,

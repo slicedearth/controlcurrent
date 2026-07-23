@@ -75,10 +75,15 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | HTML bytes per evidence bundle          |          512 KiB |
 | HTML elements per document              |            8,192 |
 | Eligible resources per HTML document    |              512 |
+| Expected surfaces per evidence bundle   |               32 |
+| Local resource bodies per bundle        |               32 |
+| Decoded bytes per local resource        |          256 KiB |
+| Decoded resource bytes per bundle       |            1 MiB |
 | Request snapshots per evidence bundle   |               32 |
 | WebAuthn configurations per bundle      |               16 |
-| Evidence bundle input                   |            1 MiB |
+| Evidence bundle input                   |            2 MiB |
 | Reduced evidence export                 |          512 KiB |
+| Reduced comparison events               |              256 |
 | WPT mappings                            |               64 |
 | WPT suites per control                  |                4 |
 | Public file                             |            2 MiB |
@@ -146,8 +151,11 @@ contain a raw header value, cookie name, or cookie value.
 
 ## Evidence bundle
 
-Evidence-bundle input schema 1 contains a bounded name and five optional
-collections:
+Evidence-bundle input schema 1 contains a bounded name, an optional manifest of
+up to 32 expected surfaces, and five optional collections:
+
+- expected surfaces with an opaque ID, semantic role, and unique required
+  evidence kinds;
 
 - response header snapshots using the established header schema;
 - HTML document inputs capped at 128 KiB each;
@@ -168,10 +176,18 @@ Fetch Metadata reports retain one reduced finding and counts. Credential
 headers are refused. WebAuthn reports retain only the explicit reduced
 configuration and three catalogue-aligned findings.
 
-Bundle report schema 2 merges applicable findings per control. Conflicting states
+Bundle report schema 3 merges applicable findings per control. Conflicting states
 become `inconclusive`; invalid evidence cannot be overridden by a favourable
-snapshot. Three project-authored composite candidates report `satisfied`,
+snapshot. Four project-authored composite candidates report `satisfied`,
 `review`, `gap`, or `not_evaluated` independently of browser compatibility.
+Surface coverage records contain only opaque IDs, roles, and required,
+observed, and missing evidence kinds.
+
+Evidence comparison schema 1 accepts two validated schema 3 reports and emits
+bounded deterministic events. It compares normalised control states, composite
+states, and expected-surface coverage. Events contain stable keys and
+before/after states, not original headers, HTML, resource data, or private
+identifiers.
 
 ## WPT evidence registry
 

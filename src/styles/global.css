@@ -846,6 +846,19 @@ select:disabled {
   margin-bottom: 2rem;
 }
 
+.comparison-panel {
+  margin-top: 2.5rem;
+}
+
+.comparison-panel > summary {
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.comparison-panel textarea {
+  min-height: 12rem;
+}
+
 .prose {
   max-width: 52rem;
   padding-bottom: 6rem;

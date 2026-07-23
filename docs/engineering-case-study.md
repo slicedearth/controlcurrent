@@ -16,7 +16,7 @@ behaviour.
 ## Source contraction
 
 The full BCD and Web Platform Features packages are broad and change frequently.
-The importer narrows them to 34 exact paths selected by a 29-control catalogue.
+The importer narrows them to 36 exact paths selected by a 30-control catalogue.
 This creates a reviewable surface:
 
 - every path has a product reason;
@@ -64,7 +64,7 @@ The catalogue now has a second evidence map for relevant Web Platform Tests.
 Every mapping is pinned to one WPT revision and records both what the suite
 exercises and what it cannot establish about a deployment.
 
-Twenty-seven controls have an exact suite mapping. HSTS and HttpOnly remain
+Twenty-eight controls have an exact suite mapping. HSTS and HttpOnly remain
 unmapped because a nearby HTTPS or cookie suite would overstate the evidence.
 Current wpt.fyi results are linked for investigation but not reduced to a pass
 percentage or used as a policy decision.
@@ -73,14 +73,20 @@ percentage or used as a policy decision.
 
 The local evidence bundle narrows the gap between compatibility and engineering
 review without introducing active collection. It combines several bounded
-response snapshots with non-executing HTML resource analysis, selected Fetch
-Metadata request context, and strict reduced WebAuthn configuration.
+response snapshots with non-executing HTML analysis, CSP-to-markup
+correlation, optional local SRI byte verification, selected Fetch Metadata
+request context, and strict reduced WebAuthn configuration.
 
 Raw HTML, resource locations, cookie identities, credentials, request targets,
 and WebAuthn identifiers never enter the reduced report. Conflicting route
 observations become `inconclusive`, invalid evidence cannot be hidden by a
 favourable snapshot, and composite deployment candidates remain separate from
 browser-support outcomes.
+
+An expected-surface manifest makes missing evidence explicit within an
+operator-declared scope. Deterministic comparison of two reduced reports then
+separates regressions, resolutions, other changes, and incomparable evidence
+without reintroducing raw inputs.
 
 ## Privacy through absence
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { csvSafeCell, exportEvidenceBundleReport, exportProfileEvaluation } from "../src/export";
+import {
+  csvSafeCell,
+  exportEvidenceBundleReport,
+  exportEvidenceReportComparison,
+  exportProfileEvaluation
+} from "../src/export";
+import { compareEvidenceReports } from "../src/evidence-comparison";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateProfile } from "../src/evaluate";
 import { feature, snapshot } from "./helpers";
@@ -44,5 +50,35 @@ describe("profile exports", () => {
     expect(exported).toContain('"eligibleResourceCount": 1');
     expect(exported).not.toContain("/private.js");
     expect(exportEvidenceBundleReport(report)).toBe(exported);
+  });
+
+  it("exports deterministic reduced evidence comparisons", async () => {
+    const before = await inspectEvidenceBundle({
+      schemaVersion: 1,
+      name: "Before",
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "Response",
+          headers: { "X-Content-Type-Options": "nosniff" }
+        }
+      ]
+    });
+    const after = await inspectEvidenceBundle({
+      schemaVersion: 1,
+      name: "After",
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "Response",
+          headers: { "Content-Security-Policy": "default-src 'none'" }
+        }
+      ]
+    });
+    const comparison = await compareEvidenceReports(before, after);
+    const exported = exportEvidenceReportComparison(comparison);
+
+    expect(exported).toContain('"schemaVersion": 1');
+    expect(exportEvidenceReportComparison(comparison)).toBe(exported);
   });
 });

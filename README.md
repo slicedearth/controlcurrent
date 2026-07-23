@@ -25,6 +25,10 @@ It is not a general compatibility index and it does not scan websites.
 - A bounded evidence bundle for route variation, CSP-to-markup correlation,
   local SRI byte verification, Fetch Metadata request context, and reduced
   WebAuthn configuration
+- An expected-surface manifest that distinguishes missing evidence from
+  unexamined application scope
+- Deterministic reduced-report comparison with explicit regressions,
+  resolutions, other changes, and incomparable evidence
 - Project-authored composite checks that keep candidate deployment recipes
   separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
@@ -119,20 +123,20 @@ silently becoming supported.
 
 ## Commands
 
-| Command                  | Purpose                                                              |
-| ------------------------ | -------------------------------------------------------------------- |
-| `npm run generate`       | Regenerate the selected BCD subset and append deterministic changes  |
-| `npm run generate:check` | Verify the selected subset matches the locked package                |
-| `npm run lint`           | Run strict ESLint checks                                             |
-| `npm run format:check`   | Verify repository formatting                                         |
-| `npm run typecheck`      | Type-check source, tools, and tests                                  |
-| `npm run check`          | Run Astro diagnostics                                                |
-| `npm run cli -- ...`     | Evaluate policies, explain controls, and calculate minimum baselines |
-| `npm test`               | Run fixture-driven unit tests with coverage                          |
-| `npm run build`          | Verify the source snapshot and build the static site                 |
-| `npm run audit:public`   | Inspect the public build for bounds and prohibited content           |
-| `npm run test:e2e`       | Run local browser and accessibility tests                            |
-| `npm run verify`         | Run the non-browser verification suite                               |
+| Command                  | Purpose                                                             |
+| ------------------------ | ------------------------------------------------------------------- |
+| `npm run generate`       | Regenerate the selected BCD subset and append deterministic changes |
+| `npm run generate:check` | Verify the selected subset matches the locked package               |
+| `npm run lint`           | Run strict ESLint checks                                            |
+| `npm run format:check`   | Verify repository formatting                                        |
+| `npm run typecheck`      | Type-check source, tools, and tests                                 |
+| `npm run check`          | Run Astro diagnostics                                               |
+| `npm run cli -- ...`     | Evaluate policies, inspect evidence, and compare reduced reports    |
+| `npm test`               | Run fixture-driven unit tests with coverage                         |
+| `npm run build`          | Verify the source snapshot and build the static site                |
+| `npm run audit:public`   | Inspect the public build for bounds and prohibited content          |
+| `npm run test:e2e`       | Run local browser and accessibility tests                           |
+| `npm run verify`         | Run the non-browser verification suite                              |
 
 Inspect a redacted local header snapshot:
 
@@ -148,6 +152,12 @@ Inspect a bounded multi-surface evidence bundle:
 
 ```sh
 npm run cli -- inspect-bundle examples/evidence-bundle.example.json --json
+```
+
+Compare two exported reduced reports and fail only for classified regressions:
+
+```sh
+npm run cli -- compare-reports before.json after.json --fail-regression --json
 ```
 
 The bundle command exits non-zero for invalid or inconsistent evidence. Add

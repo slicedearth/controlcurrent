@@ -72,6 +72,8 @@ identifiers, user identifiers, and credential identifiers.
 
 Bundle labels and reduced WebAuthn selections remain in exported reports. Use
 non-identifying labels and review a generated file before sharing it.
+Expected-surface IDs and roles also remain in reports. Report comparison uses
+only reduced exports and stores neither report.
 
 ## Source data
 

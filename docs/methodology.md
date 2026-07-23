@@ -144,6 +144,17 @@ cannot erase invalid evidence, and conflicting observed/missing states become
 attribute composites are transparent candidate recipes rather than
 certification or policy scores.
 
+An optional expected-surface manifest declares which opaque surfaces should
+have response, HTML, resource-byte, request, or WebAuthn evidence. Coverage is
+complete only for the declared manifest. A satisfied result never claims that
+the manifest contains every production route or user state.
+
+Reduced report comparison operates on normalised states only. Moving from an
+observed finding or satisfied composite to another conclusive state is a
+regression; the inverse is a resolution. Transitions involving
+`not_evaluated`, absent controls, or absent composites are incomparable rather
+than favourable or unfavourable. Surface gaps are compared separately.
+
 ## Conformance evidence
 
 Every control has one WPT evidence record. A mapped record identifies exact

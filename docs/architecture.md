@@ -156,6 +156,7 @@ bounded local inputs
       +--> in-memory CSP and SRI digest correlation
       +--> selected Sec-Fetch-* request reduction
       +--> strict reduced WebAuthn configuration
+      +--> expected-surface coverage
       |
       v
 per-surface redacted reports
@@ -165,6 +166,8 @@ control-level consistency merge
       |
       v
 project-authored composite candidates
+      |
+      +--> deterministic comparison with another reduced report
 ```
 
 The HTML parser retains only counts, recognised integrity algorithms, parse
@@ -180,6 +183,11 @@ Composite candidates are deterministic derived guidance. They do not change
 BCD compatibility outcomes and do not claim browser execution, remote resource
 identity, server-side enforcement, ceremony success, or complete route
 coverage.
+
+The optional surface manifest is an assertion supplied by the operator, not
+route discovery. It makes omitted required evidence visible within the stated
+scope while preserving opaque surface IDs. Report comparison consumes only
+validated reduced reports and cannot recover their original evidence.
 
 ## Conformance evidence boundary
 

@@ -6,6 +6,7 @@ import { canonicalJson } from "../src/canonical";
 import { selectedSnapshot } from "../src/data";
 import { browserIdSchema, policyProfileSchema } from "../src/contracts";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
+import { compareEvidenceReports } from "../src/evidence-comparison";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
 
@@ -17,7 +18,8 @@ function usage(): never {
   npm run cli -- minimum <control-id,...> [--browsers chrome,edge,...] [--allow-qualified] [--json]
   npm run cli -- explain <control-id> [--json]
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
-  npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]`);
+  npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
+  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]`);
   process.exitCode = 2;
   throw new Error("Invalid command.");
 }
@@ -162,6 +164,27 @@ async function inspectBundle(): Promise<void> {
   process.exitCode = failed ? 1 : 0;
 }
 
+async function compareReports(): Promise<void> {
+  const beforePath = process.argv[3] ?? usage();
+  const afterPath = process.argv[4] ?? usage();
+  const comparison = await compareEvidenceReports(
+    await readBoundedJson(beforePath, 1_024 * 1_024),
+    await readBoundedJson(afterPath, 1_024 * 1_024)
+  );
+  const failed = process.argv.includes("--fail-regression") && comparison.summary.regressions > 0;
+  if (process.argv.includes("--json")) {
+    process.stdout.write(canonicalJson(comparison));
+  } else {
+    console.log(
+      `${comparison.beforeName} to ${comparison.afterName}: ${String(comparison.summary.regressions)} regressions, ${String(comparison.summary.resolutions)} resolutions, ${String(comparison.summary.changed)} other changes, ${String(comparison.summary.incomparable)} incomparable`
+    );
+    for (const event of comparison.events) {
+      console.log(`- ${event.type.toUpperCase()} ${event.key}: ${event.summary}`);
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
 try {
   switch (process.argv[2]) {
     case "check":
@@ -178,6 +201,9 @@ try {
       break;
     case "inspect-bundle":
       await inspectBundle();
+      break;
+    case "compare-reports":
+      await compareReports();
       break;
     default:
       usage();

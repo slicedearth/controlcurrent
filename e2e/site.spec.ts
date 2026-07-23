@@ -27,7 +27,7 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
   await page.getByRole("button", { name: "Evaluate profile" }).click();
 
   await expect(page.getByRole("heading", { name: "Control availability" })).toBeVisible();
-  await expect(page.locator(".result-card")).toHaveCount(29);
+  await expect(page.locator(".result-card")).toHaveCount(30);
   await expect(page.getByText("Profile evaluated locally")).toBeVisible();
 
   await page.getByRole("button", { name: "Save locally" }).click();
@@ -89,8 +89,8 @@ test("shows pinned WPT mappings without fetching result data", async ({ page }) 
   await expect(
     page.getByRole("heading", { name: "Where browser behaviour is tested" })
   ).toBeVisible();
-  await expect(page.locator(".evidence-card")).toHaveCount(29);
-  await expect(page.getByText("27")).toBeVisible();
+  await expect(page.locator(".evidence-card")).toHaveCount(30);
+  await expect(page.getByText("28")).toBeVisible();
   await expect(page.getByText("af38980d")).toBeVisible();
   await expect(
     page.getByText("No nearby suite is substituted for the missing evidence.")
@@ -115,9 +115,9 @@ test("assesses and clears a redacted header snapshot without a network request",
   await page.getByRole("button", { name: "Assess headers" }).click();
 
   await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeVisible();
-  await expect(page.locator(".assurance-card")).toHaveCount(29);
+  await expect(page.locator(".assurance-card")).toHaveCount(30);
   await expect(page.getByText("Headers assessed locally")).toBeVisible();
-  await expect(page.getByText("19")).toBeVisible();
+  await expect(page.getByText("18")).toBeVisible();
   expect(externalRequests).toEqual([]);
 
   await page.getByRole("button", { name: "Clear" }).first().click();
@@ -144,6 +144,9 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     results.getByRole("heading", { name: "Cross-origin isolation header candidate" })
   ).toBeVisible();
   await expect(results.getByRole("heading", { name: "Cookie attribute coverage" })).toBeVisible();
+  await expect(results.getByRole("heading", { name: "Expected surface coverage" })).toBeVisible();
+  await expect(results.getByText("Complete: html, request, response, webauthn")).toBeVisible();
+  await expect(page.getByText("Compare with a previous reduced report")).toBeVisible();
   const reportText = await results.textContent();
   expect(reportText).not.toContain("/assets/app.css");
   expect(reportText).not.toContain("__Host-session");

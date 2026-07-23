@@ -123,6 +123,13 @@ describe("bounded evidence bundles", () => {
     const report = await inspectEvidenceBundle({
       schemaVersion: 1,
       name: "Release candidate",
+      surfaces: [
+        {
+          id: "document",
+          role: "document",
+          requiredEvidence: ["response", "html", "request", "webauthn"]
+        }
+      ],
       responses: [
         {
           schemaVersion: 1,
@@ -149,6 +156,7 @@ describe("bounded evidence bundles", () => {
         {
           schemaVersion: 1,
           name: "Navigation request",
+          surfaceId: "document",
           headers: {
             "Sec-Fetch-Site": "same-origin",
             "Sec-Fetch-Mode": "navigate",
@@ -160,6 +168,7 @@ describe("bounded evidence bundles", () => {
         {
           schemaVersion: 1,
           name: "Passkey retrieval",
+          surfaceId: "document",
           operation: "get",
           authenticatorAttachment: "platform",
           userVerification: "required",
@@ -176,7 +185,10 @@ describe("bounded evidence bundles", () => {
       htmlDocuments: 1,
       resourceBytes: 0,
       requests: 1,
-      webauthn: 1
+      webauthn: 1,
+      expectedSurfaces: 1,
+      completeSurfaces: 1,
+      surfaceGaps: 0
     });
     expect(finding(report, "csp-nonces").state).toBe("observed");
     expect(finding(report, "subresource-integrity").state).toBe("observed");
@@ -341,5 +353,56 @@ describe("bounded evidence bundles", () => {
 
     expect(finding(report, "content-security-policy").state).toBe("inconclusive");
     expect(finding(report, "x-content-type-options").state).toBe("inconclusive");
+  });
+
+  it("makes missing expected-surface evidence explicit", async () => {
+    const report = await inspectEvidenceBundle({
+      schemaVersion: 1,
+      name: "Incomplete manifest",
+      surfaces: [
+        {
+          id: "account",
+          role: "authentication",
+          requiredEvidence: ["response", "html", "request"]
+        }
+      ],
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "Account response",
+          surfaceId: "account",
+          headers: { "Content-Security-Policy": "default-src 'self'" }
+        }
+      ]
+    });
+
+    expect(report.coverage.surfaceGaps).toBe(1);
+    expect(report.surfaceCoverage[0]).toMatchObject({
+      surfaceId: "account",
+      state: "gap",
+      observedEvidence: ["response"],
+      missingEvidence: ["html", "request"]
+    });
+    expect(report.composites.find((item) => item.id === "expected-surface-coverage")?.state).toBe(
+      "gap"
+    );
+  });
+
+  it("refuses observations outside a declared surface manifest", async () => {
+    await expect(
+      inspectEvidenceBundle({
+        schemaVersion: 1,
+        name: "Unknown surface",
+        surfaces: [{ id: "expected", role: "document", requiredEvidence: ["response"] }],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Unexpected response",
+            surfaceId: "unexpected",
+            headers: { "X-Content-Type-Options": "nosniff" }
+          }
+        ]
+      })
+    ).rejects.toThrow(/declared surface/u);
   });
 });
