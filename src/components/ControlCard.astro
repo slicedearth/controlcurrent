@@ -1,0 +1,42 @@
+---
+import type { SecurityControl } from "../catalogue";
+import type { ControlEvaluation } from "../contracts";
+import OutcomeBadge from "./OutcomeBadge.astro";
+
+interface Props {
+  control: SecurityControl;
+  evaluations: readonly ControlEvaluation[];
+}
+
+const { control, evaluations } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+---
+
+<article class="control-card">
+  <div class="card-topline">
+    <span class="category">{control.category}</span>
+    <span class="mapping-count">
+      {
+        control.mappingState === "active"
+          ? `${control.bcdPaths.length} BCD path${control.bcdPaths.length === 1 ? "" : "s"}`
+          : "Mapping unavailable"
+      }
+    </span>
+  </div>
+  <h3><a href={`${base}/controls/${control.id}/`}>{control.name}</a></h3>
+  <p>{control.summary}</p>
+  <div class="mini-results" aria-label={`Current support summary for ${control.name}`}>
+    {
+      evaluations.map((evaluation) => (
+        <span>
+          <small>
+            {evaluation.browser === "firefox"
+              ? "Firefox"
+              : evaluation.browser[0]!.toUpperCase() + evaluation.browser.slice(1)}
+          </small>
+          <OutcomeBadge outcome={evaluation.outcome} />
+        </span>
+      ))
+    }
+  </div>
+</article>

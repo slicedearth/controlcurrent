@@ -1,0 +1,45 @@
+---
+import Layout from "../components/Layout.astro";
+---
+
+<Layout
+  title="Privacy"
+  description="ControlCurrent has no accounts, analytics, browser fingerprinting, or server-side profile storage."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Privacy by static architecture</span>
+    <h1>Your browser baseline stays in your browser</h1>
+    <p>
+      The deployed application has no account, analytics, advertising, telemetry, production API, or
+      application database.
+    </p>
+  </header>
+  <article class="shell prose">
+    <h2>Profile handling</h2>
+    <p>
+      A deployment profile is held in memory while the planner is open. It is written to one
+      bounded, versioned <code>localStorage</code> key only when you choose “Save locally”. You can clear
+      that value from the planner. Exported JSON is generated in the browser.
+    </p>
+
+    <h2>No browser detection</h2>
+    <p>
+      ControlCurrent does not read or retain the user-agent string, infer installed browser versions,
+      enumerate browser capabilities, or fingerprint the visitor. Browser minimums are explicit
+      inputs.
+    </p>
+
+    <h2>Network boundary</h2>
+    <p>
+      Compatibility data ships with the static site. The Content Security Policy denies runtime
+      connections, and the planner makes no fetch request. External documentation links use a
+      no-referrer policy.
+    </p>
+
+    <h2>Deletion</h2>
+    <p>
+      Use “Clear saved profile” in the planner or clear site storage in your browser. There is no
+      server copy to request or delete.
+    </p>
+  </article>
+</Layout>

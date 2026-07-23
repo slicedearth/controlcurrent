@@ -1,0 +1,32 @@
+---
+import Layout from "../../components/Layout.astro";
+import ControlCard from "../../components/ControlCard.astro";
+import { SECURITY_CONTROLS } from "../../catalogue";
+import { currentEvaluation } from "../../data";
+---
+
+<Layout
+  title="Security controls"
+  description="A curated catalogue of browser-enforced security and privacy controls mapped to MDN compatibility data."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Curated and versioned</span>
+    <h1>Security controls, not a general feature index</h1>
+    <p>
+      Each entry explains the threat classes it can help mitigate, what it cannot establish, its
+      deployment prerequisites, fallback posture, and the exact BCD paths used for calculation.
+    </p>
+  </header>
+  <section class="shell section">
+    <div class="control-grid">
+      {
+        SECURITY_CONTROLS.map((control) => (
+          <ControlCard
+            control={control}
+            evaluations={currentEvaluation.results[control.id] ?? []}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Layout>

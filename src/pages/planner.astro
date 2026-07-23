@@ -1,0 +1,21 @@
+---
+import Layout from "../components/Layout.astro";
+import Planner from "../components/Planner.astro";
+---
+
+<Layout
+  title="Deployment profile planner"
+  description="Evaluate selected browser minimums against a focused browser security control catalogue entirely in your browser."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">No detection · no telemetry · no server</span>
+    <h1>Evaluate an explicit browser baseline</h1>
+    <p>
+      The result is deterministic for the selected BCD and catalogue versions. It reports browser
+      availability and qualifications, not whether an application is securely configured.
+    </p>
+  </header>
+  <div class="shell">
+    <Planner />
+  </div>
+</Layout>

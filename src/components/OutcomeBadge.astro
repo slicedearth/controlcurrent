@@ -1,0 +1,16 @@
+---
+import type { Outcome } from "../contracts";
+import { outcomeLabels } from "../format";
+
+interface Props {
+  outcome: Outcome;
+  detail?: string;
+}
+
+const { outcome, detail } = Astro.props;
+---
+
+<span class:list={["outcome", `outcome--${outcome}`]} title={detail}>
+  <span aria-hidden="true"></span>
+  {outcomeLabels[outcome]}
+</span>

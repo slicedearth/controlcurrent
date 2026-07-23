@@ -1,0 +1,66 @@
+---
+import Layout from "../components/Layout.astro";
+import { selectedSnapshot } from "../data";
+import { formatDate } from "../format";
+---
+
+<Layout
+  title="Data and licensing"
+  description="ControlCurrent source provenance, selected data scope, and licensing."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Source governance</span>
+    <h1>One attributed source, a bounded selected subset</h1>
+    <p>
+      The deployed application contains the security-control slice needed for its calculations. It
+      does not republish the complete Browser Compatibility Data package.
+    </p>
+  </header>
+  <article class="shell prose">
+    <h2>Primary source</h2>
+    <dl>
+      <dt>Operator</dt>
+      <dd>MDN Web Docs Open Web Docs community project</dd>
+      <dt>Package</dt>
+      <dd><code>@mdn/browser-compat-data</code> {selectedSnapshot.bcdVersion}</dd>
+      <dt>Package timestamp</dt>
+      <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
+      <dt>Licence</dt>
+      <dd>CC0 1.0 Universal</dd>
+      <dt>Selected paths</dt>
+      <dd>{Object.keys(selectedSnapshot.features).length}</dd>
+      <dt>Schema fingerprint</dt>
+      <dd><code>{selectedSnapshot.schemaFingerprint}</code></dd>
+    </dl>
+    <p>
+      <a href="https://github.com/mdn/browser-compat-data" rel="noopener noreferrer">
+        View MDN Browser Compatibility Data
+      </a>
+    </p>
+
+    <h2>Retained fields</h2>
+    <ul>
+      <li>Selected feature paths, source files, MDN and specification URLs.</li>
+      <li>Support statements for Chrome, Edge, Firefox, and Safari.</li>
+      <li>Version added, removed, or last supported.</li>
+      <li>Partial implementation, flags, prefixes, alternative names, and bounded notes.</li>
+      <li>Browser release status and dates needed for explicit baseline selection.</li>
+      <li>BCD version, package timestamp, catalogue version, and schema fingerprint.</li>
+    </ul>
+
+    <h2>Not retained</h2>
+    <ul>
+      <li>The complete BCD dataset.</li>
+      <li>MDN article prose or diagrams.</li>
+      <li>Website observations, user-agent strings, visitor profiles, or analytics.</li>
+      <li>Market-share data or project-authored browser policy defaults.</li>
+    </ul>
+
+    <h2>Licence boundary</h2>
+    <p>
+      ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains
+      available under CC0. The project licence does not relicense upstream data, specifications, or
+      linked documentation.
+    </p>
+  </article>
+</Layout>

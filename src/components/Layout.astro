@@ -1,0 +1,99 @@
+---
+import "../styles/global.css";
+import { selectedSnapshot } from "../data";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const nav = [
+  { href: "/", label: "Overview" },
+  { href: "/controls/", label: "Controls" },
+  { href: "/matrix/", label: "Matrix" },
+  { href: "/planner/", label: "Planner" },
+  { href: "/changes/", label: "Changes" },
+  { href: "/methodology/", label: "Methodology" }
+];
+const pathWithBase = (path: string) => `${base}${path}`;
+---
+
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={pathWithBase("/favicon.svg")} type="image/svg+xml" />
+    <title>{title} · ControlCurrent</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href={pathWithBase("/")} aria-label="ControlCurrent home">
+          <span class="brand-mark" aria-hidden="true">DC</span>
+          <span>
+            <strong>ControlCurrent</strong>
+            <small>browser defence readiness</small>
+          </span>
+        </a>
+        <nav aria-label="Primary navigation">
+          <ul>
+            {
+              nav.map((item) => (
+                <li>
+                  <a
+                    href={pathWithBase(item.href)}
+                    aria-current={
+                      Astro.url.pathname === pathWithBase(item.href) ? "page" : undefined
+                    }
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer>
+      <div class="shell footer-grid">
+        <div>
+          <strong>ControlCurrent</strong>
+          <p>
+            Compatibility evidence for defensive browser controls, without telemetry or scanning.
+          </p>
+        </div>
+        <div>
+          <span class="eyebrow">Source baseline</span>
+          <p>
+            MDN BCD {selectedSnapshot.bcdVersion}<br />
+            Catalogue {selectedSnapshot.catalogueVersion}
+          </p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <a href={pathWithBase("/data/")}>Data &amp; licensing</a>
+          <a href={pathWithBase("/privacy/")}>Privacy</a>
+          <a href={pathWithBase("/limitations/")}>Limitations</a>
+          <a href={pathWithBase("/corrections/")}>Corrections</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

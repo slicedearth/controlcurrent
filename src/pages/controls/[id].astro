@@ -1,0 +1,122 @@
+---
+import Layout from "../../components/Layout.astro";
+import OutcomeBadge from "../../components/OutcomeBadge.astro";
+import { SECURITY_CONTROLS, type SecurityControl } from "../../catalogue";
+import { currentEvaluation, currentProfile, selectedSnapshot } from "../../data";
+import { browserNames } from "../../format";
+
+export function getStaticPaths() {
+  return SECURITY_CONTROLS.map((control) => ({
+    params: { id: control.id },
+    props: { control }
+  }));
+}
+
+interface Props {
+  control: SecurityControl;
+}
+
+const { control } = Astro.props;
+const evaluations = currentEvaluation.results[control.id] ?? [];
+---
+
+<Layout title={control.name} description={control.summary}>
+  <header class="shell page-header">
+    <span class="eyebrow">{control.category}</span>
+    <h1>{control.name}</h1>
+    <p>{control.summary}</p>
+  </header>
+  <div class="shell detail-grid">
+    <div>
+      <section class="content-card">
+        <h2>Current release channels</h2>
+        <p>
+          Evaluated against {currentProfile.name.toLowerCase()} in BCD {
+            selectedSnapshot.bcdVersion
+          }.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Browser</th>
+                <th scope="col">Minimum</th>
+                <th scope="col">Outcome</th>
+                <th scope="col">Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                evaluations.map((evaluation) => (
+                  <tr>
+                    <th scope="row">{browserNames[evaluation.browser]}</th>
+                    <td>{evaluation.minimumVersion}</td>
+                    <td>
+                      <OutcomeBadge outcome={evaluation.outcome} />
+                    </td>
+                    <td>{evaluation.explanation}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-card">
+        <h2>Defence boundary</h2>
+        <h3>Helps mitigate</h3>
+        <ul>{control.threatClasses.map((item) => <li>{item}</li>)}</ul>
+        <h3>Does not establish</h3>
+        <ul>{control.doesNotAddress.map((item) => <li>{item}</li>)}</ul>
+        <h3>Deployment prerequisites</h3>
+        <ul>{control.prerequisites.map((item) => <li>{item}</li>)}</ul>
+        <h3>Fallback posture</h3>
+        <p>{control.fallback}</p>
+      </section>
+    </div>
+
+    <aside>
+      <section class="content-card">
+        <span class="eyebrow">BCD mapping</span>
+        <h2>{control.mappingState === "active" ? "Mapped" : "Not mapped"}</h2>
+        {control.mappingNote && <p>{control.mappingNote}</p>}
+        {
+          control.bcdPaths.length > 0 ? (
+            control.bcdPaths.map((path) => {
+              const feature = selectedSnapshot.features[path];
+              return (
+                <div>
+                  <code class="source-path">{path}</code>
+                  {feature?.mdnUrl && (
+                    <p>
+                      <a href={feature.mdnUrl} rel="noopener noreferrer">
+                        MDN reference
+                      </a>
+                    </p>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <p>No standalone BCD path supports a responsible calculation.</p>
+          )
+        }
+      </section>
+      <section class="content-card">
+        <span class="eyebrow">Specifications</span>
+        <ul>
+          {
+            control.specificationUrls.map((url) => (
+              <li>
+                <a href={url} rel="noopener noreferrer">
+                  {new URL(url).hostname}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </aside>
+  </div>
+</Layout>

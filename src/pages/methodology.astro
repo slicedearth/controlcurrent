@@ -1,0 +1,83 @@
+---
+import Layout from "../components/Layout.astro";
+---
+
+<Layout
+  title="Methodology"
+  description="How ControlCurrent maps, normalises, and evaluates browser compatibility evidence."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Methodology</span>
+    <h1>A qualified answer is more useful than a confident guess</h1>
+    <p>
+      ControlCurrent selects a bounded security-specific subset of MDN BCD, validates every
+      configured path, and preserves the conditions attached to support statements.
+    </p>
+  </header>
+  <article class="shell prose">
+    <h2>Evidence layers</h2>
+    <p>The application keeps four statements separate:</p>
+    <ol>
+      <li><strong>Source data:</strong> BCD paths, browser statements, versions, and notes.</li>
+      <li><strong>Catalogue mapping:</strong> which source paths represent a security control.</li>
+      <li><strong>Calculation:</strong> whether a selected baseline meets every required path.</li>
+      <li>
+        <strong>Guidance:</strong> project-authored prerequisites, fallbacks, and limitations.
+      </li>
+    </ol>
+
+    <h2>Mapping rule</h2>
+    <p>
+      A control may require one path or several. An <code>all</code> mapping is available only when every
+      path is available. A control remains <code>not mapped</code> when BCD cannot support the intended
+      claim. CSP nonces and CSP hashes are intentionally in that state in the current catalogue.
+    </p>
+
+    <h2>Support normalisation</h2>
+    <p>
+      Support versions are compared as browser release version components, not floating-point
+      numbers. Exact support, removal, last-supported versions, imprecise upper-bound records, and
+      multiple statements are handled separately. Flags, partial implementations, prefixes,
+      alternative names, and notes produce a qualified result rather than disappearing into a
+      boolean.
+    </p>
+
+    <h2>Outcome meanings</h2>
+    <ul>
+      <li>
+        <strong>Available:</strong> every required path is available without a recorded qualification.
+      </li>
+      <li><strong>Qualified:</strong> available, with at least one source qualification.</li>
+      <li>
+        <strong>Unavailable:</strong> a required path is not supported at the selected minimum.
+      </li>
+      <li><strong>Removed:</strong> a required path was removed by the selected minimum.</li>
+      <li><strong>Unknown:</strong> the source cannot support a comparable conclusion.</li>
+      <li><strong>Not mapped:</strong> the catalogue deliberately refuses an unsupported claim.</li>
+      <li>
+        <strong>Source issue:</strong> the selected source subset and catalogue are inconsistent.
+      </li>
+    </ul>
+
+    <h2>Time semantics</h2>
+    <p>
+      The change feed records the BCD package timestamp and the version in which ControlCurrent first
+      observed a selected-subset change. It does not claim that a browser implementation changed at
+      that exact time.
+    </p>
+
+    <h2>Determinism and bounds</h2>
+    <p>
+      The locked package produces a canonical selected snapshot, schema fingerprint, sorted release
+      list, versioned catalogue mapping, and deterministic event identifiers. The importer caps
+      paths, statements, releases, strings, events, stored profiles, and exports. A missing
+      configured path fails generation instead of silently becoming available.
+    </p>
+
+    <div class="callout">
+      Browser compatibility cannot establish correct application configuration, complete
+      specification conformance, freedom from browser defects, or the adequacy of an organisation’s
+      security policy.
+    </div>
+  </article>
+</Layout>

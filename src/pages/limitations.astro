@@ -1,0 +1,54 @@
+---
+import Layout from "../components/Layout.astro";
+---
+
+<Layout
+  title="Limitations"
+  description="The explicit limits of browser compatibility evidence and ControlCurrent calculations."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Use the result as one input</span>
+    <h1>Compatibility is not a security verdict</h1>
+    <p>
+      ControlCurrent evaluates documented feature availability. It cannot inspect, test, approve, or
+      certify an application deployment.
+    </p>
+  </header>
+  <article class="shell prose">
+    <h2>Source limitations</h2>
+    <ul>
+      <li>
+        BCD is maintained compatibility data and can contain corrections or incomplete statements.
+      </li>
+      <li>
+        A support statement does not prove complete specification conformance or absence of defects.
+      </li>
+      <li>
+        The catalogue covers four desktop browser families, not every browser or embedded webview.
+      </li>
+      <li>Lower-level BCD paths can change and require deliberate catalogue review.</li>
+    </ul>
+
+    <h2>Calculation limitations</h2>
+    <ul>
+      <li>
+        Version comparison covers the numeric browser release forms used by the selected paths.
+      </li>
+      <li>Imprecise and unparseable support versions remain unknown or qualified.</li>
+      <li>
+        A multi-path mapping reflects the project-authored definition of a deployable control.
+      </li>
+      <li>Unsupported mappings are shown rather than approximated from a related feature.</li>
+    </ul>
+
+    <h2>Security limitations</h2>
+    <ul>
+      <li>No website is scanned and no response header or runtime behaviour is observed.</li>
+      <li>
+        No result establishes correct syntax, rollout safety, or effective policy enforcement.
+      </li>
+      <li>Fallback controls remain necessary for unsupported browsers and defence in depth.</li>
+      <li>No result should be treated as legal, compliance, or certification advice.</li>
+    </ul>
+  </article>
+</Layout>

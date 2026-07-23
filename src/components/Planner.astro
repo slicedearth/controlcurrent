@@ -1,0 +1,261 @@
+---
+import { selectedSnapshot } from "../data";
+import { browserNames } from "../format";
+
+const browsers = ["chrome", "edge", "firefox", "safari"] as const;
+---
+
+<section class="planner-panel" aria-labelledby="planner-heading">
+  <div class="planner-intro">
+    <span class="eyebrow">Runs in this browser only</span>
+    <h2 id="planner-heading">Define your minimum browser versions</h2>
+    <p>
+      Select only the browsers your application supports. ControlCurrent does not detect your
+      browser, send the profile to a server, or use market-share data.
+    </p>
+  </div>
+
+  <form id="profile-form" class="profile-form">
+    <label class="profile-name">
+      <span>Profile name</span>
+      <input name="profile-name" type="text" maxlength="80" value="Deployment profile" />
+    </label>
+    <div class="baseline-grid">
+      {
+        browsers.map((browser) => {
+          const releases = [...selectedSnapshot.browsers[browser].releases]
+            .filter((release) => ["current", "esr", "retired"].includes(release.status))
+            .reverse();
+          return (
+            <fieldset class="baseline-card">
+              <legend>{browserNames[browser]}</legend>
+              <label class="toggle-row">
+                <input type="checkbox" name={`include-${browser}`} />
+                <span>Include in profile</span>
+              </label>
+              <label>
+                <span>Minimum version</span>
+                <select name={`version-${browser}`} disabled>
+                  {releases.map((release) => (
+                    <option value={release.version}>
+                      {release.version}
+                      {release.status === "current"
+                        ? " · current"
+                        : release.status === "esr"
+                          ? " · ESR"
+                          : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </fieldset>
+          );
+        })
+      }
+    </div>
+    <div class="button-row">
+      <button type="submit" class="button button--primary">Evaluate profile</button>
+      <button type="button" class="button" id="load-example">Load example</button>
+      <button type="button" class="button" id="save-profile">Save locally</button>
+      <button type="button" class="button" id="clear-profile">Clear saved profile</button>
+      <button type="button" class="button" id="export-profile" disabled>Export JSON</button>
+    </div>
+    <p id="profile-message" class="form-message" role="status" aria-live="polite"></p>
+  </form>
+
+  <section id="profile-results" class="profile-results" aria-labelledby="results-heading" hidden>
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Calculated result</span>
+        <h2 id="results-heading">Control availability</h2>
+      </div>
+      <p id="results-source"></p>
+    </div>
+    <div id="results-list" class="results-list"></div>
+  </section>
+</section>
+
+<script>
+  import { SECURITY_CONTROLS } from "../catalogue";
+  import { selectedSnapshot } from "../data";
+  import type { BrowserId, ProfileEvaluation } from "../contracts";
+  import { evaluateProfile } from "../evaluate";
+  import { exportProfileEvaluation } from "../export";
+  import { clearProfile, loadProfile, saveProfile } from "../profile-storage";
+  import { browserNames, outcomeLabels } from "../format";
+
+  const browsers: readonly BrowserId[] = ["chrome", "edge", "firefox", "safari"];
+  const form = document.querySelector<HTMLFormElement>("#profile-form");
+  const message = document.querySelector<HTMLElement>("#profile-message");
+  const results = document.querySelector<HTMLElement>("#profile-results");
+  const resultsList = document.querySelector<HTMLElement>("#results-list");
+  const resultsSource = document.querySelector<HTMLElement>("#results-source");
+  const exportButton = document.querySelector<HTMLButtonElement>("#export-profile");
+  let latestEvaluation: ProfileEvaluation | undefined;
+
+  if (!form || !message || !results || !resultsList || !resultsSource || !exportButton) {
+    throw new Error("Planner controls are unavailable.");
+  }
+
+  function browserCheckbox(browser: BrowserId): HTMLInputElement {
+    const input = form!.elements.namedItem(`include-${browser}`);
+    if (!(input instanceof HTMLInputElement)) throw new Error(`Missing ${browser} toggle.`);
+    return input;
+  }
+
+  function browserSelect(browser: BrowserId): HTMLSelectElement {
+    const select = form!.elements.namedItem(`version-${browser}`);
+    if (!(select instanceof HTMLSelectElement)) throw new Error(`Missing ${browser} versions.`);
+    return select;
+  }
+
+  function profileName(): HTMLInputElement {
+    const input = form!.elements.namedItem("profile-name");
+    if (!(input instanceof HTMLInputElement)) throw new Error("Missing profile name.");
+    return input;
+  }
+
+  function readProfile() {
+    return {
+      schemaVersion: 1 as const,
+      name: profileName().value.trim(),
+      baselines: browsers.flatMap((browser) =>
+        browserCheckbox(browser).checked
+          ? [{ browser, minimumVersion: browserSelect(browser).value }]
+          : []
+      )
+    };
+  }
+
+  function applyProfile(profile: ReturnType<typeof readProfile>): void {
+    profileName().value = profile.name;
+    for (const browser of browsers) {
+      const baseline = profile.baselines.find((item) => item.browser === browser);
+      const checkbox = browserCheckbox(browser);
+      const select = browserSelect(browser);
+      checkbox.checked = Boolean(baseline);
+      select.disabled = !baseline;
+      if (
+        baseline &&
+        [...select.options].some((option) => option.value === baseline.minimumVersion)
+      ) {
+        select.value = baseline.minimumVersion;
+      }
+    }
+  }
+
+  function resultClass(outcome: string): string {
+    return `outcome outcome--${outcome}`;
+  }
+
+  function render(evaluation: ProfileEvaluation): void {
+    resultsList!.replaceChildren();
+    for (const control of SECURITY_CONTROLS) {
+      const article = document.createElement("article");
+      article.className = "result-card";
+      const header = document.createElement("div");
+      header.className = "result-card__header";
+      const heading = document.createElement("h3");
+      heading.textContent = control.name;
+      const category = document.createElement("span");
+      category.className = "category";
+      category.textContent = control.category;
+      header.append(heading, category);
+      article.append(header);
+
+      const evaluations = evaluation.results[control.id] ?? [];
+      const list = document.createElement("ul");
+      for (const item of evaluations) {
+        const row = document.createElement("li");
+        const browser = document.createElement("strong");
+        browser.textContent = `${browserNames[item.browser]} ${item.minimumVersion}`;
+        const badge = document.createElement("span");
+        badge.className = resultClass(item.outcome);
+        const dot = document.createElement("span");
+        dot.setAttribute("aria-hidden", "true");
+        badge.append(dot, document.createTextNode(outcomeLabels[item.outcome]));
+        const detail = document.createElement("p");
+        detail.textContent = item.explanation;
+        row.append(browser, badge, detail);
+        list.append(row);
+      }
+      article.append(list);
+      resultsList!.append(article);
+    }
+    resultsSource!.textContent = `BCD ${evaluation.bcdVersion} · catalogue ${evaluation.catalogueVersion}`;
+    results!.hidden = false;
+    exportButton!.disabled = false;
+    latestEvaluation = evaluation;
+  }
+
+  for (const browser of browsers) {
+    browserCheckbox(browser).addEventListener("change", () => {
+      browserSelect(browser).disabled = !browserCheckbox(browser).checked;
+    });
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    try {
+      const evaluation = evaluateProfile(selectedSnapshot, readProfile());
+      render(evaluation);
+      message!.textContent = "Profile evaluated locally. No data was sent anywhere.";
+    } catch (error) {
+      message!.textContent =
+        error instanceof Error ? error.message : "The profile could not be evaluated.";
+    }
+  });
+
+  document.querySelector("#load-example")?.addEventListener("click", () => {
+    applyProfile({
+      schemaVersion: 1,
+      name: "Example browser baseline",
+      baselines: [
+        { browser: "chrome", minimumVersion: "120" },
+        { browser: "edge", minimumVersion: "120" },
+        { browser: "firefox", minimumVersion: "115" },
+        { browser: "safari", minimumVersion: "17" }
+      ]
+    });
+    message!.textContent = "Example values loaded. Select Evaluate profile to calculate results.";
+  });
+
+  document.querySelector("#save-profile")?.addEventListener("click", () => {
+    try {
+      saveProfile(window.localStorage, readProfile());
+      message!.textContent = "Profile saved in this browser only.";
+    } catch (error) {
+      message!.textContent = error instanceof Error ? error.message : "Profile was not saved.";
+    }
+  });
+
+  document.querySelector("#clear-profile")?.addEventListener("click", () => {
+    clearProfile(window.localStorage);
+    message!.textContent = "Saved browser profile cleared.";
+  });
+
+  exportButton.addEventListener("click", () => {
+    if (!latestEvaluation) return;
+    const blob = new Blob([exportProfileEvaluation(latestEvaluation)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "controlcurrent-profile.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    message!.textContent = "Profile JSON generated locally.";
+  });
+
+  const stored = loadProfile(window.localStorage);
+  if (stored.state === "loaded") {
+    applyProfile(stored.profile);
+    message.textContent = "A saved local profile was loaded. Nothing was sent to a server.";
+  } else if (stored.state === "future_version") {
+    message.textContent =
+      "A newer saved profile was left untouched because this version cannot read it.";
+  } else if (stored.state === "invalid") {
+    message.textContent = "The saved local profile is invalid and was not loaded.";
+  }
+</script>

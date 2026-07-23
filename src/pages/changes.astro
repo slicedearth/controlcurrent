@@ -1,0 +1,49 @@
+---
+import Layout from "../components/Layout.astro";
+import { changeEvents, selectedSnapshot } from "../data";
+import { formatDate } from "../format";
+---
+
+<Layout
+  title="Compatibility changes"
+  description="Observed changes in the selected MDN BCD security-control subset and the ControlCurrent catalogue."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Versioned evidence</span>
+    <h1>Support data changes, without rewriting browser history</h1>
+    <p>
+      Events separate upstream BCD revisions, control-catalogue changes, browser release metadata,
+      and calculated deployment results. A source-data correction is not automatically a browser
+      regression or fix.
+    </p>
+  </header>
+  <section class="shell section">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow"
+          >{changeEvents.length} recorded event{changeEvents.length === 1 ? "" : "s"}</span
+        >
+        <h2>Selected-subset timeline</h2>
+      </div>
+      <p>Current source: MDN BCD {selectedSnapshot.bcdVersion}</p>
+    </div>
+    <ol class="event-list">
+      {
+        [...changeEvents].reverse().map((event) => (
+          <li>
+            <time datetime={event.sourceTimestamp}>{formatDate(event.sourceTimestamp)}</time>
+            <div>
+              <span class="category">{event.type.replaceAll("_", " ")}</span>
+              <h3>{event.summary}</h3>
+              {event.path && <code class="source-path">{event.path}</code>}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="callout">
+      This first release establishes a real BCD baseline. It does not invent historical events from
+      versions that ControlCurrent did not retain and compare.
+    </div>
+  </section>
+</Layout>

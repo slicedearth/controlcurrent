@@ -1,0 +1,136 @@
+---
+import Layout from "../components/Layout.astro";
+import ControlCard from "../components/ControlCard.astro";
+import { SECURITY_CONTROLS } from "../catalogue";
+import { currentEvaluation, currentProfile, selectedSnapshot } from "../data";
+import { formatDate } from "../format";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+const availableCount = SECURITY_CONTROLS.filter((control) =>
+  (currentEvaluation.results[control.id] ?? []).every(
+    (result) => result.outcome === "available_unqualified"
+  )
+).length;
+const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
+  (currentEvaluation.results[control.id] ?? []).some(
+    (result) => result.outcome === "available_with_qualification"
+  )
+).length;
+---
+
+<Layout
+  title="Browser defence compatibility"
+  description="Evaluate browser support for deployable web security controls without scanning, telemetry, or a server."
+>
+  <section class="shell hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Security compatibility, without false certainty</span>
+      <h1>Can your browser baseline carry the control?</h1>
+      <p>
+        ControlCurrent maps a focused catalogue of browser defences to exact MDN Browser
+        Compatibility Data paths, preserves support qualifications, and evaluates only the versions
+        you select.
+      </p>
+      <div class="hero-actions">
+        <a class="button button--primary" href={`${base}/planner/`}>Build a profile</a>
+        <a class="button" href={`${base}/methodology/`}>Read the methodology</a>
+      </div>
+    </div>
+    <aside class="hero-terminal" aria-label="Current data baseline">
+      <div class="terminal-title">
+        <i></i><i></i><i></i>
+        selected-bcd.json
+      </div>
+      <div class="terminal-body">
+        <dl>
+          <dt>BCD package</dt>
+          <dd>{selectedSnapshot.bcdVersion}</dd>
+          <dt>Source date</dt>
+          <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
+          <dt>Controls</dt>
+          <dd>{SECURITY_CONTROLS.length}</dd>
+          <dt>Exact paths</dt>
+          <dd>{Object.keys(selectedSnapshot.features).length}</dd>
+          <dt>Runtime API</dt>
+          <dd>none</dd>
+          <dt>Telemetry</dt>
+          <dd>none</dd>
+        </dl>
+      </div>
+    </aside>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <strong>{availableCount}</strong>
+          <span>controls unqualified across current release channels</span>
+        </div>
+        <div class="stat-card">
+          <strong>{qualifiedCount}</strong>
+          <span>controls with at least one BCD qualification</span>
+        </div>
+        <div class="stat-card">
+          <strong>4</strong>
+          <span>desktop browser families evaluated explicitly</span>
+        </div>
+        <div class="stat-card">
+          <strong>0</strong>
+          <span>visitor or website observations collected</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Current release channels</span>
+          <h2>Control catalogue</h2>
+        </div>
+        <p>
+          The cards use {
+            currentProfile.baselines
+              .map((item) => `${item.browser} ${item.minimumVersion}`)
+              .join(", ")
+          }. Compatibility is evidence about browser availability, not proof of a secure deployment.
+        </p>
+      </div>
+      <div class="control-grid">
+        {
+          SECURITY_CONTROLS.map((control) => (
+            <ControlCard
+              control={control}
+              evaluations={currentEvaluation.results[control.id] ?? []}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell detail-grid">
+      <div>
+        <span class="eyebrow">What this answers</span>
+        <h2>Availability, qualifications, and fallbacks</h2>
+        <p>
+          A deployment profile reports whether every mapped feature is available at each selected
+          browser minimum. Partial implementations, flags, prefixes, alternative names, notes,
+          removals, and unknown source values remain visible.
+        </p>
+      </div>
+      <div class="content-card">
+        <h3>What it does not answer</h3>
+        <ul>
+          <li>Whether your application configured the control correctly.</li>
+          <li>Whether a browser implementation is free of defects.</li>
+          <li>Whether other security controls can be removed.</li>
+          <li>Whether a selected browser policy is appropriate for an organisation.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Layout>

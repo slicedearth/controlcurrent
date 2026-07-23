@@ -1,0 +1,46 @@
+---
+import Layout from "../components/Layout.astro";
+import { currentProfile, selectedSnapshot } from "../data";
+import { browserNames, formatDate } from "../format";
+---
+
+<Layout
+  title="Browser releases"
+  description="The browser release metadata retained from the selected MDN BCD package."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Source release metadata</span>
+    <h1>Browser versions represented in this baseline</h1>
+    <p>
+      Release labels and dates are source metadata. ControlCurrent does not infer installed browser
+      versions, adoption, market share, or an organisation’s support policy.
+    </p>
+  </header>
+  <section class="shell section">
+    <div class="control-grid">
+      {
+        currentProfile.baselines.map((baseline) => {
+          const browser = selectedSnapshot.browsers[baseline.browser];
+          const recent = [...browser.releases].reverse().slice(0, 8);
+          return (
+            <article class="content-card">
+              <span class="eyebrow">{browser.id}</span>
+              <h2>{browserNames[baseline.browser]}</h2>
+              <p>
+                Current release in this BCD package: <strong>{baseline.minimumVersion}</strong>
+              </p>
+              <ul>
+                {recent.map((release) => (
+                  <li>
+                    {release.version} · {release.status}
+                    {release.releaseDate ? ` · ${formatDate(release.releaseDate)}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+</Layout>
