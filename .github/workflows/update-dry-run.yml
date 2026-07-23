@@ -1,0 +1,40 @@
+name: BCD update dry run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bcd-update-dry-run
+  cancel-in-progress: true
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify committed source selection
+        run: npm run generate:check
+
+      - name: Report current upstream package version
+        run: npm view @mdn/browser-compat-data version --json
+
+      - name: State dry-run boundary
+        run: |
+          echo "No package, data, issue, commit, push, workflow, or deployment was changed."
+          echo "Review a newer package locally before updating the lockfile and selected BCD subset."
