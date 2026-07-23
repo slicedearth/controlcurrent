@@ -73,6 +73,11 @@ import Layout from "../components/Layout.astro";
         Fetch Metadata and WebAuthn inputs describe reduced configuration evidence; the tool does
         not test server enforcement, authenticator behaviour, or ceremony outcomes.
       </li>
+      <li>
+        Application, environment, revision, build, producer, and capture-time fields are
+        fingerprinted assertions. They improve report targeting and freshness policy but are not
+        authenticated provenance.
+      </li>
       <li>Fallback controls remain necessary for unsupported browsers and defence in depth.</li>
       <li>No result should be treated as legal, compliance, or certification advice.</li>
     </ul>
@@ -85,15 +90,17 @@ import Layout from "../components/Layout.astro";
         WPT, compatibility-policy, deployment-evidence, and evidence-policy layers are kept distinct.
       </li>
       <li>
-        <strong>9.5/10 as an engineering decision aid:</strong> explicit surface applicability, provenance
-        fingerprints, detail-aware compatible comparisons, independent CI policy, bounded exceptions,
-        local export, and transparent composites support design and release decisions.
+        <strong>9.7/10 as an engineering decision aid:</strong> explicit surface applicability, subject-identified
+        fingerprints, application and environment comparison boundaries, revision-aware freshness policy,
+        detail-aware comparisons, bounded exceptions, local export, and transparent composites support
+        design and release decisions.
       </li>
       <li>
-        <strong>5.5/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
-        and local resource evidence can reveal real configuration gaps and now fails closed against an
-        independent declared policy. There is still no authenticated collection, discovered route inventory,
-        runtime enforcement test, remote resource verification, adversarial test, or continuous monitoring.
+        <strong>6.0/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
+        and local resource evidence can reveal real configuration gaps; the independent gate now rejects
+        the wrong application, environment, revision, producer class, capture duration, and evidence age.
+        There is still no signed attestation, authenticated collection, discovered route inventory, runtime
+        enforcement test, remote resource verification, adversarial test, or continuous monitoring.
       </li>
     </ul>
   </article>

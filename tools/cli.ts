@@ -163,6 +163,12 @@ async function inspectBundle(): Promise<void> {
   } else {
     console.log(`${report.name}: ${failed ? "review required" : "inspection complete"}`);
     console.log(
+      `Subject: ${report.identity.subject.applicationId} · ${report.identity.subject.environment} · revision ${report.identity.subject.revision}${report.identity.subject.buildId ? ` · build ${report.identity.subject.buildId}` : ""}`
+    );
+    console.log(
+      `Capture: ${report.identity.capture.startedAt} to ${report.identity.capture.completedAt} · ${report.identity.capture.producer.kind} ${report.identity.capture.producer.id}`
+    );
+    console.log(
       `${String(report.coverage.responses)} responses, ${String(report.coverage.htmlDocuments)} HTML documents, ${String(report.coverage.requests)} requests, ${String(report.coverage.webauthn)} WebAuthn configurations`
     );
     console.log(
@@ -213,6 +219,9 @@ async function checkEvidence(): Promise<void> {
   } else {
     console.log(
       `${profile.name}: ${failed ? "evidence policy failed" : "evidence policy satisfied"}`
+    );
+    console.log(
+      `Report: ${evaluation.reportIdentity.subject.applicationId} · ${evaluation.reportIdentity.subject.environment} · revision ${evaluation.reportIdentity.subject.revision} · ${evaluation.reportProvenance.analyserVersion} analyser · evaluated ${evaluation.evaluatedAsOf}`
     );
     console.log(
       `${String(evaluation.summary.pass)} pass, ${String(evaluation.summary.review)} review, ${String(evaluation.summary.fail)} fail`

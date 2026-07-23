@@ -85,10 +85,14 @@ browser-support outcomes.
 
 An expected-surface manifest makes missing evidence and control applicability
 explicit within an operator-declared scope. Reduced reports pin their analysis
-and source model, carry a canonical fingerprint, and retain bounded safe detail.
-Compatible comparison separates regressions, resolutions, detail changes, and
-incomparable evidence without reintroducing raw inputs. A separate policy
-profile lets CI enforce requirements that the evidence producer cannot weaken.
+and source model, bind a bounded application, environment, revision, build,
+producer, and capture window into a canonical fingerprint, and retain bounded
+safe detail. Compatible comparison separates regressions, resolutions, detail
+changes, and incomparable application or environment identities without
+reintroducing raw inputs. A separate policy profile lets CI enforce identity,
+freshness, coverage, and control requirements that the evidence producer cannot
+weaken. The fingerprint detects modification but deliberately does not claim
+signed or authenticated provenance.
 
 ## Privacy through absence
 

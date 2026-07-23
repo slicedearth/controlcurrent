@@ -30,11 +30,12 @@ import { selectedSnapshot } from "../data";
       rows="24"
       spellcheck="false"
       aria-describedby="bundle-guidance"
-      placeholder='{"schemaVersion":2,"name":"Release candidate","surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
+      placeholder='{"schemaVersion":3,"name":"Release candidate","identity":{"subject":{},"capture":{}},"surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
     ></textarea>
     <p id="bundle-guidance" class="form-message">
-      Use descriptive labels rather than URLs. Remove secrets, personal data, page content that is
-      not needed for resource analysis, raw WebAuthn challenges, user IDs, and relying-party IDs.
+      Use opaque application, environment, revision, build, surface, and producer identifiers rather
+      than URLs or personal data. Remove secrets, page content that is not needed for resource
+      analysis, raw WebAuthn challenges, user IDs, and relying-party IDs.
     </p>
     <div class="button-row">
       <button type="submit" class="button button--primary">Assess bundle</button>
@@ -110,8 +111,25 @@ import { selectedSnapshot } from "../data";
   import { exportEvidenceBundleReport, exportEvidenceReportComparison } from "../export";
 
   const example = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     name: "Release candidate",
+    identity: {
+      subject: {
+        applicationId: "example-app",
+        environment: "staging",
+        revision: "0123456789abcdef0123456789abcdef01234567",
+        buildId: "build-42"
+      },
+      capture: {
+        startedAt: "2026-07-20T09:00:00.000Z",
+        completedAt: "2026-07-20T09:05:00.000Z",
+        producer: {
+          kind: "application_ci",
+          id: "example-ci",
+          version: "1.0.0"
+        }
+      }
+    },
     surfaces: [
       {
         id: "sign-in",
@@ -468,7 +486,7 @@ import { selectedSnapshot } from "../data";
       ...report.requestReports.map(requestInventory),
       ...report.webauthnReports.map(webauthnInventory)
     );
-    source!.textContent = `${report.name} · analyser ${report.provenance.analyserVersion} · catalogue ${report.provenance.catalogueVersion} · BCD ${report.provenance.bcdVersion}`;
+    source!.textContent = `${report.name} · ${report.identity.subject.applicationId} · ${report.identity.subject.environment} · revision ${report.identity.subject.revision} · captured ${report.identity.capture.completedAt} by ${report.identity.capture.producer.id} (${report.identity.capture.producer.kind}) · analyser ${report.provenance.analyserVersion} · catalogue ${report.provenance.catalogueVersion} · BCD ${report.provenance.bcdVersion}`;
     exportButton!.disabled = false;
     latestComparison = undefined;
     comparisonExportButton!.disabled = true;

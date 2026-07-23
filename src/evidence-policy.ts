@@ -15,6 +15,20 @@ function validDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/u.test(value) && !Number.isNaN(Date.parse(value));
 }
 
+const DAY_MILLISECONDS = 24 * 60 * 60 * 1_000;
+
+function dayIndex(value: string): number {
+  return Date.parse(`${value}T00:00:00.000Z`) / DAY_MILLISECONDS;
+}
+
+function utcDate(value: string): string {
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+function addDays(value: string, days: number): string {
+  return new Date((dayIndex(value) + days) * DAY_MILLISECONDS).toISOString().slice(0, 10);
+}
+
 function matchingException(
   exceptions: readonly EvidencePolicyException[],
   surfaceId: string,
@@ -94,6 +108,106 @@ export async function evaluateEvidencePolicy(
   }
 
   const findings: EvidencePolicyFinding[] = [];
+  const applicationMatches =
+    report.identity.subject.applicationId === profile.identity.applicationId;
+  findings.push({
+    targetKind: "identity",
+    targetId: "application-id",
+    outcome: applicationMatches ? "observed" : "identity_mismatch",
+    decision: applicationMatches ? "pass" : "fail",
+    explanation: applicationMatches
+      ? `Application identity matches ${profile.identity.applicationId}.`
+      : `Expected application ${profile.identity.applicationId} but the report describes ${report.identity.subject.applicationId}.`
+  });
+
+  const environmentAllowed = profile.identity.allowedEnvironments.includes(
+    report.identity.subject.environment
+  );
+  findings.push({
+    targetKind: "identity",
+    targetId: "environment",
+    outcome: environmentAllowed ? "observed" : "identity_mismatch",
+    decision: environmentAllowed ? "pass" : "fail",
+    explanation: environmentAllowed
+      ? `Environment ${report.identity.subject.environment} is allowed.`
+      : `Environment ${report.identity.subject.environment} is not one of ${profile.identity.allowedEnvironments.join(", ")}.`
+  });
+
+  if (profile.identity.expectedRevision) {
+    const revisionMatches = report.identity.subject.revision === profile.identity.expectedRevision;
+    findings.push({
+      targetKind: "identity",
+      targetId: "revision",
+      outcome: revisionMatches ? "observed" : "identity_mismatch",
+      decision: revisionMatches ? "pass" : "fail",
+      explanation: revisionMatches
+        ? `Revision matches ${profile.identity.expectedRevision}.`
+        : `Expected revision ${profile.identity.expectedRevision} but the report describes ${report.identity.subject.revision}.`
+    });
+  }
+
+  const producerAllowed = profile.identity.allowedProducerKinds.includes(
+    report.identity.capture.producer.kind
+  );
+  findings.push({
+    targetKind: "identity",
+    targetId: "producer-kind",
+    outcome: producerAllowed ? "observed" : "identity_mismatch",
+    decision: producerAllowed ? "pass" : "fail",
+    explanation: producerAllowed
+      ? `Producer kind ${report.identity.capture.producer.kind} is allowed.`
+      : `Producer kind ${report.identity.capture.producer.kind} is not one of ${profile.identity.allowedProducerKinds.join(", ")}.`
+  });
+
+  if (profile.identity.requireBuildId) {
+    const buildIdPresent = report.identity.subject.buildId !== undefined;
+    findings.push({
+      targetKind: "identity",
+      targetId: "build-id",
+      outcome: buildIdPresent ? "observed" : "missing",
+      decision: buildIdPresent ? "pass" : "fail",
+      explanation: buildIdPresent
+        ? "A bounded build identifier is present."
+        : "The policy requires a build identifier, but the report does not contain one."
+    });
+  }
+
+  const captureDurationMilliseconds =
+    Date.parse(report.identity.capture.completedAt) - Date.parse(report.identity.capture.startedAt);
+  const captureDurationMinutes = Math.ceil(captureDurationMilliseconds / (60 * 1_000));
+  const captureWindowAllowed =
+    captureDurationMilliseconds <= profile.identity.maxCaptureDurationMinutes * 60 * 1_000;
+  findings.push({
+    targetKind: "freshness",
+    targetId: "capture-window",
+    outcome: captureWindowAllowed ? "observed" : "window_too_long",
+    decision: captureWindowAllowed ? "pass" : "fail",
+    explanation: captureWindowAllowed
+      ? `The ${String(captureDurationMinutes)}-minute capture window is within the ${String(profile.identity.maxCaptureDurationMinutes)}-minute limit.`
+      : `The ${String(captureDurationMinutes)}-minute capture window exceeds the ${String(profile.identity.maxCaptureDurationMinutes)}-minute limit.`
+  });
+
+  const capturedOn = utcDate(report.identity.capture.completedAt);
+  const evidenceAgeDays = dayIndex(evaluatedAsOf) - dayIndex(capturedOn);
+  const freshnessOutcome =
+    evidenceAgeDays < 0
+      ? "future"
+      : evidenceAgeDays > profile.identity.maxAgeDays
+        ? "stale"
+        : "observed";
+  findings.push({
+    targetKind: "freshness",
+    targetId: "capture-age",
+    outcome: freshnessOutcome,
+    decision: freshnessOutcome === "observed" ? "pass" : "fail",
+    explanation:
+      freshnessOutcome === "future"
+        ? `Evidence completed on ${capturedOn}, after the ${evaluatedAsOf} evaluation date.`
+        : freshnessOutcome === "stale"
+          ? `Evidence completed on ${capturedOn} and expired after ${addDays(capturedOn, profile.identity.maxAgeDays)} under the ${String(profile.identity.maxAgeDays)}-day policy.`
+          : `Evidence completed on ${capturedOn}, is ${String(evidenceAgeDays)} day${evidenceAgeDays === 1 ? "" : "s"} old, and remains within the ${String(profile.identity.maxAgeDays)}-day policy.`
+  });
+
   const modelChecks = [
     {
       targetId: "analysis-version",
@@ -247,9 +361,10 @@ export async function evaluateEvidencePolicy(
   }
 
   return evidencePolicyEvaluationSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: 2,
     evaluatedAsOf,
     reportFingerprint: report.reportFingerprint,
+    reportIdentity: report.identity,
     reportProvenance: report.provenance,
     profile,
     summary: {

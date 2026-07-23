@@ -30,11 +30,13 @@ It is not a general compatibility index and it does not scan websites.
 - An expected-surface manifest that distinguishes missing evidence from
   unexamined application scope and declares which controls and composites
   actually apply to each surface
-- Provenance-stamped reduced reports with deterministic SHA-256 fingerprints
+- Subject-identified reduced reports with application, environment, revision,
+  build, producer, and capture-window context inside deterministic SHA-256
+  fingerprints
 - Detail-aware reduced-report comparison with explicit model compatibility,
   regressions, resolutions, other changes, and incomparable evidence
-- An independent evidence-policy profile and CI exit code with expiring,
-  visible exceptions
+- An independent evidence-policy profile and CI exit code with identity,
+  producer, capture-duration, freshness, and expiring-exception requirements
 - Project-authored composite checks that keep candidate deployment recipes
   separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
@@ -180,7 +182,10 @@ The bundle command exits non-zero for invalid or inconsistent evidence. Add
 each applicable project-authored composite candidate to avoid a review or gap
 state. Controls outside every declared surface policy are `not_applicable`, not
 failures. Evidence policy requirements come from a separate file, so weakening
-the submitted bundle cannot weaken the CI gate.
+the submitted bundle cannot weaken the CI gate. The example gate also requires
+the expected application, environment, revision, CI producer, build ID, capture
+duration, and maximum evidence age. These are fingerprinted producer claims,
+not authenticated provenance.
 
 ## Architecture
 
@@ -213,7 +218,7 @@ local response, HTML, request, and WebAuthn inputs
  surface-scoped findings and composite candidates
           |
           v
- provenance-stamped reduced report
+ subject-identified, provenance-stamped reduced report
           |
           +--> compatible detail-aware comparison
           |

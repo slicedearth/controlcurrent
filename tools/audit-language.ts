@@ -23,7 +23,7 @@ const prohibited = [
     label: "American normalise spelling",
     pattern: /\bnormaliz(?:e[ds]?|ing|ation|er|ers)\b/giu
   },
-  { label: "American analyser spelling", pattern: /\banalyzers?\b/giu },
+  { label: "American analyser spelling", pattern: /analyzer/giu },
   { label: "American favourable spelling", pattern: /\b(?:un)?favorabl(?:e|y)\b/giu },
   { label: "American standardise spelling", pattern: /\bstandardiz(?:e[ds]?|ing)\b/giu },
   { label: "American summarise spelling", pattern: /\bsummariz(?:e[ds]?|ing)\b/giu },

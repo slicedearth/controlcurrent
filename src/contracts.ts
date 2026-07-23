@@ -579,7 +579,74 @@ export type WebauthnReport = z.infer<typeof webauthnReportSchema>;
 
 const evidenceSurfaceIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u);
 const evidenceControlIdSchema = z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/u);
+const evidenceApplicationIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u);
+const evidenceEnvironmentSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,39}$/u);
+const evidenceRevisionSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(128)
+  .regex(/^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$/u);
+const evidenceBuildIdSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(128)
+  .regex(/^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$/u);
 export const evidenceCompositeIdSchema = z.enum(EVIDENCE_COMPOSITE_IDS);
+export const evidenceProducerKindSchema = z.enum(["application_ci", "manual", "other"]);
+export type EvidenceProducerKind = z.infer<typeof evidenceProducerKindSchema>;
+
+export const evidenceIdentitySchema = z
+  .object({
+    subject: z
+      .object({
+        applicationId: evidenceApplicationIdSchema,
+        environment: evidenceEnvironmentSchema,
+        revision: evidenceRevisionSchema,
+        buildId: evidenceBuildIdSchema.optional()
+      })
+      .strict(),
+    capture: z
+      .object({
+        startedAt: z.iso.datetime(),
+        completedAt: z.iso.datetime(),
+        producer: z
+          .object({
+            kind: evidenceProducerKindSchema,
+            id: evidenceApplicationIdSchema,
+            version: z
+              .string()
+              .trim()
+              .min(1)
+              .max(64)
+              .regex(/^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$/u)
+              .optional()
+          })
+          .strict()
+      })
+      .strict()
+  })
+  .strict()
+  .superRefine((identity, context) => {
+    const startedAt = Date.parse(identity.capture.startedAt);
+    const completedAt = Date.parse(identity.capture.completedAt);
+    if (completedAt < startedAt) {
+      context.addIssue({
+        code: "custom",
+        message: "Evidence capture completion must not precede its start.",
+        path: ["capture", "completedAt"]
+      });
+    }
+    if (completedAt - startedAt > 7 * 24 * 60 * 60 * 1_000) {
+      context.addIssue({
+        code: "custom",
+        message: "Evidence capture duration may not exceed seven days.",
+        path: ["capture", "completedAt"]
+      });
+    }
+  });
+export type EvidenceIdentity = z.infer<typeof evidenceIdentitySchema>;
 
 export const surfaceEvidenceKindSchema = z.enum([
   "response",
@@ -638,8 +705,9 @@ export type SurfaceCoverage = z.infer<typeof surfaceCoverageSchema>;
 
 export const evidenceBundleInputSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     name: z.string().trim().min(1).max(80),
+    identity: evidenceIdentitySchema,
     surfaces: z.array(expectedSurfaceSchema).min(1).max(32),
     responses: z.array(headerSnapshotSchema).max(16).default([]),
     htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
@@ -738,8 +806,9 @@ export type SurfaceAssessment = z.infer<typeof surfaceAssessmentSchema>;
 
 export const evidenceBundleReportSchema = z
   .object({
-    schemaVersion: z.literal(4),
+    schemaVersion: z.literal(5),
     name: z.string().min(1).max(80),
+    identity: evidenceIdentitySchema,
     provenance: evidenceProvenanceSchema,
     reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
     coverage: z
@@ -805,7 +874,7 @@ export type EvidenceComparisonEvent = z.infer<typeof evidenceComparisonEventSche
 
 export const evidenceReportComparisonSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     beforeName: z.string().min(1).max(80),
     afterName: z.string().min(1).max(80),
     summary: z
@@ -821,6 +890,8 @@ export const evidenceReportComparisonSchema = z
       .strict(),
     compatible: z.boolean(),
     compatibilityReasons: z.array(z.string().min(1).max(256)).max(8),
+    beforeIdentity: evidenceIdentitySchema,
+    afterIdentity: evidenceIdentitySchema,
     beforeProvenance: evidenceProvenanceSchema,
     afterProvenance: evidenceProvenanceSchema,
     events: z.array(evidenceComparisonEventSchema).max(512)
@@ -842,7 +913,11 @@ export const evidencePolicyOutcomeSchema = z.enum([
   "review",
   "absent",
   "role_mismatch",
-  "model_mismatch"
+  "model_mismatch",
+  "identity_mismatch",
+  "stale",
+  "future",
+  "window_too_long"
 ]);
 export type EvidencePolicyOutcome = z.infer<typeof evidencePolicyOutcomeSchema>;
 
@@ -860,11 +935,22 @@ export type EvidencePolicyException = z.infer<typeof evidencePolicyExceptionSche
 
 export const evidencePolicyProfileSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     name: z.string().trim().min(1).max(80),
     expectedAnalyserVersion: z.string().regex(/^\d+\.\d+\.\d+$/u),
     expectedCatalogueVersion: z.string().min(1).max(64),
     expectedBcdVersion: z.string().min(1).max(64).optional(),
+    identity: z
+      .object({
+        applicationId: evidenceApplicationIdSchema,
+        allowedEnvironments: z.array(evidenceEnvironmentSchema).min(1).max(8),
+        expectedRevision: evidenceRevisionSchema.optional(),
+        allowedProducerKinds: z.array(evidenceProducerKindSchema).min(1).max(3),
+        requireBuildId: z.boolean(),
+        maxAgeDays: z.number().int().min(0).max(365),
+        maxCaptureDurationMinutes: z.number().int().min(1).max(10_080)
+      })
+      .strict(),
     surfaces: z.array(expectedSurfaceSchema).min(1).max(32),
     rules: z
       .object({
@@ -879,6 +965,26 @@ export const evidencePolicyProfileSchema = z
   })
   .strict()
   .superRefine((profile, context) => {
+    if (
+      new Set(profile.identity.allowedEnvironments).size !==
+      profile.identity.allowedEnvironments.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Allowed evidence environments must be unique.",
+        path: ["identity", "allowedEnvironments"]
+      });
+    }
+    if (
+      new Set(profile.identity.allowedProducerKinds).size !==
+      profile.identity.allowedProducerKinds.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Allowed evidence producer kinds must be unique.",
+        path: ["identity", "allowedProducerKinds"]
+      });
+    }
     const surfaces = new Set<string>();
     for (const [index, surface] of profile.surfaces.entries()) {
       if (surfaces.has(surface.id)) {
@@ -896,7 +1002,15 @@ export type EvidencePolicyProfile = z.infer<typeof evidencePolicyProfileSchema>;
 export const evidencePolicyFindingSchema = z
   .object({
     surfaceId: evidenceSurfaceIdSchema.optional(),
-    targetKind: z.enum(["model", "surface", "evidence", "control", "composite"]),
+    targetKind: z.enum([
+      "model",
+      "identity",
+      "freshness",
+      "surface",
+      "evidence",
+      "control",
+      "composite"
+    ]),
     targetId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
     outcome: evidencePolicyOutcomeSchema,
     decision: policyDecisionSchema,
@@ -910,9 +1024,10 @@ export type EvidencePolicyFinding = z.infer<typeof evidencePolicyFindingSchema>;
 
 export const evidencePolicyEvaluationSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     evaluatedAsOf: z.iso.date(),
     reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    reportIdentity: evidenceIdentitySchema,
     reportProvenance: evidenceProvenanceSchema,
     profile: evidencePolicyProfileSchema,
     summary: z

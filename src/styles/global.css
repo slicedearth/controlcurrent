@@ -350,6 +350,7 @@ code {
 .section-heading > p {
   max-width: 36rem;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .control-grid,

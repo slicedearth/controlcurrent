@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import type { EvidencePolicyProfile } from "../src/contracts";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateEvidencePolicy } from "../src/evidence-policy";
-import { evidenceSourceContext } from "./helpers";
+import { evidenceIdentity, evidenceSourceContext } from "./helpers";
 
-async function report(headers: Record<string, string>) {
+async function report(headers: Record<string, string>, identity: unknown = evidenceIdentity) {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 2,
+      schemaVersion: 3,
       name: "Release candidate",
+      identity,
       surfaces: [
         {
           id: "document",
@@ -33,11 +34,20 @@ async function report(headers: Record<string, string>) {
 
 function profile(overrides: Partial<EvidencePolicyProfile> = {}): EvidencePolicyProfile {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: "Release evidence baseline",
-    expectedAnalyserVersion: "2.0.0",
+    expectedAnalyserVersion: "3.0.0",
     expectedCatalogueVersion: "2.2.0",
     expectedBcdVersion: "1.0.0",
+    identity: {
+      applicationId: "example-app",
+      allowedEnvironments: ["staging"],
+      expectedRevision: "0123456789abcdef0123456789abcdef01234567",
+      allowedProducerKinds: ["application_ci"],
+      requireBuildId: true,
+      maxAgeDays: 7,
+      maxCaptureDurationMinutes: 30
+    },
     surfaces: [
       {
         id: "document",
@@ -67,8 +77,127 @@ describe("evidence policy evaluation", () => {
       "2026-07-23"
     );
 
-    expect(evaluation.summary).toEqual({ pass: 6, review: 0, fail: 0 });
+    expect(evaluation.summary).toEqual({ pass: 13, review: 0, fail: 0 });
+    expect(evaluation.reportIdentity).toEqual(evidenceIdentity);
     expect(evaluation.reportFingerprint).toMatch(/^[a-f0-9]{64}$/u);
+  });
+
+  it("fails evidence for the wrong application, environment, revision, or producer", async () => {
+    const evaluation = await evaluateEvidencePolicy(
+      await report(
+        { "Strict-Transport-Security": "max-age=31536000" },
+        {
+          ...evidenceIdentity,
+          subject: {
+            applicationId: "other-app",
+            environment: "production",
+            revision: "fedcba9876543210",
+            buildId: "build-99"
+          },
+          capture: {
+            ...evidenceIdentity.capture,
+            producer: {
+              kind: "manual",
+              id: "local-review"
+            }
+          }
+        }
+      ),
+      profile(),
+      "2026-07-23"
+    );
+
+    expect(evaluation.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ targetId: "application-id", decision: "fail" }),
+        expect.objectContaining({ targetId: "environment", decision: "fail" }),
+        expect.objectContaining({ targetId: "revision", decision: "fail" }),
+        expect.objectContaining({ targetId: "producer-kind", decision: "fail" })
+      ])
+    );
+  });
+
+  it("fails stale and future evidence without trusting producer timestamps blindly", async () => {
+    const stale = await evaluateEvidencePolicy(
+      await report(
+        { "Strict-Transport-Security": "max-age=31536000" },
+        {
+          ...evidenceIdentity,
+          capture: {
+            ...evidenceIdentity.capture,
+            startedAt: "2026-07-01T09:00:00.000Z",
+            completedAt: "2026-07-01T09:05:00.000Z"
+          }
+        }
+      ),
+      profile(),
+      "2026-07-23"
+    );
+    const future = await evaluateEvidencePolicy(
+      await report(
+        { "Strict-Transport-Security": "max-age=31536000" },
+        {
+          ...evidenceIdentity,
+          capture: {
+            ...evidenceIdentity.capture,
+            startedAt: "2026-07-24T09:00:00.000Z",
+            completedAt: "2026-07-24T09:05:00.000Z"
+          }
+        }
+      ),
+      profile(),
+      "2026-07-23"
+    );
+
+    expect(stale.findings).toContainEqual(
+      expect.objectContaining({
+        targetId: "capture-age",
+        outcome: "stale",
+        decision: "fail"
+      })
+    );
+    expect(future.findings).toContainEqual(
+      expect.objectContaining({
+        targetId: "capture-age",
+        outcome: "future",
+        decision: "fail"
+      })
+    );
+  });
+
+  it("fails an overlong capture window and a missing required build identifier", async () => {
+    const subject = {
+      applicationId: evidenceIdentity.subject.applicationId,
+      environment: evidenceIdentity.subject.environment,
+      revision: evidenceIdentity.subject.revision
+    };
+    const evaluation = await evaluateEvidencePolicy(
+      await report(
+        { "Strict-Transport-Security": "max-age=31536000" },
+        {
+          ...evidenceIdentity,
+          subject,
+          capture: {
+            ...evidenceIdentity.capture,
+            startedAt: "2026-07-20T09:00:00.000Z",
+            completedAt: "2026-07-20T10:00:00.000Z"
+          }
+        }
+      ),
+      profile(),
+      "2026-07-23"
+    );
+
+    expect(evaluation.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ targetId: "build-id", outcome: "missing", decision: "fail" }),
+        expect.objectContaining({
+          targetId: "capture-window",
+          outcome: "window_too_long",
+          decision: "fail"
+        })
+      ])
+    );
   });
 
   it("fails missing required evidence independently of the report manifest", async () => {
@@ -139,7 +268,7 @@ describe("evidence policy evaluation", () => {
   it("fails closed when the expected analysis model differs", async () => {
     const evaluation = await evaluateEvidencePolicy(
       await report({ "Strict-Transport-Security": "max-age=31536000" }),
-      profile({ expectedAnalyserVersion: "3.0.0" }),
+      profile({ expectedAnalyserVersion: "4.0.0" }),
       "2026-07-23"
     );
 

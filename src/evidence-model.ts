@@ -1,4 +1,4 @@
-export const EVIDENCE_ANALYSER_VERSION = "2.0.0";
+export const EVIDENCE_ANALYSER_VERSION = "3.0.0";
 
 export const EVIDENCE_COMPOSITE_IDS = [
   "strict-csp-candidate",

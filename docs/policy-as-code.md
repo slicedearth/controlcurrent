@@ -82,6 +82,10 @@ Browser-support policy and deployment-evidence policy are separate contracts.
 
 - exact analyser and catalogue versions;
 - an exact BCD version when the consumer wants source pinning;
+- an exact application ID and an allowed deployment environment;
+- an exact revision when the gate is tied to one release candidate;
+- an allowed producer kind and, optionally, a build identifier;
+- a maximum capture duration and maximum evidence age;
 - specific opaque surfaces and semantic roles;
 - evidence kinds expected for each surface;
 - controls and project-authored composites required for each surface;
@@ -89,7 +93,7 @@ Browser-support policy and deployment-evidence policy are separate contracts.
   composite-review outcomes;
 - bounded exceptions tied to one surface and target.
 
-The profile is evaluated against an exported schema 4 reduced report, not
+The profile is evaluated against an exported schema 5 reduced report, not
 against raw evidence:
 
 ```sh
@@ -103,6 +107,10 @@ decisions. Use `--json` for a deterministic machine-readable result.
 The policy is intentionally independent of the evidence bundle. A producer
 cannot remove a required control, composite, or evidence kind from its bundle
 manifest to weaken the consumer's gate. The evaluator recomputes the report
-fingerprint before applying policy. Model mismatches always fail. Active
-exceptions convert a matching negative finding to `review`, never `pass`;
-expired exceptions remain visible and stop affecting the decision.
+fingerprint before applying policy. Model, application, environment, revision,
+producer, build-identity, freshness, and capture-duration mismatches fail.
+Identity and timestamps remain unauthenticated producer assertions unless a
+separate trusted system verifies their origin. Active surface exceptions convert
+a matching negative finding to `review`, never `pass`; they cannot exempt
+identity or freshness. Expired exceptions remain visible and stop affecting the
+decision.

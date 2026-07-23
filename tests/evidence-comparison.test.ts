@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import { compareEvidenceReports } from "../src/evidence-comparison";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { fingerprintEvidenceReportBody } from "../src/evidence-report";
-import { evidenceSourceContext } from "./helpers";
+import { evidenceIdentity, evidenceSourceContext } from "./helpers";
 
 async function report(name: string, options: { csp: boolean; includeHtml: boolean }) {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 2,
+      schemaVersion: 3,
       name,
+      identity: evidenceIdentity,
       surfaces: [
         {
           id: "document",
@@ -49,8 +50,9 @@ async function report(name: string, options: { csp: boolean; includeHtml: boolea
 async function hstsReport(name: string, maxAge: number) {
   return inspectEvidenceBundle(
     {
-      schemaVersion: 2,
+      schemaVersion: 3,
       name,
+      identity: evidenceIdentity,
       surfaces: [
         {
           id: "document",
@@ -125,7 +127,7 @@ describe("reduced evidence report comparison", () => {
       ...originalBody,
       provenance: {
         ...originalAfter.provenance,
-        analyserVersion: "3.0.0"
+        analyserVersion: "4.0.0"
       }
     };
     const after = {
@@ -137,5 +139,37 @@ describe("reduced evidence report comparison", () => {
     expect(comparison.compatible).toBe(false);
     expect(comparison.summary.incomparable).toBe(1);
     expect(comparison.events).toEqual([expect.objectContaining({ key: "model:analyser-version" })]);
+  });
+
+  it("refuses semantic comparison across application or environment identities", async () => {
+    const before = await hstsReport("Before", 3600);
+    const originalAfter = await hstsReport("After", 3600);
+    const { reportFingerprint, ...originalBody } = originalAfter;
+    expect(reportFingerprint).toMatch(/^[a-f0-9]{64}$/u);
+    const modifiedBody = {
+      ...originalBody,
+      identity: {
+        ...originalAfter.identity,
+        subject: {
+          ...originalAfter.identity.subject,
+          applicationId: "other-app",
+          environment: "production"
+        }
+      }
+    };
+    const after = {
+      ...modifiedBody,
+      reportFingerprint: await fingerprintEvidenceReportBody(modifiedBody)
+    };
+    const comparison = await compareEvidenceReports(before, after);
+
+    expect(comparison.compatible).toBe(false);
+    expect(comparison.summary.incomparable).toBe(2);
+    expect(comparison.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: "identity:application-id" }),
+        expect.objectContaining({ key: "identity:environment" })
+      ])
+    );
   });
 });

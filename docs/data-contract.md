@@ -69,6 +69,11 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Header names                            |               64 |
 | Values per header name                  |                8 |
 | Assurance findings                      |               64 |
+| Evidence application ID                 |    80 characters |
+| Evidence environment                    |    40 characters |
+| Evidence revision and build IDs         |   128 characters |
+| Evidence producer ID                    |    80 characters |
+| Evidence capture window                 |           7 days |
 | Response snapshots per evidence bundle  |               16 |
 | HTML documents per evidence bundle      |               16 |
 | HTML bytes per document                 |          128 KiB |
@@ -153,8 +158,19 @@ contain a raw header value, cookie name, or cookie value.
 
 ## Evidence bundle
 
-Evidence-bundle input schema 2 contains a bounded name, a required manifest of
-one to 32 expected surfaces, and five bounded collections:
+Evidence-bundle input schema 3 contains a bounded name, required evidence
+identity, a required manifest of one to 32 expected surfaces, and five bounded
+collections. Identity contains:
+
+- an opaque application ID and environment;
+- a bounded revision and optional build ID;
+- capture start and completion timestamps, ordered and no more than seven days
+  apart;
+- a producer kind (`application_ci`, `manual`, or `other`), opaque ID, and
+  optional version.
+
+These values are producer assertions. The schema validates and preserves them
+but does not authenticate their origin.
 
 - expected surfaces with an opaque ID, semantic role, unique required evidence
   kinds, explicit required control IDs, and explicit required composite IDs;
@@ -178,7 +194,7 @@ Fetch Metadata reports retain one reduced finding and counts. Credential
 headers are refused. WebAuthn reports retain only the explicit reduced
 configuration and three catalogue-aligned findings.
 
-Bundle report schema 4 evaluates each surface against its declared control and
+Bundle report schema 5 evaluates each surface against its declared control and
 composite applicability before producing a bounded cross-surface merge.
 Conflicting applicable states become `inconclusive`; invalid evidence cannot be
 overridden by a favourable snapshot. Controls and composites required by no
@@ -189,30 +205,40 @@ The report contains:
 
 - surface coverage and surface-scoped policy assessments;
 - bounded reduced subreports;
+- the application, environment, revision, optional build, producer, and
+  capture-window identity supplied with the bundle;
 - analyser, catalogue, BCD, Web Platform Features, and selected-schema
   provenance;
 - a SHA-256 fingerprint over the canonical reduced report before the
   fingerprint field is added.
 
-The fingerprint identifies the reduced report, not the raw evidence. Raw HTML,
+The fingerprint identifies the reduced report and binds its retained identity,
+not the raw evidence or an authenticated producer. Raw HTML,
 resource bytes, request targets, nonce values, digest values, cookie identities,
 and WebAuthn identifiers do not enter the fingerprint.
 Comparison and evidence-policy evaluation recompute this fingerprint and refuse
 modified report content.
 
-Evidence comparison schema 1 accepts two validated schema 4 reports and emits at
+Evidence comparison schema 2 accepts two validated schema 5 reports and emits at
 most 512 deterministic events while retaining bounded total counts. Analyser or
-catalogue model mismatches make the reports semantically incomparable.
+catalogue model mismatches make the reports semantically incomparable. Reports
+for different application IDs or environments are also incomparable; revision,
+build, producer, and capture differences remain visible identity context rather
+than false configuration changes.
 Compatible comparisons detect state changes, surface-policy and coverage
 changes, and changes in retained reduced detail even when a state remains the
 same. Events contain stable keys and before/after states, not original headers,
 HTML, resource data, or private identifiers.
 
-Evidence policy schema 1 is independent of the submitted evidence bundle. It
-pins expected analyser, catalogue, and optionally BCD versions, then declares
-required surfaces, evidence kinds, controls, composites, rules, and at most 128
-expiring exceptions. Active exceptions can downgrade a negative finding to
-`review`; they never create a pass. Expired exceptions remain visible and no
+Evidence policy schema 2 is independent of the submitted evidence bundle. It
+pins expected analyser, catalogue, and optionally BCD versions; requires an
+application ID, allowed environments and producer kinds, optional exact
+revision, optional build ID presence, maximum capture duration, and maximum
+evidence age; then declares required surfaces, evidence kinds, controls,
+composites, rules, and at most 128 expiring exceptions. Future-dated, stale,
+overlong, or identity-mismatched evidence fails. Active surface exceptions can
+downgrade a matching negative finding to `review`; they never apply to identity
+or freshness and never create a pass. Expired exceptions remain visible and no
 longer affect the decision.
 
 ## WPT evidence registry

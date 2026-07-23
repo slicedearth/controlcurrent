@@ -8,7 +8,7 @@ import {
 import { compareEvidenceReports } from "../src/evidence-comparison";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateProfile } from "../src/evaluate";
-import { evidenceSourceContext, feature, snapshot } from "./helpers";
+import { evidenceIdentity, evidenceSourceContext, feature, snapshot } from "./helpers";
 
 describe("profile exports", () => {
   it("serialises deterministically", () => {
@@ -36,7 +36,8 @@ describe("profile exports", () => {
   it("exports only the reduced evidence report", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Export",
         surfaces: [
           {
@@ -68,7 +69,8 @@ describe("profile exports", () => {
   it("exports deterministic reduced evidence comparisons", async () => {
     const before = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Before",
         surfaces: [
           {
@@ -92,7 +94,8 @@ describe("profile exports", () => {
     );
     const after = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "After",
         surfaces: [
           {
@@ -117,7 +120,11 @@ describe("profile exports", () => {
     const comparison = await compareEvidenceReports(before, after);
     const exported = exportEvidenceReportComparison(comparison);
 
-    expect(exported).toContain('"schemaVersion": 1');
+    expect(JSON.parse(exported)).toMatchObject({
+      schemaVersion: 2,
+      beforeIdentity: evidenceIdentity,
+      afterIdentity: evidenceIdentity
+    });
     expect(exportEvidenceReportComparison(comparison)).toBe(exported);
   });
 });

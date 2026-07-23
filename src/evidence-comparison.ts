@@ -178,6 +178,26 @@ export async function compareEvidenceReports(
       summary: "The reports were produced against different control catalogue versions."
     });
   }
+  if (before.identity.subject.applicationId !== after.identity.subject.applicationId) {
+    compatibilityReasons.push("Evidence application identities differ.");
+    payloads.push({
+      type: "evidence_became_incomparable",
+      key: "identity:application-id",
+      beforeState: before.identity.subject.applicationId,
+      afterState: after.identity.subject.applicationId,
+      summary: "The reports describe different application identities."
+    });
+  }
+  if (before.identity.subject.environment !== after.identity.subject.environment) {
+    compatibilityReasons.push("Evidence environments differ.");
+    payloads.push({
+      type: "evidence_became_incomparable",
+      key: "identity:environment",
+      beforeState: before.identity.subject.environment,
+      afterState: after.identity.subject.environment,
+      summary: "The reports describe different deployment environments."
+    });
+  }
 
   const compatible = compatibilityReasons.length === 0;
   if (compatible) {
@@ -304,11 +324,13 @@ export async function compareEvidenceReports(
   const events = await Promise.all(emittedPayloads.map((payload) => event(payload)));
 
   return evidenceReportComparisonSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: 2,
     beforeName: before.name,
     afterName: after.name,
     compatible,
     compatibilityReasons,
+    beforeIdentity: before.identity,
+    afterIdentity: after.identity,
     beforeProvenance: before.provenance,
     afterProvenance: after.provenance,
     summary: {

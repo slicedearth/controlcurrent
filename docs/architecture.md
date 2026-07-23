@@ -151,6 +151,8 @@ reduced WebAuthn configurations. Its dependency direction is:
 ```text
 bounded local inputs
       |
+      +--> bounded application, environment, revision, producer,
+      |    and capture-window identity
       +--> response-header assurance
       +--> parse5 HTML tree without execution or fetch
       +--> in-memory CSP and SRI digest correlation
@@ -168,7 +170,7 @@ control-level consistency merge
 project-authored composite candidates
       |
       v
-provenance-stamped, fingerprinted reduced report
+subject-identified, provenance-stamped, fingerprinted reduced report
       |
       +--> compatible, detail-aware comparison
       |
@@ -193,6 +195,13 @@ The optional surface manifest is an assertion supplied by the operator, not
 route discovery. It makes omitted required evidence visible within the stated
 scope while preserving opaque surface IDs. Report comparison consumes only
 validated reduced reports and cannot recover their original evidence.
+
+The evidence identity is also an operator or CI assertion. It prevents reports
+for different named applications or environments from being compared as one
+deployment, and it lets independent policy bound revision, producer, capture
+duration, and age. A SHA-256 report fingerprint protects retained content
+integrity; it does not authenticate the producer. Signing or attestation remains
+a separate future trust layer.
 
 ## Conformance evidence boundary
 

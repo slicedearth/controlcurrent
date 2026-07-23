@@ -1310,8 +1310,9 @@ export async function inspectEvidenceBundle(
     surfaceCoverageComposite(surfaceCoverage)
   ];
   const reportWithoutFingerprint = {
-    schemaVersion: 4 as const,
+    schemaVersion: 5 as const,
     name: bundle.name,
+    identity: bundle.identity,
     provenance: {
       analyserVersion: EVIDENCE_ANALYSER_VERSION,
       catalogueVersion: CATALOGUE_VERSION,

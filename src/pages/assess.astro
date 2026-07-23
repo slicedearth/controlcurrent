@@ -6,7 +6,7 @@ import Layout from "../components/Layout.astro";
 
 <Layout
   title="Offline deployment assessment"
-  description="Assess bounded response, HTML resource, request-context, and reduced WebAuthn evidence locally."
+  description="Assess bounded, subject-identified response, HTML resource, request-context, and reduced WebAuthn evidence locally."
 >
   <header class="shell page-header">
     <span class="eyebrow">Configuration evidence without scanning</span>
@@ -14,8 +14,9 @@ import Layout from "../components/Layout.astro";
     <p>
       Move beyond feature availability by checking response policies, route variation, SRI
       declarations, Fetch Metadata request context, and reduced WebAuthn configuration against
-      explicit per-surface requirements. Results describe supplied evidence only; they do not
-      certify a site or replace runtime testing.
+      explicit per-surface requirements. Reduced reports bind an opaque application, environment,
+      revision, producer, and capture window into their fingerprint. These remain supplied claims;
+      they do not certify a site, authenticate a workflow, or replace runtime testing.
     </p>
   </header>
   <div class="shell">

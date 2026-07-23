@@ -83,19 +83,29 @@ values, or digest values. Request evidence refuses credentials, while the
 strict WebAuthn schema refuses challenges and relying-party, user, and
 credential identifiers.
 
+Evidence identity fields are bounded opaque claims for application,
+environment, revision, build, producer, and capture time. They must not contain
+URLs, personal data, credentials, or free-form build logs. Identity is included
+inside the reduced-report fingerprint, so later edits are detectable. The
+fingerprint is not a signature and does not prove which workflow, repository, or
+person produced the report.
+
 An expected-surface manifest can itself be incomplete or misleading. The tool
 therefore describes coverage only for declared opaque surfaces and never calls
 the manifest a discovered route inventory. Per-surface control and composite
 requirements must be explicit; semantic roles do not silently add policy.
 Comparison refuses invalid or future report schemas, fails closed across
-incompatible analyser or catalogue versions, and does not infer a resolution
-from absent, `not_evaluated`, `not_applicable`, or incomparable evidence.
+incompatible analyser, catalogue, application, or environment identities, and
+does not infer a resolution from absent, `not_evaluated`, `not_applicable`, or
+incomparable evidence.
 
 Evidence-policy profiles are supplied separately from evidence reports. This
 prevents a report producer from weakening a gate by omitting requirements from
-the bundle. Model mismatches always fail. Exceptions are bounded, specific, and
-expiring; active exceptions produce review rather than pass, while expired
-exceptions remain visible.
+the bundle. Model, application, environment, optional revision, producer,
+build-presence, capture-duration, and age mismatches fail. Future-dated evidence
+also fails. Exceptions are bounded, specific, and expiring; active exceptions
+produce review rather than pass, while expired exceptions remain visible.
+Identity and freshness cannot be exempted through surface exceptions.
 
 ## Build and workflow risks
 

@@ -38,9 +38,12 @@ ControlCurrent is a static application:
 - `connect-src 'none'` for the deployed application;
 - bounded, deliberate local profile storage;
 - escaped text rendering for source-derived values;
-- no raw header, cookie name, or cookie value in assurance reports.
+- no raw header, cookie name, or cookie value in assurance reports;
 - no HTML execution, resource loading, or resource-location retention in
   evidence reports;
+- bounded application, environment, revision, build, producer, and capture
+  identity inside the reduced-report fingerprint;
+- fail-closed independent policy for identity and evidence freshness.
 
 The build treats the BCD package as hostile structured input. Selected paths,
 string lengths, statement counts, browser releases, schema versions, and output
@@ -64,4 +67,5 @@ assessment can compare supplied response snapshots, reduce an HTML resource
 inventory, recognise selected request context, and inspect a strict reduced
 WebAuthn configuration. Neither a compatibility result nor an evidence
 observation is a vulnerability finding, compliance result, or assurance that a
-control is effective across an application.
+control is effective across an application. A report fingerprint detects edits
+to retained content but is not a signature or authenticated provenance.

@@ -1,9 +1,18 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "name": "Release evidence baseline",
-  "expectedAnalyserVersion": "2.0.0",
+  "expectedAnalyserVersion": "3.0.0",
   "expectedCatalogueVersion": "2.2.0",
   "expectedBcdVersion": "8.0.7",
+  "identity": {
+    "applicationId": "example-app",
+    "allowedEnvironments": ["staging"],
+    "expectedRevision": "0123456789abcdef0123456789abcdef01234567",
+    "allowedProducerKinds": ["application_ci"],
+    "requireBuildId": true,
+    "maxAgeDays": 7,
+    "maxCaptureDurationMinutes": 30
+  },
   "surfaces": [
     {
       "id": "document",

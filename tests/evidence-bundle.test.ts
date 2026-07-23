@@ -5,7 +5,7 @@ import {
   inspectHtmlResources,
   inspectWebauthnConfiguration
 } from "../src/evidence-bundle";
-import { evidenceSourceContext } from "./helpers";
+import { evidenceIdentity, evidenceSourceContext } from "./helpers";
 
 function finding(report: Awaited<ReturnType<typeof inspectEvidenceBundle>>, controlId: string) {
   const result = report.findings.find((candidate) => candidate.controlId === controlId);
@@ -123,7 +123,8 @@ describe("bounded evidence bundles", () => {
   it("combines response, HTML, request, and WebAuthn evidence conservatively", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Release candidate",
         surfaces: [
           {
@@ -219,9 +220,10 @@ describe("bounded evidence bundles", () => {
     expect(finding(report, "fetch-metadata").state).toBe("observed");
     expect(finding(report, "webauthn-conditional-mediation").state).toBe("observed");
     expect(finding(report, "csp-hashes").state).toBe("not_applicable");
-    expect(report.schemaVersion).toBe(4);
+    expect(report.schemaVersion).toBe(5);
+    expect(report.identity).toEqual(evidenceIdentity);
     expect(report.provenance).toMatchObject({
-      analyserVersion: "2.0.0",
+      analyserVersion: "3.0.0",
       catalogueVersion: "2.2.0",
       ...evidenceSourceContext
     });
@@ -257,7 +259,8 @@ describe("bounded evidence bundles", () => {
   it("correlates CSP with inline markup and verifies bounded local resource bytes", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Correlated deployment",
         surfaces: [
           {
@@ -328,7 +331,8 @@ describe("bounded evidence bundles", () => {
   it("makes broad CSP sources, nonce reuse, and digest mismatch reviewable", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Review evidence",
         surfaces: [
           {
@@ -406,7 +410,8 @@ describe("bounded evidence bundles", () => {
   it("surfaces route variation instead of choosing the favourable response", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Route comparison",
         surfaces: [
           {
@@ -442,7 +447,8 @@ describe("bounded evidence bundles", () => {
   it("makes missing expected-surface evidence explicit", async () => {
     const report = await inspectEvidenceBundle(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
+        identity: evidenceIdentity,
         name: "Incomplete manifest",
         surfaces: [
           {
@@ -481,7 +487,8 @@ describe("bounded evidence bundles", () => {
     await expect(
       inspectEvidenceBundle(
         {
-          schemaVersion: 2,
+          schemaVersion: 3,
+          identity: evidenceIdentity,
           name: "Unknown surface",
           surfaces: [
             {
@@ -528,6 +535,19 @@ describe("bounded evidence bundles", () => {
       inspectEvidenceBundle(
         {
           schemaVersion: 2,
+          name: "Legacy surface manifest",
+          surfaces: [],
+          responses: []
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow();
+
+    await expect(
+      inspectEvidenceBundle(
+        {
+          schemaVersion: 3,
+          identity: evidenceIdentity,
           name: "Unknown control",
           surfaces: [
             {
@@ -550,5 +570,90 @@ describe("bounded evidence bundles", () => {
         evidenceSourceContext
       )
     ).rejects.toThrow(/Unknown required control/u);
+  });
+
+  it("bounds evidence identity and capture windows before analysis", async () => {
+    const bundle = {
+      schemaVersion: 3,
+      identity: {
+        ...evidenceIdentity,
+        capture: {
+          ...evidenceIdentity.capture,
+          startedAt: "2026-07-20T10:00:00.000Z",
+          completedAt: "2026-07-20T09:00:00.000Z"
+        }
+      },
+      name: "Invalid capture",
+      surfaces: [
+        {
+          id: "document",
+          role: "document",
+          requiredEvidence: ["response"],
+          requiredControls: ["x-content-type-options"],
+          requiredComposites: []
+        }
+      ],
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "Response",
+          surfaceId: "document",
+          headers: { "X-Content-Type-Options": "nosniff" }
+        }
+      ]
+    };
+
+    await expect(inspectEvidenceBundle(bundle, evidenceSourceContext)).rejects.toThrow(
+      /completion must not precede/u
+    );
+    await expect(
+      inspectEvidenceBundle(
+        {
+          ...bundle,
+          identity: {
+            ...evidenceIdentity,
+            capture: {
+              ...evidenceIdentity.capture,
+              startedAt: "2026-07-01T00:00:00.000Z",
+              completedAt: "2026-07-09T00:00:00.000Z"
+            }
+          }
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow(/may not exceed seven days/u);
+    await expect(
+      inspectEvidenceBundle(
+        {
+          ...bundle,
+          identity: {
+            ...evidenceIdentity,
+            subject: {
+              ...evidenceIdentity.subject,
+              revision: "https://private.example.invalid/build/42"
+            }
+          }
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow();
+    await expect(
+      inspectEvidenceBundle(
+        {
+          ...bundle,
+          identity: {
+            ...evidenceIdentity,
+            capture: {
+              ...evidenceIdentity.capture,
+              producer: {
+                ...evidenceIdentity.capture.producer,
+                id: "Personal Name"
+              }
+            }
+          }
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow();
   });
 });

@@ -8,6 +8,24 @@ import { BROWSER_IDS } from "../src/browsers";
 
 const browserIds: readonly BrowserId[] = BROWSER_IDS;
 
+export const evidenceIdentity = {
+  subject: {
+    applicationId: "example-app",
+    environment: "staging",
+    revision: "0123456789abcdef0123456789abcdef01234567",
+    buildId: "build-42"
+  },
+  capture: {
+    startedAt: "2026-07-20T09:00:00.000Z",
+    completedAt: "2026-07-20T09:05:00.000Z",
+    producer: {
+      kind: "application_ci",
+      id: "example-ci",
+      version: "1.0.0"
+    }
+  }
+} as const;
+
 export const evidenceSourceContext = {
   bcdVersion: "1.0.0",
   bcdTimestamp: "2026-01-01T00:00:00.000Z",

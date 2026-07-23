@@ -154,7 +154,13 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     results.getByText("No declared surface requires this control.").first()
   ).toBeVisible();
   await expect(results.locator("#bundle-source")).toContainText(
-    "analyser 2.0.0 · catalogue 2.2.0 · BCD 8.0.7"
+    "example-app · staging · revision 0123456789abcdef0123456789abcdef01234567"
+  );
+  await expect(results.locator("#bundle-source")).toContainText(
+    "captured 2026-07-20T09:05:00.000Z by example-ci (application_ci)"
+  );
+  await expect(results.locator("#bundle-source")).toContainText(
+    "analyser 3.0.0 · catalogue 2.2.0 · BCD 8.0.7"
   );
   await expect(page.getByText("Compare with a previous reduced report")).toBeVisible();
   const reportText = await results.textContent();

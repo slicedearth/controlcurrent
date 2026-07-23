@@ -159,10 +159,25 @@ them.
 Coverage is complete only for the declared manifest. A satisfied result never
 claims that the manifest contains every production route or user state.
 
-Reduced reports pin the analyser, catalogue, BCD, Web Platform Features, and
-selected-schema versions and carry a fingerprint over canonical reduced output.
+Every schema 3 bundle also identifies an opaque application, environment,
+revision, optional build, producer, and bounded capture window. Schema 5 reports
+retain that identity inside their canonical fingerprint. The fingerprint makes
+later modification detectable but does not prove that the named producer
+created the evidence or that its timestamps are trustworthy.
+
+An independent schema 2 evidence policy can require the intended application,
+allowed environments and producer kinds, exact release revision, build-ID
+presence, maximum capture duration, and maximum evidence age. Age is measured
+in UTC calendar days from capture completion to the explicit evaluation date.
+Future-dated evidence fails rather than receiving a negative age. Producer
+timestamps are still claims; a future attestation layer would be required to
+authenticate them.
+
+Reduced reports also pin the analyser, catalogue, BCD, Web Platform Features,
+and selected-schema versions.
 Report comparison proceeds semantically only when analyser and catalogue
-versions match. It compares normalised states and retained reduced details, so
+versions match and both reports describe the same application and environment.
+It compares normalised states and retained reduced details, so
 an HSTS duration or other bounded detail can change without being hidden behind
 an unchanged `observed` state. Moving from an observed finding or satisfied
 composite to another conclusive state is a regression; the inverse is a
