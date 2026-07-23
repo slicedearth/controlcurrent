@@ -96,6 +96,13 @@ certificates, transparency entries, TUF metadata, and dependency diagnostics do
 not enter the reduced evaluation. Use non-identifying identifiers and exception
 reasons, and review evaluation files before sharing.
 
+The standard local export filenames are ignored at the repository root.
+`npm run audit:repository` also refuses tracked files with those names and
+scans the bounded public JSON directories for credential-like values, personal
+email addresses, and private-network locations. Store real assessment material
+under the ignored `private-data/` directory rather than forcing an export into
+Git history.
+
 Attestation verification is a CLI-only operation. It reads a user-supplied
 bundle in process memory, creates a temporary trust cache from the dependency's
 packaged TUF seed, disables live refresh, and removes that cache after the

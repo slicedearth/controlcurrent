@@ -22,6 +22,15 @@ checkpoints/
 manifests/
 .tmp/
 
+# Locally generated profiles, evidence and attestations
+/controlcurrent-profile.json
+/controlcurrent-evidence-report.json
+/controlcurrent-evidence-comparison.json
+/report.json
+/statement.json
+/sigstore-bundle.json
+/evidence-policy-evaluation.json
+
 # Local environment and editor files
 .env
 .env.*

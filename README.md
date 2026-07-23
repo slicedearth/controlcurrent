@@ -75,6 +75,8 @@ Platform Features is published under
 [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0). ControlCurrent source
 code is licensed separately under MIT. See [NOTICE](NOTICE) and
 [legal and licensing](docs/legal-and-licensing.md).
+The deployed site includes a plain-text third-party notice containing the
+Apache License 2.0 terms and notices for the browser-bundled dependencies.
 
 ## Privacy boundary
 
@@ -145,21 +147,26 @@ silently becoming supported.
 
 ## Commands
 
-| Command                  | Purpose                                                             |
-| ------------------------ | ------------------------------------------------------------------- |
-| `npm run generate`       | Regenerate the selected BCD subset and append deterministic changes |
-| `npm run generate:check` | Verify the selected subset matches the locked package               |
-| `npm run lint`           | Run strict ESLint checks                                            |
-| `npm run format:check`   | Verify repository formatting                                        |
-| `npm run typecheck`      | Type-check source, tools, and tests                                 |
-| `npm run check`          | Run Astro diagnostics                                               |
-| `npm run cli -- ...`     | Evaluate policies, inspect evidence, and compare reduced reports    |
-| `npm test`               | Run fixture-driven unit tests with coverage                         |
-| `npm run build`          | Verify the source snapshot and build the static site                |
-| `npm run audit:public`   | Inspect the public build for bounds and prohibited content          |
-| `npm run audit:language` | Enforce ControlCurrent naming and Australian-English terminology    |
-| `npm run test:e2e`       | Run local browser and accessibility tests                           |
-| `npm run verify`         | Run the non-browser verification suite                              |
+| Command                    | Purpose                                                             |
+| -------------------------- | ------------------------------------------------------------------- |
+| `npm run generate`         | Regenerate the selected BCD subset and append deterministic changes |
+| `npm run generate:check`   | Verify the selected subset matches the locked package               |
+| `npm run lint`             | Run strict ESLint checks                                            |
+| `npm run format:check`     | Verify repository formatting                                        |
+| `npm run typecheck`        | Type-check source, tools, and tests                                 |
+| `npm run check`            | Run Astro diagnostics                                               |
+| `npm run cli -- ...`       | Evaluate policies, inspect evidence, and compare reduced reports    |
+| `npm test`                 | Run fixture-driven unit tests with coverage                         |
+| `npm run build`            | Verify the source snapshot and build the static site                |
+| `npm run audit:repository` | Refuse unexpected public data and local evidence exports            |
+| `npm run audit:public`     | Inspect the public build for bounds and prohibited content          |
+| `npm run audit:language`   | Enforce ControlCurrent naming and Australian-English terminology    |
+| `npm run test:e2e`         | Run local browser and accessibility tests                           |
+| `npm run verify`           | Run the non-browser verification suite                              |
+
+The verification pipeline audits both tracked publication paths and the
+generated Pages artifact. It also confirms that deployed third-party notices
+remain present.
 
 Inspect a redacted local header snapshot:
 

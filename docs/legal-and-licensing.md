@@ -32,6 +32,8 @@ Selected Baseline metadata is transformed from:
 ControlCurrent retains the exact package version and only the feature identity,
 compatibility-path association, Baseline status, and associated dates required
 for its selected paths. It does not reproduce the complete package.
+The complete Apache License 2.0 terms are distributed with the static site in
+`public/third-party-notices.txt`.
 
 ## Specifications
 
@@ -57,7 +59,8 @@ incorporate WPT or dashboard content into the project licence.
 The offline evidence inspector uses:
 
 - **parse5:** MIT, copyright Ivan Nikulin;
-- **entities:** BSD 2-Clause, copyright Felix Böhm.
+- **entities:** BSD 2-Clause, copyright Felix Böhm;
+- **Zod:** MIT, copyright Colin McDonnell.
 
 The applicable copyright and licence notices are reproduced in `NOTICE`.
 ControlCurrent uses the parser only to create a bounded, non-executing syntax
@@ -97,3 +100,7 @@ The public repository retains a compact selected subset rather than the
 complete upstream packages. The subset includes only fields needed for
 attribution, support calculations, Baseline context, release selection, source
 review, and change history.
+
+The Pages artifact includes `third-party-notices.txt` with the Apache License
+2.0 terms and the copyright and licence notices for code bundled into the
+browser application.

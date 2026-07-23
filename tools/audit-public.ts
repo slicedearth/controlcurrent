@@ -7,11 +7,21 @@ const MAX_FILE_BYTES = 2 * 1_024 * 1_024;
 const MAX_TOTAL_BYTES = 25 * 1_024 * 1_024;
 const textExtensions = new Set([".css", ".csv", ".html", ".js", ".json", ".svg", ".txt", ".xml"]);
 const linkBearingExtensions = new Set([".csv", ".html", ".json", ".txt"]);
+const deployingToPages = process.env.GITHUB_ACTIONS === "true";
+const projectBase = "/controlcurrent/";
 const prohibitedPatterns = [
-  /(?:api|access|auth|secret)[_-]?key\s*[:=]\s*["'][^"']{8,}/iu,
+  /(?:api|access|auth|secret)[_-]?key["']?\s*[:=]\s*["'][^"']{8,}/iu,
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/u,
   /\b(?:sk|ghp|github_pat)_[A-Za-z0-9_]{20,}\b/u,
   /https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?/iu
+];
+const requiredNoticeMarkers = [
+  "Apache License",
+  "Zod",
+  "parse5",
+  "entities",
+  "MDN Browser Compatibility Data",
+  "Web Platform Features"
 ];
 
 async function listFiles(directory: string): Promise<string[]> {
@@ -40,14 +50,45 @@ for (const file of files) {
         throw new Error(`${relative(root, file)} matches prohibited public content.`);
       }
     }
-    if (linkBearingExtensions.has(extname(file)) && contents.includes("http://")) {
+    if (
+      linkBearingExtensions.has(extname(file)) &&
+      contents.includes("http://") &&
+      relative(publicRoot, file) !== "third-party-notices.txt"
+    ) {
       throw new Error(`${relative(root, file)} contains an insecure HTTP URL.`);
+    }
+    if (
+      deployingToPages &&
+      extname(file) === ".html" &&
+      /\b(?:href|src)="\/(?!controlcurrent(?:\/|"))/u.test(contents)
+    ) {
+      throw new Error(
+        `${relative(root, file)} contains a root-relative URL outside ${projectBase}.`
+      );
     }
   }
 }
 if (total > MAX_TOTAL_BYTES) {
   throw new Error(`Public build exceeds ${String(MAX_TOTAL_BYTES)} bytes.`);
 }
+const noticePath = resolve(publicRoot, "third-party-notices.txt");
+const notice = await readFile(noticePath, "utf8");
+for (const marker of requiredNoticeMarkers) {
+  if (!notice.includes(marker)) {
+    throw new Error(`dist/third-party-notices.txt is missing the ${marker} notice.`);
+  }
+}
+if (deployingToPages) {
+  const index = await readFile(resolve(publicRoot, "index.html"), "utf8");
+  if (
+    !index.includes('<link rel="canonical" href="https://slicedearth.github.io/controlcurrent/"')
+  ) {
+    throw new Error("The Pages build does not contain the expected project canonical URL.");
+  }
+  if (!index.includes('href="/controlcurrent/')) {
+    throw new Error("The Pages build does not use the expected project base path.");
+  }
+}
 console.log(
-  `Audited ${String(files.length)} public files (${String(total)} bytes); no prohibited content found.`
+  `Audited ${String(files.length)} public files (${String(total)} bytes); no prohibited content found, third-party notices are present${deployingToPages ? ", and Pages URLs use /controlcurrent/" : ""}.`
 );

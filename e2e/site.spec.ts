@@ -199,6 +199,25 @@ test("shows the reviewed source manifest without inventing review timestamps", a
   await expect(page.getByText("It is not the time a reviewer ran ControlCurrent")).toBeVisible();
 });
 
+test("publishes third-party licence notices with the static site", async ({ page, request }) => {
+  await page.goto("/data/");
+  const noticeLink = page.getByRole("link", {
+    name: "Read the deployed third-party notices and licence terms"
+  });
+  await expect(noticeLink).toBeVisible();
+
+  const href = await noticeLink.getAttribute("href");
+  expect(href).not.toBeNull();
+  if (!href) throw new Error("Third-party notice link is missing its destination.");
+  const response = await request.get(href);
+  expect(response.ok()).toBe(true);
+  const notices = await response.text();
+  expect(notices).toContain("Apache License");
+  expect(notices).toContain("Zod");
+  expect(notices).toContain("parse5");
+  expect(notices).toContain("entities");
+});
+
 test("does not detect the actual browser or expose a runtime connection surface", async ({
   page,
   request

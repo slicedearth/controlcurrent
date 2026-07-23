@@ -26,9 +26,10 @@
     "preview": "astro preview",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
+    "audit:repository": "tsx tools/audit-repository.ts",
     "audit:public": "tsx tools/audit-public.ts",
     "audit:language": "tsx tools/audit-language.ts",
-    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run check && npm test && npm run build && npm run audit:public && npm run audit:language"
+    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run check && npm test && npm run audit:repository && npm run build && npm run audit:public && npm run audit:language"
   },
   "dependencies": {
     "@mdn/browser-compat-data": "8.0.7",

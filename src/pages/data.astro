@@ -3,6 +3,8 @@ import Layout from "../components/Layout.astro";
 import { selectedSnapshot } from "../data";
 import { formatDate } from "../format";
 import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 ---
 
 <Layout
@@ -111,6 +113,11 @@ import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
       available under CC0, and selected Web Platform Features metadata remains under Apache-2.0. The
       WPT path registry is project-authored and links to BSD-3-Clause source. The project licence
       does not relicense upstream data, specifications, tests, results, or linked documentation.
+    </p>
+    <p>
+      <a href={`${base}/third-party-notices.txt`}>
+        Read the deployed third-party notices and licence terms
+      </a>
     </p>
   </article>
 </Layout>
