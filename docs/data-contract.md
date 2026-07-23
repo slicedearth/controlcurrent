@@ -91,6 +91,10 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Reduced comparison events emitted       |              512 |
 | Evidence-policy exceptions              |              128 |
 | Evidence-policy findings                |            4,096 |
+| Sigstore bundle input                   |          512 KiB |
+| Encoded DSSE statement                  |           64 KiB |
+| Decoded attestation statement           |           48 KiB |
+| Attestation certificate identity        | 1,024 characters |
 | WPT mappings                            |               64 |
 | WPT suites per control                  |                4 |
 | Public file                             |            2 MiB |
@@ -230,16 +234,40 @@ changes, and changes in retained reduced detail even when a state remains the
 same. Events contain stable keys and before/after states, not original headers,
 HTML, resource data, or private identifiers.
 
-Evidence policy schema 2 is independent of the submitted evidence bundle. It
+Evidence policy schema 3 is independent of the submitted evidence bundle. It
 pins expected analyser, catalogue, and optionally BCD versions; requires an
 application ID, allowed environments and producer kinds, optional exact
 revision, optional build ID presence, maximum capture duration, and maximum
-evidence age; then declares required surfaces, evidence kinds, controls,
-composites, rules, and at most 128 expiring exceptions. Future-dated, stale,
-overlong, or identity-mismatched evidence fails. Active surface exceptions can
-downgrade a matching negative finding to `review`; they never apply to identity
-or freshness and never create a pass. Expired exceptions remain visible and no
-longer affect the decision.
+evidence age; configures an exact Sigstore certificate issuer and URI identity;
+then declares required surfaces, evidence kinds, controls, composites, rules,
+and at most 128 expiring exceptions. Future-dated, stale, overlong, or
+identity-mismatched evidence fails. Active surface exceptions can downgrade a
+matching negative finding to `review`; they never apply to attestation,
+identity, or freshness and never create a pass. Expired exceptions remain
+visible and no longer affect the decision.
+
+## Evidence attestation
+
+Attestation statement schema 1 is an in-toto Statement v1 with exactly one
+`controlcurrent-evidence-report` subject. Its SHA-256 subject digest must equal
+the validated report fingerprint. Its bounded predicate repeats the report
+schema, name, application, environment, revision, optional build, producer, and
+capture window so a verified statement for another deployment cannot be reused.
+
+Attestation verification schema 1 retains only:
+
+- one explicit verification state;
+- the report fingerprint and predicate type;
+- the ControlCurrent verifier algorithm version;
+- the bounded certificate issuer and URI identity after successful
+  verification;
+- one reduced explanation.
+
+Complete Sigstore bundles, certificates, transparency entries, trust metadata,
+and dependency diagnostics are not retained in a verification result. Evidence
+policy evaluation schema 3 contains this reduced result. An absent attestation
+passes only when policy explicitly sets `required` to `false`; every supplied
+but unsuitable attestation fails and cannot receive a surface exception.
 
 ## WPT evidence registry
 

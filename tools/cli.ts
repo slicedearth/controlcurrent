@@ -5,10 +5,15 @@ import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
 import { selectedSnapshot } from "../src/data";
 import {
+  attestedEvidenceEvaluationSchema,
   browserIdSchema,
   evidencePolicyProfileSchema,
   policyProfileSchema
 } from "../src/contracts";
+import {
+  createEvidenceAttestationStatement,
+  verifyEvidenceAttestation
+} from "../src/evidence-attestation";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { compareEvidenceReports } from "../src/evidence-comparison";
 import { evaluateEvidencePolicy } from "../src/evidence-policy";
@@ -25,7 +30,9 @@ function usage(): never {
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
   npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]
-  npm run cli -- check-evidence <policy.json> <report.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]`);
+  npm run cli -- create-attestation-statement <report.json>
+  npm run cli -- check-evidence <policy.json> <report.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
+  npm run cli -- verify-evidence <policy.json> <report.json> <sigstore-bundle.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]`);
   process.exitCode = 2;
   throw new Error("Invalid command.");
 }
@@ -235,6 +242,58 @@ async function checkEvidence(): Promise<void> {
   process.exitCode = failed ? 1 : 0;
 }
 
+async function createAttestationStatement(): Promise<void> {
+  const reportPath = process.argv[3] ?? usage();
+  const statement = await createEvidenceAttestationStatement(
+    await readBoundedJson(reportPath, 1_024 * 1_024)
+  );
+  process.stdout.write(canonicalJson(statement));
+  process.exitCode = 0;
+}
+
+async function verifyEvidence(): Promise<void> {
+  const profilePath = process.argv[3] ?? usage();
+  const reportPath = process.argv[4] ?? usage();
+  const bundlePath = process.argv[5] ?? usage();
+  const asOf = optionValue("--as-of") ?? utcDate();
+  const profile = evidencePolicyProfileSchema.parse(await readBoundedJson(profilePath));
+  const report = await readBoundedJson(reportPath, 1_024 * 1_024);
+  const attestation = await verifyEvidenceAttestation(
+    report,
+    await readBoundedJson(bundlePath, 512 * 1_024),
+    profile.attestation
+  );
+  const evidence = await evaluateEvidencePolicy(report, profile, asOf, attestation);
+  const result = attestedEvidenceEvaluationSchema.parse({
+    schemaVersion: 1,
+    attestation,
+    evidence
+  });
+  const strictReview = process.argv.includes("--strict-review");
+  const failed =
+    result.evidence.summary.fail > 0 || (strictReview && result.evidence.summary.review > 0);
+  if (process.argv.includes("--json")) {
+    process.stdout.write(canonicalJson(result));
+  } else {
+    console.log(
+      `${profile.name}: ${failed ? "attested evidence policy failed" : "attested evidence policy satisfied"}`
+    );
+    console.log(`Attestation: ${attestation.state} · ${attestation.explanation}`);
+    if (attestation.signer) {
+      console.log(`Signer: ${attestation.signer.identity} · issuer ${attestation.signer.issuer}`);
+    }
+    console.log(
+      `${String(evidence.summary.pass)} pass, ${String(evidence.summary.review)} review, ${String(evidence.summary.fail)} fail`
+    );
+    for (const finding of evidence.findings.filter((item) => item.decision !== "pass")) {
+      console.log(
+        `- ${finding.decision.toUpperCase()} ${finding.surfaceId ?? "report"} ${finding.targetKind}:${finding.targetId}: ${finding.outcome}`
+      );
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
 try {
   switch (process.argv[2]) {
     case "check":
@@ -255,8 +314,14 @@ try {
     case "compare-reports":
       await compareReports();
       break;
+    case "create-attestation-statement":
+      await createAttestationStatement();
+      break;
     case "check-evidence":
       await checkEvidence();
+      break;
+    case "verify-evidence":
+      await verifyEvidence();
       break;
     default:
       usage();

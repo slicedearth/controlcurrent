@@ -163,6 +163,12 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     "analyser 3.0.0 · catalogue 2.2.0 · BCD 8.0.7"
   );
   await expect(page.getByText("Compare with a previous reduced report")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Verify the exported report in CI" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("A verified statement authenticates the configured signer")
+  ).toBeVisible();
   const reportText = await results.textContent();
   expect(reportText).not.toContain("/assets/app.css");
   expect(reportText).not.toContain("__Host-session");

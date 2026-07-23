@@ -1,9 +1,14 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "name": "Release evidence baseline",
   "expectedAnalyserVersion": "3.0.0",
   "expectedCatalogueVersion": "2.2.0",
   "expectedBcdVersion": "8.0.7",
+  "attestation": {
+    "required": false,
+    "certificateIssuer": "https://token.actions.githubusercontent.com/",
+    "certificateIdentity": "https://github.com/example/example/.github/workflows/evidence.yml@refs/heads/main"
+  },
   "identity": {
     "applicationId": "example-app",
     "allowedEnvironments": ["staging"],

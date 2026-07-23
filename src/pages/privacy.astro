@@ -46,15 +46,18 @@ import Layout from "../components/Layout.astro";
       remain in an export, as do surface requirements, application and environment IDs, revision,
       optional build ID, producer ID, capture timestamps, model provenance, and a SHA-256
       fingerprint of the reduced report. The fingerprint does not cover raw inputs or authenticate
-      the producer. Keep every label, identifier, surface ID, and evidence-policy exception reason
-      non-identifying.
+      the producer by itself. An optional CLI-only Sigstore verifier retains only its state and the
+      bounded certificate issuer and URI identity after successful verification; it does not retain
+      the complete bundle, certificate, transparency entry, or trust metadata. Keep every label,
+      identifier, surface ID, and evidence-policy exception reason non-identifying.
     </p>
 
     <h2>Network boundary</h2>
     <p>
       Compatibility data ships with the static site. The Content Security Policy denies runtime
       connections, and the planner makes no fetch request. External documentation links use a
-      no-referrer policy.
+      no-referrer policy. Sigstore verification does not run in the browser and uses packaged trust
+      material without a live refresh.
     </p>
 
     <h2>Deletion</h2>

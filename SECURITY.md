@@ -43,7 +43,10 @@ ControlCurrent is a static application:
   evidence reports;
 - bounded application, environment, revision, build, producer, and capture
   identity inside the reduced-report fingerprint;
-- fail-closed independent policy for identity and evidence freshness.
+- fail-closed independent policy for attestation, identity, and evidence
+  freshness;
+- optional CLI-only Sigstore verification with exact issuer and URI identity,
+  bounded DSSE input, packaged TUF trust material, and no live trust refresh.
 
 The build treats the BCD package as hostile structured input. Selected paths,
 string lengths, statement counts, browser releases, schema versions, and output
@@ -56,6 +59,8 @@ schema stops publication.
 - The generator executes no upstream script or source code.
 - Ordinary tests and CI make no live source request.
 - Dependencies are installed from the committed lockfile.
+- Sigstore verification uses maintained libraries rather than project-authored
+  cryptography and is excluded from the browser build.
 - GitHub Actions use least privilege and immutable action revisions.
 - The public-tree audit checks size, secrets, unsafe source links, and local
   development URLs.
@@ -68,4 +73,7 @@ inventory, recognise selected request context, and inspect a strict reduced
 WebAuthn configuration. Neither a compatibility result nor an evidence
 observation is a vulnerability finding, compliance result, or assurance that a
 control is effective across an application. A report fingerprint detects edits
-to retained content but is not a signature or authenticated provenance.
+to retained content but is not a signature by itself. A verified attestation
+authenticates the matching signed statement and configured signer identity; it
+does not prove evidence completeness, collection truth, runtime enforcement, or
+signer integrity.

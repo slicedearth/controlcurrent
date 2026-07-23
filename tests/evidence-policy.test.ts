@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import type { EvidencePolicyProfile } from "../src/contracts";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateEvidencePolicy } from "../src/evidence-policy";
+import {
+  EVIDENCE_ATTESTATION_PREDICATE_TYPE,
+  EVIDENCE_ATTESTATION_VERIFIER_VERSION
+} from "../src/evidence-model";
 import { evidenceIdentity, evidenceSourceContext } from "./helpers";
 
 async function report(headers: Record<string, string>, identity: unknown = evidenceIdentity) {
@@ -34,11 +38,17 @@ async function report(headers: Record<string, string>, identity: unknown = evide
 
 function profile(overrides: Partial<EvidencePolicyProfile> = {}): EvidencePolicyProfile {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     name: "Release evidence baseline",
     expectedAnalyserVersion: "3.0.0",
     expectedCatalogueVersion: "2.2.0",
     expectedBcdVersion: "1.0.0",
+    attestation: {
+      required: false,
+      certificateIssuer: "https://token.actions.githubusercontent.com/",
+      certificateIdentity:
+        "https://github.com/example/example/.github/workflows/evidence.yml@refs/heads/main"
+    },
     identity: {
       applicationId: "example-app",
       allowedEnvironments: ["staging"],
@@ -77,9 +87,122 @@ describe("evidence policy evaluation", () => {
       "2026-07-23"
     );
 
-    expect(evaluation.summary).toEqual({ pass: 13, review: 0, fail: 0 });
+    expect(evaluation.summary).toEqual({ pass: 14, review: 0, fail: 0 });
+    expect(evaluation.attestation.state).toBe("absent");
     expect(evaluation.reportIdentity).toEqual(evidenceIdentity);
     expect(evaluation.reportFingerprint).toMatch(/^[a-f0-9]{64}$/u);
+  });
+
+  it("fails a required absent attestation and passes an exact verified signer", async () => {
+    const evidenceReport = await report({
+      "Strict-Transport-Security": "max-age=31536000"
+    });
+    const requiredProfile = profile({
+      attestation: {
+        ...profile().attestation,
+        required: true
+      }
+    });
+    const absent = await evaluateEvidencePolicy(evidenceReport, requiredProfile, "2026-07-23");
+    const verified = await evaluateEvidencePolicy(evidenceReport, requiredProfile, "2026-07-23", {
+      schemaVersion: 1,
+      state: "verified",
+      reportFingerprint: evidenceReport.reportFingerprint,
+      predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
+      verifierVersion: EVIDENCE_ATTESTATION_VERIFIER_VERSION,
+      signer: {
+        issuer: requiredProfile.attestation.certificateIssuer,
+        identity: requiredProfile.attestation.certificateIdentity
+      },
+      explanation: "The bounded test attestation verified."
+    });
+
+    expect(absent.findings).toContainEqual(
+      expect.objectContaining({
+        targetKind: "attestation",
+        outcome: "absent",
+        decision: "fail"
+      })
+    );
+    expect(verified.findings).toContainEqual(
+      expect.objectContaining({
+        targetKind: "attestation",
+        outcome: "verified",
+        decision: "pass"
+      })
+    );
+  });
+
+  it("fails a verified result for another report or signer without allowing an exception", async () => {
+    const evidenceReport = await report({
+      "Strict-Transport-Security": "max-age=31536000"
+    });
+    const requiredProfile = profile({
+      attestation: {
+        ...profile().attestation,
+        required: true
+      },
+      exceptions: [
+        {
+          surfaceId: "document",
+          targetKind: "control",
+          targetId: "strict-transport-security",
+          outcomes: ["missing"],
+          reason: "This exception cannot apply to report trust.",
+          expiresOn: "2026-07-31"
+        }
+      ]
+    });
+    const wrongReport = await evaluateEvidencePolicy(
+      evidenceReport,
+      requiredProfile,
+      "2026-07-23",
+      {
+        schemaVersion: 1,
+        state: "verified",
+        reportFingerprint: "f".repeat(64),
+        predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
+        verifierVersion: EVIDENCE_ATTESTATION_VERIFIER_VERSION,
+        signer: {
+          issuer: requiredProfile.attestation.certificateIssuer,
+          identity: requiredProfile.attestation.certificateIdentity
+        },
+        explanation: "The bounded test attestation verified."
+      }
+    );
+    const wrongSigner = await evaluateEvidencePolicy(
+      evidenceReport,
+      requiredProfile,
+      "2026-07-23",
+      {
+        schemaVersion: 1,
+        state: "verified",
+        reportFingerprint: evidenceReport.reportFingerprint,
+        predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
+        verifierVersion: EVIDENCE_ATTESTATION_VERIFIER_VERSION,
+        signer: {
+          issuer: requiredProfile.attestation.certificateIssuer,
+          identity:
+            "https://github.com/example/other/.github/workflows/evidence.yml@refs/heads/main"
+        },
+        explanation: "The bounded test attestation verified."
+      }
+    );
+
+    expect(wrongReport.findings[0]).toEqual(
+      expect.objectContaining({
+        targetKind: "attestation",
+        outcome: "digest_mismatch",
+        decision: "fail"
+      })
+    );
+    expect(wrongSigner.findings[0]).toEqual(
+      expect.objectContaining({
+        targetKind: "attestation",
+        outcome: "signer_mismatch",
+        decision: "fail"
+      })
+    );
   });
 
   it("fails evidence for the wrong application, environment, revision, or producer", async () => {

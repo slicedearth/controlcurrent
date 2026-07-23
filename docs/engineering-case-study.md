@@ -91,8 +91,14 @@ safe detail. Compatible comparison separates regressions, resolutions, detail
 changes, and incomparable application or environment identities without
 reintroducing raw inputs. A separate policy profile lets CI enforce identity,
 freshness, coverage, and control requirements that the evidence producer cannot
-weaken. The fingerprint detects modification but deliberately does not claim
-signed or authenticated provenance.
+weaken.
+
+An optional CLI-only trust layer now turns that fingerprint and deployment
+identity into a canonical in-toto statement, verifies an externally signed
+Sigstore DSSE bundle against the policy's exact issuer and workflow identity,
+and reduces the result without retaining certificates or transparency entries.
+This authenticates the signed statement without claiming complete collection,
+runtime enforcement, or signer integrity.
 
 ## Privacy through absence
 

@@ -64,6 +64,22 @@ ControlCurrent uses the parser only to create a bounded, non-executing syntax
 tree from user-supplied markup. It does not load resources or redistribute
 submitted HTML.
 
+## Evidence-attestation verification
+
+The CLI-only verifier uses:
+
+- **@sigstore/bundle:** Apache License 2.0;
+- **@sigstore/tuf:** Apache License 2.0;
+- **@sigstore/verify:** Apache License 2.0;
+- their locked transitive dependencies under the licences recorded in
+  `package-lock.json`.
+
+The libraries parse and verify user-supplied Sigstore bundles against the
+packaged public-good trust snapshot. They are not bundled into the static
+website. ControlCurrent does not copy Sigstore documentation, issue
+certificates, sign statements, obtain OIDC tokens, or publish transparency-log
+entries.
+
 ## Licence separation
 
 The MIT licence applies to ControlCurrent source code. It does not relicense:

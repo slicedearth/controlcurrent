@@ -75,8 +75,9 @@ import Layout from "../components/Layout.astro";
       </li>
       <li>
         Application, environment, revision, build, producer, and capture-time fields are
-        fingerprinted assertions. They improve report targeting and freshness policy but are not
-        authenticated provenance.
+        fingerprinted assertions. An optional CLI gate can authenticate a matching signed statement
+        from one exact Sigstore certificate identity, but it cannot prove that the producer's
+        collection was complete or truthful.
       </li>
       <li>Fallback controls remain necessary for unsupported browsers and defence in depth.</li>
       <li>No result should be treated as legal, compliance, or certification advice.</li>
@@ -86,21 +87,22 @@ import Layout from "../components/Layout.astro";
     <p>These are project self-assessments, not benchmark scores.</p>
     <ul>
       <li>
-        <strong>9.6/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
+        <strong>9.7/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
         WPT, compatibility-policy, deployment-evidence, and evidence-policy layers are kept distinct.
       </li>
       <li>
-        <strong>9.7/10 as an engineering decision aid:</strong> explicit surface applicability, subject-identified
+        <strong>9.8/10 as an engineering decision aid:</strong> explicit surface applicability, subject-identified
         fingerprints, application and environment comparison boundaries, revision-aware freshness policy,
-        detail-aware comparisons, bounded exceptions, local export, and transparent composites support
-        design and release decisions.
+        exact Sigstore signer policy, detail-aware comparisons, bounded exceptions, local export, and
+        transparent composites support design and release decisions.
       </li>
       <li>
-        <strong>6.0/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
+        <strong>6.8/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
         and local resource evidence can reveal real configuration gaps; the independent gate now rejects
-        the wrong application, environment, revision, producer class, capture duration, and evidence age.
-        There is still no signed attestation, authenticated collection, discovered route inventory, runtime
-        enforcement test, remote resource verification, adversarial test, or continuous monitoring.
+        the wrong application, environment, revision, producer class, capture duration, evidence age,
+        report digest, and verified signer identity. There is still no authenticated collection, discovered
+        route inventory, runtime enforcement test, remote resource verification, adversarial test, or
+        continuous monitoring.
       </li>
     </ul>
   </article>

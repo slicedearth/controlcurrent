@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { BROWSER_IDS } from "./browsers";
-import { EVIDENCE_COMPOSITE_IDS } from "./evidence-model";
+import {
+  EVIDENCE_ATTESTATION_PREDICATE_TYPE,
+  EVIDENCE_ATTESTATION_STATEMENT_TYPE,
+  EVIDENCE_ATTESTATION_SUBJECT_NAME,
+  EVIDENCE_COMPOSITE_IDS
+} from "./evidence-model";
 
 export const browserIdSchema = z.enum(BROWSER_IDS);
 export type BrowserId = z.infer<typeof browserIdSchema>;
@@ -648,6 +653,107 @@ export const evidenceIdentitySchema = z
   });
 export type EvidenceIdentity = z.infer<typeof evidenceIdentitySchema>;
 
+export const evidenceAttestationStatementSchema = z
+  .object({
+    _type: z.literal(EVIDENCE_ATTESTATION_STATEMENT_TYPE),
+    subject: z
+      .array(
+        z
+          .object({
+            name: z.literal(EVIDENCE_ATTESTATION_SUBJECT_NAME),
+            digest: z
+              .object({
+                sha256: z.string().regex(/^[a-f0-9]{64}$/u)
+              })
+              .strict()
+          })
+          .strict()
+      )
+      .length(1),
+    predicateType: z.literal(EVIDENCE_ATTESTATION_PREDICATE_TYPE),
+    predicate: z
+      .object({
+        schemaVersion: z.literal(1),
+        reportSchemaVersion: z.literal(5),
+        reportName: z.string().trim().min(1).max(80),
+        identity: evidenceIdentitySchema
+      })
+      .strict()
+  })
+  .strict();
+export type EvidenceAttestationStatement = z.infer<typeof evidenceAttestationStatementSchema>;
+
+const attestationCertificateUrlSchema = z
+  .url()
+  .max(1_024)
+  .refine(
+    (value) => {
+      const url = new URL(value);
+      return (
+        url.protocol === "https:" &&
+        url.username === "" &&
+        url.password === "" &&
+        url.search === "" &&
+        url.hash === ""
+      );
+    },
+    {
+      message:
+        "Attestation certificate URLs must use HTTPS without credentials, query strings, or fragments."
+    }
+  );
+
+export const evidenceAttestationPolicySchema = z
+  .object({
+    required: z.boolean(),
+    certificateIssuer: attestationCertificateUrlSchema,
+    certificateIdentity: attestationCertificateUrlSchema
+  })
+  .strict();
+export type EvidenceAttestationPolicy = z.infer<typeof evidenceAttestationPolicySchema>;
+
+export const evidenceAttestationStateSchema = z.enum([
+  "absent",
+  "verified",
+  "invalid_bundle",
+  "verification_failed",
+  "signer_mismatch",
+  "statement_invalid",
+  "digest_mismatch",
+  "identity_mismatch",
+  "trust_unavailable",
+  "unsupported"
+]);
+export type EvidenceAttestationState = z.infer<typeof evidenceAttestationStateSchema>;
+
+export const evidenceAttestationVerificationSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    state: evidenceAttestationStateSchema,
+    reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    predicateType: z.literal(EVIDENCE_ATTESTATION_PREDICATE_TYPE),
+    verifierVersion: z.string().regex(/^\d+\.\d+\.\d+$/u),
+    signer: z
+      .object({
+        issuer: z.string().trim().min(1).max(512),
+        identity: z.string().trim().min(1).max(1_024)
+      })
+      .strict()
+      .optional(),
+    explanation: z.string().trim().min(1).max(1_024)
+  })
+  .strict()
+  .superRefine((verification, context) => {
+    if (verification.state === "verified" && !verification.signer) {
+      context.addIssue({
+        code: "custom",
+        message: "Verified evidence attestations must identify their trusted signer.",
+        path: ["signer"]
+      });
+    }
+  });
+export type EvidenceAttestationVerification = z.infer<typeof evidenceAttestationVerificationSchema>;
+
 export const surfaceEvidenceKindSchema = z.enum([
   "response",
   "html",
@@ -915,6 +1021,12 @@ export const evidencePolicyOutcomeSchema = z.enum([
   "role_mismatch",
   "model_mismatch",
   "identity_mismatch",
+  "verified",
+  "signer_mismatch",
+  "digest_mismatch",
+  "statement_invalid",
+  "trust_unavailable",
+  "unsupported",
   "stale",
   "future",
   "window_too_long"
@@ -935,11 +1047,12 @@ export type EvidencePolicyException = z.infer<typeof evidencePolicyExceptionSche
 
 export const evidencePolicyProfileSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     name: z.string().trim().min(1).max(80),
     expectedAnalyserVersion: z.string().regex(/^\d+\.\d+\.\d+$/u),
     expectedCatalogueVersion: z.string().min(1).max(64),
     expectedBcdVersion: z.string().min(1).max(64).optional(),
+    attestation: evidenceAttestationPolicySchema,
     identity: z
       .object({
         applicationId: evidenceApplicationIdSchema,
@@ -1004,6 +1117,7 @@ export const evidencePolicyFindingSchema = z
     surfaceId: evidenceSurfaceIdSchema.optional(),
     targetKind: z.enum([
       "model",
+      "attestation",
       "identity",
       "freshness",
       "surface",
@@ -1024,11 +1138,12 @@ export type EvidencePolicyFinding = z.infer<typeof evidencePolicyFindingSchema>;
 
 export const evidencePolicyEvaluationSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     evaluatedAsOf: z.iso.date(),
     reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
     reportIdentity: evidenceIdentitySchema,
     reportProvenance: evidenceProvenanceSchema,
+    attestation: evidenceAttestationVerificationSchema,
     profile: evidencePolicyProfileSchema,
     summary: z
       .object({
@@ -1041,3 +1156,12 @@ export const evidencePolicyEvaluationSchema = z
   })
   .strict();
 export type EvidencePolicyEvaluation = z.infer<typeof evidencePolicyEvaluationSchema>;
+
+export const attestedEvidenceEvaluationSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    attestation: evidenceAttestationVerificationSchema,
+    evidence: evidencePolicyEvaluationSchema
+  })
+  .strict();
+export type AttestedEvidenceEvaluation = z.infer<typeof attestedEvidenceEvaluationSchema>;

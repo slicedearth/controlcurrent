@@ -80,6 +80,8 @@ reproducible historical decision is required.
 Browser-support policy and deployment-evidence policy are separate contracts.
 `examples/evidence-policy.json` defines the latter. It can require:
 
+- an optional or mandatory Sigstore evidence attestation from one exact
+  certificate issuer and URI identity;
 - exact analyser and catalogue versions;
 - an exact BCD version when the consumer wants source pinning;
 - an exact application ID and an allowed deployment environment;
@@ -109,8 +111,29 @@ cannot remove a required control, composite, or evidence kind from its bundle
 manifest to weaken the consumer's gate. The evaluator recomputes the report
 fingerprint before applying policy. Model, application, environment, revision,
 producer, build-identity, freshness, and capture-duration mismatches fail.
-Identity and timestamps remain unauthenticated producer assertions unless a
-separate trusted system verifies their origin. Active surface exceptions convert
-a matching negative finding to `review`, never `pass`; they cannot exempt
-identity or freshness. Expired exceptions remain visible and stop affecting the
-decision.
+Without a verified attestation, identity and timestamps remain unauthenticated
+producer assertions. Even with one, they remain signed claims rather than
+independent collection facts.
+
+Evidence-policy schema 3 can require a Sigstore DSSE attestation. The
+certificate issuer and URI identity are owned by the independent policy rather
+than the report or bundle. Use `create-attestation-statement` to emit the
+canonical in-toto statement and `verify-evidence` to verify an externally
+signed bundle before policy evaluation:
+
+```sh
+npm --silent run cli -- create-attestation-statement report.json > statement.json
+
+npm run cli -- verify-evidence examples/evidence-policy.json report.json \
+  report.sigstore.json --as-of 2026-07-23 --strict-review
+```
+
+`check-evidence` supplies an explicit `absent` attestation result. That passes
+only when the policy sets `attestation.required` to `false`. A supplied invalid,
+unsupported, mismatched, or unverifiable attestation always fails.
+
+Active surface exceptions convert a matching negative finding to `review`,
+never `pass`; they cannot exempt attestation, identity, or freshness. Expired
+exceptions remain visible and stop affecting the decision. See
+[`attested-evidence.md`](attested-evidence.md) for the trust and signing
+boundaries.

@@ -16,7 +16,7 @@ import Layout from "../components/Layout.astro";
   </header>
   <article class="shell prose">
     <h2>Evidence layers</h2>
-    <p>The application keeps six statements separate:</p>
+    <p>The application keeps seven statements separate:</p>
     <ol>
       <li><strong>Source data:</strong> BCD paths, browser statements, versions, and notes.</li>
       <li><strong>Catalogue mapping:</strong> which source paths represent a security control.</li>
@@ -30,6 +30,10 @@ import Layout from "../components/Layout.astro";
       </li>
       <li>
         <strong>Conformance context:</strong> exact reviewed WPT suite paths and explicit limits.
+      </li>
+      <li>
+        <strong>Authenticated provenance:</strong> optional CLI verification that one exact policy-selected
+        Sigstore identity signed the matching reduced report statement.
       </li>
     </ol>
 
@@ -88,6 +92,15 @@ import Layout from "../components/Layout.astro";
       separate. A bounded bundle can add CSP-to-markup correlation, local SRI byte verification,
       Fetch Metadata, reduced WebAuthn evidence, declared surface coverage, and deterministic
       reduced-report comparison while preserving those limits.
+    </p>
+
+    <h2>Attested evidence</h2>
+    <p>
+      The CLI can create one canonical in-toto statement over a validated reduced-report fingerprint
+      and its deployment identity. It verifies an externally signed Sigstore DSSE bundle using
+      packaged trust material, an exact certificate issuer, and an exact URI identity selected by
+      independent policy. This authenticates the matching signed statement, not the completeness or
+      truth of evidence collection, runtime enforcement, or signer integrity.
     </p>
 
     <h2>Conformance evidence</h2>

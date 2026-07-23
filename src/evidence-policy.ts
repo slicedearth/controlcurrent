@@ -1,13 +1,16 @@
 import { SECURITY_CONTROLS } from "./catalogue";
 import {
+  type EvidenceAttestationVerification,
   type EvidencePolicyException,
   type EvidencePolicyFinding,
   type EvidencePolicyEvaluation,
   type EvidencePolicyOutcome,
   type PolicyDecision,
+  evidenceAttestationVerificationSchema,
   evidencePolicyEvaluationSchema,
   evidencePolicyProfileSchema
 } from "./contracts";
+import { absentEvidenceAttestation } from "./evidence-attestation";
 import { EVIDENCE_COMPOSITE_IDS } from "./evidence-model";
 import { validateEvidenceReport } from "./evidence-report";
 
@@ -27,6 +30,30 @@ function utcDate(value: string): string {
 
 function addDays(value: string, days: number): string {
   return new Date((dayIndex(value) + days) * DAY_MILLISECONDS).toISOString().slice(0, 10);
+}
+
+function attestationOutcome(attestation: EvidenceAttestationVerification): EvidencePolicyOutcome {
+  switch (attestation.state) {
+    case "verified":
+      return "verified";
+    case "absent":
+      return "absent";
+    case "signer_mismatch":
+      return "signer_mismatch";
+    case "digest_mismatch":
+      return "digest_mismatch";
+    case "identity_mismatch":
+      return "identity_mismatch";
+    case "statement_invalid":
+      return "statement_invalid";
+    case "trust_unavailable":
+      return "trust_unavailable";
+    case "unsupported":
+      return "unsupported";
+    case "invalid_bundle":
+    case "verification_failed":
+      return "invalid";
+  }
 }
 
 function matchingException(
@@ -82,7 +109,8 @@ function withException(
 export async function evaluateEvidencePolicy(
   reportInput: unknown,
   profileInput: unknown,
-  evaluatedAsOf: string
+  evaluatedAsOf: string,
+  attestationInput?: unknown
 ): Promise<EvidencePolicyEvaluation> {
   const report = await validateEvidenceReport(reportInput);
   const profile = evidencePolicyProfileSchema.parse(profileInput);
@@ -108,6 +136,46 @@ export async function evaluateEvidencePolicy(
   }
 
   const findings: EvidencePolicyFinding[] = [];
+  const suppliedAttestation = evidenceAttestationVerificationSchema.parse(
+    attestationInput ?? absentEvidenceAttestation(report.reportFingerprint)
+  );
+  const fingerprintMatches = suppliedAttestation.reportFingerprint === report.reportFingerprint;
+  const signerMatches =
+    suppliedAttestation.state !== "verified" ||
+    (suppliedAttestation.signer?.issuer === profile.attestation.certificateIssuer &&
+      suppliedAttestation.signer.identity === profile.attestation.certificateIdentity);
+  const attestation = !fingerprintMatches
+    ? evidenceAttestationVerificationSchema.parse({
+        ...suppliedAttestation,
+        state: "digest_mismatch",
+        reportFingerprint: report.reportFingerprint,
+        explanation:
+          "The attestation verification result describes a different reduced report fingerprint."
+      })
+    : !signerMatches
+      ? evidenceAttestationVerificationSchema.parse({
+          ...suppliedAttestation,
+          state: "signer_mismatch",
+          explanation:
+            "The verified signer does not match the exact issuer and certificate identity required by policy."
+        })
+      : suppliedAttestation;
+  const attestationDecision =
+    attestation.state === "verified" ||
+    (!profile.attestation.required && attestation.state === "absent")
+      ? "pass"
+      : "fail";
+  findings.push({
+    targetKind: "attestation",
+    targetId: "sigstore-bundle",
+    outcome: attestationOutcome(attestation),
+    decision: attestationDecision,
+    explanation:
+      attestation.state === "absent" && !profile.attestation.required
+        ? "The policy permits an unsigned reduced evidence report."
+        : attestation.explanation
+  });
+
   const applicationMatches =
     report.identity.subject.applicationId === profile.identity.applicationId;
   findings.push({
@@ -361,11 +429,12 @@ export async function evaluateEvidencePolicy(
   }
 
   return evidencePolicyEvaluationSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     evaluatedAsOf,
     reportFingerprint: report.reportFingerprint,
     reportIdentity: report.identity,
     reportProvenance: report.provenance,
+    attestation,
     profile,
     summary: {
       pass: findings.filter((finding) => finding.decision === "pass").length,

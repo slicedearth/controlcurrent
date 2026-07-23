@@ -165,13 +165,20 @@ retain that identity inside their canonical fingerprint. The fingerprint makes
 later modification detectable but does not prove that the named producer
 created the evidence or that its timestamps are trustworthy.
 
-An independent schema 2 evidence policy can require the intended application,
+An independent schema 3 evidence policy can require the intended application,
 allowed environments and producer kinds, exact release revision, build-ID
 presence, maximum capture duration, and maximum evidence age. Age is measured
 in UTC calendar days from capture completion to the explicit evaluation date.
 Future-dated evidence fails rather than receiving a negative age. Producer
-timestamps are still claims; a future attestation layer would be required to
-authenticate them.
+timestamps remain claims in an unsigned report.
+
+An optional CLI trust layer creates one canonical in-toto statement over the
+validated reduced-report fingerprint and retained deployment identity. An
+external producer can sign that statement as a Sigstore DSSE bundle.
+ControlCurrent verifies the signature, certificate, transparency evidence,
+subject digest, and exact policy-selected certificate identity before applying
+the evidence gate. Verification authenticates the signed statement, not the
+truth or completeness of the collection that produced it.
 
 Reduced reports also pin the analyser, catalogue, BCD, Web Platform Features,
 and selected-schema versions.

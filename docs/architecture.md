@@ -175,6 +175,17 @@ subject-identified, provenance-stamped, fingerprinted reduced report
       +--> compatible, detail-aware comparison
       |
       +--> independent evidence-policy evaluation
+      |
+      +--> canonical in-toto evidence statement
+                    |
+                    v
+             external DSSE signing
+                    |
+                    v
+       CLI-only Sigstore verification
+                    |
+                    v
+       attestation-aware policy evaluation
 ```
 
 The HTML parser retains only counts, recognised integrity algorithms, parse
@@ -200,8 +211,22 @@ The evidence identity is also an operator or CI assertion. It prevents reports
 for different named applications or environments from being compared as one
 deployment, and it lets independent policy bound revision, producer, capture
 duration, and age. A SHA-256 report fingerprint protects retained content
-integrity; it does not authenticate the producer. Signing or attestation remains
-a separate future trust layer.
+integrity; it does not authenticate the producer by itself.
+
+The optional attestation path places that fingerprint and the retained
+deployment identity in one bounded in-toto Statement v1. ControlCurrent does not
+sign it. The CLI verifies an externally produced Sigstore DSSE bundle against
+the exact certificate issuer and URI identity selected by schema 3 evidence
+policy, then compares the verified subject and predicate with the supplied
+report. It requires certificate-transparency and transparency-log evidence.
+
+Sigstore verification is excluded from the browser build. The CLI creates a
+temporary TUF cache, uses only the trust snapshot packaged with the locked
+`@sigstore/tuf` dependency, disables live refresh, and deletes the cache after
+the invocation. The reduced result retains no bundle, certificate, transparency
+entry, or dependency error message. A verified result authenticates the signed
+statement and configured signer identity; it does not authenticate how the
+underlying evidence was collected or prove that the producer was uncompromised.
 
 ## Conformance evidence boundary
 

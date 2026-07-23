@@ -92,5 +92,30 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
+The CLI-only evidence-attestation verifier uses:
+
+@sigstore/bundle
+https://github.com/sigstore/sigstore-js
+Copyright The Sigstore Authors
+Licensed under the Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+@sigstore/tuf
+https://github.com/sigstore/sigstore-js
+Copyright The Sigstore Authors
+Licensed under the Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+@sigstore/verify
+https://github.com/sigstore/sigstore-js
+Copyright The Sigstore Authors
+Licensed under the Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+The verifier uses the packages' maintained bundle, TUF, certificate,
+transparency, and signature-verification implementations. It does not
+redistribute dependency source code or bundle those libraries into the static
+website.
+
 The MIT licence for ControlCurrent source code does not relicense upstream data,
 linked specifications, tests, result data, or third-party documentation.

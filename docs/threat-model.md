@@ -8,6 +8,7 @@
 - Privacy of visitor-selected browser profiles
 - Integrity of the static public build
 - Trustworthiness of source attribution
+- Integrity and signer-policy binding of optional evidence attestations
 
 ## Adversarial inputs
 
@@ -23,6 +24,8 @@ The project treats these as hostile:
 - pasted response-header blocks and local header snapshot files;
 - local evidence bundles, supplied HTML and resource bytes, request snapshots,
   and reduced WebAuthn configurations;
+- reduced evidence reports, Sigstore bundles, and evidence-attestation policy
+  identities;
 - dependency packages and build output.
 
 ## Source risks
@@ -90,6 +93,31 @@ inside the reduced-report fingerprint, so later edits are detectable. The
 fingerprint is not a signature and does not prove which workflow, repository, or
 person produced the report.
 
+### Attestation confusion and trust substitution
+
+The optional verifier accepts at most 512 KiB, requires a DSSE envelope with
+the in-toto payload type, caps the decoded statement at 48 KiB, and validates
+one exact statement and predicate schema. It verifies the bundle before
+interpreting its statement. The statement subject digest and deployment
+predicate must match the independently validated reduced report.
+
+The expected certificate issuer and URI identity come from the evidence policy,
+not the bundle. URI identity is escaped and anchored before verification.
+Attestation, identity, and freshness findings cannot receive a surface
+exception. The reduced result omits certificates, complete bundles,
+transparency entries, and upstream diagnostic messages.
+
+The verifier uses Sigstore's packaged TUF seed with live refresh disabled in a
+new temporary cache. This avoids an unreviewed runtime trust-root request and
+makes the locked dependency version part of the trust decision. It also means a
+trust-root update requires a dependency review.
+
+A valid attestation proves that the configured identity signed the matching
+statement under the accepted Sigstore trust material. It does not prove that
+the signer should be trusted, that its identity provider or workflow was
+uncompromised, that evidence collection was complete, or that the signed claims
+were truthful.
+
 An expected-surface manifest can itself be incomplete or misleading. The tool
 therefore describes coverage only for declared opaque surfaces and never calls
 the manifest a discovered route inventory. Per-surface control and composite
@@ -105,7 +133,8 @@ the bundle. Model, application, environment, optional revision, producer,
 build-presence, capture-duration, and age mismatches fail. Future-dated evidence
 also fails. Exceptions are bounded, specific, and expiring; active exceptions
 produce review rather than pass, while expired exceptions remain visible.
-Identity and freshness cannot be exempted through surface exceptions.
+Attestation, identity, and freshness cannot be exempted through surface
+exceptions.
 
 ## Build and workflow risks
 
@@ -127,3 +156,5 @@ Identity and freshness cannot be exempted through surface exceptions.
 - Market-share analysis
 - Private browser policy ingestion
 - Live WPT execution or wpt.fyi result ingestion
+- Evidence signing, OIDC token acquisition, or transparency-log publication
+- Trust decisions for unreviewed certificate identities

@@ -84,8 +84,16 @@ identifiers. It does not authenticate who supplied those claims.
 
 Evidence-policy evaluations contain the reduced report fingerprint, evidence
 identity, pinned model provenance, the policy profile, freshness calculations,
-decisions, and exception reasons. Use non-identifying identifiers and exception
+attestation state, bounded verified certificate issuer and URI identity when
+present, decisions, and exception reasons. Complete Sigstore bundles,
+certificates, transparency entries, TUF metadata, and dependency diagnostics do
+not enter the reduced evaluation. Use non-identifying identifiers and exception
 reasons, and review evaluation files before sharing.
+
+Attestation verification is a CLI-only operation. It reads a user-supplied
+bundle in process memory, creates a temporary trust cache from the dependency's
+packaged TUF seed, disables live refresh, and removes that cache after the
+invocation. The static website neither receives nor verifies a bundle.
 
 ## Source data
 

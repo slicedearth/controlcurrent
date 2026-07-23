@@ -37,6 +37,9 @@ It is not a general compatibility index and it does not scan websites.
   regressions, resolutions, other changes, and incomparable evidence
 - An independent evidence-policy profile and CI exit code with identity,
   producer, capture-duration, freshness, and expiring-exception requirements
+- Optional CLI-only Sigstore attestation verification that binds an exact
+  certificate identity to the reduced report fingerprint and deployment
+  identity
 - Project-authored composite checks that keep candidate deployment recipes
   separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
@@ -82,6 +85,10 @@ The deployed site has:
 - no URL fetch in the offline header inspector;
 - no HTML execution or resource loading in evidence-bundle analysis;
 - no automatic profile persistence.
+
+Sigstore verification is CLI-only. It uses a temporary cache and the trust
+snapshot packaged with the locked TUF dependency, with live refresh disabled.
+The static website never receives an attestation bundle.
 
 A profile is saved to one bounded, versioned `localStorage` key only after the
 visitor selects **Save locally**. JSON exports are generated in the browser.
@@ -177,6 +184,19 @@ npm run cli -- check-evidence examples/evidence-policy.json report.json \
   --as-of 2026-07-23 --strict-review
 ```
 
+Create the canonical in-toto statement for external signing:
+
+```sh
+npm --silent run cli -- create-attestation-statement report.json > statement.json
+```
+
+Verify an externally signed Sigstore DSSE bundle and then apply evidence policy:
+
+```sh
+npm run cli -- verify-evidence examples/evidence-policy.json report.json \
+  report.sigstore.json --as-of 2026-07-23 --strict-review
+```
+
 The bundle command exits non-zero for invalid or inconsistent evidence. Add
 `--fail-missing` to include absent controls, or `--strict-composites` to require
 each applicable project-authored composite candidate to avoid a review or gap
@@ -185,7 +205,9 @@ failures. Evidence policy requirements come from a separate file, so weakening
 the submitted bundle cannot weaken the CI gate. The example gate also requires
 the expected application, environment, revision, CI producer, build ID, capture
 duration, and maximum evidence age. These are fingerprinted producer claims,
-not authenticated provenance.
+not authenticated provenance unless the separate attestation verifier accepts
+the signed statement and exact policy-selected signer. Verification still does
+not prove complete or truthful collection.
 
 ## Architecture
 
@@ -218,11 +240,19 @@ local response, HTML, request, and WebAuthn inputs
  surface-scoped findings and composite candidates
           |
           v
- subject-identified, provenance-stamped reduced report
+subject-identified, provenance-stamped reduced report
           |
           +--> compatible detail-aware comparison
           |
           +--> independent evidence-policy gate
+          |
+          +--> canonical in-toto statement
+                         |
+                         v
+                external DSSE signing
+                         |
+                         v
+             CLI-only Sigstore verification
 ```
 
 The selected data is a build input. The deployed site makes no runtime request
@@ -233,6 +263,7 @@ for compatibility data.
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)
 - [Policy as code](docs/policy-as-code.md)
+- [Attested evidence](docs/attested-evidence.md)
 - [Conformance evidence](docs/conformance-evidence.md)
 - [Methodology](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
