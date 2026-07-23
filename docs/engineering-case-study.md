@@ -58,6 +58,17 @@ associations. It can help explain when a feature became broadly available, but
 it cannot override a browser-specific statement or establish deployment
 quality. Missing associations remain visible instead of being inferred.
 
+## Conformance without certification
+
+The catalogue now has a second evidence map for relevant Web Platform Tests.
+Every mapping is pinned to one WPT revision and records both what the suite
+exercises and what it cannot establish about a deployment.
+
+Twenty-seven controls have an exact suite mapping. HSTS and HttpOnly remain
+unmapped because a nearby HTTPS or cookie suite would overstate the evidence.
+Current wpt.fyi results are linked for investigation but not reduced to a pass
+percentage or used as a policy decision.
+
 ## Privacy through absence
 
 The product does not need to know the visitor's installed browser. It asks for
@@ -83,5 +94,6 @@ The verification design separates:
 - deterministic source regeneration;
 - dependency and public-tree audits;
 - browser behaviour, accessibility, external-request, and narrow-viewport tests.
+- complete catalogue-to-WPT registry coverage and pinned-link generation.
 
 Ordinary checks do not call live services.

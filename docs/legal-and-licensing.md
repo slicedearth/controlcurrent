@@ -38,12 +38,27 @@ for its selected paths. It does not reproduce the complete package.
 Specifications remain subject to the terms of their respective publishers.
 Links do not incorporate specification text into the project licence.
 
+## Web Platform Tests
+
+ControlCurrent includes project-authored factual mappings to suite paths in:
+
+- **Source:** Web Platform Tests
+- **Repository:** <https://github.com/web-platform-tests/wpt>
+- **Reviewed revision:** `af38980d2fcd74af19a226f5f651051cc15940ed`
+- **Licence:** BSD 3-Clause
+
+The project does not copy WPT source, test bodies, expectations, or wpt.fyi
+result data. It retains exact suite paths, pinned source links, current
+dashboard links, and original scope and limitation statements. Links do not
+incorporate WPT or dashboard content into the project licence.
+
 ## Licence separation
 
 The MIT licence applies to ControlCurrent source code. It does not relicense:
 
 - the selected BCD-derived data;
 - selected Web Platform Features metadata;
+- linked WPT source and result data;
 - linked MDN documentation;
 - linked standards;
 - dependency source code.

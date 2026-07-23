@@ -69,6 +69,8 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Header names                            |               64 |
 | Values per header name                  |                8 |
 | Assurance findings                      |               64 |
+| WPT mappings                            |               64 |
+| WPT suites per control                  |                4 |
 | Public file                             |            2 MiB |
 | Public build                            |           25 MiB |
 
@@ -125,3 +127,19 @@ Assurance findings use four states:
 
 Reports contain bounded summaries and redacted evidence only. They never
 contain a raw header value, cookie name, or cookie value.
+
+## WPT evidence registry
+
+The WPT registry is a versioned project-authored contract rather than an
+upstream result mirror. Its review metadata contains:
+
+- schema version;
+- repository identity;
+- exact 40-character source revision;
+- review date;
+- source licence.
+
+Each control has exactly one mapping with a `mapped` or `not_mapped` state,
+zero to four exact suite paths, a bounded scope statement, and a bounded
+limitation. Source links are pinned to the reviewed revision. Dashboard links
+are visibly current and do not enter compatibility calculations.

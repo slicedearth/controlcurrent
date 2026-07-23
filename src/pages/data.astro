@@ -2,6 +2,7 @@
 import Layout from "../components/Layout.astro";
 import { selectedSnapshot } from "../data";
 import { formatDate } from "../format";
+import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
 ---
 
 <Layout
@@ -10,10 +11,10 @@ import { formatDate } from "../format";
 >
   <header class="shell page-header">
     <span class="eyebrow">Source governance</span>
-    <h1>Two attributed sources, one bounded selected subset</h1>
+    <h1>Attributed sources with bounded retained evidence</h1>
     <p>
       The deployed application contains the security-control slice needed for its calculations. It
-      does not republish either complete upstream dataset.
+      does not republish complete upstream datasets or conformance results.
     </p>
   </header>
   <article class="shell prose">
@@ -55,6 +56,28 @@ import { formatDate } from "../format";
       </a>
     </p>
 
+    <h2>Conformance evidence source</h2>
+    <dl>
+      <dt>Operator</dt>
+      <dd>Web Platform Tests contributors</dd>
+      <dt>Repository</dt>
+      <dd><code>{WPT_EVIDENCE_REVIEW.repository}</code></dd>
+      <dt>Reviewed revision</dt>
+      <dd><code>{WPT_EVIDENCE_REVIEW.revision}</code></dd>
+      <dt>Licence</dt>
+      <dd>BSD 3-Clause</dd>
+      <dt>Use</dt>
+      <dd>{WPT_EVIDENCE.length} project-authored control-to-suite mappings</dd>
+    </dl>
+    <p>
+      <a
+        href={`https://github.com/web-platform-tests/wpt/tree/${WPT_EVIDENCE_REVIEW.revision}`}
+        rel="noopener noreferrer"
+      >
+        View the reviewed Web Platform Tests revision
+      </a>
+    </p>
+
     <h2>Retained fields</h2>
     <ul>
       <li>Selected feature paths, source files, MDN and specification URLs.</li>
@@ -76,6 +99,7 @@ import { formatDate } from "../format";
     <ul>
       <li>The complete BCD dataset.</li>
       <li>The complete Web Platform Features dataset.</li>
+      <li>WPT test bodies, expectations, logs, or wpt.fyi result data.</li>
       <li>MDN article prose or diagrams.</li>
       <li>Website observations, user-agent strings, visitor profiles, or analytics.</li>
       <li>Market-share data or project-authored browser policy defaults.</li>
@@ -85,7 +109,8 @@ import { formatDate } from "../format";
     <p>
       ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains
       available under CC0, and selected Web Platform Features metadata remains under Apache-2.0. The
-      project licence does not relicense upstream data, specifications, or linked documentation.
+      WPT path registry is project-authored and links to BSD-3-Clause source. The project licence
+      does not relicense upstream data, specifications, tests, results, or linked documentation.
     </p>
   </article>
 </Layout>

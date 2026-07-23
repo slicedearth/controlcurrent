@@ -5,7 +5,8 @@
 ControlCurrent is a static security-compatibility application. Its locked source
 dependencies are `@mdn/browser-compat-data` for browser-specific support
 statements and `web-features` for exact feature associations and Baseline
-adoptability context.
+adoptability context. A separate project-authored registry maps controls to
+exact Web Platform Tests suite paths at a pinned reviewed revision.
 
 ```text
 package-lock.json
@@ -36,6 +37,18 @@ data/selected-bcd.json
                  |
                  v
            static Astro build
+
+pinned WPT revision
+      |
+      v
+exact suite-path registry
+      |
+      +--> pinned source links
+      +--> current wpt.fyi links
+      +--> per-control evidence limits
+      |
+      v
+static Astro build
 ```
 
 The browser receives only static HTML, CSS, JavaScript, and the selected data
@@ -125,6 +138,17 @@ The inspector:
 
 Controls that require HTML, DOM, request, WebAuthn, or runtime evidence remain
 `not_evaluated`.
+
+## Conformance evidence boundary
+
+`src/wpt-evidence.ts` covers every catalogue control exactly once. Mapped
+controls identify bounded exact suite paths. Unmapped controls carry an
+explicit reason and never inherit a nearby suite.
+
+Pinned repository links make the mapping review reproducible. Current wpt.fyi
+links are navigational only: no result data, pass rate, test log, or browser
+binary enters the build. The registry does not affect compatibility or offline
+assurance outcomes.
 
 ## Change history
 

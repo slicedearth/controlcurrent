@@ -7,7 +7,7 @@ ControlCurrent answers:
 > For an explicit set of minimum browser versions, what availability and
 > qualifications does MDN BCD record for a curated browser security control,
 > and what adoptability context does WebDX Baseline associate with its exact
-> feature paths?
+> feature paths? Which reviewed WPT suites exercise related browser behaviour?
 
 It does not answer whether an application is secure or a control is configured
 correctly.
@@ -100,6 +100,18 @@ control, including SRI, Fetch Metadata request behaviour, and WebAuthn.
 The parser neither fetches a URL nor evaluates enforcement, origin coverage,
 route consistency, application behaviour, browser conformance, or rollout
 safety.
+
+## Conformance evidence
+
+Every control has one WPT evidence record. A mapped record identifies exact
+suite paths at a pinned reviewed revision. An unmapped record explains why no
+nearby suite was used.
+
+Current wpt.fyi links are investigation aids. ControlCurrent does not ingest
+their pass rates, infer browser quality from a percentage, or change a
+compatibility result from conformance data. WPT exercises standardised browser
+behaviour; it does not inspect an application's routes, configuration,
+dependencies, threat model, or rollout.
 
 ## Change events
 

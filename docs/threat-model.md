@@ -15,6 +15,7 @@ The project treats these as hostile:
 
 - BCD path names and nested objects;
 - source strings, notes, descriptions, and URLs;
+- project-authored WPT suite paths and external evidence links;
 - browser version strings;
 - committed selected snapshots and change events;
 - localStorage values;
@@ -41,6 +42,10 @@ the full source package.
 Flags, notes, partial support, prefixes, alternative names, removals, and
 unknowns remain explicit. Unsupported mappings do not inherit a nearby
 feature's result.
+
+WPT suite presence and current dashboard results do not become a conformance
+score or application-assurance result. Source links are pinned to one reviewed
+revision, paths are bounded, and unmapped controls do not inherit nearby tests.
 
 ## Client risks
 
@@ -86,4 +91,4 @@ still told to redact secrets before inspection.
 - Compliance advice
 - Market-share analysis
 - Private browser policy ingestion
-- WPT or wpt.fyi correlation
+- Live WPT execution or wpt.fyi result ingestion

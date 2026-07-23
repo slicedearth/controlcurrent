@@ -26,5 +26,17 @@ The selected subset records only exact BCD-path associations and Baseline
 status metadata used to add adoptability context to mapped controls. It does
 not reproduce the complete Web Platform Features package.
 
+ControlCurrent also includes project-authored mappings to suite paths in:
+
+Web Platform Tests
+https://github.com/web-platform-tests/wpt
+Copyright web-platform-tests contributors
+Licensed under the BSD 3-Clause License
+https://github.com/web-platform-tests/wpt/blob/master/LICENSE.md
+
+ControlCurrent does not copy WPT test source or wpt.fyi result data. It retains
+only factual suite paths, source links, and original scope and limitation
+statements.
+
 The MIT licence for ControlCurrent source code does not relicense upstream data,
-linked specifications, or third-party documentation.
+linked specifications, tests, result data, or third-party documentation.

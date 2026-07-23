@@ -51,7 +51,15 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
 
 test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
-  for (const path of ["/", "/matrix/", "/planner/", "/assess/", "/changes/"]) {
+  for (const path of [
+    "/",
+    "/matrix/",
+    "/planner/",
+    "/assess/",
+    "/evidence/",
+    "/changes/",
+    "/controls/trusted-types/"
+  ]) {
     await page.goto(path);
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
@@ -68,6 +76,29 @@ test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => 
     scrollWidth: element.scrollWidth
   }));
   expect(matrixDimensions.scrollWidth).toBeGreaterThan(matrixDimensions.clientWidth);
+});
+
+test("shows pinned WPT mappings without fetching result data", async ({ page }) => {
+  const externalRequests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.hostname !== "127.0.0.1") externalRequests.push(request.url());
+  });
+
+  await page.goto("/evidence/");
+  await expect(
+    page.getByRole("heading", { name: "Where browser behaviour is tested" })
+  ).toBeVisible();
+  await expect(page.locator(".evidence-card")).toHaveCount(29);
+  await expect(page.getByText("27")).toBeVisible();
+  await expect(page.getByText("af38980d")).toBeVisible();
+  await expect(
+    page.getByText("No nearby suite is substituted for the missing evidence.")
+  ).toHaveCount(2);
+  expect(externalRequests).toEqual([]);
+
+  const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
+  expect(violations.violations).toEqual([]);
 });
 
 test("assesses and clears a redacted header snapshot without a network request", async ({

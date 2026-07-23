@@ -16,7 +16,7 @@ import Layout from "../components/Layout.astro";
   </header>
   <article class="shell prose">
     <h2>Evidence layers</h2>
-    <p>The application keeps five statements separate:</p>
+    <p>The application keeps six statements separate:</p>
     <ol>
       <li><strong>Source data:</strong> BCD paths, browser statements, versions, and notes.</li>
       <li><strong>Catalogue mapping:</strong> which source paths represent a security control.</li>
@@ -27,6 +27,9 @@ import Layout from "../components/Layout.astro";
       <li>
         <strong>Observed configuration:</strong> optional local evidence from one supplied response header
         block.
+      </li>
+      <li>
+        <strong>Conformance context:</strong> exact reviewed WPT suite paths and explicit limits.
       </li>
     </ol>
 
@@ -77,6 +80,14 @@ import Layout from "../components/Layout.astro";
       response; it does not prove enforcement, coverage across routes, rollout safety, or runtime
       behaviour. Controls that require HTML, DOM, request, WebAuthn, or conformance evidence remain
       “not evaluated”.
+    </p>
+
+    <h2>Conformance evidence</h2>
+    <p>
+      Each control has one mapped or explicitly unmapped WPT evidence record. Repository links are
+      pinned to the reviewed source revision. Current wpt.fyi links are investigation aids;
+      ControlCurrent does not ingest pass rates or use them to change compatibility outcomes.
+      Conformance coverage does not prove correct application configuration.
     </p>
 
     <h2>Determinism and bounds</h2>

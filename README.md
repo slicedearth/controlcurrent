@@ -15,6 +15,7 @@ It is not a general compatibility index and it does not scan websites.
 - Exact BCD path mappings and explicit unsupported mappings
 - Nine desktop and mobile browser families normalised explicitly
 - Exact WebDX feature associations and Baseline adoptability context
+- Exact Web Platform Tests suite mappings pinned to a reviewed source revision
 - Preservation of partial support, flags, prefixes, alternative names, notes,
   removals, and unknown source values
 - A local deployment-profile planner with no browser detection or telemetry
@@ -38,6 +39,11 @@ The current release uses `@mdn/browser-compat-data` 8.0.7 and `web-features`
 3.34.1. The selected snapshot contains only the 33 BCD paths required by the
 current catalogue, bounded release metadata for nine browser families, and
 exact Baseline associations declared for those paths.
+
+The conformance-evidence registry maps 27 controls to exact Web Platform Tests
+suite paths at revision `af38980d2fcd74af19a226f5f651051cc15940ed`.
+HSTS and HttpOnly remain explicitly unmapped. ControlCurrent links to current
+wpt.fyi results but does not ingest or simplify pass rates.
 
 MDN Browser Compatibility Data is published under
 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Web
@@ -141,9 +147,11 @@ Locked BCD and Web Platform Features packages
                     |
                     v
  validated compatibility and Baseline subset
-          |                         |
-          v                         v
-  versioned catalogue          change events
+          |                         |                 pinned WPT revision
+          v                         v                         |
+  versioned catalogue          change events                 v
+          |                                          evidence registry
+          +----------------------------+---------------------+
           |
           v
  browser-policy evaluation
@@ -160,6 +168,7 @@ for compatibility data.
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)
 - [Policy as code](docs/policy-as-code.md)
+- [Conformance evidence](docs/conformance-evidence.md)
 - [Methodology](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
 - [Dependency policy](docs/dependency-policy.md)

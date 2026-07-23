@@ -4,6 +4,7 @@ import ControlCard from "../components/ControlCard.astro";
 import { SECURITY_CONTROLS } from "../catalogue";
 import { currentEvaluation, currentProfile, selectedSnapshot } from "../data";
 import { formatDate } from "../format";
+import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 const availableCount = SECURITY_CONTROLS.filter((control) =>
@@ -16,6 +17,7 @@ const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
     (result) => result.outcome === "available_with_qualification"
   )
 ).length;
+const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped").length;
 ---
 
 <Layout
@@ -34,7 +36,7 @@ const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
       <div class="hero-actions">
         <a class="button button--primary" href={`${base}/planner/`}>Build a profile</a>
         <a class="button" href={`${base}/assess/`}>Inspect headers</a>
-        <a class="button" href={`${base}/methodology/`}>Read the methodology</a>
+        <a class="button" href={`${base}/evidence/`}>Review test evidence</a>
       </div>
     </div>
     <aside class="hero-terminal" aria-label="Current data baseline">
@@ -52,6 +54,10 @@ const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
           <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
           <dt>Controls</dt>
           <dd>{SECURITY_CONTROLS.length}</dd>
+          <dt>WPT mappings</dt>
+          <dd>{wptMappedCount} / {WPT_EVIDENCE.length}</dd>
+          <dt>WPT review</dt>
+          <dd>{WPT_EVIDENCE_REVIEW.revision.slice(0, 8)}</dd>
           <dt>Exact paths</dt>
           <dd>{Object.keys(selectedSnapshot.features).length}</dd>
           <dt>Runtime API</dt>

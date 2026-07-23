@@ -1,0 +1,128 @@
+---
+import Layout from "../components/Layout.astro";
+import { getControl } from "../catalogue";
+import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW, wptResultsUrl, wptSourceUrl } from "../wpt-evidence";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped").length;
+---
+
+<Layout
+  title="Conformance evidence"
+  description="Exact Web Platform Tests suite mappings for the ControlCurrent browser security catalogue."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Conformance context, without false assurance</span>
+    <h1>Where browser behaviour is tested</h1>
+    <p>
+      ControlCurrent maps controls to exact Web Platform Tests suite paths at one reviewed revision.
+      The links add implementation evidence; they do not certify an application or replace its own
+      tests.
+    </p>
+  </header>
+
+  <section class="shell stats-grid evidence-stats" aria-label="WPT mapping summary">
+    <div class="stat-card">
+      <strong>{mappedCount}</strong>
+      <span>controls with an exact suite mapping</span>
+    </div>
+    <div class="stat-card">
+      <strong>{WPT_EVIDENCE.length - mappedCount}</strong>
+      <span>controls kept explicitly unmapped</span>
+    </div>
+    <div class="stat-card">
+      <strong>{WPT_EVIDENCE_REVIEW.revision.slice(0, 8)}</strong>
+      <span>reviewed WPT source revision</span>
+    </div>
+    <div class="stat-card">
+      <strong>{WPT_EVIDENCE_REVIEW.reviewedOn}</strong>
+      <span>mapping review date</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Exact source paths</span>
+          <h2>Control evidence registry</h2>
+        </div>
+        <p>
+          Repository links are pinned to the reviewed revision. Dashboard links show current public
+          results and can change independently of this registry.
+        </p>
+      </div>
+
+      <div class="evidence-list">
+        {
+          WPT_EVIDENCE.map((mapping) => {
+            const control = getControl(mapping.controlId);
+            if (!control) throw new Error(`Missing control ${mapping.controlId}`);
+            return (
+              <article class="content-card evidence-card">
+                <div class="card-topline">
+                  <span class="category">{control.category}</span>
+                  <span class={`evidence-state evidence-state--${mapping.state}`}>
+                    {mapping.state === "mapped" ? "Mapped" : "Not mapped"}
+                  </span>
+                </div>
+                <h3>
+                  <a href={`${base}/controls/${control.id}/`}>{control.name}</a>
+                </h3>
+                <p>{mapping.scope}</p>
+                {mapping.suites.length > 0 ? (
+                  <ul class="source-list">
+                    {mapping.suites.map((suite) => (
+                      <li>
+                        <strong>{suite.label}</strong>
+                        <code class="source-path">{suite.path}</code>
+                        <span class="source-actions">
+                          <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
+                            pinned source
+                          </a>
+                          <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
+                            current results
+                          </a>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="muted">No nearby suite is substituted for the missing evidence.</p>
+                )}
+                <p class="evidence-limit">
+                  <strong>Limit:</strong> {mapping.limitation}
+                </p>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell detail-grid">
+      <div>
+        <span class="eyebrow">How to use the links</span>
+        <h2>Three different evidence layers</h2>
+        <p>
+          BCD records compatibility statements. WPT exercises standardised browser behaviour.
+          ControlCurrent's offline inspector checks one supplied response snapshot. None of these
+          layers sees the full security design of a production application.
+        </p>
+      </div>
+      <div class="content-card">
+        <h3>Not ingested as pass rates</h3>
+        <p>
+          ControlCurrent does not copy or summarise live wpt.fyi pass counts. Test selection, browser
+          channels, infrastructure, expectations, and incomplete runs require context that a single
+          percentage would conceal.
+        </p>
+        <p>
+          Some WPT tests also require automation and cannot be run in an ordinary browser session.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

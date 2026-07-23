@@ -360,7 +360,8 @@ code {
 }
 
 .control-grid,
-.results-list {
+.results-list,
+.evidence-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -375,6 +376,10 @@ code {
   border-radius: var(--radius);
   background: linear-gradient(155deg, var(--surface-raised), rgb(10 22 24 / 94%));
   box-shadow: 0 12px 40px rgb(0 0 0 / 12%);
+}
+
+.detail-grid > * {
+  min-width: 0;
 }
 
 .control-card {
@@ -405,6 +410,77 @@ code {
 }
 
 .control-card > p {
+  color: var(--muted);
+}
+
+.evidence-stats {
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.evidence-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.evidence-card {
+  padding: 1.25rem;
+}
+
+.evidence-card h3 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.evidence-card > p {
+  color: var(--muted);
+}
+
+.evidence-state {
+  width: fit-content;
+  padding: 0.2rem 0.48rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font:
+    650 0.7rem/1.25 ui-monospace,
+    monospace;
+}
+
+.evidence-state--mapped {
+  color: var(--accent);
+}
+
+.evidence-state--not_mapped {
+  color: var(--warning);
+}
+
+.source-list {
+  display: grid;
+  padding: 0;
+  gap: 0.9rem;
+  list-style: none;
+}
+
+.source-list li {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.source-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.source-actions a {
+  font-size: 0.85rem;
+}
+
+.evidence-limit {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.muted {
   color: var(--muted);
 }
 
@@ -893,6 +969,7 @@ footer {
 
   .control-grid,
   .results-list,
+  .evidence-list,
   .baseline-grid,
   .stats-grid,
   .footer-grid {

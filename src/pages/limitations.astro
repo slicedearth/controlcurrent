@@ -32,6 +32,14 @@ import Layout from "../components/Layout.astro";
         identical behaviour on every device.
       </li>
       <li>WebDX Baseline is adoptability context, not deployment or configuration assurance.</li>
+      <li>
+        WPT suite mappings identify relevant conformance tests, but the registry does not ingest or
+        simplify live pass rates.
+      </li>
+      <li>
+        A passing conformance test does not establish correct application configuration, complete
+        control coverage, or absence of browser defects.
+      </li>
       <li>Lower-level BCD paths can change and require deliberate catalogue review.</li>
     </ul>
 
@@ -55,7 +63,8 @@ import Layout from "../components/Layout.astro";
         coverage across routes, redirects, status codes, or cached responses.
       </li>
       <li>
-        No result establishes correct syntax, rollout safety, or effective policy enforcement.
+        Recognised header syntax can be checked, but no result establishes complete correctness,
+        rollout safety, or effective policy enforcement.
       </li>
       <li>Fallback controls remain necessary for unsupported browsers and defence in depth.</li>
       <li>No result should be treated as legal, compliance, or certification advice.</li>

@@ -4,6 +4,7 @@ import OutcomeBadge from "../../components/OutcomeBadge.astro";
 import { SECURITY_CONTROLS, type SecurityControl } from "../../catalogue";
 import { currentEvaluation, currentProfile, selectedSnapshot } from "../../data";
 import { browserNames } from "../../format";
+import { getWptEvidence, wptResultsUrl, wptSourceUrl } from "../../wpt-evidence";
 
 export function getStaticPaths() {
   return SECURITY_CONTROLS.map((control) => ({
@@ -24,6 +25,7 @@ const baselineEvidence = control.bcdPaths.flatMap((path) =>
     ...evidence
   }))
 );
+const wptEvidence = getWptEvidence(control.id);
 ---
 
 <Layout title={control.name} description={control.summary}>
@@ -159,6 +161,37 @@ const baselineEvidence = control.bcdPaths.flatMap((path) =>
             </p>
           )
         }
+      </section>
+      <section class="content-card">
+        <span class="eyebrow">Web Platform Tests</span>
+        <h2>{wptEvidence.state === "mapped" ? "Exact suite mapping" : "Not mapped"}</h2>
+        <p>{wptEvidence.scope}</p>
+        {
+          wptEvidence.suites.length > 0 ? (
+            <ul class="source-list">
+              {wptEvidence.suites.map((suite) => (
+                <li>
+                  <strong>{suite.label}</strong>
+                  <code class="source-path">{suite.path}</code>
+                  <span class="source-actions">
+                    <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
+                      pinned source
+                    </a>
+                    <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
+                      current results
+                    </a>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No nearby WPT suite is substituted for the missing evidence.</p>
+          )
+        }
+        <p class="evidence-limit">
+          <strong>Limit:</strong>
+          {wptEvidence.limitation}
+        </p>
       </section>
     </aside>
   </div>
