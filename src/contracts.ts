@@ -367,6 +367,10 @@ export const headerSnapshotSchema = z
   .object({
     schemaVersion: z.literal(1),
     name: z.string().trim().min(1).max(80),
+    surfaceId: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u)
+      .optional(),
     headers: z.record(z.string().min(1).max(128), headerValueSchema)
   })
   .strict()
@@ -436,6 +440,10 @@ export const htmlDocumentInputSchema = z
   .object({
     schemaVersion: z.literal(1),
     name: z.string().trim().min(1).max(80),
+    surfaceId: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u)
+      .optional(),
     html: z.string().max(128 * 1_024)
   })
   .strict();
@@ -468,6 +476,55 @@ export const htmlResourceReportSchema = z
   .strict();
 export type HtmlResourceReport = z.infer<typeof htmlResourceReportSchema>;
 
+export const resourceBytesInputSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    resourceId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    surfaceId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    reference: z.string().min(1).max(2_048),
+    bodyBase64: z
+      .string()
+      .min(1)
+      .max(384 * 1_024)
+  })
+  .strict();
+export type ResourceBytesInput = z.infer<typeof resourceBytesInputSchema>;
+
+export const resourceVerificationReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    suppliedResourceCount: z.number().int().min(0).max(32),
+    suppliedBytes: z
+      .number()
+      .int()
+      .min(0)
+      .max(1_024 * 1_024),
+    matchedResourceCount: z.number().int().min(0).max(32),
+    verifiedResourceCount: z.number().int().min(0).max(32),
+    mismatchedResourceCount: z.number().int().min(0).max(32),
+    invalidMetadataCount: z.number().int().min(0).max(32),
+    unmatchedResourceCount: z.number().int().min(0).max(32),
+    finding: assuranceFindingSchema
+  })
+  .strict();
+export type ResourceVerificationReport = z.infer<typeof resourceVerificationReportSchema>;
+
+export const cspMarkupReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    surfaceId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    inlineElementCount: z.number().int().min(0).max(8_192),
+    matchedNonceCount: z.number().int().min(0).max(8_192),
+    matchedHashCount: z.number().int().min(0).max(8_192),
+    matchedMixedCount: z.number().int().min(0).max(8_192),
+    unmatchedInlineCount: z.number().int().min(0).max(8_192),
+    broadSourceExpressionCount: z.number().int().min(0).max(8_192),
+    crossDocumentNonceReuseCount: z.number().int().min(0).max(8_192),
+    finding: assuranceFindingSchema
+  })
+  .strict();
+export type CspMarkupReport = z.infer<typeof cspMarkupReportSchema>;
+
 export const fetchMetadataReportSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -483,6 +540,10 @@ export const webauthnConfigurationSchema = z
   .object({
     schemaVersion: z.literal(1),
     name: z.string().trim().min(1).max(80),
+    surfaceId: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u)
+      .optional(),
     operation: z.enum(["create", "get"]),
     authenticatorAttachment: z.enum(["platform", "cross-platform", "unspecified"]),
     userVerification: z.enum(["required", "preferred", "discouraged", "unspecified"]),
@@ -520,6 +581,7 @@ export const evidenceBundleInputSchema = z
     name: z.string().trim().min(1).max(80),
     responses: z.array(headerSnapshotSchema).max(16).default([]),
     htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
+    resourceBytes: z.array(resourceBytesInputSchema).max(32).default([]),
     requests: z.array(headerSnapshotSchema).max(32).default([]),
     webauthn: z.array(webauthnConfigurationSchema).max(16).default([])
   })
@@ -528,6 +590,7 @@ export const evidenceBundleInputSchema = z
     if (
       bundle.responses.length +
         bundle.htmlDocuments.length +
+        bundle.resourceBytes.length +
         bundle.requests.length +
         bundle.webauthn.length ===
       0
@@ -553,12 +616,13 @@ export type CompositeAssessment = z.infer<typeof compositeAssessmentSchema>;
 
 export const evidenceBundleReportSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     name: z.string().min(1).max(80),
     coverage: z
       .object({
         responses: z.number().int().min(0).max(16),
         htmlDocuments: z.number().int().min(0).max(16),
+        resourceBytes: z.number().int().min(0).max(32),
         requests: z.number().int().min(0).max(32),
         webauthn: z.number().int().min(0).max(16)
       })
@@ -577,6 +641,8 @@ export const evidenceBundleReportSchema = z
     composites: z.array(compositeAssessmentSchema).max(8),
     responseReports: z.array(assuranceReportSchema).max(16),
     htmlReports: z.array(htmlResourceReportSchema).max(16),
+    resourceVerificationReport: resourceVerificationReportSchema,
+    cspMarkupReports: z.array(cspMarkupReportSchema).max(16),
     requestReports: z.array(fetchMetadataReportSchema).max(32),
     webauthnReports: z.array(webauthnReportSchema).max(16)
   })

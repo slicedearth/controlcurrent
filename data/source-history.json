@@ -25,6 +25,19 @@
       "pathCount": 34,
       "schemaFingerprint": "ec005ea6e82b48b5dc9e60ee39bb3151f88dcdeb22f38ead4fd97b2575916523",
       "webFeaturesVersion": "3.34.1"
+    },
+    {
+      "associatedEventCount": 3,
+      "baselineAssociationCount": 28,
+      "bcdTimestamp": "2026-07-17T18:04:31.500Z",
+      "bcdVersion": "8.0.7",
+      "browserCount": 9,
+      "catalogueVersion": "2.2.0",
+      "controlCount": 30,
+      "id": "d5514c97a59f7eb038b44821",
+      "pathCount": 36,
+      "schemaFingerprint": "ebad2f9787d9e115700d562ee122e62ba9116b04888263ebdaf922464b36b092",
+      "webFeaturesVersion": "3.34.1"
     }
   ],
   "schemaVersion": 1

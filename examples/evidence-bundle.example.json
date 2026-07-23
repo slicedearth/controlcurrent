@@ -5,8 +5,11 @@
     {
       "schemaVersion": 1,
       "name": "Document response",
+      "surfaceId": "document",
       "headers": {
         "Content-Security-Policy": "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+        "Integrity-Policy": "blocked-destinations=(script style), endpoints=(integrity-endpoint)",
+        "Reporting-Endpoints": "integrity-endpoint=\"https://reports.example.invalid/integrity\"",
         "Cross-Origin-Opener-Policy": "same-origin",
         "Cross-Origin-Embedder-Policy": "credentialless",
         "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -20,9 +23,11 @@
     {
       "schemaVersion": 1,
       "name": "Document HTML",
-      "html": "<link rel=\"stylesheet\" href=\"/assets/app.css\" integrity=\"sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\">"
+      "surfaceId": "document",
+      "html": "<script nonce=\"AAAAAAAAAAAAAAAAAAAAAA==\">console.log(\"local example\")</script><link rel=\"stylesheet\" href=\"/assets/app.css\" integrity=\"sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\">"
     }
   ],
+  "resourceBytes": [],
   "requests": [
     {
       "schemaVersion": 1,

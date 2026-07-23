@@ -113,6 +113,20 @@ const MAPPINGS = [
       "The suite does not establish that a deployment supplies current integrity metadata for every eligible resource."
   },
   {
+    controlId: "integrity-policy",
+    state: "mapped",
+    suites: [
+      {
+        path: "subresource-integrity/integrity-policy",
+        label: "Subresource Integrity Policy"
+      }
+    ],
+    scope:
+      "Integrity-Policy parsing, blocking, report-only behaviour, destinations, sources, and reporting integration.",
+    limitation:
+      "The suite does not establish that every production resource carries current metadata or that reports are operationally reviewed."
+  },
+  {
     controlId: "cross-origin-opener-policy",
     state: "mapped",
     suites: [{ path: "html/cross-origin-opener-policy", label: "Cross-Origin-Opener-Policy" }],

@@ -112,13 +112,26 @@ named snapshots, parses HTML with a WHATWG-compatible non-executing parser,
 reduces selected Fetch Metadata request headers, and accepts a deliberately
 small WebAuthn configuration contract.
 
-SRI is `observed` only when every eligible external script and every `link`
+SRI metadata coverage is `observed` only when every eligible external script and every `link`
 resource whose `rel` contains `stylesheet`, `preload`, or `modulepreload`
 carries at least one recognised SHA-256, SHA-384, or SHA-512 metadata token and
-the HTML required no parser recovery. That scope follows the HTML Standard's
-current applicability rules for the `integrity` attribute. ControlCurrent does
-not fetch resources, calculate digests, or prove that a declared digest matches
-bytes.
+the HTML required no parser recovery. Recognised SHA-2 tokens must decode to
+the digest length required by their algorithm. When bounded local bytes are
+supplied, ControlCurrent applies the strongest declared algorithm and reports
+whether those bytes match. It never fetches a resource.
+
+Response and HTML inputs with the same opaque surface ID are also correlated.
+For inline `script` and `style` elements, the inspector checks nonce equality or
+calculates the applicable CSP SHA-2 digest against every enforced policy. It
+reports unmatched content, broad source expressions, and nonce reuse across
+supplied documents without retaining source text or nonce values. Parsing
+cannot establish nonce unpredictability, response-by-response generation, or
+runtime enforcement.
+
+Integrity Policy headers are parsed as bounded structured dictionaries.
+Enforced and report-only observations remain distinct, recognised blocked
+destinations are counted, and referenced endpoint names are compared with
+`Reporting-Endpoints` without retaining endpoint URLs.
 
 Fetch Metadata evidence establishes only that recognised browser request
 context was supplied. It does not prove that an application server rejects

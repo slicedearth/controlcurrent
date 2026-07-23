@@ -61,10 +61,12 @@ cookie names and values. Replace values and other secrets with `REDACTED`
 before pasting because the browser still has to hold the input temporarily to
 parse it.
 
-Evidence bundles can also contain supplied HTML, selected request headers, and
-reduced WebAuthn configuration. They remain in page or process memory and are
-never uploaded or saved by ControlCurrent. The HTML parser does not execute
-markup or load resources. Reduced reports omit HTML, resource paths and origins,
+Evidence bundles can also contain supplied HTML, bounded local resource bytes,
+selected request headers, and reduced WebAuthn configuration. They remain in
+page or process memory and are never uploaded or saved by ControlCurrent. The
+HTML parser does not execute markup or load resources. Resource bodies are
+decoded and hashed locally, then omitted from the reduced report. Reports also
+omit HTML, resource paths and origins, CSP nonces and hashes, inline content,
 cookie data, request targets, credentials, WebAuthn challenges, relying-party
 identifiers, user identifiers, and credential identifiers.
 

@@ -6,7 +6,7 @@ import {
   inspectWebauthnConfiguration
 } from "../src/evidence-bundle";
 
-function finding(report: ReturnType<typeof inspectEvidenceBundle>, controlId: string) {
+function finding(report: Awaited<ReturnType<typeof inspectEvidenceBundle>>, controlId: string) {
   const result = report.findings.find((candidate) => candidate.controlId === controlId);
   if (!result) throw new Error(`Missing finding for ${controlId}.`);
   return result;
@@ -119,14 +119,15 @@ describe("bounded evidence bundles", () => {
     ).toThrow();
   });
 
-  it("combines response, HTML, request, and WebAuthn evidence conservatively", () => {
-    const report = inspectEvidenceBundle({
+  it("combines response, HTML, request, and WebAuthn evidence conservatively", async () => {
+    const report = await inspectEvidenceBundle({
       schemaVersion: 1,
       name: "Release candidate",
       responses: [
         {
           schemaVersion: 1,
           name: "Document response",
+          surfaceId: "document",
           headers: {
             "Content-Security-Policy":
               "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'",
@@ -140,6 +141,7 @@ describe("bounded evidence bundles", () => {
         {
           schemaVersion: 1,
           name: "Document HTML",
+          surfaceId: "document",
           html: '<script src="/app.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
         }
       ],
@@ -172,6 +174,7 @@ describe("bounded evidence bundles", () => {
     expect(report.coverage).toEqual({
       responses: 1,
       htmlDocuments: 1,
+      resourceBytes: 0,
       requests: 1,
       webauthn: 1
     });
@@ -206,8 +209,120 @@ describe("bounded evidence bundles", () => {
     expect(report.invalidIntegrityCount).toBe(1);
   });
 
-  it("surfaces route variation instead of choosing the favourable response", () => {
-    const report = inspectEvidenceBundle({
+  it("correlates CSP with inline markup and verifies bounded local resource bytes", async () => {
+    const report = await inspectEvidenceBundle({
+      schemaVersion: 1,
+      name: "Correlated deployment",
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "Document response",
+          surfaceId: "document",
+          headers: {
+            "Content-Security-Policy":
+              "default-src 'self'; script-src 'sha384-aNt7yvywWYBYpp63/KbxBKfOC3dOvuimlpmeA0nnW+QwA4uxZiTUgb1zO4MbEPPw'; style-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
+          }
+        }
+      ],
+      htmlDocuments: [
+        {
+          schemaVersion: 1,
+          name: "Document HTML",
+          surfaceId: "document",
+          html: `<script>console.log("ok")</script>
+<style nonce="AAAAAAAAAAAAAAAAAAAAAA==">body { color: black; }</style>
+<script src="/assets/app.js" integrity="sha384-yIW1OD7Ye7R8I78er1J55+Q+qj8gUDxJIjk7VcTFyfuuWN65iE1isyj/6ZJU0M4o"></script>`
+        }
+      ],
+      resourceBytes: [
+        {
+          schemaVersion: 1,
+          resourceId: "app-js",
+          surfaceId: "document",
+          reference: "/assets/app.js",
+          bodyBase64: "ZXhwb3J0IGNvbnN0IG9rID0gdHJ1ZTsK"
+        }
+      ]
+    });
+
+    expect(report.resourceVerificationReport.finding.state).toBe("observed");
+    expect(report.resourceVerificationReport.verifiedResourceCount).toBe(1);
+    expect(report.cspMarkupReports).toHaveLength(1);
+    expect(report.cspMarkupReports[0]).toMatchObject({
+      matchedNonceCount: 1,
+      matchedHashCount: 1,
+      unmatchedInlineCount: 0,
+      broadSourceExpressionCount: 0
+    });
+    expect(report.cspMarkupReports[0]?.finding.state).toBe("observed");
+    const serialised = JSON.stringify(report);
+    expect(serialised).not.toContain("/assets/app.js");
+    expect(serialised).not.toContain("ZXhwb3J0");
+    expect(serialised).not.toContain("AAAAAAAAAAAAAAAAAAAAAA==");
+    expect(serialised).not.toContain("console.log");
+  });
+
+  it("makes broad CSP sources, nonce reuse, and digest mismatch reviewable", async () => {
+    const report = await inspectEvidenceBundle({
+      schemaVersion: 1,
+      name: "Review evidence",
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "First response",
+          surfaceId: "first",
+          headers: {
+            "Content-Security-Policy":
+              "script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA==' 'unsafe-eval'; base-uri 'none'"
+          }
+        },
+        {
+          schemaVersion: 1,
+          name: "Second response",
+          surfaceId: "second",
+          headers: {
+            "Content-Security-Policy":
+              "script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
+          }
+        }
+      ],
+      htmlDocuments: [
+        {
+          schemaVersion: 1,
+          name: "First document",
+          surfaceId: "first",
+          html: `<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">one()</script>
+<script src="/asset.js" integrity="sha384-yIW1OD7Ye7R8I78er1J55+Q+qj8gUDxJIjk7VcTFyfuuWN65iE1isyj/6ZJU0M4o"></script>`
+        },
+        {
+          schemaVersion: 1,
+          name: "Second document",
+          surfaceId: "second",
+          html: '<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">two()</script>'
+        }
+      ],
+      resourceBytes: [
+        {
+          schemaVersion: 1,
+          resourceId: "asset",
+          surfaceId: "first",
+          reference: "/asset.js",
+          bodyBase64: "d3Jvbmc="
+        }
+      ]
+    });
+
+    expect(report.resourceVerificationReport.finding.state).toBe("invalid");
+    expect(report.resourceVerificationReport.mismatchedResourceCount).toBe(1);
+    expect(report.cspMarkupReports[0]?.broadSourceExpressionCount).toBe(1);
+    expect(report.cspMarkupReports[0]?.crossDocumentNonceReuseCount).toBe(1);
+    expect(report.cspMarkupReports.every((item) => item.finding.state === "inconclusive")).toBe(
+      true
+    );
+  });
+
+  it("surfaces route variation instead of choosing the favourable response", async () => {
+    const report = await inspectEvidenceBundle({
       schemaVersion: 1,
       name: "Route comparison",
       responses: [

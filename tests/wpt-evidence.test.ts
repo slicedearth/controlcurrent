@@ -20,7 +20,7 @@ describe("WPT evidence registry", () => {
   });
 
   it("keeps mapped and unmapped evidence explicit", () => {
-    expect(WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")).toHaveLength(27);
+    expect(WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")).toHaveLength(28);
     expect(
       WPT_EVIDENCE.filter((mapping) => mapping.state === "not_mapped").map(
         (mapping) => mapping.controlId

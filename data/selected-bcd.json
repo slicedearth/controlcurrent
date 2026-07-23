@@ -4813,7 +4813,7 @@
       "upstream": "chrome_android"
     }
   },
-  "catalogueVersion": "2.1.0",
+  "catalogueVersion": "2.2.0",
   "controlMappings": [
     {
       "combination": "all",
@@ -4883,6 +4883,12 @@
       "controlId": "subresource-integrity",
       "mappingState": "active",
       "paths": ["html.elements.script.integrity", "html.elements.link.integrity"]
+    },
+    {
+      "combination": "any",
+      "controlId": "integrity-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Integrity-Policy", "http.headers.Integrity-Policy-Report-Only"]
     },
     {
       "combination": "all",
@@ -6390,6 +6396,148 @@
         ]
       }
     },
+    "http.headers.Integrity-Policy": {
+      "baseline": [
+        {
+          "featureId": "reporting-integrity-violations",
+          "name": "Integrity violation reports",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Integrity-Policy",
+      "path": "http.headers.Integrity-Policy",
+      "sourceFile": "http/headers/Integrity-Policy.json",
+      "specUrls": [
+        "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "firefox": [
+          {
+            "notes": "Reporting <code>endpoints</code> are ignored (violations are logged to console).",
+            "partial_implementation": true,
+            "version_added": "145"
+          }
+        ],
+        "firefox_android": [
+          {
+            "notes": "Reporting <code>endpoints</code> are ignored (violations are logged to console).",
+            "partial_implementation": true,
+            "version_added": "145"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "26"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "26"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "138"
+          }
+        ]
+      }
+    },
+    "http.headers.Integrity-Policy-Report-Only": {
+      "baseline": [
+        {
+          "featureId": "reporting-integrity-violations",
+          "name": "Integrity violation reports",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Integrity-Policy-Report-Only",
+      "path": "http.headers.Integrity-Policy-Report-Only",
+      "sourceFile": "http/headers/Integrity-Policy-Report-Only.json",
+      "specUrls": [
+        "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "firefox": [
+          {
+            "notes": "Reporting <code>endpoints</code> are ignored (violations are logged to console).",
+            "partial_implementation": true,
+            "version_added": "145"
+          }
+        ],
+        "firefox_android": [
+          {
+            "notes": "Reporting <code>endpoints</code> are ignored (violations are logged to console).",
+            "partial_implementation": true,
+            "version_added": "145"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "26"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "26"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "138"
+          }
+        ]
+      }
+    },
     "http.headers.Origin-Agent-Cluster": {
       "baseline": [],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Origin-Agent-Cluster",
@@ -7389,7 +7537,7 @@
       }
     }
   },
-  "schemaFingerprint": "ec005ea6e82b48b5dc9e60ee39bb3151f88dcdeb22f38ead4fd97b2575916523",
+  "schemaFingerprint": "ebad2f9787d9e115700d562ee122e62ba9116b04888263ebdaf922464b36b092",
   "schemaVersion": 2,
   "webFeaturesVersion": "3.34.1"
 }

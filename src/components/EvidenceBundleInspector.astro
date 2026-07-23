@@ -3,10 +3,9 @@
     <span class="eyebrow">Multi-surface, local evidence</span>
     <h2 id="bundle-heading">Assess a bounded evidence bundle</h2>
     <p>
-      Combine up to 16 response snapshots, 16 HTML documents, 32 request snapshots, and 16 reduced
-      WebAuthn configurations. Markup is parsed without execution or resource loading. The exported
-      report contains counts and normalised findings, not HTML, resource locations, cookies, or
-      credentials.
+      Combine up to 16 response snapshots, 16 HTML documents, 32 bounded local resource bodies, 32
+      request snapshots, and 16 reduced WebAuthn configurations. Markup is parsed without execution
+      or resource loading. Supplied resource bytes are hashed locally and omitted from the report.
     </p>
   </div>
 
@@ -15,11 +14,11 @@
     <textarea
       id="bundle-block"
       name="bundle-block"
-      maxlength="1048576"
+      maxlength="2097152"
       rows="24"
       spellcheck="false"
       aria-describedby="bundle-guidance"
-      placeholder='{"schemaVersion":1,"name":"Release candidate","responses":[],"htmlDocuments":[],"requests":[],"webauthn":[]}'
+      placeholder='{"schemaVersion":1,"name":"Release candidate","responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
     ></textarea>
     <p id="bundle-guidance" class="form-message">
       Use descriptive labels rather than URLs. Remove secrets, personal data, page content that is
@@ -66,9 +65,11 @@
     AssuranceReport,
     AssuranceState,
     CompositeAssessment,
+    CspMarkupReport,
     EvidenceBundleReport,
     FetchMetadataReport,
     HtmlResourceReport,
+    ResourceVerificationReport,
     WebauthnReport
   } from "../contracts";
   import { inspectEvidenceBundle } from "../evidence-bundle";
@@ -81,9 +82,12 @@
       {
         schemaVersion: 1,
         name: "Document response",
+        surfaceId: "document",
         headers: {
           "Content-Security-Policy":
             "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+          "Integrity-Policy": "blocked-destinations=(script style), endpoints=(integrity-endpoint)",
+          "Reporting-Endpoints": 'integrity-endpoint="https://reports.example.invalid/integrity"',
           "Cross-Origin-Opener-Policy": "same-origin",
           "Cross-Origin-Embedder-Policy": "credentialless",
           "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -97,9 +101,13 @@
       {
         schemaVersion: 1,
         name: "Document HTML",
-        html: '<link rel="stylesheet" href="/assets/app.css" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">'
+        surfaceId: "document",
+        html:
+          '<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">console.log("local example")</scr' +
+          'ipt><link rel="stylesheet" href="/assets/app.css" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">'
       }
     ],
+    resourceBytes: [],
     requests: [
       {
         schemaVersion: 1,
@@ -266,6 +274,22 @@
     );
   }
 
+  function resourceVerificationInventory(report: ResourceVerificationReport): HTMLElement {
+    return inventoryCard(
+      "Local resource verification",
+      "Resource bodies are hashed in memory and excluded from this reduced report",
+      `${String(report.verifiedResourceCount)} verified · ${String(report.mismatchedResourceCount)} mismatched · ${String(report.invalidMetadataCount)} invalid metadata · ${String(report.unmatchedResourceCount)} unmatched`
+    );
+  }
+
+  function cspMarkupInventory(report: CspMarkupReport): HTMLElement {
+    return inventoryCard(
+      `CSP and markup · ${report.surfaceId}`,
+      "Inline content is matched without retaining nonces, hashes, or source text",
+      `${String(report.matchedNonceCount)} nonce · ${String(report.matchedHashCount)} hash · ${String(report.matchedMixedCount)} mixed · ${String(report.unmatchedInlineCount)} unmatched · ${String(report.broadSourceExpressionCount)} broad sources`
+    );
+  }
+
   function requestInventory(report: FetchMetadataReport): HTMLElement {
     return inventoryCard(
       report.name,
@@ -287,6 +311,7 @@
     coverage!.replaceChildren(
       stat(report.coverage.responses, "response snapshots"),
       stat(report.coverage.htmlDocuments, "HTML documents"),
+      stat(report.coverage.resourceBytes, "local resource bodies"),
       stat(report.coverage.requests, "request snapshots"),
       stat(report.coverage.webauthn, "WebAuthn configurations")
     );
@@ -307,6 +332,8 @@
     inventory!.replaceChildren(
       ...report.responseReports.map(responseInventory),
       ...report.htmlReports.map(htmlInventory),
+      resourceVerificationInventory(report.resourceVerificationReport),
+      ...report.cspMarkupReports.map(cspMarkupInventory),
       ...report.requestReports.map(requestInventory),
       ...report.webauthnReports.map(webauthnInventory)
     );
@@ -315,10 +342,10 @@
     results!.hidden = false;
   }
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
-      render(inspectEvidenceBundle(JSON.parse(input!.value) as unknown));
+      render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown));
       message!.textContent =
         "Bundle assessed locally. Raw HTML, resource locations, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
     } catch (error) {

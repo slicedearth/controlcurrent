@@ -145,14 +145,15 @@ Controls that require HTML, DOM, request, WebAuthn, or runtime evidence remain
 ## Evidence-bundle boundary
 
 The evidence-bundle path combines up to 16 response snapshots, 16 HTML
-documents, 32 request snapshots, and 16 reduced WebAuthn configurations. Its
-dependency direction is:
+documents, 32 bounded local resource bodies, 32 request snapshots, and 16
+reduced WebAuthn configurations. Its dependency direction is:
 
 ```text
 bounded local inputs
       |
       +--> response-header assurance
       +--> parse5 HTML tree without execution or fetch
+      +--> in-memory CSP and SRI digest correlation
       +--> selected Sec-Fetch-* request reduction
       +--> strict reduced WebAuthn configuration
       |
@@ -167,15 +168,17 @@ project-authored composite candidates
 ```
 
 The HTML parser retains only counts, recognised integrity algorithms, parse
-error counts, and relative/absolute/other reference counts. It never serialises
-resource locations or page content into the report. Request inspection refuses
-credential fields and emits only selected Fetch Metadata values. WebAuthn input
-accepts no challenge, relying-party identifier, user identifier, or credential
-identifier.
+error counts, and relative/absolute/other reference counts. CSP correlation
+retains only result counts. Optional resource bodies are decoded under a 256
+KiB per-resource and 1 MiB total bound, hashed in memory, and discarded. The
+report never serialises resource locations, content, nonces, or digests.
+Request inspection refuses credential fields and emits only selected Fetch
+Metadata values. WebAuthn input accepts no challenge, relying-party identifier,
+user identifier, or credential identifier.
 
 Composite candidates are deterministic derived guidance. They do not change
-BCD compatibility outcomes and do not claim browser execution, resource hash
-matching, server-side enforcement, ceremony success, or complete route
+BCD compatibility outcomes and do not claim browser execution, remote resource
+identity, server-side enforcement, ceremony success, or complete route
 coverage.
 
 ## Conformance evidence boundary

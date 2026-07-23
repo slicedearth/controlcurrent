@@ -17,9 +17,12 @@ const RECOGNIZED_HEADERS = new Set([
   "cross-origin-embedder-policy",
   "cross-origin-opener-policy",
   "cross-origin-resource-policy",
+  "integrity-policy",
+  "integrity-policy-report-only",
   "origin-agent-cluster",
   "permissions-policy",
   "referrer-policy",
+  "reporting-endpoints",
   "set-cookie",
   "strict-transport-security",
   "x-content-type-options"
@@ -33,11 +36,20 @@ const SENSITIVE_REQUEST_HEADERS = new Set([
 ]);
 
 type NormalisedHeaders = Map<string, string[]>;
-type CspPolicy = Map<string, string[]>;
-type CspParseResult =
+export type CspPolicy = Map<string, string[]>;
+export type CspParseResult =
   | { state: "missing" }
   | { state: "invalid"; summary: string }
   | { state: "present"; policies: CspPolicy[]; directiveCount: number };
+type IntegrityPolicyParseResult =
+  | { state: "missing" }
+  | { state: "invalid"; summary: string }
+  | {
+      state: "present";
+      blockedDestinations: Set<"script" | "style">;
+      endpoints: Set<string>;
+      sources: Set<"inline">;
+    };
 
 function byteLength(value: string): number {
   return new TextEncoder().encode(value).byteLength;
@@ -173,6 +185,17 @@ function parseCsp(headers: NormalisedHeaders, headerName: string): CspParseResul
   return { state: "present", policies, directiveCount };
 }
 
+export function extractCspEvidence(snapshotInput: unknown): {
+  enforced: CspParseResult;
+  reportOnly: CspParseResult;
+} {
+  const { headers } = normalisedHeaders(snapshotInput);
+  return {
+    enforced: parseCsp(headers, "content-security-policy"),
+    reportOnly: parseCsp(headers, "content-security-policy-report-only")
+  };
+}
+
 function cspDirectiveFinding(
   enforced: CspParseResult,
   reportOnly: CspParseResult,
@@ -228,6 +251,15 @@ function effectiveDirectiveTokens(
     const directive = chain.find((candidate) => policy.has(candidate));
     return directive ? [policy.get(directive) ?? []] : [];
   });
+}
+
+export function cspElementTokens(policy: CspPolicy, kind: "script" | "style"): string[] {
+  const chain =
+    kind === "script"
+      ? (["script-src-elem", "script-src", "default-src"] as const)
+      : (["style-src-elem", "style-src", "default-src"] as const);
+  const directive = chain.find((candidate) => policy.has(candidate));
+  return directive ? (policy.get(directive) ?? []) : [];
 }
 
 function cspHasToken(
@@ -482,6 +514,127 @@ function cspDirectiveTokenFinding(
       : reported
         ? `${label} appears only in report-only CSP and is not enforced.`
         : `${label} was not declared in CSP.`
+  );
+}
+
+function parseIntegrityPolicy(
+  headers: NormalisedHeaders,
+  headerName: "integrity-policy" | "integrity-policy-report-only"
+): IntegrityPolicyParseResult {
+  const header = singleton(headers, headerName);
+  if (header.state === "missing") return { state: "missing" };
+  if (header.state === "invalid") return { state: "invalid", summary: header.summary };
+
+  const members = header.value.split(",").map((member) => member.trim());
+  if (members.some((member) => member.length === 0)) {
+    return { state: "invalid", summary: `${headerName} contains an empty dictionary member.` };
+  }
+  const parsed = new Map<string, string[]>();
+  for (const member of members) {
+    const match = /^([a-z][a-z0-9-]*)=\(([^()]*)\)$/u.exec(member);
+    if (!match?.[1] || match[2] === undefined) {
+      return {
+        state: "invalid",
+        summary: `${headerName} must use a dictionary of token inner lists.`
+      };
+    }
+    if (parsed.has(match[1])) {
+      return { state: "invalid", summary: `${headerName} repeats the ${match[1]} member.` };
+    }
+    const tokens = match[2].trim() === "" ? [] : match[2].trim().split(/\s+/u);
+    if (tokens.some((token) => !/^[a-z*][a-z0-9_.*-]*$/u.test(token))) {
+      return { state: "invalid", summary: `${headerName} contains an invalid token.` };
+    }
+    parsed.set(match[1], tokens);
+  }
+
+  const sourceTokens = parsed.get("sources") ?? ["inline"];
+  const destinationTokens = parsed.get("blocked-destinations") ?? [];
+  if (sourceTokens.some((token) => token !== "inline")) {
+    return { state: "invalid", summary: `${headerName} contains an unsupported source token.` };
+  }
+  if (destinationTokens.some((token) => token !== "script" && token !== "style")) {
+    return {
+      state: "invalid",
+      summary: `${headerName} contains an unsupported blocked destination.`
+    };
+  }
+
+  return {
+    state: "present",
+    sources: new Set(sourceTokens as "inline"[]),
+    blockedDestinations: new Set(destinationTokens as ("script" | "style")[]),
+    endpoints: new Set(parsed.get("endpoints") ?? [])
+  };
+}
+
+function reportingEndpointNames(headers: NormalisedHeaders): Set<string> {
+  const values = headers.get("reporting-endpoints") ?? [];
+  const names = new Set<string>();
+  for (const value of values) {
+    for (const member of value.split(",")) {
+      const match = /^\s*([a-z][a-z0-9_-]*)\s*=/u.exec(member);
+      if (match?.[1]) names.add(match[1]);
+    }
+  }
+  return names;
+}
+
+function integrityPolicyFinding(headers: NormalisedHeaders): AssuranceFinding {
+  const enforced = parseIntegrityPolicy(headers, "integrity-policy");
+  const reportOnly = parseIntegrityPolicy(headers, "integrity-policy-report-only");
+  if (enforced.state === "invalid") {
+    return finding("integrity-policy", "invalid", ["integrity-policy"], enforced.summary);
+  }
+  if (reportOnly.state === "invalid") {
+    return finding(
+      "integrity-policy",
+      "invalid",
+      ["integrity-policy-report-only"],
+      reportOnly.summary
+    );
+  }
+  const selected = enforced.state === "present" ? enforced : reportOnly;
+  if (selected.state === "missing") {
+    return finding(
+      "integrity-policy",
+      "missing",
+      ["integrity-policy"],
+      "Neither an enforced nor report-only Integrity Policy was observed."
+    );
+  }
+  const missingEndpoints = [...selected.endpoints].filter(
+    (endpoint) => !reportingEndpointNames(headers).has(endpoint)
+  );
+  const sourceHeaders =
+    enforced.state === "present" ? ["integrity-policy"] : ["integrity-policy-report-only"];
+  if (selected.blockedDestinations.size === 0) {
+    return finding(
+      "integrity-policy",
+      "inconclusive",
+      sourceHeaders,
+      "Integrity Policy is present but does not name a recognised blocked destination.",
+      `${String(selected.sources.size)} recognised source tokens; 0 blocked destinations`
+    );
+  }
+  if (missingEndpoints.length > 0) {
+    return finding(
+      "integrity-policy",
+      "inconclusive",
+      [...sourceHeaders, "reporting-endpoints"],
+      "Integrity Policy references an endpoint name that was not observed in Reporting-Endpoints.",
+      `${String(selected.blockedDestinations.size)} blocked destinations; ${String(missingEndpoints.length)} unmatched endpoint names`
+    );
+  }
+  const state = enforced.state === "present" ? "observed" : "report_only";
+  return finding(
+    "integrity-policy",
+    state,
+    selected.endpoints.size > 0 ? [...sourceHeaders, "reporting-endpoints"] : sourceHeaders,
+    state === "observed"
+      ? "Integrity Policy declares recognised blocked destinations; resource coverage and browser enforcement remain unverified."
+      : "Integrity Policy appears only in report-only mode and does not block requests.",
+    `${String(selected.blockedDestinations.size)} blocked destinations; ${String(selected.endpoints.size)} reporting endpoints`
   );
 }
 
@@ -999,6 +1152,7 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
       "Subresource Integrity requires HTML or DOM evidence and cannot be established from response headers."
     )
   );
+  byControl.set("integrity-policy", integrityPolicyFinding(headers));
   byControl.set(
     "cross-origin-opener-policy",
     enumHeaderFinding(

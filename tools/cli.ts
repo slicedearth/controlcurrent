@@ -135,7 +135,7 @@ async function inspectHeaderSnapshot(): Promise<void> {
 
 async function inspectBundle(): Promise<void> {
   const path = process.argv[3] ?? usage();
-  const report = inspectEvidenceBundle(await readBoundedJson(path, 1_024 * 1_024));
+  const report = await inspectEvidenceBundle(await readBoundedJson(path, 2 * 1_024 * 1_024));
   const strictComposites = process.argv.includes("--strict-composites");
   const failed =
     report.summary.invalid > 0 ||

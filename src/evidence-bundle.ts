@@ -4,27 +4,40 @@ import {
   type AssuranceFinding,
   type AssuranceReport,
   type CompositeAssessment,
+  type CspMarkupReport,
   type EvidenceBundleReport,
   type FetchMetadataReport,
   type HeaderSnapshot,
   type HtmlResourceReport,
+  type ResourceVerificationReport,
   type WebauthnReport,
   assuranceFindingSchema,
+  cspMarkupReportSchema,
   evidenceBundleInputSchema,
   evidenceBundleReportSchema,
   fetchMetadataReportSchema,
   headerSnapshotSchema,
   htmlDocumentInputSchema,
   htmlResourceReportSchema,
+  resourceVerificationReportSchema,
   webauthnConfigurationSchema,
   webauthnReportSchema
 } from "./contracts";
-import { inspectHeaders } from "./assurance";
-import { parseIntegrityMetadata } from "./integrity";
+import { cspElementTokens, extractCspEvidence, inspectHeaders, type CspPolicy } from "./assurance";
+import {
+  decodeBase64Bytes,
+  parseCspHashSource,
+  parseCspNonceSource,
+  parseIntegrityMetadata,
+  strongestIntegrityMetadata,
+  type IntegrityAlgorithm
+} from "./integrity";
 
 const MAX_HTML_ELEMENTS = 8_192;
 const MAX_ELIGIBLE_RESOURCES = 512;
 const MAX_HTML_PARSE_ERRORS = 64;
+const MAX_RESOURCE_BYTES = 256 * 1_024;
+const MAX_TOTAL_RESOURCE_BYTES = 1_024 * 1_024;
 const SENSITIVE_REQUEST_HEADERS = new Set([
   "authorization",
   "cookie",
@@ -40,6 +53,20 @@ const FETCH_HEADER_NAMES = [
 
 type ResourceKind = "script" | "style" | "preload";
 type ReferenceKind = "relative" | "absolute" | "other";
+type HtmlResourceEvidence = {
+  reference: string;
+  integrity?: string;
+};
+type InlineElementEvidence = {
+  kind: "script" | "style";
+  content: string;
+  nonce?: string;
+};
+type HtmlAnalysis = {
+  report: HtmlResourceReport;
+  resources: HtmlResourceEvidence[];
+  inlineElements: InlineElementEvidence[];
+};
 
 function byteLength(value: string): number {
   return new TextEncoder().encode(value).byteLength;
@@ -91,6 +118,16 @@ function resourceKind(element: DefaultTreeAdapterTypes.Element): ResourceKind | 
   return undefined;
 }
 
+function childText(parent: DefaultTreeAdapterTypes.ParentNode): string {
+  return parent.childNodes
+    .map((node) => {
+      if ("value" in node) return node.value;
+      if ("childNodes" in node) return childText(node);
+      return "";
+    })
+    .join("");
+}
+
 function supportedIntegrityAlgorithms(value: string): {
   algorithms: ("sha256" | "sha384" | "sha512")[];
   valid: boolean;
@@ -103,7 +140,7 @@ function supportedIntegrityAlgorithms(value: string): {
   };
 }
 
-export function inspectHtmlResources(input: unknown): HtmlResourceReport {
+function analyzeHtmlDocument(input: unknown): HtmlAnalysis {
   const documentInput = htmlDocumentInputSchema.parse(input);
   const inputBytes = byteLength(documentInput.html);
   if (inputBytes > 128 * 1_024) throw new Error("HTML input exceeds 131072 bytes.");
@@ -129,6 +166,8 @@ export function inspectHtmlResources(input: unknown): HtmlResourceReport {
   let absoluteReferenceCount = 0;
   let otherReferenceCount = 0;
   const algorithms = new Set<"sha256" | "sha384" | "sha512">();
+  const resources: HtmlResourceEvidence[] = [];
+  const inlineElements: InlineElementEvidence[] = [];
 
   function walk(parent: DefaultTreeAdapterTypes.ParentNode): void {
     for (const node of parent.childNodes) {
@@ -155,6 +194,10 @@ export function inspectHtmlResources(input: unknown): HtmlResourceReport {
         if (location === "other") otherReferenceCount += 1;
 
         const integrity = attr(node, "integrity");
+        resources.push({
+          reference,
+          ...(integrity === undefined ? {} : { integrity })
+        });
         if (integrity === undefined) {
           unprotectedResourceCount += 1;
         } else {
@@ -166,6 +209,22 @@ export function inspectHtmlResources(input: unknown): HtmlResourceReport {
             for (const algorithm of parsed.algorithms) algorithms.add(algorithm);
           }
         }
+      }
+      if (node.tagName === "script" && !attr(node, "src")?.trim()) {
+        const nonce = attr(node, "nonce");
+        inlineElements.push({
+          kind: "script",
+          content: childText(node),
+          ...(nonce === undefined ? {} : { nonce })
+        });
+      }
+      if (node.tagName === "style") {
+        const nonce = attr(node, "nonce");
+        inlineElements.push({
+          kind: "style",
+          content: childText(node),
+          ...(nonce === undefined ? {} : { nonce })
+        });
       }
       walk(node);
     }
@@ -206,25 +265,335 @@ export function inspectHtmlResources(input: unknown): HtmlResourceReport {
               `${String(protectedResourceCount)} of ${String(eligibleResourceCount)} resources`
             );
 
-  return htmlResourceReportSchema.parse({
+  return {
+    report: htmlResourceReportSchema.parse({
+      schemaVersion: 1,
+      name: documentInput.name,
+      inputBytes,
+      elementCount,
+      parseErrorCount,
+      eligibleResourceCount,
+      protectedResourceCount,
+      unprotectedResourceCount,
+      invalidIntegrityCount,
+      scriptCount,
+      styleCount,
+      preloadCount,
+      relativeReferenceCount,
+      absoluteReferenceCount,
+      otherReferenceCount,
+      algorithms: [...algorithms].sort(),
+      finding: integrityFinding
+    }),
+    resources,
+    inlineElements
+  };
+}
+
+export function inspectHtmlResources(input: unknown): HtmlResourceReport {
+  return analyzeHtmlDocument(input).report;
+}
+
+function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.byteLength !== right.byteLength) return false;
+  let difference = 0;
+  for (let index = 0; index < left.byteLength; index += 1) {
+    difference |= (left[index] ?? 0) ^ (right[index] ?? 0);
+  }
+  return difference === 0;
+}
+
+async function digestBytes(algorithm: IntegrityAlgorithm, bytes: Uint8Array): Promise<Uint8Array> {
+  const subtle = globalThis.crypto.subtle;
+  const names: Readonly<Record<IntegrityAlgorithm, string>> = {
+    sha256: "SHA-256",
+    sha384: "SHA-384",
+    sha512: "SHA-512"
+  };
+  return new Uint8Array(await subtle.digest(names[algorithm], bytes.slice().buffer));
+}
+
+async function verifyResourceBytes(
+  bundle: ReturnType<typeof evidenceBundleInputSchema.parse>,
+  htmlAnalyses: readonly HtmlAnalysis[]
+): Promise<ResourceVerificationReport> {
+  let suppliedBytes = 0;
+  let matchedResourceCount = 0;
+  let verifiedResourceCount = 0;
+  let mismatchedResourceCount = 0;
+  let invalidMetadataCount = 0;
+  let unmatchedResourceCount = 0;
+  const documents = bundle.htmlDocuments.map((document, index) => ({
+    document,
+    analysis: htmlAnalyses[index]
+  }));
+
+  for (const supplied of bundle.resourceBytes) {
+    const bytes = decodeBase64Bytes(supplied.bodyBase64);
+    if (!bytes) throw new Error(`Resource ${supplied.resourceId} contains invalid base64 bytes.`);
+    if (bytes.byteLength > MAX_RESOURCE_BYTES) {
+      throw new Error(
+        `Resource ${supplied.resourceId} exceeds the ${String(MAX_RESOURCE_BYTES)}-byte bound.`
+      );
+    }
+    suppliedBytes += bytes.byteLength;
+    if (suppliedBytes > MAX_TOTAL_RESOURCE_BYTES) {
+      throw new Error(
+        `Resource bytes exceed the ${String(MAX_TOTAL_RESOURCE_BYTES)}-byte total bound.`
+      );
+    }
+
+    const matches = documents.flatMap(({ document, analysis }) =>
+      document.surfaceId === supplied.surfaceId && analysis
+        ? analysis.resources.filter((resource) => resource.reference === supplied.reference)
+        : []
+    );
+    if (matches.length !== 1) {
+      unmatchedResourceCount += 1;
+      continue;
+    }
+    matchedResourceCount += 1;
+    const integrity = matches[0]?.integrity;
+    if (!integrity) {
+      invalidMetadataCount += 1;
+      continue;
+    }
+    const parsed = parseIntegrityMetadata(integrity);
+    const strongest = strongestIntegrityMetadata(parsed.metadata);
+    if (parsed.invalidSupportedTokenCount > 0 || strongest.length === 0) {
+      invalidMetadataCount += 1;
+      continue;
+    }
+    const actual = await digestBytes(strongest[0]?.algorithm ?? "sha256", bytes);
+    if (strongest.some((metadata) => equalBytes(metadata.digest, actual))) {
+      verifiedResourceCount += 1;
+    } else {
+      mismatchedResourceCount += 1;
+    }
+  }
+
+  const verifiableResourceCount = htmlAnalyses
+    .flatMap((analysis) => analysis.resources)
+    .filter((resource) => {
+      if (!resource.integrity) return false;
+      const parsed = parseIntegrityMetadata(resource.integrity);
+      return parsed.metadata.length > 0 && parsed.invalidSupportedTokenCount === 0;
+    }).length;
+  const verificationFinding =
+    bundle.resourceBytes.length === 0
+      ? finding(
+          "subresource-integrity",
+          "not_evaluated",
+          [],
+          "No local resource bytes were supplied for digest verification."
+        )
+      : unmatchedResourceCount > 0 || invalidMetadataCount > 0 || mismatchedResourceCount > 0
+        ? finding(
+            "subresource-integrity",
+            "invalid",
+            [],
+            "At least one supplied resource was unmatched, had invalid metadata, or failed digest verification.",
+            `${String(verifiedResourceCount)} verified; ${String(mismatchedResourceCount)} mismatched; ${String(invalidMetadataCount)} invalid metadata; ${String(unmatchedResourceCount)} unmatched`
+          )
+        : verifiedResourceCount < verifiableResourceCount
+          ? finding(
+              "subresource-integrity",
+              "inconclusive",
+              [],
+              "Every supplied resource matched, but bytes were not supplied for every resource with valid integrity metadata.",
+              `${String(verifiedResourceCount)} verified of ${String(verifiableResourceCount)} verifiable resources`
+            )
+          : finding(
+              "subresource-integrity",
+              "observed",
+              [],
+              "Every resource with valid integrity metadata matched the supplied local bytes; browser fetching and CORS behaviour remain unverified.",
+              `${String(verifiedResourceCount)} resources verified locally`
+            );
+
+  return resourceVerificationReportSchema.parse({
     schemaVersion: 1,
-    name: documentInput.name,
-    inputBytes,
-    elementCount,
-    parseErrorCount,
-    eligibleResourceCount,
-    protectedResourceCount,
-    unprotectedResourceCount,
-    invalidIntegrityCount,
-    scriptCount,
-    styleCount,
-    preloadCount,
-    relativeReferenceCount,
-    absoluteReferenceCount,
-    otherReferenceCount,
-    algorithms: [...algorithms].sort(),
-    finding: integrityFinding
+    suppliedResourceCount: bundle.resourceBytes.length,
+    suppliedBytes,
+    matchedResourceCount,
+    verifiedResourceCount,
+    mismatchedResourceCount,
+    invalidMetadataCount,
+    unmatchedResourceCount,
+    finding: verificationFinding
   });
+}
+
+function nonceTokenValue(token: string): string | undefined {
+  const parsed = parseCspNonceSource(token);
+  if (parsed.state !== "valid" && parsed.state !== "short") return undefined;
+  return token.slice(7, -1);
+}
+
+async function hashMatches(content: string, tokens: readonly string[]): Promise<boolean> {
+  const parsed = tokens
+    .filter((token) => /^'(?:sha256|sha384|sha512)-/iu.test(token))
+    .flatMap((token) => parseCspHashSource(token).metadata);
+  const byAlgorithm = new Map<IntegrityAlgorithm, Uint8Array>();
+  for (const metadata of parsed) {
+    let actual = byAlgorithm.get(metadata.algorithm);
+    if (!actual) {
+      actual = await digestBytes(metadata.algorithm, new TextEncoder().encode(content));
+      byAlgorithm.set(metadata.algorithm, actual);
+    }
+    if (equalBytes(metadata.digest, actual)) return true;
+  }
+  return false;
+}
+
+function broadSourceCount(policy: CspPolicy, kinds: ReadonlySet<"script" | "style">): number {
+  const broad = new Set([
+    "'unsafe-inline'",
+    "'unsafe-eval'",
+    "'wasm-unsafe-eval'",
+    "*",
+    "data:",
+    "http:",
+    "https:"
+  ]);
+  return [...kinds].reduce(
+    (total, kind) =>
+      total +
+      cspElementTokens(policy, kind).filter((token) => broad.has(token.toLowerCase())).length,
+    0
+  );
+}
+
+async function inspectCspMarkup(
+  response: HeaderSnapshot,
+  analysis: HtmlAnalysis,
+  surfaceId: string,
+  reusedNonces: ReadonlySet<string>
+): Promise<CspMarkupReport> {
+  const { enforced } = extractCspEvidence(response);
+  const kinds = new Set(analysis.inlineElements.map((element) => element.kind));
+  const broadSourceExpressionCount =
+    enforced.state === "present"
+      ? enforced.policies.reduce((total, policy) => total + broadSourceCount(policy, kinds), 0)
+      : 0;
+  let matchedNonceCount = 0;
+  let matchedHashCount = 0;
+  let matchedMixedCount = 0;
+  let unmatchedInlineCount = 0;
+  let crossDocumentNonceReuseCount = 0;
+
+  if (enforced.state === "present") {
+    for (const element of analysis.inlineElements) {
+      const methods: ("nonce" | "hash")[] = [];
+      let authorised = true;
+      for (const policy of enforced.policies) {
+        const tokens = cspElementTokens(policy, element.kind);
+        const nonceMatch =
+          element.nonce !== undefined &&
+          tokens.some((token) => nonceTokenValue(token) === element.nonce);
+        const hashMatch = await hashMatches(element.content, tokens);
+        if (!nonceMatch && !hashMatch) {
+          authorised = false;
+          break;
+        }
+        methods.push(nonceMatch ? "nonce" : "hash");
+      }
+      if (!authorised) {
+        unmatchedInlineCount += 1;
+      } else if (methods.every((method) => method === "nonce")) {
+        matchedNonceCount += 1;
+      } else if (methods.every((method) => method === "hash")) {
+        matchedHashCount += 1;
+      } else {
+        matchedMixedCount += 1;
+      }
+      if (element.nonce && reusedNonces.has(element.nonce)) {
+        crossDocumentNonceReuseCount += 1;
+      }
+    }
+  }
+
+  const inlineElementCount = analysis.inlineElements.length;
+  const correlationFinding =
+    enforced.state === "invalid"
+      ? finding("content-security-policy", "invalid", ["content-security-policy"], enforced.summary)
+      : enforced.state === "missing"
+        ? finding(
+            "content-security-policy",
+            inlineElementCount > 0 ? "missing" : "not_evaluated",
+            ["content-security-policy"],
+            inlineElementCount > 0
+              ? "Inline script or style content was supplied without an enforced CSP for correlation."
+              : "No enforced CSP or inline content was available for correlation."
+          )
+        : broadSourceExpressionCount > 0 ||
+            unmatchedInlineCount > 0 ||
+            crossDocumentNonceReuseCount > 0
+          ? finding(
+              "content-security-policy",
+              "inconclusive",
+              ["content-security-policy"],
+              "CSP and markup correlation found unmatched inline content, broad source expressions, or nonce reuse across supplied documents.",
+              `${String(matchedNonceCount + matchedHashCount + matchedMixedCount)} matched; ${String(unmatchedInlineCount)} unmatched; ${String(broadSourceExpressionCount)} broad expressions; ${String(crossDocumentNonceReuseCount)} cross-document nonce reuse`
+            )
+          : inlineElementCount === 0
+            ? finding(
+                "content-security-policy",
+                "not_evaluated",
+                ["content-security-policy"],
+                "No inline script or style content required CSP source matching."
+              )
+            : finding(
+                "content-security-policy",
+                "observed",
+                ["content-security-policy"],
+                "Every supplied inline script and style element matched a nonce or hash source in every enforced policy; runtime enforcement remains unverified.",
+                `${String(matchedNonceCount)} nonce; ${String(matchedHashCount)} hash; ${String(matchedMixedCount)} mixed`
+              );
+
+  return cspMarkupReportSchema.parse({
+    schemaVersion: 1,
+    surfaceId,
+    inlineElementCount,
+    matchedNonceCount,
+    matchedHashCount,
+    matchedMixedCount,
+    unmatchedInlineCount,
+    broadSourceExpressionCount,
+    crossDocumentNonceReuseCount,
+    finding: correlationFinding
+  });
+}
+
+async function cspMarkupReports(
+  bundle: ReturnType<typeof evidenceBundleInputSchema.parse>,
+  htmlAnalyses: readonly HtmlAnalysis[]
+): Promise<CspMarkupReport[]> {
+  const nonceSurfaces = new Map<string, Set<string>>();
+  for (const [index, document] of bundle.htmlDocuments.entries()) {
+    if (!document.surfaceId) continue;
+    for (const element of htmlAnalyses[index]?.inlineElements ?? []) {
+      if (!element.nonce) continue;
+      const surfaces = nonceSurfaces.get(element.nonce) ?? new Set<string>();
+      surfaces.add(document.surfaceId);
+      nonceSurfaces.set(element.nonce, surfaces);
+    }
+  }
+  const reusedNonces = new Set(
+    [...nonceSurfaces.entries()].filter(([, surfaces]) => surfaces.size > 1).map(([nonce]) => nonce)
+  );
+  const reports: CspMarkupReport[] = [];
+  for (const [index, document] of bundle.htmlDocuments.entries()) {
+    if (!document.surfaceId) continue;
+    const responses = bundle.responses.filter(
+      (response) => response.surfaceId === document.surfaceId
+    );
+    const analysis = htmlAnalyses[index];
+    const [response] = responses;
+    if (responses.length !== 1 || !response || !analysis) continue;
+    reports.push(await inspectCspMarkup(response, analysis, document.surfaceId, reusedNonces));
+  }
+  return reports.sort((left, right) => left.surfaceId.localeCompare(right.surfaceId));
 }
 
 function requestHeaders(snapshotInput: unknown): {
@@ -461,13 +830,19 @@ function stateOf(findings: AssuranceFinding[], controlId: string): AssuranceFind
   return findings.find((item) => item.controlId === controlId)?.state ?? "not_evaluated";
 }
 
-function strictCspComposite(findings: AssuranceFinding[]): CompositeAssessment {
+function strictCspComposite(
+  findings: AssuranceFinding[],
+  markupReports: readonly CspMarkupReport[]
+): CompositeAssessment {
   const csp = stateOf(findings, "content-security-policy");
   const nonce = stateOf(findings, "csp-nonces");
   const hash = stateOf(findings, "csp-hashes");
   const base = stateOf(findings, "csp-base-uri");
   const states = [csp, nonce, hash, base];
   const activeAuthorisation = nonce === "observed" || hash === "observed";
+  const markupNeedsReview = markupReports.some((report) =>
+    ["invalid", "inconclusive", "missing"].includes(report.finding.state)
+  );
   if (states.every((state) => state === "not_evaluated")) {
     return {
       id: "strict-csp-candidate",
@@ -477,13 +852,15 @@ function strictCspComposite(findings: AssuranceFinding[]): CompositeAssessment {
       requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
     };
   }
-  if (csp === "observed" && activeAuthorisation && base === "observed") {
+  if (csp === "observed" && activeAuthorisation && base === "observed" && !markupNeedsReview) {
     return {
       id: "strict-csp-candidate",
       name: "Strict CSP candidate",
       state: "satisfied",
       summary:
-        "The supplied evidence contains the minimum declarations for this project-authored strict CSP candidate; source matching and runtime enforcement remain unverified.",
+        markupReports.length > 0
+          ? "The supplied evidence contains the minimum declarations and every correlated inline element matched; runtime enforcement remains unverified."
+          : "The supplied evidence contains the minimum declarations for this project-authored strict CSP candidate; no paired markup was available for source matching.",
       requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
     };
   }
@@ -631,7 +1008,7 @@ function cookieComposite(responseReports: AssuranceReport[]): CompositeAssessmen
   };
 }
 
-export function inspectEvidenceBundle(input: unknown): EvidenceBundleReport {
+export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBundleReport> {
   const bundle = evidenceBundleInputSchema.parse(input);
   const totalHtmlBytes = bundle.htmlDocuments.reduce(
     (total, document) => total + byteLength(document.html),
@@ -642,7 +1019,10 @@ export function inspectEvidenceBundle(input: unknown): EvidenceBundleReport {
   }
 
   const responseReports = bundle.responses.map((response) => inspectHeaders(response));
-  const htmlReports = bundle.htmlDocuments.map((document) => inspectHtmlResources(document));
+  const htmlAnalyses = bundle.htmlDocuments.map((document) => analyzeHtmlDocument(document));
+  const htmlReports = htmlAnalyses.map((analysis) => analysis.report);
+  const resourceVerificationReport = await verifyResourceBytes(bundle, htmlAnalyses);
+  const markupReports = await cspMarkupReports(bundle, htmlAnalyses);
   const requestReports = bundle.requests.map((request) => inspectFetchMetadata(request));
   const webauthnReports = bundle.webauthn.map((configuration) =>
     inspectWebauthnConfiguration(configuration)
@@ -650,6 +1030,8 @@ export function inspectEvidenceBundle(input: unknown): EvidenceBundleReport {
   const allFindings = [
     ...responseReports.flatMap((report) => report.findings),
     ...htmlReports.map((report) => report.finding),
+    resourceVerificationReport.finding,
+    ...markupReports.map((report) => report.finding),
     ...requestReports.map((report) => report.finding),
     ...webauthnReports.flatMap((report) => report.findings)
   ];
@@ -660,17 +1042,18 @@ export function inspectEvidenceBundle(input: unknown): EvidenceBundleReport {
     )
   );
   const composites = [
-    strictCspComposite(findings),
+    strictCspComposite(findings, markupReports),
     crossOriginComposite(responseReports),
     cookieComposite(responseReports)
   ];
 
   return evidenceBundleReportSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: bundle.name,
     coverage: {
       responses: responseReports.length,
       htmlDocuments: htmlReports.length,
+      resourceBytes: bundle.resourceBytes.length,
       requests: requestReports.length,
       webauthn: webauthnReports.length
     },
@@ -686,6 +1069,8 @@ export function inspectEvidenceBundle(input: unknown): EvidenceBundleReport {
     composites,
     responseReports,
     htmlReports,
+    resourceVerificationReport,
+    cspMarkupReports: markupReports,
     requestReports,
     webauthnReports
   });

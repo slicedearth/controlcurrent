@@ -146,23 +146,29 @@ contain a raw header value, cookie name, or cookie value.
 
 ## Evidence bundle
 
-Evidence-bundle input schema 1 contains a bounded name and four optional
+Evidence-bundle input schema 1 contains a bounded name and five optional
 collections:
 
 - response header snapshots using the established header schema;
 - HTML document inputs capped at 128 KiB each;
+- up to 32 local resource bodies, each linked by an opaque resource ID, surface
+  ID, and exact in-document reference;
 - request header snapshots used only for selected `Sec-Fetch-*` fields;
 - reduced WebAuthn configuration with no raw identifiers or binary values.
 
 HTML reports retain counts for eligible resources, SRI coverage, recognised
 hash algorithms, parser errors, resource kinds, and reference classes. They do
-not retain HTML, attributes, paths, origins, or resource bytes.
+not retain HTML, attributes, paths, origins, nonces, hashes, or resource bytes.
+Resource inputs are base64-decoded under per-resource and total byte limits,
+hashed locally, and reduced to verified, mismatched, invalid, and unmatched
+counts. CSP/markup reports retain only matched and unmatched counts, broad
+source-expression counts, and cross-document nonce-reuse counts.
 
 Fetch Metadata reports retain one reduced finding and counts. Credential
 headers are refused. WebAuthn reports retain only the explicit reduced
 configuration and three catalogue-aligned findings.
 
-The bundle report merges applicable findings per control. Conflicting states
+Bundle report schema 2 merges applicable findings per control. Conflicting states
 become `inconclusive`; invalid evidence cannot be overridden by a favourable
 snapshot. Three project-authored composite candidates report `satisfied`,
 `review`, `gap`, or `not_evaluated` independently of browser compatibility.

@@ -11,7 +11,7 @@ It is not a general compatibility index and it does not scan websites.
 
 ## What it provides
 
-- A versioned catalogue of 29 browser security and privacy controls
+- A versioned catalogue of 30 browser security and privacy controls
 - Exact BCD path mappings and explicit unsupported mappings
 - Nine desktop and mobile browser families normalised explicitly
 - Exact WebDX feature associations and Baseline adoptability context
@@ -22,8 +22,9 @@ It is not a general compatibility index and it does not scan websites.
 - Version-controlled policy profiles with expiring, visible exceptions
 - A local CLI for policy checks, explanations, and minimum-baseline calculation
 - An offline response-header inspector with redacted evidence and no URL fetch
-- A bounded evidence bundle for route variation, non-executing HTML/SRI
-  inventory, Fetch Metadata request context, and reduced WebAuthn configuration
+- A bounded evidence bundle for route variation, CSP-to-markup correlation,
+  local SRI byte verification, Fetch Metadata request context, and reduced
+  WebAuthn configuration
 - Project-authored composite checks that keep candidate deployment recipes
   separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
@@ -41,11 +42,11 @@ application.
 ## Data source
 
 The current release uses `@mdn/browser-compat-data` 8.0.7 and `web-features`
-3.34.1. The selected snapshot contains only the 34 BCD paths required by the
+3.34.1. The selected snapshot contains only the 36 BCD paths required by the
 current catalogue, bounded release metadata for nine browser families, and
 exact Baseline associations declared for those paths.
 
-The conformance-evidence registry maps 27 controls to exact Web Platform Tests
+The conformance-evidence registry maps 28 controls to exact Web Platform Tests
 suite paths at revision `af38980d2fcd74af19a226f5f651051cc15940ed`.
 HSTS and HttpOnly remain explicitly unmapped. ControlCurrent links to current
 wpt.fyi results but does not ingest or simplify pass rates.

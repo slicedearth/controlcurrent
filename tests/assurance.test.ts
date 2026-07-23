@@ -23,7 +23,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff`)
     );
 
-    expect(report.findings).toHaveLength(29);
+    expect(report.findings).toHaveLength(30);
     expect(report.recognisedHeaderCount).toBe(10);
     expect(finding(report, "content-security-policy").state).toBe("observed");
     expect(finding(report, "csp-nonces").state).toBe("observed");
@@ -144,6 +144,27 @@ X-Content-Type-Options: nosniff`);
     expect(finding(valid, "csp-nonces").state).toBe("observed");
     expect(finding(valid, "csp-nonces").summary).toContain("remain unverified");
     expect(finding(valid, "csp-hashes").state).toBe("observed");
+  });
+
+  it("keeps enforced and report-only Integrity Policy states distinct", () => {
+    const enforced = inspectHeaders(
+      parseHeaderBlock(`Integrity-Policy: blocked-destinations=(script style), endpoints=(integrity-endpoint)
+Reporting-Endpoints: integrity-endpoint="https://reports.example.invalid/integrity"`)
+    );
+    const reportOnly = inspectHeaders(
+      parseHeaderBlock("Integrity-Policy-Report-Only: blocked-destinations=(script)")
+    );
+    const unmatchedEndpoint = inspectHeaders(
+      parseHeaderBlock(
+        "Integrity-Policy: blocked-destinations=(script), endpoints=(missing-endpoint)"
+      )
+    );
+
+    expect(finding(enforced, "integrity-policy").state).toBe("observed");
+    expect(finding(enforced, "integrity-policy").evidence).toContain("2 blocked destinations");
+    expect(finding(reportOnly, "integrity-policy").state).toBe("report_only");
+    expect(finding(unmatchedEndpoint, "integrity-policy").state).toBe("inconclusive");
+    expect(JSON.stringify(enforced)).not.toContain("reports.example.invalid");
   });
 
   it("validates HSTS directives without treating max-age zero as protection", () => {

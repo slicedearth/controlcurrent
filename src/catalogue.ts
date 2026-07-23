@@ -1,4 +1,4 @@
-export const CATALOGUE_VERSION = "2.1.0";
+export const CATALOGUE_VERSION = "2.2.0";
 
 export type ControlMappingState = "active" | "unsupported";
 export type CombinationRule = "all" | "any";
@@ -246,6 +246,35 @@ export const SECURITY_CONTROLS = [
     combination: "all",
     bcdPaths: ["html.elements.script.integrity", "html.elements.link.integrity"],
     specificationUrls: ["https://w3c.github.io/webappsec-subresource-integrity/"]
+  },
+  {
+    id: "integrity-policy",
+    name: "Subresource Integrity Policy",
+    shortName: "Integrity Policy",
+    category: "Content execution",
+    summary:
+      "Requires selected script and style requests to carry integrity metadata, with an optional report-only rollout mode.",
+    threatClasses: [
+      "Executable subresources without integrity metadata",
+      "Incomplete SRI deployment coverage"
+    ],
+    doesNotAddress: [
+      "Incorrect but well-formed integrity metadata",
+      "Compromise of the document that declares the policy",
+      "Resource types outside the selected blocked destinations"
+    ],
+    prerequisites: [
+      "SRI metadata on affected resources",
+      "Reporting endpoints when policy reports are required"
+    ],
+    fallback:
+      "Inventory executable resources and enforce equivalent build-time checks where Integrity Policy is unavailable.",
+    mappingState: "active",
+    combination: "any",
+    bcdPaths: ["http.headers.Integrity-Policy", "http.headers.Integrity-Policy-Report-Only"],
+    specificationUrls: [
+      "https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-section"
+    ]
   },
   {
     id: "cross-origin-opener-policy",

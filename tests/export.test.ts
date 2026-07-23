@@ -27,15 +27,15 @@ describe("profile exports", () => {
     expect(csvSafeCell("\u0000plain")).toBe('"plain"');
   });
 
-  it("exports only the reduced evidence report", () => {
-    const report = inspectEvidenceBundle({
+  it("exports only the reduced evidence report", async () => {
+    const report = await inspectEvidenceBundle({
       schemaVersion: 1,
       name: "Export",
       htmlDocuments: [
         {
           schemaVersion: 1,
           name: "Document",
-          html: '<script src="/private.js" integrity="sha384-YWJj"></script>'
+          html: '<script src="/private.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
         }
       ]
     });
