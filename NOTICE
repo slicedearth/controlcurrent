@@ -1,0 +1,18 @@
+ControlCurrent
+Copyright (c) 2026 slicedearth
+
+ControlCurrent includes a transformed, selected subset of:
+
+MDN Browser Compatibility Data
+https://github.com/mdn/browser-compat-data
+Copyright MDN Browser Compatibility Data contributors
+Licensed under CC0 1.0 Universal
+https://creativecommons.org/publicdomain/zero/1.0/
+
+The selected subset records exact compatibility paths, support statements,
+browser release metadata, source references, and package provenance needed by
+the ControlCurrent security-control catalogue. ControlCurrent does not reproduce
+the complete BCD package or MDN article prose.
+
+The MIT licence for ControlCurrent source code does not relicense upstream data,
+linked specifications, or third-party documentation.

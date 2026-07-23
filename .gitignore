@@ -1,0 +1,35 @@
+# Node and Astro
+node_modules/
+.astro/
+dist/
+coverage/
+
+# Browser tests
+playwright-report/
+test-results/
+
+# Private source snapshots and local build material
+private-data/
+data/raw/
+data/cache/
+data/checkpoints/
+data/manifests/
+*-data/
+.private-data/
+raw/
+cache/
+checkpoints/
+manifests/
+.tmp/
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+
+# Temporary and generated scratch material
+*.tmp
+*.bak

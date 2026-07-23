@@ -1,0 +1,10 @@
+[
+  {
+    "id": "82b8b746968aa0824bbde571",
+    "observedInBcdVersion": "8.0.7",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "ControlCurrent established its first selected BCD baseline at version 8.0.7.",
+    "type": "baseline_established"
+  }
+]

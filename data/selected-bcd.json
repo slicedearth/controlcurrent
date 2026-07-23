@@ -1,0 +1,3033 @@
+{
+  "bcdTimestamp": "2026-07-17T18:04:31.500Z",
+  "bcdVersion": "8.0.7",
+  "browsers": {
+    "chrome": {
+      "id": "chrome",
+      "name": "Chrome",
+      "releases": [
+        {
+          "releaseDate": "2008-12-11",
+          "status": "retired",
+          "version": "1"
+        },
+        {
+          "releaseDate": "2009-05-21",
+          "status": "retired",
+          "version": "2"
+        },
+        {
+          "releaseDate": "2009-09-15",
+          "status": "retired",
+          "version": "3"
+        },
+        {
+          "releaseDate": "2010-01-25",
+          "status": "retired",
+          "version": "4"
+        },
+        {
+          "releaseDate": "2010-05-25",
+          "status": "retired",
+          "version": "5"
+        },
+        {
+          "releaseDate": "2010-09-02",
+          "status": "retired",
+          "version": "6"
+        },
+        {
+          "releaseDate": "2010-10-19",
+          "status": "retired",
+          "version": "7"
+        },
+        {
+          "releaseDate": "2010-12-02",
+          "status": "retired",
+          "version": "8"
+        },
+        {
+          "releaseDate": "2011-02-03",
+          "status": "retired",
+          "version": "9"
+        },
+        {
+          "releaseDate": "2011-03-08",
+          "status": "retired",
+          "version": "10"
+        },
+        {
+          "releaseDate": "2011-04-27",
+          "status": "retired",
+          "version": "11"
+        },
+        {
+          "releaseDate": "2011-06-07",
+          "status": "retired",
+          "version": "12"
+        },
+        {
+          "releaseDate": "2011-08-02",
+          "status": "retired",
+          "version": "13"
+        },
+        {
+          "releaseDate": "2011-09-16",
+          "status": "retired",
+          "version": "14"
+        },
+        {
+          "releaseDate": "2011-10-25",
+          "status": "retired",
+          "version": "15"
+        },
+        {
+          "releaseDate": "2011-12-13",
+          "status": "retired",
+          "version": "16"
+        },
+        {
+          "releaseDate": "2012-02-08",
+          "status": "retired",
+          "version": "17"
+        },
+        {
+          "releaseDate": "2012-03-28",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2012-05-15",
+          "status": "retired",
+          "version": "19"
+        },
+        {
+          "releaseDate": "2012-06-26",
+          "status": "retired",
+          "version": "20"
+        },
+        {
+          "releaseDate": "2012-07-31",
+          "status": "retired",
+          "version": "21"
+        },
+        {
+          "releaseDate": "2012-09-25",
+          "status": "retired",
+          "version": "22"
+        },
+        {
+          "releaseDate": "2012-11-06",
+          "status": "retired",
+          "version": "23"
+        },
+        {
+          "releaseDate": "2013-01-10",
+          "status": "retired",
+          "version": "24"
+        },
+        {
+          "releaseDate": "2013-02-21",
+          "status": "retired",
+          "version": "25"
+        },
+        {
+          "releaseDate": "2013-03-26",
+          "status": "retired",
+          "version": "26"
+        },
+        {
+          "releaseDate": "2013-05-21",
+          "status": "retired",
+          "version": "27"
+        },
+        {
+          "releaseDate": "2013-07-09",
+          "status": "retired",
+          "version": "28"
+        },
+        {
+          "releaseDate": "2013-08-20",
+          "status": "retired",
+          "version": "29"
+        },
+        {
+          "releaseDate": "2013-10-01",
+          "status": "retired",
+          "version": "30"
+        },
+        {
+          "releaseDate": "2013-11-12",
+          "status": "retired",
+          "version": "31"
+        },
+        {
+          "releaseDate": "2014-01-14",
+          "status": "retired",
+          "version": "32"
+        },
+        {
+          "releaseDate": "2014-02-20",
+          "status": "retired",
+          "version": "33"
+        },
+        {
+          "releaseDate": "2014-04-08",
+          "status": "retired",
+          "version": "34"
+        },
+        {
+          "releaseDate": "2014-05-20",
+          "status": "retired",
+          "version": "35"
+        },
+        {
+          "releaseDate": "2014-07-16",
+          "status": "retired",
+          "version": "36"
+        },
+        {
+          "releaseDate": "2014-08-26",
+          "status": "retired",
+          "version": "37"
+        },
+        {
+          "releaseDate": "2014-10-07",
+          "status": "retired",
+          "version": "38"
+        },
+        {
+          "releaseDate": "2014-11-18",
+          "status": "retired",
+          "version": "39"
+        },
+        {
+          "releaseDate": "2015-01-21",
+          "status": "retired",
+          "version": "40"
+        },
+        {
+          "releaseDate": "2015-03-03",
+          "status": "retired",
+          "version": "41"
+        },
+        {
+          "releaseDate": "2015-04-14",
+          "status": "retired",
+          "version": "42"
+        },
+        {
+          "releaseDate": "2015-05-19",
+          "status": "retired",
+          "version": "43"
+        },
+        {
+          "releaseDate": "2015-07-21",
+          "status": "retired",
+          "version": "44"
+        },
+        {
+          "releaseDate": "2015-09-01",
+          "status": "retired",
+          "version": "45"
+        },
+        {
+          "releaseDate": "2015-10-13",
+          "status": "retired",
+          "version": "46"
+        },
+        {
+          "releaseDate": "2015-12-01",
+          "status": "retired",
+          "version": "47"
+        },
+        {
+          "releaseDate": "2016-01-20",
+          "status": "retired",
+          "version": "48"
+        },
+        {
+          "releaseDate": "2016-03-02",
+          "status": "retired",
+          "version": "49"
+        },
+        {
+          "releaseDate": "2016-04-13",
+          "status": "retired",
+          "version": "50"
+        },
+        {
+          "releaseDate": "2016-05-25",
+          "status": "retired",
+          "version": "51"
+        },
+        {
+          "releaseDate": "2016-07-20",
+          "status": "retired",
+          "version": "52"
+        },
+        {
+          "releaseDate": "2016-08-31",
+          "status": "retired",
+          "version": "53"
+        },
+        {
+          "releaseDate": "2016-10-12",
+          "status": "retired",
+          "version": "54"
+        },
+        {
+          "releaseDate": "2016-12-01",
+          "status": "retired",
+          "version": "55"
+        },
+        {
+          "releaseDate": "2017-01-25",
+          "status": "retired",
+          "version": "56"
+        },
+        {
+          "releaseDate": "2017-03-09",
+          "status": "retired",
+          "version": "57"
+        },
+        {
+          "releaseDate": "2017-04-19",
+          "status": "retired",
+          "version": "58"
+        },
+        {
+          "releaseDate": "2017-06-05",
+          "status": "retired",
+          "version": "59"
+        },
+        {
+          "releaseDate": "2017-07-25",
+          "status": "retired",
+          "version": "60"
+        },
+        {
+          "releaseDate": "2017-09-05",
+          "status": "retired",
+          "version": "61"
+        },
+        {
+          "releaseDate": "2017-10-17",
+          "status": "retired",
+          "version": "62"
+        },
+        {
+          "releaseDate": "2017-12-06",
+          "status": "retired",
+          "version": "63"
+        },
+        {
+          "releaseDate": "2018-01-23",
+          "status": "retired",
+          "version": "64"
+        },
+        {
+          "releaseDate": "2018-03-06",
+          "status": "retired",
+          "version": "65"
+        },
+        {
+          "releaseDate": "2018-04-17",
+          "status": "retired",
+          "version": "66"
+        },
+        {
+          "releaseDate": "2018-05-29",
+          "status": "retired",
+          "version": "67"
+        },
+        {
+          "releaseDate": "2018-07-24",
+          "status": "retired",
+          "version": "68"
+        },
+        {
+          "releaseDate": "2018-09-04",
+          "status": "retired",
+          "version": "69"
+        },
+        {
+          "releaseDate": "2018-10-16",
+          "status": "retired",
+          "version": "70"
+        },
+        {
+          "releaseDate": "2018-12-04",
+          "status": "retired",
+          "version": "71"
+        },
+        {
+          "releaseDate": "2019-01-29",
+          "status": "retired",
+          "version": "72"
+        },
+        {
+          "releaseDate": "2019-03-12",
+          "status": "retired",
+          "version": "73"
+        },
+        {
+          "releaseDate": "2019-04-23",
+          "status": "retired",
+          "version": "74"
+        },
+        {
+          "releaseDate": "2019-06-04",
+          "status": "retired",
+          "version": "75"
+        },
+        {
+          "releaseDate": "2019-07-30",
+          "status": "retired",
+          "version": "76"
+        },
+        {
+          "releaseDate": "2019-09-10",
+          "status": "retired",
+          "version": "77"
+        },
+        {
+          "releaseDate": "2019-10-22",
+          "status": "retired",
+          "version": "78"
+        },
+        {
+          "releaseDate": "2019-12-10",
+          "status": "retired",
+          "version": "79"
+        },
+        {
+          "releaseDate": "2020-02-04",
+          "status": "retired",
+          "version": "80"
+        },
+        {
+          "releaseDate": "2020-04-07",
+          "status": "retired",
+          "version": "81"
+        },
+        {
+          "releaseDate": "2020-05-19",
+          "status": "retired",
+          "version": "83"
+        },
+        {
+          "releaseDate": "2020-07-27",
+          "status": "retired",
+          "version": "84"
+        },
+        {
+          "releaseDate": "2020-08-25",
+          "status": "retired",
+          "version": "85"
+        },
+        {
+          "releaseDate": "2020-10-20",
+          "status": "retired",
+          "version": "86"
+        },
+        {
+          "releaseDate": "2020-11-17",
+          "status": "retired",
+          "version": "87"
+        },
+        {
+          "releaseDate": "2021-01-19",
+          "status": "retired",
+          "version": "88"
+        },
+        {
+          "releaseDate": "2021-03-02",
+          "status": "retired",
+          "version": "89"
+        },
+        {
+          "releaseDate": "2021-04-13",
+          "status": "retired",
+          "version": "90"
+        },
+        {
+          "releaseDate": "2021-05-25",
+          "status": "retired",
+          "version": "91"
+        },
+        {
+          "releaseDate": "2021-07-20",
+          "status": "retired",
+          "version": "92"
+        },
+        {
+          "releaseDate": "2021-08-31",
+          "status": "retired",
+          "version": "93"
+        },
+        {
+          "releaseDate": "2021-09-21",
+          "status": "retired",
+          "version": "94"
+        },
+        {
+          "releaseDate": "2021-10-19",
+          "status": "retired",
+          "version": "95"
+        },
+        {
+          "releaseDate": "2021-11-15",
+          "status": "retired",
+          "version": "96"
+        },
+        {
+          "releaseDate": "2022-01-04",
+          "status": "retired",
+          "version": "97"
+        },
+        {
+          "releaseDate": "2022-02-01",
+          "status": "retired",
+          "version": "98"
+        },
+        {
+          "releaseDate": "2022-03-01",
+          "status": "retired",
+          "version": "99"
+        },
+        {
+          "releaseDate": "2022-03-29",
+          "status": "retired",
+          "version": "100"
+        },
+        {
+          "releaseDate": "2022-04-26",
+          "status": "retired",
+          "version": "101"
+        },
+        {
+          "releaseDate": "2022-05-24",
+          "status": "retired",
+          "version": "102"
+        },
+        {
+          "releaseDate": "2022-06-21",
+          "status": "retired",
+          "version": "103"
+        },
+        {
+          "releaseDate": "2022-08-02",
+          "status": "retired",
+          "version": "104"
+        },
+        {
+          "releaseDate": "2022-09-02",
+          "status": "retired",
+          "version": "105"
+        },
+        {
+          "releaseDate": "2022-09-27",
+          "status": "retired",
+          "version": "106"
+        },
+        {
+          "releaseDate": "2022-10-25",
+          "status": "retired",
+          "version": "107"
+        },
+        {
+          "releaseDate": "2022-11-29",
+          "status": "retired",
+          "version": "108"
+        },
+        {
+          "releaseDate": "2023-01-10",
+          "status": "retired",
+          "version": "109"
+        },
+        {
+          "releaseDate": "2023-02-07",
+          "status": "retired",
+          "version": "110"
+        },
+        {
+          "releaseDate": "2023-03-07",
+          "status": "retired",
+          "version": "111"
+        },
+        {
+          "releaseDate": "2023-04-04",
+          "status": "retired",
+          "version": "112"
+        },
+        {
+          "releaseDate": "2023-05-02",
+          "status": "retired",
+          "version": "113"
+        },
+        {
+          "releaseDate": "2023-05-30",
+          "status": "retired",
+          "version": "114"
+        },
+        {
+          "releaseDate": "2023-07-18",
+          "status": "retired",
+          "version": "115"
+        },
+        {
+          "releaseDate": "2023-08-15",
+          "status": "retired",
+          "version": "116"
+        },
+        {
+          "releaseDate": "2023-09-12",
+          "status": "retired",
+          "version": "117"
+        },
+        {
+          "releaseDate": "2023-10-10",
+          "status": "retired",
+          "version": "118"
+        },
+        {
+          "releaseDate": "2023-10-31",
+          "status": "retired",
+          "version": "119"
+        },
+        {
+          "releaseDate": "2023-12-05",
+          "status": "retired",
+          "version": "120"
+        },
+        {
+          "releaseDate": "2024-01-23",
+          "status": "retired",
+          "version": "121"
+        },
+        {
+          "releaseDate": "2024-02-20",
+          "status": "retired",
+          "version": "122"
+        },
+        {
+          "releaseDate": "2024-03-19",
+          "status": "retired",
+          "version": "123"
+        },
+        {
+          "releaseDate": "2024-04-16",
+          "status": "retired",
+          "version": "124"
+        },
+        {
+          "releaseDate": "2024-05-14",
+          "status": "retired",
+          "version": "125"
+        },
+        {
+          "releaseDate": "2024-06-11",
+          "status": "retired",
+          "version": "126"
+        },
+        {
+          "releaseDate": "2024-07-23",
+          "status": "retired",
+          "version": "127"
+        },
+        {
+          "releaseDate": "2024-08-20",
+          "status": "retired",
+          "version": "128"
+        },
+        {
+          "releaseDate": "2024-09-17",
+          "status": "retired",
+          "version": "129"
+        },
+        {
+          "releaseDate": "2024-10-15",
+          "status": "retired",
+          "version": "130"
+        },
+        {
+          "releaseDate": "2024-11-12",
+          "status": "retired",
+          "version": "131"
+        },
+        {
+          "releaseDate": "2025-01-14",
+          "status": "retired",
+          "version": "132"
+        },
+        {
+          "releaseDate": "2025-02-04",
+          "status": "retired",
+          "version": "133"
+        },
+        {
+          "releaseDate": "2025-03-04",
+          "status": "retired",
+          "version": "134"
+        },
+        {
+          "releaseDate": "2025-04-01",
+          "status": "retired",
+          "version": "135"
+        },
+        {
+          "releaseDate": "2025-04-29",
+          "status": "retired",
+          "version": "136"
+        },
+        {
+          "releaseDate": "2025-05-27",
+          "status": "retired",
+          "version": "137"
+        },
+        {
+          "releaseDate": "2025-06-24",
+          "status": "retired",
+          "version": "138"
+        },
+        {
+          "releaseDate": "2025-08-05",
+          "status": "retired",
+          "version": "139"
+        },
+        {
+          "releaseDate": "2025-09-02",
+          "status": "retired",
+          "version": "140"
+        },
+        {
+          "releaseDate": "2025-09-30",
+          "status": "retired",
+          "version": "141"
+        },
+        {
+          "releaseDate": "2025-10-28",
+          "status": "retired",
+          "version": "142"
+        },
+        {
+          "releaseDate": "2025-12-02",
+          "status": "retired",
+          "version": "143"
+        },
+        {
+          "releaseDate": "2026-01-13",
+          "status": "retired",
+          "version": "144"
+        },
+        {
+          "releaseDate": "2026-02-10",
+          "status": "retired",
+          "version": "145"
+        },
+        {
+          "releaseDate": "2026-03-10",
+          "status": "retired",
+          "version": "146"
+        },
+        {
+          "releaseDate": "2026-04-07",
+          "status": "retired",
+          "version": "147"
+        },
+        {
+          "releaseDate": "2026-05-05",
+          "status": "retired",
+          "version": "148"
+        },
+        {
+          "releaseDate": "2026-06-02",
+          "status": "retired",
+          "version": "149"
+        },
+        {
+          "releaseDate": "2026-06-30",
+          "status": "current",
+          "version": "150"
+        },
+        {
+          "releaseDate": "2026-07-28",
+          "status": "beta",
+          "version": "151"
+        },
+        {
+          "releaseDate": "2026-08-25",
+          "status": "nightly",
+          "version": "152"
+        },
+        {
+          "status": "planned",
+          "version": "153"
+        }
+      ]
+    },
+    "edge": {
+      "id": "edge",
+      "name": "Edge",
+      "releases": [
+        {
+          "releaseDate": "2015-07-29",
+          "status": "retired",
+          "version": "12"
+        },
+        {
+          "releaseDate": "2015-11-12",
+          "status": "retired",
+          "version": "13"
+        },
+        {
+          "releaseDate": "2016-08-02",
+          "status": "retired",
+          "version": "14"
+        },
+        {
+          "releaseDate": "2017-04-05",
+          "status": "retired",
+          "version": "15"
+        },
+        {
+          "releaseDate": "2017-10-17",
+          "status": "retired",
+          "version": "16"
+        },
+        {
+          "releaseDate": "2018-04-30",
+          "status": "retired",
+          "version": "17"
+        },
+        {
+          "releaseDate": "2018-10-02",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2020-01-15",
+          "status": "retired",
+          "version": "79"
+        },
+        {
+          "releaseDate": "2020-02-07",
+          "status": "retired",
+          "version": "80"
+        },
+        {
+          "releaseDate": "2020-04-13",
+          "status": "retired",
+          "version": "81"
+        },
+        {
+          "releaseDate": "2020-05-21",
+          "status": "retired",
+          "version": "83"
+        },
+        {
+          "releaseDate": "2020-07-16",
+          "status": "retired",
+          "version": "84"
+        },
+        {
+          "releaseDate": "2020-08-27",
+          "status": "retired",
+          "version": "85"
+        },
+        {
+          "releaseDate": "2020-10-09",
+          "status": "retired",
+          "version": "86"
+        },
+        {
+          "releaseDate": "2020-11-19",
+          "status": "retired",
+          "version": "87"
+        },
+        {
+          "releaseDate": "2021-01-21",
+          "status": "retired",
+          "version": "88"
+        },
+        {
+          "releaseDate": "2021-03-04",
+          "status": "retired",
+          "version": "89"
+        },
+        {
+          "releaseDate": "2021-04-15",
+          "status": "retired",
+          "version": "90"
+        },
+        {
+          "releaseDate": "2021-05-27",
+          "status": "retired",
+          "version": "91"
+        },
+        {
+          "releaseDate": "2021-07-22",
+          "status": "retired",
+          "version": "92"
+        },
+        {
+          "releaseDate": "2021-09-02",
+          "status": "retired",
+          "version": "93"
+        },
+        {
+          "releaseDate": "2021-09-24",
+          "status": "retired",
+          "version": "94"
+        },
+        {
+          "releaseDate": "2021-10-21",
+          "status": "retired",
+          "version": "95"
+        },
+        {
+          "releaseDate": "2021-11-19",
+          "status": "retired",
+          "version": "96"
+        },
+        {
+          "releaseDate": "2022-01-06",
+          "status": "retired",
+          "version": "97"
+        },
+        {
+          "releaseDate": "2022-02-03",
+          "status": "retired",
+          "version": "98"
+        },
+        {
+          "releaseDate": "2022-03-03",
+          "status": "retired",
+          "version": "99"
+        },
+        {
+          "releaseDate": "2022-04-01",
+          "status": "retired",
+          "version": "100"
+        },
+        {
+          "releaseDate": "2022-04-28",
+          "status": "retired",
+          "version": "101"
+        },
+        {
+          "releaseDate": "2022-05-31",
+          "status": "retired",
+          "version": "102"
+        },
+        {
+          "releaseDate": "2022-06-23",
+          "status": "retired",
+          "version": "103"
+        },
+        {
+          "releaseDate": "2022-08-05",
+          "status": "retired",
+          "version": "104"
+        },
+        {
+          "releaseDate": "2022-09-01",
+          "status": "retired",
+          "version": "105"
+        },
+        {
+          "releaseDate": "2022-10-03",
+          "status": "retired",
+          "version": "106"
+        },
+        {
+          "releaseDate": "2022-10-27",
+          "status": "retired",
+          "version": "107"
+        },
+        {
+          "releaseDate": "2022-12-05",
+          "status": "retired",
+          "version": "108"
+        },
+        {
+          "releaseDate": "2023-01-12",
+          "status": "retired",
+          "version": "109"
+        },
+        {
+          "releaseDate": "2023-02-09",
+          "status": "retired",
+          "version": "110"
+        },
+        {
+          "releaseDate": "2023-03-13",
+          "status": "retired",
+          "version": "111"
+        },
+        {
+          "releaseDate": "2023-04-06",
+          "status": "retired",
+          "version": "112"
+        },
+        {
+          "releaseDate": "2023-05-05",
+          "status": "retired",
+          "version": "113"
+        },
+        {
+          "releaseDate": "2023-06-02",
+          "status": "retired",
+          "version": "114"
+        },
+        {
+          "releaseDate": "2023-07-21",
+          "status": "retired",
+          "version": "115"
+        },
+        {
+          "releaseDate": "2023-08-21",
+          "status": "retired",
+          "version": "116"
+        },
+        {
+          "releaseDate": "2023-09-15",
+          "status": "retired",
+          "version": "117"
+        },
+        {
+          "releaseDate": "2023-10-13",
+          "status": "retired",
+          "version": "118"
+        },
+        {
+          "releaseDate": "2023-11-02",
+          "status": "retired",
+          "version": "119"
+        },
+        {
+          "releaseDate": "2023-12-07",
+          "status": "retired",
+          "version": "120"
+        },
+        {
+          "releaseDate": "2024-01-25",
+          "status": "retired",
+          "version": "121"
+        },
+        {
+          "releaseDate": "2024-02-23",
+          "status": "retired",
+          "version": "122"
+        },
+        {
+          "releaseDate": "2024-03-22",
+          "status": "retired",
+          "version": "123"
+        },
+        {
+          "releaseDate": "2024-04-18",
+          "status": "retired",
+          "version": "124"
+        },
+        {
+          "releaseDate": "2024-05-17",
+          "status": "retired",
+          "version": "125"
+        },
+        {
+          "releaseDate": "2024-06-13",
+          "status": "retired",
+          "version": "126"
+        },
+        {
+          "releaseDate": "2024-07-25",
+          "status": "retired",
+          "version": "127"
+        },
+        {
+          "releaseDate": "2024-08-22",
+          "status": "retired",
+          "version": "128"
+        },
+        {
+          "releaseDate": "2024-09-19",
+          "status": "retired",
+          "version": "129"
+        },
+        {
+          "releaseDate": "2024-10-17",
+          "status": "retired",
+          "version": "130"
+        },
+        {
+          "releaseDate": "2024-11-14",
+          "status": "retired",
+          "version": "131"
+        },
+        {
+          "releaseDate": "2025-01-17",
+          "status": "retired",
+          "version": "132"
+        },
+        {
+          "releaseDate": "2025-02-06",
+          "status": "retired",
+          "version": "133"
+        },
+        {
+          "releaseDate": "2025-03-06",
+          "status": "retired",
+          "version": "134"
+        },
+        {
+          "releaseDate": "2025-04-04",
+          "status": "retired",
+          "version": "135"
+        },
+        {
+          "releaseDate": "2025-05-01",
+          "status": "retired",
+          "version": "136"
+        },
+        {
+          "releaseDate": "2025-05-29",
+          "status": "retired",
+          "version": "137"
+        },
+        {
+          "releaseDate": "2025-06-26",
+          "status": "retired",
+          "version": "138"
+        },
+        {
+          "releaseDate": "2025-08-07",
+          "status": "retired",
+          "version": "139"
+        },
+        {
+          "releaseDate": "2025-09-05",
+          "status": "retired",
+          "version": "140"
+        },
+        {
+          "releaseDate": "2025-10-03",
+          "status": "retired",
+          "version": "141"
+        },
+        {
+          "releaseDate": "2025-10-31",
+          "status": "retired",
+          "version": "142"
+        },
+        {
+          "releaseDate": "2025-12-05",
+          "status": "retired",
+          "version": "143"
+        },
+        {
+          "releaseDate": "2026-01-21",
+          "status": "retired",
+          "version": "144"
+        },
+        {
+          "releaseDate": "2026-02-14",
+          "status": "retired",
+          "version": "145"
+        },
+        {
+          "releaseDate": "2026-03-13",
+          "status": "retired",
+          "version": "146"
+        },
+        {
+          "releaseDate": "2026-04-10",
+          "status": "retired",
+          "version": "147"
+        },
+        {
+          "releaseDate": "2026-05-07",
+          "status": "retired",
+          "version": "148"
+        },
+        {
+          "releaseDate": "2026-06-04",
+          "status": "retired",
+          "version": "149"
+        },
+        {
+          "releaseDate": "2026-07-02",
+          "status": "current",
+          "version": "150"
+        },
+        {
+          "releaseDate": "2026-07-30",
+          "status": "beta",
+          "version": "151"
+        },
+        {
+          "releaseDate": "2026-08-27",
+          "status": "nightly",
+          "version": "152"
+        },
+        {
+          "releaseDate": "2026-09-10",
+          "status": "planned",
+          "version": "153"
+        }
+      ],
+      "upstream": "chrome"
+    },
+    "firefox": {
+      "id": "firefox",
+      "name": "Firefox",
+      "releases": [
+        {
+          "releaseDate": "2004-11-09",
+          "status": "retired",
+          "version": "1"
+        },
+        {
+          "releaseDate": "2005-11-29",
+          "status": "retired",
+          "version": "1.5"
+        },
+        {
+          "releaseDate": "2006-10-24",
+          "status": "retired",
+          "version": "2"
+        },
+        {
+          "releaseDate": "2008-06-17",
+          "status": "retired",
+          "version": "3"
+        },
+        {
+          "releaseDate": "2009-06-30",
+          "status": "retired",
+          "version": "3.5"
+        },
+        {
+          "releaseDate": "2010-01-21",
+          "status": "retired",
+          "version": "3.6"
+        },
+        {
+          "releaseDate": "2011-03-22",
+          "status": "retired",
+          "version": "4"
+        },
+        {
+          "releaseDate": "2011-06-21",
+          "status": "retired",
+          "version": "5"
+        },
+        {
+          "releaseDate": "2011-08-16",
+          "status": "retired",
+          "version": "6"
+        },
+        {
+          "releaseDate": "2011-09-27",
+          "status": "retired",
+          "version": "7"
+        },
+        {
+          "releaseDate": "2011-11-08",
+          "status": "retired",
+          "version": "8"
+        },
+        {
+          "releaseDate": "2011-12-20",
+          "status": "retired",
+          "version": "9"
+        },
+        {
+          "releaseDate": "2012-01-31",
+          "status": "retired",
+          "version": "10"
+        },
+        {
+          "releaseDate": "2012-03-13",
+          "status": "retired",
+          "version": "11"
+        },
+        {
+          "releaseDate": "2012-04-24",
+          "status": "retired",
+          "version": "12"
+        },
+        {
+          "releaseDate": "2012-06-05",
+          "status": "retired",
+          "version": "13"
+        },
+        {
+          "releaseDate": "2012-07-17",
+          "status": "retired",
+          "version": "14"
+        },
+        {
+          "releaseDate": "2012-08-28",
+          "status": "retired",
+          "version": "15"
+        },
+        {
+          "releaseDate": "2012-10-09",
+          "status": "retired",
+          "version": "16"
+        },
+        {
+          "releaseDate": "2012-11-20",
+          "status": "retired",
+          "version": "17"
+        },
+        {
+          "releaseDate": "2013-01-08",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2013-02-19",
+          "status": "retired",
+          "version": "19"
+        },
+        {
+          "releaseDate": "2013-04-02",
+          "status": "retired",
+          "version": "20"
+        },
+        {
+          "releaseDate": "2013-05-14",
+          "status": "retired",
+          "version": "21"
+        },
+        {
+          "releaseDate": "2013-06-25",
+          "status": "retired",
+          "version": "22"
+        },
+        {
+          "releaseDate": "2013-08-06",
+          "status": "retired",
+          "version": "23"
+        },
+        {
+          "releaseDate": "2013-09-17",
+          "status": "retired",
+          "version": "24"
+        },
+        {
+          "releaseDate": "2013-10-29",
+          "status": "retired",
+          "version": "25"
+        },
+        {
+          "releaseDate": "2013-12-10",
+          "status": "retired",
+          "version": "26"
+        },
+        {
+          "releaseDate": "2014-02-04",
+          "status": "retired",
+          "version": "27"
+        },
+        {
+          "releaseDate": "2014-03-18",
+          "status": "retired",
+          "version": "28"
+        },
+        {
+          "releaseDate": "2014-04-29",
+          "status": "retired",
+          "version": "29"
+        },
+        {
+          "releaseDate": "2014-06-10",
+          "status": "retired",
+          "version": "30"
+        },
+        {
+          "releaseDate": "2014-07-22",
+          "status": "retired",
+          "version": "31"
+        },
+        {
+          "releaseDate": "2014-09-02",
+          "status": "retired",
+          "version": "32"
+        },
+        {
+          "releaseDate": "2014-10-14",
+          "status": "retired",
+          "version": "33"
+        },
+        {
+          "releaseDate": "2014-12-01",
+          "status": "retired",
+          "version": "34"
+        },
+        {
+          "releaseDate": "2015-01-13",
+          "status": "retired",
+          "version": "35"
+        },
+        {
+          "releaseDate": "2015-02-24",
+          "status": "retired",
+          "version": "36"
+        },
+        {
+          "releaseDate": "2015-03-31",
+          "status": "retired",
+          "version": "37"
+        },
+        {
+          "releaseDate": "2015-05-12",
+          "status": "retired",
+          "version": "38"
+        },
+        {
+          "releaseDate": "2015-07-02",
+          "status": "retired",
+          "version": "39"
+        },
+        {
+          "releaseDate": "2015-08-11",
+          "status": "retired",
+          "version": "40"
+        },
+        {
+          "releaseDate": "2015-09-22",
+          "status": "retired",
+          "version": "41"
+        },
+        {
+          "releaseDate": "2015-11-03",
+          "status": "retired",
+          "version": "42"
+        },
+        {
+          "releaseDate": "2015-12-15",
+          "status": "retired",
+          "version": "43"
+        },
+        {
+          "releaseDate": "2016-01-26",
+          "status": "retired",
+          "version": "44"
+        },
+        {
+          "releaseDate": "2016-03-08",
+          "status": "retired",
+          "version": "45"
+        },
+        {
+          "releaseDate": "2016-04-26",
+          "status": "retired",
+          "version": "46"
+        },
+        {
+          "releaseDate": "2016-06-07",
+          "status": "retired",
+          "version": "47"
+        },
+        {
+          "releaseDate": "2016-08-02",
+          "status": "retired",
+          "version": "48"
+        },
+        {
+          "releaseDate": "2016-09-20",
+          "status": "retired",
+          "version": "49"
+        },
+        {
+          "releaseDate": "2016-11-15",
+          "status": "retired",
+          "version": "50"
+        },
+        {
+          "releaseDate": "2017-01-24",
+          "status": "retired",
+          "version": "51"
+        },
+        {
+          "releaseDate": "2017-03-07",
+          "status": "retired",
+          "version": "52"
+        },
+        {
+          "releaseDate": "2017-04-19",
+          "status": "retired",
+          "version": "53"
+        },
+        {
+          "releaseDate": "2017-06-13",
+          "status": "retired",
+          "version": "54"
+        },
+        {
+          "releaseDate": "2017-08-08",
+          "status": "retired",
+          "version": "55"
+        },
+        {
+          "releaseDate": "2017-09-28",
+          "status": "retired",
+          "version": "56"
+        },
+        {
+          "releaseDate": "2017-11-14",
+          "status": "retired",
+          "version": "57"
+        },
+        {
+          "releaseDate": "2018-01-23",
+          "status": "retired",
+          "version": "58"
+        },
+        {
+          "releaseDate": "2018-03-13",
+          "status": "retired",
+          "version": "59"
+        },
+        {
+          "releaseDate": "2018-05-09",
+          "status": "retired",
+          "version": "60"
+        },
+        {
+          "releaseDate": "2018-06-26",
+          "status": "retired",
+          "version": "61"
+        },
+        {
+          "releaseDate": "2018-09-05",
+          "status": "retired",
+          "version": "62"
+        },
+        {
+          "releaseDate": "2018-10-23",
+          "status": "retired",
+          "version": "63"
+        },
+        {
+          "releaseDate": "2018-12-11",
+          "status": "retired",
+          "version": "64"
+        },
+        {
+          "releaseDate": "2019-01-29",
+          "status": "retired",
+          "version": "65"
+        },
+        {
+          "releaseDate": "2019-03-19",
+          "status": "retired",
+          "version": "66"
+        },
+        {
+          "releaseDate": "2019-05-21",
+          "status": "retired",
+          "version": "67"
+        },
+        {
+          "releaseDate": "2019-07-09",
+          "status": "retired",
+          "version": "68"
+        },
+        {
+          "releaseDate": "2019-09-03",
+          "status": "retired",
+          "version": "69"
+        },
+        {
+          "releaseDate": "2019-10-22",
+          "status": "retired",
+          "version": "70"
+        },
+        {
+          "releaseDate": "2019-12-10",
+          "status": "retired",
+          "version": "71"
+        },
+        {
+          "releaseDate": "2020-01-07",
+          "status": "retired",
+          "version": "72"
+        },
+        {
+          "releaseDate": "2020-02-11",
+          "status": "retired",
+          "version": "73"
+        },
+        {
+          "releaseDate": "2020-03-10",
+          "status": "retired",
+          "version": "74"
+        },
+        {
+          "releaseDate": "2020-04-07",
+          "status": "retired",
+          "version": "75"
+        },
+        {
+          "releaseDate": "2020-05-05",
+          "status": "retired",
+          "version": "76"
+        },
+        {
+          "releaseDate": "2020-06-02",
+          "status": "retired",
+          "version": "77"
+        },
+        {
+          "releaseDate": "2020-06-30",
+          "status": "retired",
+          "version": "78"
+        },
+        {
+          "releaseDate": "2020-07-28",
+          "status": "retired",
+          "version": "79"
+        },
+        {
+          "releaseDate": "2020-08-25",
+          "status": "retired",
+          "version": "80"
+        },
+        {
+          "releaseDate": "2020-09-22",
+          "status": "retired",
+          "version": "81"
+        },
+        {
+          "releaseDate": "2020-10-20",
+          "status": "retired",
+          "version": "82"
+        },
+        {
+          "releaseDate": "2020-11-17",
+          "status": "retired",
+          "version": "83"
+        },
+        {
+          "releaseDate": "2020-12-15",
+          "status": "retired",
+          "version": "84"
+        },
+        {
+          "releaseDate": "2021-01-26",
+          "status": "retired",
+          "version": "85"
+        },
+        {
+          "releaseDate": "2021-02-23",
+          "status": "retired",
+          "version": "86"
+        },
+        {
+          "releaseDate": "2021-03-23",
+          "status": "retired",
+          "version": "87"
+        },
+        {
+          "releaseDate": "2021-04-19",
+          "status": "retired",
+          "version": "88"
+        },
+        {
+          "releaseDate": "2021-06-01",
+          "status": "retired",
+          "version": "89"
+        },
+        {
+          "releaseDate": "2021-07-13",
+          "status": "retired",
+          "version": "90"
+        },
+        {
+          "releaseDate": "2021-08-10",
+          "status": "retired",
+          "version": "91"
+        },
+        {
+          "releaseDate": "2021-09-07",
+          "status": "retired",
+          "version": "92"
+        },
+        {
+          "releaseDate": "2021-10-05",
+          "status": "retired",
+          "version": "93"
+        },
+        {
+          "releaseDate": "2021-11-02",
+          "status": "retired",
+          "version": "94"
+        },
+        {
+          "releaseDate": "2021-12-07",
+          "status": "retired",
+          "version": "95"
+        },
+        {
+          "releaseDate": "2022-01-11",
+          "status": "retired",
+          "version": "96"
+        },
+        {
+          "releaseDate": "2022-02-08",
+          "status": "retired",
+          "version": "97"
+        },
+        {
+          "releaseDate": "2022-03-08",
+          "status": "retired",
+          "version": "98"
+        },
+        {
+          "releaseDate": "2022-04-05",
+          "status": "retired",
+          "version": "99"
+        },
+        {
+          "releaseDate": "2022-05-03",
+          "status": "retired",
+          "version": "100"
+        },
+        {
+          "releaseDate": "2022-05-31",
+          "status": "retired",
+          "version": "101"
+        },
+        {
+          "releaseDate": "2022-06-28",
+          "status": "retired",
+          "version": "102"
+        },
+        {
+          "releaseDate": "2022-07-26",
+          "status": "retired",
+          "version": "103"
+        },
+        {
+          "releaseDate": "2022-08-23",
+          "status": "retired",
+          "version": "104"
+        },
+        {
+          "releaseDate": "2022-09-20",
+          "status": "retired",
+          "version": "105"
+        },
+        {
+          "releaseDate": "2022-10-18",
+          "status": "retired",
+          "version": "106"
+        },
+        {
+          "releaseDate": "2022-11-15",
+          "status": "retired",
+          "version": "107"
+        },
+        {
+          "releaseDate": "2022-12-13",
+          "status": "retired",
+          "version": "108"
+        },
+        {
+          "releaseDate": "2023-01-17",
+          "status": "retired",
+          "version": "109"
+        },
+        {
+          "releaseDate": "2023-02-14",
+          "status": "retired",
+          "version": "110"
+        },
+        {
+          "releaseDate": "2023-03-14",
+          "status": "retired",
+          "version": "111"
+        },
+        {
+          "releaseDate": "2023-04-11",
+          "status": "retired",
+          "version": "112"
+        },
+        {
+          "releaseDate": "2023-05-09",
+          "status": "retired",
+          "version": "113"
+        },
+        {
+          "releaseDate": "2023-06-06",
+          "status": "retired",
+          "version": "114"
+        },
+        {
+          "releaseDate": "2023-07-04",
+          "status": "retired",
+          "version": "115"
+        },
+        {
+          "releaseDate": "2023-08-01",
+          "status": "retired",
+          "version": "116"
+        },
+        {
+          "releaseDate": "2023-08-29",
+          "status": "retired",
+          "version": "117"
+        },
+        {
+          "releaseDate": "2023-09-26",
+          "status": "retired",
+          "version": "118"
+        },
+        {
+          "releaseDate": "2023-10-24",
+          "status": "retired",
+          "version": "119"
+        },
+        {
+          "releaseDate": "2023-11-21",
+          "status": "retired",
+          "version": "120"
+        },
+        {
+          "releaseDate": "2023-12-19",
+          "status": "retired",
+          "version": "121"
+        },
+        {
+          "releaseDate": "2024-01-23",
+          "status": "retired",
+          "version": "122"
+        },
+        {
+          "releaseDate": "2024-02-20",
+          "status": "retired",
+          "version": "123"
+        },
+        {
+          "releaseDate": "2024-03-19",
+          "status": "retired",
+          "version": "124"
+        },
+        {
+          "releaseDate": "2024-04-16",
+          "status": "retired",
+          "version": "125"
+        },
+        {
+          "releaseDate": "2024-05-14",
+          "status": "retired",
+          "version": "126"
+        },
+        {
+          "releaseDate": "2024-06-11",
+          "status": "retired",
+          "version": "127"
+        },
+        {
+          "releaseDate": "2024-07-09",
+          "status": "retired",
+          "version": "128"
+        },
+        {
+          "releaseDate": "2024-08-06",
+          "status": "retired",
+          "version": "129"
+        },
+        {
+          "releaseDate": "2024-09-03",
+          "status": "retired",
+          "version": "130"
+        },
+        {
+          "releaseDate": "2024-10-01",
+          "status": "retired",
+          "version": "131"
+        },
+        {
+          "releaseDate": "2024-10-29",
+          "status": "retired",
+          "version": "132"
+        },
+        {
+          "releaseDate": "2024-11-26",
+          "status": "retired",
+          "version": "133"
+        },
+        {
+          "releaseDate": "2025-01-07",
+          "status": "retired",
+          "version": "134"
+        },
+        {
+          "releaseDate": "2025-02-04",
+          "status": "retired",
+          "version": "135"
+        },
+        {
+          "releaseDate": "2025-03-04",
+          "status": "retired",
+          "version": "136"
+        },
+        {
+          "releaseDate": "2025-04-01",
+          "status": "retired",
+          "version": "137"
+        },
+        {
+          "releaseDate": "2025-04-29",
+          "status": "retired",
+          "version": "138"
+        },
+        {
+          "releaseDate": "2025-05-27",
+          "status": "retired",
+          "version": "139"
+        },
+        {
+          "releaseDate": "2025-06-24",
+          "status": "esr",
+          "version": "140"
+        },
+        {
+          "releaseDate": "2025-07-22",
+          "status": "retired",
+          "version": "141"
+        },
+        {
+          "releaseDate": "2025-08-19",
+          "status": "retired",
+          "version": "142"
+        },
+        {
+          "releaseDate": "2025-09-16",
+          "status": "retired",
+          "version": "143"
+        },
+        {
+          "releaseDate": "2025-10-14",
+          "status": "retired",
+          "version": "144"
+        },
+        {
+          "releaseDate": "2025-11-11",
+          "status": "retired",
+          "version": "145"
+        },
+        {
+          "releaseDate": "2025-12-09",
+          "status": "retired",
+          "version": "146"
+        },
+        {
+          "releaseDate": "2026-01-13",
+          "status": "retired",
+          "version": "147"
+        },
+        {
+          "releaseDate": "2026-02-24",
+          "status": "retired",
+          "version": "148"
+        },
+        {
+          "releaseDate": "2026-03-24",
+          "status": "retired",
+          "version": "149"
+        },
+        {
+          "releaseDate": "2026-04-21",
+          "status": "retired",
+          "version": "150"
+        },
+        {
+          "releaseDate": "2026-05-19",
+          "status": "retired",
+          "version": "151"
+        },
+        {
+          "releaseDate": "2026-06-16",
+          "status": "current",
+          "version": "152"
+        },
+        {
+          "releaseDate": "2026-07-21",
+          "status": "beta",
+          "version": "153"
+        },
+        {
+          "releaseDate": "2026-08-18",
+          "status": "nightly",
+          "version": "154"
+        },
+        {
+          "releaseDate": "2026-09-01",
+          "status": "planned",
+          "version": "155"
+        }
+      ]
+    },
+    "safari": {
+      "id": "safari",
+      "name": "Safari",
+      "releases": [
+        {
+          "releaseDate": "2003-06-23",
+          "status": "retired",
+          "version": "1"
+        },
+        {
+          "releaseDate": "2003-10-24",
+          "status": "retired",
+          "version": "1.1"
+        },
+        {
+          "releaseDate": "2004-02-02",
+          "status": "retired",
+          "version": "1.2"
+        },
+        {
+          "releaseDate": "2005-04-15",
+          "status": "retired",
+          "version": "1.3"
+        },
+        {
+          "releaseDate": "2005-04-29",
+          "status": "retired",
+          "version": "2"
+        },
+        {
+          "releaseDate": "2007-10-26",
+          "status": "retired",
+          "version": "3"
+        },
+        {
+          "releaseDate": "2008-03-18",
+          "status": "retired",
+          "version": "3.1"
+        },
+        {
+          "releaseDate": "2009-06-08",
+          "status": "retired",
+          "version": "4"
+        },
+        {
+          "releaseDate": "2010-06-07",
+          "status": "retired",
+          "version": "5"
+        },
+        {
+          "releaseDate": "2011-07-20",
+          "status": "retired",
+          "version": "5.1"
+        },
+        {
+          "releaseDate": "2012-07-25",
+          "status": "retired",
+          "version": "6"
+        },
+        {
+          "releaseDate": "2013-10-22",
+          "status": "retired",
+          "version": "7"
+        },
+        {
+          "releaseDate": "2014-10-16",
+          "status": "retired",
+          "version": "8"
+        },
+        {
+          "releaseDate": "2015-09-30",
+          "status": "retired",
+          "version": "9"
+        },
+        {
+          "releaseDate": "2016-03-21",
+          "status": "retired",
+          "version": "9.1"
+        },
+        {
+          "releaseDate": "2016-09-20",
+          "status": "retired",
+          "version": "10"
+        },
+        {
+          "releaseDate": "2017-03-27",
+          "status": "retired",
+          "version": "10.1"
+        },
+        {
+          "releaseDate": "2017-09-19",
+          "status": "retired",
+          "version": "11"
+        },
+        {
+          "releaseDate": "2018-04-12",
+          "status": "retired",
+          "version": "11.1"
+        },
+        {
+          "releaseDate": "2018-09-17",
+          "status": "retired",
+          "version": "12"
+        },
+        {
+          "releaseDate": "2019-03-25",
+          "status": "retired",
+          "version": "12.1"
+        },
+        {
+          "releaseDate": "2019-09-19",
+          "status": "retired",
+          "version": "13"
+        },
+        {
+          "releaseDate": "2020-03-24",
+          "status": "retired",
+          "version": "13.1"
+        },
+        {
+          "releaseDate": "2020-09-16",
+          "status": "retired",
+          "version": "14"
+        },
+        {
+          "releaseDate": "2021-04-26",
+          "status": "retired",
+          "version": "14.1"
+        },
+        {
+          "releaseDate": "2021-09-20",
+          "status": "retired",
+          "version": "15"
+        },
+        {
+          "releaseDate": "2021-10-25",
+          "status": "retired",
+          "version": "15.1"
+        },
+        {
+          "releaseDate": "2021-12-13",
+          "status": "retired",
+          "version": "15.2"
+        },
+        {
+          "releaseDate": "2022-01-26",
+          "status": "retired",
+          "version": "15.3"
+        },
+        {
+          "releaseDate": "2022-03-14",
+          "status": "retired",
+          "version": "15.4"
+        },
+        {
+          "releaseDate": "2022-05-16",
+          "status": "retired",
+          "version": "15.5"
+        },
+        {
+          "releaseDate": "2022-07-20",
+          "status": "retired",
+          "version": "15.6"
+        },
+        {
+          "releaseDate": "2022-09-12",
+          "status": "retired",
+          "version": "16"
+        },
+        {
+          "releaseDate": "2022-10-24",
+          "status": "retired",
+          "version": "16.1"
+        },
+        {
+          "releaseDate": "2022-12-13",
+          "status": "retired",
+          "version": "16.2"
+        },
+        {
+          "releaseDate": "2023-01-23",
+          "status": "retired",
+          "version": "16.3"
+        },
+        {
+          "releaseDate": "2023-03-27",
+          "status": "retired",
+          "version": "16.4"
+        },
+        {
+          "releaseDate": "2023-05-18",
+          "status": "retired",
+          "version": "16.5"
+        },
+        {
+          "releaseDate": "2023-07-24",
+          "status": "retired",
+          "version": "16.6"
+        },
+        {
+          "releaseDate": "2023-09-18",
+          "status": "retired",
+          "version": "17"
+        },
+        {
+          "releaseDate": "2023-10-25",
+          "status": "retired",
+          "version": "17.1"
+        },
+        {
+          "releaseDate": "2023-12-11",
+          "status": "retired",
+          "version": "17.2"
+        },
+        {
+          "releaseDate": "2024-01-22",
+          "status": "retired",
+          "version": "17.3"
+        },
+        {
+          "releaseDate": "2024-03-05",
+          "status": "retired",
+          "version": "17.4"
+        },
+        {
+          "releaseDate": "2024-05-13",
+          "status": "retired",
+          "version": "17.5"
+        },
+        {
+          "releaseDate": "2024-07-29",
+          "status": "retired",
+          "version": "17.6"
+        },
+        {
+          "releaseDate": "2024-09-16",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2024-10-28",
+          "status": "retired",
+          "version": "18.1"
+        },
+        {
+          "releaseDate": "2024-12-11",
+          "status": "retired",
+          "version": "18.2"
+        },
+        {
+          "releaseDate": "2025-01-27",
+          "status": "retired",
+          "version": "18.3"
+        },
+        {
+          "releaseDate": "2025-03-31",
+          "status": "retired",
+          "version": "18.4"
+        },
+        {
+          "releaseDate": "2025-05-12",
+          "status": "retired",
+          "version": "18.5"
+        },
+        {
+          "releaseDate": "2025-07-29",
+          "status": "retired",
+          "version": "18.6"
+        },
+        {
+          "releaseDate": "2025-09-15",
+          "status": "retired",
+          "version": "26"
+        },
+        {
+          "releaseDate": "2025-11-03",
+          "status": "retired",
+          "version": "26.1"
+        },
+        {
+          "releaseDate": "2025-12-12",
+          "status": "retired",
+          "version": "26.2"
+        },
+        {
+          "releaseDate": "2026-02-11",
+          "status": "retired",
+          "version": "26.3"
+        },
+        {
+          "releaseDate": "2026-03-24",
+          "status": "retired",
+          "version": "26.4"
+        },
+        {
+          "releaseDate": "2026-05-11",
+          "status": "current",
+          "version": "26.5"
+        },
+        {
+          "status": "beta",
+          "version": "27"
+        }
+      ]
+    }
+  },
+  "catalogueVersion": "1.0.0",
+  "controlMappings": [
+    {
+      "combination": "all",
+      "controlId": "content-security-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-nonces",
+      "mappingState": "unsupported",
+      "paths": []
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-hashes",
+      "mappingState": "unsupported",
+      "paths": []
+    },
+    {
+      "combination": "all",
+      "controlId": "strict-dynamic",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy.strict-dynamic"]
+    },
+    {
+      "combination": "all",
+      "controlId": "trusted-types",
+      "mappingState": "active",
+      "paths": [
+        "api.trustedTypes",
+        "http.headers.Content-Security-Policy.require-trusted-types-for"
+      ]
+    },
+    {
+      "combination": "all",
+      "controlId": "subresource-integrity",
+      "mappingState": "active",
+      "paths": ["html.elements.script.integrity", "html.elements.link.integrity"]
+    },
+    {
+      "combination": "all",
+      "controlId": "cross-origin-opener-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Cross-Origin-Opener-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "cross-origin-embedder-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Cross-Origin-Embedder-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "cross-origin-resource-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Cross-Origin-Resource-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "fetch-metadata",
+      "mappingState": "active",
+      "paths": [
+        "http.headers.Sec-Fetch-Dest",
+        "http.headers.Sec-Fetch-Mode",
+        "http.headers.Sec-Fetch-Site",
+        "http.headers.Sec-Fetch-User"
+      ]
+    },
+    {
+      "combination": "all",
+      "controlId": "permissions-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Permissions-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "referrer-policy",
+      "mappingState": "active",
+      "paths": ["http.headers.Referrer-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "samesite-cookies",
+      "mappingState": "active",
+      "paths": ["http.headers.Set-Cookie.SameSite"]
+    },
+    {
+      "combination": "all",
+      "controlId": "partitioned-cookies",
+      "mappingState": "active",
+      "paths": ["http.headers.Set-Cookie.Partitioned"]
+    },
+    {
+      "combination": "all",
+      "controlId": "webauthn-conditional-mediation",
+      "mappingState": "active",
+      "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
+    }
+  ],
+  "features": {
+    "api.PublicKeyCredential.isConditionalMediationAvailable_static": {
+      "description": "<code>isConditionalMediationAvailable()</code> static method",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/API/PublicKeyCredential/isConditionalMediationAvailable_static",
+      "path": "api.PublicKeyCredential.isConditionalMediationAvailable_static",
+      "sourceFile": "api/PublicKeyCredential.json",
+      "specUrls": [
+        "https://w3c.github.io/webauthn/#dom-publickeycredential-isconditionalmediationavailable"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "108"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "108"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "119"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "16"
+          }
+        ]
+      }
+    },
+    "api.trustedTypes": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/API/Window/trustedTypes",
+      "path": "api.trustedTypes",
+      "sourceFile": "api/_globals/trustedTypes.json",
+      "specUrls": [
+        "https://w3c.github.io/trusted-types/dist/spec/#extensions-to-the-windoworworkerglobalscope-interface"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "148"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "26"
+          }
+        ]
+      }
+    },
+    "html.elements.link.integrity": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTML/Reference/Attributes/integrity",
+      "path": "html.elements.link.integrity",
+      "sourceFile": "html/elements/link.json",
+      "specUrls": [
+        "https://html.spec.whatwg.org/multipage/semantics.html#attr-link-integrity",
+        "https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "45"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "43"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "11.1"
+          }
+        ]
+      }
+    },
+    "html.elements.script.integrity": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTML/Reference/Attributes/integrity",
+      "path": "html.elements.script.integrity",
+      "sourceFile": "html/elements/script.json",
+      "specUrls": [
+        "https://html.spec.whatwg.org/multipage/scripting.html#attr-script-integrity",
+        "https://w3c.github.io/webappsec-subresource-integrity/#the-integrity-attribute"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "45"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "43"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "11.1"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy",
+      "path": "http.headers.Content-Security-Policy",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#csp-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "25"
+          },
+          {
+            "alternative_name": "X-Webkit-CSP",
+            "version_added": "14"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "14"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "23"
+          },
+          {
+            "alternative_name": "X-Content-Security-Policy",
+            "version_added": "4"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "7"
+          },
+          {
+            "alternative_name": "X-Webkit-CSP",
+            "version_added": "6"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.require-trusted-types-for": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/require-trusted-types-for",
+      "path": "http.headers.Content-Security-Policy.require-trusted-types-for",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": [
+        "https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "148"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "26"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.strict-dynamic": {
+      "description": "<code>strict-dynamic</code> source value",
+      "path": "http.headers.Content-Security-Policy.strict-dynamic",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#grammardef-strict-dynamic"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "52"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "52"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "15.4"
+          }
+        ]
+      }
+    },
+    "http.headers.Cross-Origin-Embedder-Policy": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy",
+      "path": "http.headers.Cross-Origin-Embedder-Policy",
+      "sourceFile": "http/headers/Cross-Origin-Embedder-Policy.json",
+      "specUrls": ["https://html.spec.whatwg.org/multipage/browsers.html#coep"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "15.2"
+          }
+        ]
+      }
+    },
+    "http.headers.Cross-Origin-Opener-Policy": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy",
+      "path": "http.headers.Cross-Origin-Opener-Policy",
+      "sourceFile": "http/headers/Cross-Origin-Opener-Policy.json",
+      "specUrls": ["https://html.spec.whatwg.org/multipage/browsers.html#the-coop-headers"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "83"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "15.2"
+          }
+        ]
+      }
+    },
+    "http.headers.Cross-Origin-Resource-Policy": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Cross-Origin-Resource-Policy",
+      "path": "http.headers.Cross-Origin-Resource-Policy",
+      "sourceFile": "http/headers/Cross-Origin-Resource-Policy.json",
+      "specUrls": ["https://fetch.spec.whatwg.org/#cross-origin-resource-policy-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "notes": [
+              "Until version 75, downloads for files with this header would fail in Chrome. See <a href=\"https://crbug.com/41452948\">bug 41452948</a>.",
+              "From version 80 to 85, linearized PDFs served inline with this header fail to render properly. See <a href=\"https://crbug.com/40127935\">bug 40127935</a>. From version 86, partial PDF loading is disabled."
+            ],
+            "version_added": "73"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "74"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "12"
+          }
+        ]
+      }
+    },
+    "http.headers.Permissions-Policy": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy",
+      "path": "http.headers.Permissions-Policy",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": [
+        "https://w3c.github.io/webappsec-permissions-policy/#permissions-policy-http-header-field"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "impl_url": "https://bugzil.la/1531012",
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "http.headers.Referrer-Policy": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Referrer-Policy",
+      "path": "http.headers.Referrer-Policy",
+      "sourceFile": "http/headers/Referrer-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-referrer-policy/#referrer-policy-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "56"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "11.1"
+          }
+        ]
+      }
+    },
+    "http.headers.Sec-Fetch-Dest": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest",
+      "path": "http.headers.Sec-Fetch-Dest",
+      "sourceFile": "http/headers/Sec-Fetch-Dest.json",
+      "specUrls": ["https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-dest-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "80"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "80"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "16.4"
+          }
+        ]
+      }
+    },
+    "http.headers.Sec-Fetch-Mode": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Mode",
+      "path": "http.headers.Sec-Fetch-Mode",
+      "sourceFile": "http/headers/Sec-Fetch-Mode.json",
+      "specUrls": ["https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-mode-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "76"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "16.4"
+          }
+        ]
+      }
+    },
+    "http.headers.Sec-Fetch-Site": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Site",
+      "path": "http.headers.Sec-Fetch-Site",
+      "sourceFile": "http/headers/Sec-Fetch-Site.json",
+      "specUrls": ["https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-site-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "76"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "16.4"
+          }
+        ]
+      }
+    },
+    "http.headers.Sec-Fetch-User": {
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-User",
+      "path": "http.headers.Sec-Fetch-User",
+      "sourceFile": "http/headers/Sec-Fetch-User.json",
+      "specUrls": ["https://w3c.github.io/webappsec-fetch-metadata/#sec-fetch-user-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "76"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "safari": [
+          {
+            "impl_url": "https://webkit.org/b/247697",
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "http.headers.Set-Cookie.Partitioned": {
+      "path": "http.headers.Set-Cookie.Partitioned",
+      "sourceFile": "http/headers/Set-Cookie.json",
+      "specUrls": [
+        "https://www.ietf.org/archive/id/draft-cutler-httpbis-partitioned-cookies-01.html#section-2.1"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "114"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "114"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "141"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "26.2"
+          },
+          {
+            "impl_url": "https://webkit.org/b/292975",
+            "version_added": "18.4",
+            "version_last": "18.4",
+            "version_removed": "18.5"
+          }
+        ]
+      }
+    },
+    "http.headers.Set-Cookie.SameSite": {
+      "path": "http.headers.Set-Cookie.SameSite",
+      "sourceFile": "http/headers/Set-Cookie.json",
+      "specUrls": [
+        "https://httpwg.org/specs/rfc6265.html#sane-set-cookie",
+        "https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-samesite-attribute"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "51"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "16"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "60"
+          }
+        ],
+        "safari": [
+          {
+            "notes": "Safari 13 on macOS 10.14 (Mojave), treats <code>SameSite=None</code> and invalid values as <code>Strict</code>. This is fixed in version 10.15 (Catalina) and later.",
+            "version_added": "13"
+          },
+          {
+            "notes": "Treats <code>SameSite=None</code> and invalid values as <code>Strict</code> in macOS before 10.15 Catalina. See <a href=\"https://webkit.org/b/198181\">bug 198181</a>.",
+            "partial_implementation": true,
+            "version_added": "12",
+            "version_last": "12.1",
+            "version_removed": "13"
+          }
+        ]
+      }
+    }
+  },
+  "schemaFingerprint": "e10a65697f661ad66810d9bfbd2c2226e21964ff31d9df2880fe7e48b95526c8",
+  "schemaVersion": 1
+}
