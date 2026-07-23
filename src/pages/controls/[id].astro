@@ -18,6 +18,12 @@ interface Props {
 
 const { control } = Astro.props;
 const evaluations = currentEvaluation.results[control.id] ?? [];
+const baselineEvidence = control.bcdPaths.flatMap((path) =>
+  (selectedSnapshot.features[path]?.baseline ?? []).map((evidence) => ({
+    path,
+    ...evidence
+  }))
+);
 ---
 
 <Layout title={control.name} description={control.summary}>
@@ -116,6 +122,43 @@ const evaluations = currentEvaluation.results[control.id] ?? [];
             ))
           }
         </ul>
+      </section>
+      <section class="content-card">
+        <span class="eyebrow">WebDX Baseline</span>
+        <h2>{baselineEvidence.length > 0 ? "Mapped evidence" : "No exact mapping"}</h2>
+        {
+          baselineEvidence.length > 0 ? (
+            <>
+              <p>
+                Baseline adds cross-browser adoptability context. It does not inspect a deployment
+                or replace the browser-specific BCD results.
+              </p>
+              {baselineEvidence.map((evidence) => (
+                <div>
+                  <strong>{evidence.name}</strong>
+                  <p>
+                    <code class="source-path">{evidence.path}</code>
+                  </p>
+                  <p>
+                    Status:{" "}
+                    {evidence.status === false
+                      ? "not Baseline"
+                      : evidence.status === "low"
+                        ? "newly available"
+                        : "widely available"}
+                    {evidence.lowDate ? ` · low ${evidence.lowDate}` : ""}
+                    {evidence.highDate ? ` · high ${evidence.highDate}` : ""}
+                  </p>
+                </div>
+              ))}
+            </>
+          ) : (
+            <p>
+              No Web Platform Features entry declares this exact BCD path. ControlCurrent does not
+              infer a mapping from a nearby feature.
+            </p>
+          )
+        }
       </section>
     </aside>
   </div>

@@ -15,15 +15,16 @@ behaviour.
 
 ## Source contraction
 
-The full BCD package is broad and changes frequently. The importer narrows it to
-18 exact paths selected by a 15-control catalogue. This creates a reviewable
-surface:
+The full BCD and Web Platform Features packages are broad and change frequently.
+The importer narrows them to 33 exact paths selected by a 29-control catalogue.
+This creates a reviewable surface:
 
 - every path has a product reason;
 - missing paths fail generation;
 - field shape is fingerprinted;
-- only four browser families and bounded release metadata are retained;
-- the selected output is about 74 KB rather than a full source mirror.
+- only nine browser families and bounded release metadata are retained;
+- exact WebDX associations are retained without copying the full feature corpus;
+- the selected output is about 172 KB rather than either full source package.
 
 ## Honest unsupported states
 
@@ -49,6 +50,13 @@ The evaluator consumes multiple BCD support statements and retains:
 
 A multi-path control fails closed when a path is missing. The result remains
 deterministic for fixed inputs.
+
+## Secondary adoptability evidence
+
+WebDX Baseline metadata is joined only through exact declared BCD path
+associations. It can help explain when a feature became broadly available, but
+it cannot override a browser-specific statement or establish deployment
+quality. Missing associations remain visible instead of being inferred.
 
 ## Privacy through absence
 

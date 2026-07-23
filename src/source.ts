@@ -7,6 +7,8 @@ import type {
   SimpleSupportStatement as BcdSupportStatement,
   SupportStatement as BcdSupportStatementGroup
 } from "@mdn/browser-compat-data";
+import { features as importedWebFeatures } from "web-features";
+import { BROWSER_IDS } from "./browsers";
 import {
   type BrowserId,
   browserIdSchema,
@@ -17,7 +19,7 @@ import {
 import { CATALOGUE_VERSION, SECURITY_CONTROLS } from "./catalogue";
 import { canonicalJson, canonicalize } from "./canonical";
 
-const BROWSERS: readonly BrowserId[] = ["chrome", "edge", "firefox", "safari"];
+const BROWSERS: readonly BrowserId[] = BROWSER_IDS;
 const MAX_FEATURE_PATH_SEGMENTS = 12;
 const MAX_SELECTED_FEATURES = 64;
 
@@ -85,7 +87,48 @@ function normaliseSupportGroup(
   );
 }
 
-function normaliseFeature(path: string, compat: CompatStatement) {
+type BaselineStatus = {
+  baseline: false | "low" | "high";
+  baseline_low_date?: string;
+  baseline_high_date?: string;
+};
+
+type WebFeatureEntry =
+  | {
+      kind: "feature";
+      name: string;
+      compat_features?: string[];
+      status: BaselineStatus & {
+        by_compat_key?: Record<string, BaselineStatus>;
+      };
+    }
+  | {
+      kind: "moved" | "split";
+    };
+
+type WebFeatures = Record<string, WebFeatureEntry>;
+const defaultWebFeatures = importedWebFeatures as unknown as WebFeatures;
+
+function baselineForPath(path: string, webFeatures: WebFeatures) {
+  return Object.entries(webFeatures)
+    .flatMap(([featureId, entry]) => {
+      if (entry.kind !== "feature" || !entry.compat_features?.includes(path)) return [];
+      const status = entry.status.by_compat_key?.[path] ?? entry.status;
+      return [
+        {
+          featureId,
+          name: entry.name,
+          status: status.baseline,
+          ...(status.baseline_low_date ? { lowDate: status.baseline_low_date } : {}),
+          ...(status.baseline_high_date ? { highDate: status.baseline_high_date } : {})
+        }
+      ];
+    })
+    .sort((left, right) => left.featureId.localeCompare(right.featureId))
+    .slice(0, 8);
+}
+
+function normaliseFeature(path: string, compat: CompatStatement, webFeatures: WebFeatures) {
   const specUrls = compat.spec_url
     ? Array.isArray(compat.spec_url)
       ? compat.spec_url
@@ -114,6 +157,7 @@ function normaliseFeature(path: string, compat: CompatStatement) {
           }
         }
       : {}),
+    baseline: baselineForPath(path, webFeatures),
     support: Object.fromEntries(
       BROWSERS.map((browser) => [
         browser,
@@ -138,13 +182,20 @@ function schemaShape(value: unknown): unknown {
   return typeof value;
 }
 
-function fingerprint(value: unknown): string {
+export function schemaFingerprint(value: unknown): string {
   return createHash("sha256")
     .update(canonicalJson(schemaShape(value), 0))
     .digest("hex");
 }
 
-export function buildSelectedSnapshot(data: CompatData): SelectedSnapshot {
+export function buildSelectedSnapshot(
+  data: CompatData,
+  options: {
+    webFeaturesVersion: string;
+    webFeatures?: WebFeatures;
+  }
+): SelectedSnapshot {
+  const webFeatures = options.webFeatures ?? defaultWebFeatures;
   if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(data.__meta.version)) {
     throw new Error(`Unsupported BCD package version: ${data.__meta.version}`);
   }
@@ -166,7 +217,7 @@ export function buildSelectedSnapshot(data: CompatData): SelectedSnapshot {
   const features = Object.fromEntries(
     paths.map((path) => {
       const identifier = resolveIdentifier(data, path);
-      return [path, normaliseFeature(path, identifier.__compat)];
+      return [path, normaliseFeature(path, identifier.__compat, webFeatures)];
     })
   );
 
@@ -204,11 +255,12 @@ export function buildSelectedSnapshot(data: CompatData): SelectedSnapshot {
   }));
 
   const payload = {
-    schemaVersion: 1 as const,
+    schemaVersion: 2 as const,
     bcdVersion: data.__meta.version,
     bcdTimestamp: data.__meta.timestamp,
+    webFeaturesVersion: options.webFeaturesVersion,
     catalogueVersion: CATALOGUE_VERSION,
-    schemaFingerprint: fingerprint({ browsers, controlMappings, features }),
+    schemaFingerprint: schemaFingerprint({ browsers, controlMappings, features }),
     browsers,
     controlMappings,
     features

@@ -1,8 +1,9 @@
 ---
 import { selectedSnapshot } from "../data";
 import { browserNames } from "../format";
+import { BROWSER_IDS } from "../browsers";
 
-const browsers = ["chrome", "edge", "firefox", "safari"] as const;
+const browsers = BROWSER_IDS;
 ---
 
 <section class="planner-panel" aria-labelledby="planner-heading">
@@ -79,12 +80,13 @@ const browsers = ["chrome", "edge", "firefox", "safari"] as const;
   import { SECURITY_CONTROLS } from "../catalogue";
   import { selectedSnapshot } from "../data";
   import type { BrowserId, ProfileEvaluation } from "../contracts";
+  import { BROWSER_IDS } from "../browsers";
   import { evaluateProfile } from "../evaluate";
   import { exportProfileEvaluation } from "../export";
   import { clearProfile, loadProfile, saveProfile } from "../profile-storage";
   import { browserNames, outcomeLabels } from "../format";
 
-  const browsers: readonly BrowserId[] = ["chrome", "edge", "firefox", "safari"];
+  const browsers: readonly BrowserId[] = BROWSER_IDS;
   const form = document.querySelector<HTMLFormElement>("#profile-form");
   const message = document.querySelector<HTMLElement>("#profile-message");
   const results = document.querySelector<HTMLElement>("#profile-results");

@@ -35,7 +35,7 @@ The value is:
 
 - versioned;
 - limited to 4,096 bytes;
-- limited to four explicit browser minimums;
+- limited to nine explicit browser minimums;
 - never sent to a server;
 - never included in analytics;
 - clearable from the planner.
@@ -51,8 +51,8 @@ results. They contain no visitor identifier or browser telemetry.
 
 ## Source data
 
-The compatibility dataset contains public technical facts from MDN BCD and no
-visitor or target information.
+The compatibility dataset contains public technical facts from MDN BCD and Web
+Platform Features and no visitor or target information.
 
 ## Deletion
 

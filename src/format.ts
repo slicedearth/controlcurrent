@@ -1,11 +1,7 @@
 import type { BrowserId, Outcome } from "./contracts";
+import { BROWSER_NAMES } from "./browsers";
 
-export const browserNames: Record<BrowserId, string> = {
-  chrome: "Chrome",
-  edge: "Edge",
-  firefox: "Firefox",
-  safari: "Safari"
-};
+export const browserNames: Record<BrowserId, string> = BROWSER_NAMES;
 
 export const outcomeLabels: Record<Outcome, string> = {
   available_unqualified: "Available",

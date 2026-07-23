@@ -1,10 +1,1477 @@
 [
   {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "upgrade-insecure-requests",
+          "highDate": "2020-10-30",
+          "lowDate": "2018-04-30",
+          "name": "Upgrade insecure requests",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/upgrade-insecure-requests",
+      "path": "http.headers.Content-Security-Policy.upgrade-insecure-requests",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-upgrade-insecure-requests/#delivery"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "43"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "43"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "42"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "42"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10.1"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "10.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "43"
+          }
+        ]
+      }
+    },
+    "id": "0c386cc24a58c1cd14831858",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Content-Security-Policy.upgrade-insecure-requests",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Content-Security-Policy.upgrade-insecure-requests was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [],
+      "description": "<code>prf</code> extension (pseudo-random function)",
+      "path": "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+      "sourceFile": "api/CredentialsContainer.json",
+      "specUrls": ["https://w3c.github.io/webauthn/#prf-extension"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "139"
+          },
+          {
+            "notes": "Not supported on macOS.",
+            "partial_implementation": true,
+            "version_added": "135",
+            "version_last": "138",
+            "version_removed": "139"
+          }
+        ],
+        "firefox_android": [
+          {
+            "impl_url": "https://bugzil.la/1958716",
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "24.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "id": "2695da0252c749d350f3f711",
+    "observedInBcdVersion": "8.0.7",
+    "path": "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path api.CredentialsContainer.create.publicKey_option.extensions.prf was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2020-07-23",
+          "lowDate": "2018-01-23",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors",
+      "path": "http.headers.Content-Security-Policy.frame-ancestors",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-frame-ancestors"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "15"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "58"
+          },
+          {
+            "notes": "Before Firefox 58, <code>frame-ancestors</code> is ignored in <code>Content-Security-Policy-Report-Only</code>.",
+            "partial_implementation": true,
+            "version_added": "33",
+            "version_last": "57",
+            "version_removed": "58"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "58"
+          },
+          {
+            "notes": "Before Firefox for Android 58, <code>frame-ancestors</code> is ignored in <code>Content-Security-Policy-Report-Only</code>.",
+            "partial_implementation": true,
+            "version_added": "33",
+            "version_last": "57",
+            "version_removed": "58"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "9.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "40"
+          }
+        ]
+      }
+    },
+    "id": "3627491e0b98b4bbe01ebf4f",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Content-Security-Policy.frame-ancestors",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Content-Security-Policy.frame-ancestors was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2022-07-15",
+          "lowDate": "2020-01-15",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/base-uri",
+      "path": "http.headers.Content-Security-Policy.base-uri",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-base-uri"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "35"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "35"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "9.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "40"
+          }
+        ]
+      }
+    },
+    "id": "3eb2ea02e52d70e1394eea55",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Content-Security-Policy.base-uri",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Content-Security-Policy.base-uri was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "cookies",
+          "highDate": "2022-07-15",
+          "lowDate": "2020-01-15",
+          "name": "Cookies",
+          "status": "high"
+        }
+      ],
+      "description": "Cookie prefixes: <code>__Host-</code> and <code>__Secure-</code>",
+      "path": "http.headers.Set-Cookie.host_secure_prefixes",
+      "sourceFile": "http/headers/Set-Cookie.json",
+      "specUrls": [
+        "https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-__host-prefix",
+        "https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-__secure-prefix"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "49"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "49"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "5.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "49"
+          }
+        ]
+      }
+    },
+    "id": "4fe39b8429e428d1f5cf87d3",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Set-Cookie.host_secure_prefixes",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Set-Cookie.host_secure_prefixes was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "webauthn",
+          "highDate": "2024-03-07",
+          "lowDate": "2021-09-07",
+          "name": "Web authentication",
+          "status": "high"
+        }
+      ],
+      "description": "<code>isUserVerifyingPlatformAuthenticatorAvailable()</code> static method",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/API/PublicKeyCredential/isUserVerifyingPlatformAuthenticatorAvailable_static",
+      "path": "api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static",
+      "sourceFile": "api/PublicKeyCredential.json",
+      "specUrls": [
+        "https://w3c.github.io/webauthn/#dom-publickeycredential-isuserverifyingplatformauthenticatoravailable"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "67"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "70"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "firefox": [
+          {
+            "notes": "Only supports USB U2F tokens.",
+            "version_added": "60"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "92"
+          },
+          {
+            "notes": "Only supports USB U2F tokens.",
+            "partial_implementation": true,
+            "version_added": "60",
+            "version_last": "91",
+            "version_removed": "92"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "10.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "id": "50e55cb50e19669cd2315b84",
+    "observedInBcdVersion": "8.0.7",
+    "path": "api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": [
+      {
+        "combination": "all",
+        "controlId": "content-security-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-nonces",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-hashes",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-dynamic",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.strict-dynamic"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-base-uri",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.base-uri"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-frame-ancestors",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.frame-ancestors"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-form-action",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.form-action"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-upgrade-insecure-requests",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.upgrade-insecure-requests"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-sandbox",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.sandbox"]
+      },
+      {
+        "combination": "all",
+        "controlId": "trusted-types",
+        "mappingState": "active",
+        "paths": [
+          "api.trustedTypes",
+          "http.headers.Content-Security-Policy.require-trusted-types-for"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "subresource-integrity",
+        "mappingState": "active",
+        "paths": ["html.elements.script.integrity", "html.elements.link.integrity"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-opener-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Opener-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-embedder-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-resource-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Resource-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "coep-credentialless",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy.credentialless"]
+      },
+      {
+        "combination": "all",
+        "controlId": "origin-agent-cluster",
+        "mappingState": "active",
+        "paths": ["http.headers.Origin-Agent-Cluster"]
+      },
+      {
+        "combination": "all",
+        "controlId": "fetch-metadata",
+        "mappingState": "active",
+        "paths": [
+          "http.headers.Sec-Fetch-Dest",
+          "http.headers.Sec-Fetch-Mode",
+          "http.headers.Sec-Fetch-Site",
+          "http.headers.Sec-Fetch-User"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-transport-security",
+        "mappingState": "active",
+        "paths": ["http.headers.Strict-Transport-Security"]
+      },
+      {
+        "combination": "all",
+        "controlId": "x-content-type-options",
+        "mappingState": "active",
+        "paths": ["http.headers.X-Content-Type-Options"]
+      },
+      {
+        "combination": "all",
+        "controlId": "clear-site-data",
+        "mappingState": "active",
+        "paths": ["http.headers.Clear-Site-Data"]
+      },
+      {
+        "combination": "all",
+        "controlId": "referrer-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Referrer-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "samesite-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.SameSite"]
+      },
+      {
+        "combination": "all",
+        "controlId": "partitioned-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.Partitioned"]
+      },
+      {
+        "combination": "all",
+        "controlId": "httponly-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.HttpOnly"]
+      },
+      {
+        "combination": "all",
+        "controlId": "secure-cookie-prefixes",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.host_secure_prefixes"]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-platform-authenticator",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static"]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-prf",
+        "mappingState": "active",
+        "paths": [
+          "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+          "api.CredentialsContainer.get.publicKey_option.extensions.prf"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-conditional-mediation",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
+      }
+    ],
+    "before": [
+      {
+        "combination": "all",
+        "controlId": "content-security-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-nonces",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-hashes",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-dynamic",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.strict-dynamic"]
+      },
+      {
+        "combination": "all",
+        "controlId": "trusted-types",
+        "mappingState": "active",
+        "paths": [
+          "api.trustedTypes",
+          "http.headers.Content-Security-Policy.require-trusted-types-for"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "subresource-integrity",
+        "mappingState": "active",
+        "paths": ["html.elements.script.integrity", "html.elements.link.integrity"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-opener-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Opener-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-embedder-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-resource-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Resource-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "fetch-metadata",
+        "mappingState": "active",
+        "paths": [
+          "http.headers.Sec-Fetch-Dest",
+          "http.headers.Sec-Fetch-Mode",
+          "http.headers.Sec-Fetch-Site",
+          "http.headers.Sec-Fetch-User"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "referrer-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Referrer-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "samesite-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.SameSite"]
+      },
+      {
+        "combination": "all",
+        "controlId": "partitioned-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.Partitioned"]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-conditional-mediation",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
+      }
+    ],
+    "id": "6c5c39325112d3f66a363f0a",
+    "observedInBcdVersion": "8.0.7",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The control catalogue mapping changed from 1.0.0 to 2.0.0.",
+    "type": "control_mapping_changed"
+  },
+  {
+    "after": {
+      "baseline": [],
+      "path": "http.headers.Cross-Origin-Embedder-Policy.credentialless",
+      "sourceFile": "http/headers/Cross-Origin-Embedder-Policy.json",
+      "specUrls": ["https://html.spec.whatwg.org/multipage/browsers.html#coep-credentialless"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "96"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "96"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "96"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "119"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "17.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "96"
+          }
+        ]
+      }
+    },
+    "id": "77fa82cf9a0348253b66e76b",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Cross-Origin-Embedder-Policy.credentialless",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Cross-Origin-Embedder-Policy.credentialless was added.",
+    "type": "selected_path_added"
+  },
+  {
     "id": "82b8b746968aa0824bbde571",
     "observedInBcdVersion": "8.0.7",
     "schemaVersion": 1,
     "sourceTimestamp": "2026-07-17T18:04:31.500Z",
     "summary": "ControlCurrent established its first selected BCD baseline at version 8.0.7.",
     "type": "baseline_established"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2019-05-15",
+          "lowDate": "2016-11-15",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/sandbox",
+      "path": "http.headers.Content-Security-Policy.sandbox",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-sandbox"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "25"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "25"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "14"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.5"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
+          }
+        ]
+      }
+    },
+    "id": "a4f6864a69d2e88d749058d4",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Content-Security-Policy.sandbox",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Content-Security-Policy.sandbox was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/X-Content-Type-Options",
+      "path": "http.headers.X-Content-Type-Options",
+      "sourceFile": "http/headers/X-Content-Type-Options.json",
+      "specUrls": ["https://fetch.spec.whatwg.org/#x-content-type-options-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "64"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "1",
+            "version_last": "63",
+            "version_removed": "64"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "64"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "18",
+            "version_last": "63",
+            "version_removed": "64"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "11"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "11"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "9.0"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "1.0",
+            "version_last": "8.2",
+            "version_removed": "9.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "64"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "4.4",
+            "version_last": "63",
+            "version_removed": "64"
+          }
+        ]
+      }
+    },
+    "id": "c3f7f1a0611949bdd5ed9020",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.X-Content-Type-Options",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.X-Content-Type-Options was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [],
+      "description": "<code>prf</code> extension (pseudo-random function)",
+      "path": "api.CredentialsContainer.get.publicKey_option.extensions.prf",
+      "sourceFile": "api/CredentialsContainer.json",
+      "specUrls": ["https://w3c.github.io/webauthn/#prf-extension"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "139"
+          },
+          {
+            "notes": "Not supported on macOS.",
+            "partial_implementation": true,
+            "version_added": "135",
+            "version_last": "138",
+            "version_removed": "139"
+          }
+        ],
+        "firefox_android": [
+          {
+            "impl_url": "https://bugzil.la/1958716",
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "impl_url": "https://webkit.org/b/259934",
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "impl_url": "https://webkit.org/b/259934",
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "24.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "id": "cdd65e6913e9016b13cb8f58",
+    "observedInBcdVersion": "8.0.7",
+    "path": "api.CredentialsContainer.get.publicKey_option.extensions.prf",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path api.CredentialsContainer.get.publicKey_option.extensions.prf was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "cookies",
+          "highDate": "2018-01-29",
+          "lowDate": "2015-07-29",
+          "name": "Cookies",
+          "status": "high"
+        }
+      ],
+      "path": "http.headers.Set-Cookie.HttpOnly",
+      "sourceFile": "http/headers/Set-Cookie.json",
+      "specUrls": ["https://httpwg.org/specs/rfc6265.html#httponly-attribute"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "1"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "3"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "5"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
+          }
+        ]
+      }
+    },
+    "id": "dc2e929a4400353d75d075a1",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Set-Cookie.HttpOnly",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Set-Cookie.HttpOnly was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2019-10-05",
+          "lowDate": "2017-04-05",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/form-action",
+      "path": "http.headers.Content-Security-Policy.form-action",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-form-action"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "15"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "36"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "36"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "9.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "40"
+          }
+        ]
+      }
+    },
+    "id": "e3eb573457d26af090c1b8c7",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Content-Security-Policy.form-action",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Content-Security-Policy.form-action was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Origin-Agent-Cluster",
+      "path": "http.headers.Origin-Agent-Cluster",
+      "sourceFile": "http/headers/Origin-Agent-Cluster.json",
+      "specUrls": ["https://html.spec.whatwg.org/multipage/browsers.html#origin-agent-cluster"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "preview"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "90"
+          }
+        ]
+      }
+    },
+    "id": "f50dfada08e26074eee32e2d",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Origin-Agent-Cluster",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Origin-Agent-Cluster was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "hsts",
+          "highDate": "2018-01-29",
+          "lowDate": "2015-07-29",
+          "name": "HTTP Strict Transport Security",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security",
+      "path": "http.headers.Strict-Transport-Security",
+      "sourceFile": "http/headers/Strict-Transport-Security.json",
+      "specUrls": ["https://www.rfc-editor.org/info/rfc6797/#section-6.1"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
+          }
+        ]
+      }
+    },
+    "id": "fb14c4ad1dbb1a989ce28b97",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Strict-Transport-Security",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Strict-Transport-Security was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "highDate": "2026-03-18",
+          "lowDate": "2023-09-18",
+          "name": "Clearing site data",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Clear-Site-Data",
+      "path": "http.headers.Clear-Site-Data",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "8.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "61"
+          }
+        ]
+      }
+    },
+    "id": "fb56055a4bd43e992f0903d0",
+    "observedInBcdVersion": "8.0.7",
+    "path": "http.headers.Clear-Site-Data",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-17T18:04:31.500Z",
+    "summary": "The selected BCD path http.headers.Clear-Site-Data was added.",
+    "type": "selected_path_added"
   }
 ]

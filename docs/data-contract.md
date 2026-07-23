@@ -7,16 +7,17 @@ mirror.
 
 The root contract contains:
 
-| Field               | Meaning                                            |
-| ------------------- | -------------------------------------------------- |
-| `schemaVersion`     | ControlCurrent selected-snapshot schema             |
-| `bcdVersion`        | Locked BCD package version                         |
-| `bcdTimestamp`      | BCD package build timestamp                        |
-| `catalogueVersion`  | Project-authored mapping version                   |
-| `schemaFingerprint` | SHA-256 of the selected structural shape           |
-| `browsers`          | Bounded release metadata for four browser families |
-| `controlMappings`   | Stable mapping state, rule, and selected paths     |
-| `features`          | Exact selected BCD compatibility statements        |
+| Field                | Meaning                                            |
+| -------------------- | -------------------------------------------------- |
+| `schemaVersion`      | ControlCurrent selected-snapshot schema             |
+| `bcdVersion`         | Locked BCD package version                         |
+| `bcdTimestamp`       | BCD package build timestamp                        |
+| `webFeaturesVersion` | Locked Web Platform Features package version       |
+| `catalogueVersion`   | Project-authored mapping version                   |
+| `schemaFingerprint`  | SHA-256 of the selected structural shape           |
+| `browsers`           | Bounded release metadata for nine browser families |
+| `controlMappings`    | Stable mapping state, rule, and selected paths     |
+| `features`           | Exact selected BCD compatibility statements        |
 
 ## Feature statements
 
@@ -28,6 +29,7 @@ Each feature retains:
 - MDN and specification URLs;
 - source status fields;
 - browser support statements.
+- exact WebDX feature associations and Baseline status metadata.
 
 Support statements retain:
 
@@ -52,7 +54,7 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Selected features                       |               64 |
 | BCD path segments                       |               12 |
 | BCD paths per control                   |                8 |
-| Browsers per profile                    |                4 |
+| Browsers per profile                    |                9 |
 | Releases per browser                    |              500 |
 | Support statements per browser and path |               32 |
 | Flags per statement                     |               16 |
@@ -81,7 +83,9 @@ Missing or incompatible source data never becomes `unavailable` or
 
 ## Versioning
 
-Future schema versions are refused. Catalogue changes use a separate catalogue
-version. Source package changes preserve their BCD version and timestamp.
-Algorithm changes that alter results must change the catalogue or relevant
-contract version and add regression fixtures.
+Future schema versions are refused. Selected snapshot schema 2 adds Web Platform
+Features provenance, exact Baseline associations, and five mobile browser
+families. Catalogue changes use a separate catalogue version. Source package
+changes preserve their package versions and BCD timestamp. Algorithm changes
+that alter results must change the catalogue or relevant contract version and
+add regression fixtures.

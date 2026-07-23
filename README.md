@@ -11,9 +11,10 @@ It is not a general compatibility index and it does not scan websites.
 
 ## What it provides
 
-- A versioned catalogue of 15 browser security and privacy controls
+- A versioned catalogue of 29 browser security and privacy controls
 - Exact BCD path mappings and explicit unsupported mappings
-- Chrome, Edge, Firefox, and Safari support normalisation
+- Nine desktop and mobile browser families normalised explicitly
+- Exact WebDX feature associations and Baseline adoptability context
 - Preservation of partial support, flags, prefixes, alternative names, notes,
   removals, and unknown source values
 - A local deployment-profile planner with no browser detection or telemetry
@@ -30,14 +31,17 @@ application's threat model.
 
 ## Data source
 
-The initial release uses `@mdn/browser-compat-data` 8.0.7. The selected snapshot
-contains only the 18 BCD paths required by the current catalogue plus bounded
-release metadata for four desktop browsers.
+The current release uses `@mdn/browser-compat-data` 8.0.7 and `web-features`
+3.34.1. The selected snapshot contains only the 33 BCD paths required by the
+current catalogue, bounded release metadata for nine browser families, and
+exact Baseline associations declared for those paths.
 
 MDN Browser Compatibility Data is published under
-[CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
-ControlCurrent source code is licensed separately under MIT. See
-[NOTICE](NOTICE) and [legal and licensing](docs/legal-and-licensing.md).
+[CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Web
+Platform Features is published under
+[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0). ControlCurrent source
+code is licensed separately under MIT. See [NOTICE](NOTICE) and
+[legal and licensing](docs/legal-and-licensing.md).
 
 ## Privacy boundary
 
@@ -75,11 +79,12 @@ npm run dev
 
 The ordinary test and build paths do not access live services.
 
-## Updating BCD
+## Updating source data
 
 Source updates are deliberate:
 
-1. Review the new BCD release, schema changes, licence, and selected paths.
+1. Review the new BCD or Web Platform Features release, schema changes,
+   licences, and selected mappings.
 2. Update the exact package version in `package.json`.
 3. Run `npm install` with the repository's npm version.
 4. Run `npm run generate`.
@@ -110,19 +115,19 @@ silently becoming supported.
 ## Architecture
 
 ```text
-Locked @mdn/browser-compat-data package
-                 |
-                 v
-      exact selected-path resolver
-                 |
-                 v
-     validated canonical BCD subset
-          |                 |
-          v                 v
-  versioned catalogue   change events
+Locked BCD and Web Platform Features packages
+                    |
+                    v
+        exact selected-path resolver
+                    |
+                    v
+ validated compatibility and Baseline subset
+          |                         |
+          v                         v
+  versioned catalogue          change events
           |
           v
- browser-baseline evaluation
+ browser-policy evaluation
           |
           v
        static Astro site

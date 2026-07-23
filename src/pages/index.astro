@@ -45,6 +45,8 @@ const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
         <dl>
           <dt>BCD package</dt>
           <dd>{selectedSnapshot.bcdVersion}</dd>
+          <dt>WebDX data</dt>
+          <dd>{selectedSnapshot.webFeaturesVersion}</dd>
           <dt>Source date</dt>
           <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
           <dt>Controls</dt>
@@ -72,8 +74,8 @@ const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
           <span>controls with at least one BCD qualification</span>
         </div>
         <div class="stat-card">
-          <strong>4</strong>
-          <span>desktop browser families evaluated explicitly</span>
+          <strong>{currentProfile.baselines.length}</strong>
+          <span>desktop and mobile browser families evaluated explicitly</span>
         </div>
         <div class="stat-card">
           <strong>0</strong>
@@ -91,11 +93,9 @@ const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
           <h2>Control catalogue</h2>
         </div>
         <p>
-          The cards use {
-            currentProfile.baselines
-              .map((item) => `${item.browser} ${item.minimumVersion}`)
-              .join(", ")
-          }. Compatibility is evidence about browser availability, not proof of a secure deployment.
+          The cards use the current release channel retained for each of nine desktop and mobile
+          browser families. Compatibility is evidence about browser availability, not proof of a
+          secure deployment.
         </p>
       </div>
       <div class="control-grid">

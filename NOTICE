@@ -14,5 +14,17 @@ browser release metadata, source references, and package provenance needed by
 the ControlCurrent security-control catalogue. ControlCurrent does not reproduce
 the complete BCD package or MDN article prose.
 
+ControlCurrent also includes a transformed, selected subset of:
+
+Web Platform Features
+https://github.com/web-platform-dx/web-features
+Copyright W3C WebDX Community Group contributors
+Licensed under the Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+The selected subset records only exact BCD-path associations and Baseline
+status metadata used to add adoptability context to mapped controls. It does
+not reproduce the complete Web Platform Features package.
+
 The MIT licence for ControlCurrent source code does not relicense upstream data,
 linked specifications, or third-party documentation.

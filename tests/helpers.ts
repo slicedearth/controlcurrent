@@ -4,8 +4,9 @@ import type {
   SelectedSnapshot,
   SupportStatement
 } from "../src/contracts";
+import { BROWSER_IDS } from "../src/browsers";
 
-const browserIds: readonly BrowserId[] = ["chrome", "edge", "firefox", "safari"];
+const browserIds: readonly BrowserId[] = BROWSER_IDS;
 
 export function feature(
   path: string,
@@ -16,6 +17,7 @@ export function feature(
     sourceFile: "test.json",
     mdnUrl: `https://developer.mozilla.org/docs/${encodeURIComponent(path)}`,
     specUrls: ["https://example.invalid/spec"],
+    baseline: [],
     support: Object.fromEntries(
       browserIds.map((browser) => [browser, statements[browser] ?? [{ version_added: false }]])
     )
@@ -41,9 +43,10 @@ export function snapshot(
   ) as SelectedSnapshot["browsers"];
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     bcdVersion: "1.0.0",
     bcdTimestamp: "2026-01-01T00:00:00.000Z",
+    webFeaturesVersion: "1.0.0",
     catalogueVersion: "1.0.0",
     schemaFingerprint: "a".repeat(64),
     browsers,

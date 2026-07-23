@@ -1,6 +1,7 @@
 import selectedInput from "../data/selected-bcd.json";
 import changesInput from "../data/change-events.json";
 import { z } from "zod";
+import { BROWSER_IDS } from "./browsers";
 import {
   changeEventSchema,
   selectedSnapshotSchema,
@@ -13,7 +14,7 @@ export const selectedSnapshot = selectedSnapshotSchema.parse(selectedInput);
 export const changeEvents = z.array(changeEventSchema).parse(changesInput);
 
 export function currentBrowserProfile(): DeploymentProfile {
-  const ids: readonly BrowserId[] = ["chrome", "edge", "firefox", "safari"];
+  const ids: readonly BrowserId[] = BROWSER_IDS;
   return {
     schemaVersion: 1,
     name: "Current BCD release channels",

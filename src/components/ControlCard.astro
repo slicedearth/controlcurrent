@@ -1,6 +1,7 @@
 ---
 import type { SecurityControl } from "../catalogue";
 import type { ControlEvaluation } from "../contracts";
+import { browserNames } from "../format";
 import OutcomeBadge from "./OutcomeBadge.astro";
 
 interface Props {
@@ -29,11 +30,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
     {
       evaluations.map((evaluation) => (
         <span>
-          <small>
-            {evaluation.browser === "firefox"
-              ? "Firefox"
-              : evaluation.browser[0]!.toUpperCase() + evaluation.browser.slice(1)}
-          </small>
+          <small>{browserNames[evaluation.browser]}</small>
           <OutcomeBadge outcome={evaluation.outcome} />
         </span>
       ))

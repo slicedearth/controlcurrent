@@ -767,6 +767,657 @@
         }
       ]
     },
+    "chrome_android": {
+      "id": "chrome_android",
+      "name": "Chrome Android",
+      "releases": [
+        {
+          "releaseDate": "2012-06-27",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2013-02-27",
+          "status": "retired",
+          "version": "25"
+        },
+        {
+          "releaseDate": "2013-04-03",
+          "status": "retired",
+          "version": "26"
+        },
+        {
+          "releaseDate": "2013-05-22",
+          "status": "retired",
+          "version": "27"
+        },
+        {
+          "releaseDate": "2013-07-10",
+          "status": "retired",
+          "version": "28"
+        },
+        {
+          "releaseDate": "2013-08-21",
+          "status": "retired",
+          "version": "29"
+        },
+        {
+          "releaseDate": "2013-10-02",
+          "status": "retired",
+          "version": "30"
+        },
+        {
+          "releaseDate": "2013-11-14",
+          "status": "retired",
+          "version": "31"
+        },
+        {
+          "releaseDate": "2014-01-15",
+          "status": "retired",
+          "version": "32"
+        },
+        {
+          "releaseDate": "2014-02-26",
+          "status": "retired",
+          "version": "33"
+        },
+        {
+          "releaseDate": "2014-04-02",
+          "status": "retired",
+          "version": "34"
+        },
+        {
+          "releaseDate": "2014-05-20",
+          "status": "retired",
+          "version": "35"
+        },
+        {
+          "releaseDate": "2014-07-16",
+          "status": "retired",
+          "version": "36"
+        },
+        {
+          "releaseDate": "2014-09-03",
+          "status": "retired",
+          "version": "37"
+        },
+        {
+          "releaseDate": "2014-10-08",
+          "status": "retired",
+          "version": "38"
+        },
+        {
+          "releaseDate": "2014-11-12",
+          "status": "retired",
+          "version": "39"
+        },
+        {
+          "releaseDate": "2015-01-21",
+          "status": "retired",
+          "version": "40"
+        },
+        {
+          "releaseDate": "2015-03-11",
+          "status": "retired",
+          "version": "41"
+        },
+        {
+          "releaseDate": "2015-04-15",
+          "status": "retired",
+          "version": "42"
+        },
+        {
+          "releaseDate": "2015-05-27",
+          "status": "retired",
+          "version": "43"
+        },
+        {
+          "releaseDate": "2015-07-29",
+          "status": "retired",
+          "version": "44"
+        },
+        {
+          "releaseDate": "2015-09-01",
+          "status": "retired",
+          "version": "45"
+        },
+        {
+          "releaseDate": "2015-10-14",
+          "status": "retired",
+          "version": "46"
+        },
+        {
+          "releaseDate": "2015-12-02",
+          "status": "retired",
+          "version": "47"
+        },
+        {
+          "releaseDate": "2016-01-26",
+          "status": "retired",
+          "version": "48"
+        },
+        {
+          "releaseDate": "2016-03-09",
+          "status": "retired",
+          "version": "49"
+        },
+        {
+          "releaseDate": "2016-04-13",
+          "status": "retired",
+          "version": "50"
+        },
+        {
+          "releaseDate": "2016-06-08",
+          "status": "retired",
+          "version": "51"
+        },
+        {
+          "releaseDate": "2016-07-27",
+          "status": "retired",
+          "version": "52"
+        },
+        {
+          "releaseDate": "2016-09-07",
+          "status": "retired",
+          "version": "53"
+        },
+        {
+          "releaseDate": "2016-10-19",
+          "status": "retired",
+          "version": "54"
+        },
+        {
+          "releaseDate": "2016-12-06",
+          "status": "retired",
+          "version": "55"
+        },
+        {
+          "releaseDate": "2017-02-01",
+          "status": "retired",
+          "version": "56"
+        },
+        {
+          "releaseDate": "2017-03-16",
+          "status": "retired",
+          "version": "57"
+        },
+        {
+          "releaseDate": "2017-04-25",
+          "status": "retired",
+          "version": "58"
+        },
+        {
+          "releaseDate": "2017-06-06",
+          "status": "retired",
+          "version": "59"
+        },
+        {
+          "releaseDate": "2017-08-01",
+          "status": "retired",
+          "version": "60"
+        },
+        {
+          "releaseDate": "2017-09-05",
+          "status": "retired",
+          "version": "61"
+        },
+        {
+          "releaseDate": "2017-10-24",
+          "status": "retired",
+          "version": "62"
+        },
+        {
+          "releaseDate": "2017-12-05",
+          "status": "retired",
+          "version": "63"
+        },
+        {
+          "releaseDate": "2018-01-23",
+          "status": "retired",
+          "version": "64"
+        },
+        {
+          "releaseDate": "2018-03-06",
+          "status": "retired",
+          "version": "65"
+        },
+        {
+          "releaseDate": "2018-04-17",
+          "status": "retired",
+          "version": "66"
+        },
+        {
+          "releaseDate": "2018-05-31",
+          "status": "retired",
+          "version": "67"
+        },
+        {
+          "releaseDate": "2018-07-24",
+          "status": "retired",
+          "version": "68"
+        },
+        {
+          "releaseDate": "2018-09-04",
+          "status": "retired",
+          "version": "69"
+        },
+        {
+          "releaseDate": "2018-10-17",
+          "status": "retired",
+          "version": "70"
+        },
+        {
+          "releaseDate": "2018-12-04",
+          "status": "retired",
+          "version": "71"
+        },
+        {
+          "releaseDate": "2019-01-29",
+          "status": "retired",
+          "version": "72"
+        },
+        {
+          "releaseDate": "2019-03-12",
+          "status": "retired",
+          "version": "73"
+        },
+        {
+          "releaseDate": "2019-04-24",
+          "status": "retired",
+          "version": "74"
+        },
+        {
+          "releaseDate": "2019-06-04",
+          "status": "retired",
+          "version": "75"
+        },
+        {
+          "releaseDate": "2019-07-30",
+          "status": "retired",
+          "version": "76"
+        },
+        {
+          "releaseDate": "2019-09-10",
+          "status": "retired",
+          "version": "77"
+        },
+        {
+          "releaseDate": "2019-10-22",
+          "status": "retired",
+          "version": "78"
+        },
+        {
+          "releaseDate": "2019-12-17",
+          "status": "retired",
+          "version": "79"
+        },
+        {
+          "releaseDate": "2020-02-04",
+          "status": "retired",
+          "version": "80"
+        },
+        {
+          "releaseDate": "2020-04-07",
+          "status": "retired",
+          "version": "81"
+        },
+        {
+          "releaseDate": "2020-05-19",
+          "status": "retired",
+          "version": "83"
+        },
+        {
+          "releaseDate": "2020-07-27",
+          "status": "retired",
+          "version": "84"
+        },
+        {
+          "releaseDate": "2020-08-25",
+          "status": "retired",
+          "version": "85"
+        },
+        {
+          "releaseDate": "2020-10-20",
+          "status": "retired",
+          "version": "86"
+        },
+        {
+          "releaseDate": "2020-11-17",
+          "status": "retired",
+          "version": "87"
+        },
+        {
+          "releaseDate": "2021-01-19",
+          "status": "retired",
+          "version": "88"
+        },
+        {
+          "releaseDate": "2021-03-02",
+          "status": "retired",
+          "version": "89"
+        },
+        {
+          "releaseDate": "2021-04-13",
+          "status": "retired",
+          "version": "90"
+        },
+        {
+          "releaseDate": "2021-05-25",
+          "status": "retired",
+          "version": "91"
+        },
+        {
+          "releaseDate": "2021-07-20",
+          "status": "retired",
+          "version": "92"
+        },
+        {
+          "releaseDate": "2021-08-31",
+          "status": "retired",
+          "version": "93"
+        },
+        {
+          "releaseDate": "2021-09-21",
+          "status": "retired",
+          "version": "94"
+        },
+        {
+          "releaseDate": "2021-10-19",
+          "status": "retired",
+          "version": "95"
+        },
+        {
+          "releaseDate": "2021-11-15",
+          "status": "retired",
+          "version": "96"
+        },
+        {
+          "releaseDate": "2022-01-04",
+          "status": "retired",
+          "version": "97"
+        },
+        {
+          "releaseDate": "2022-02-01",
+          "status": "retired",
+          "version": "98"
+        },
+        {
+          "releaseDate": "2022-03-01",
+          "status": "retired",
+          "version": "99"
+        },
+        {
+          "releaseDate": "2022-03-29",
+          "status": "retired",
+          "version": "100"
+        },
+        {
+          "releaseDate": "2022-04-26",
+          "status": "retired",
+          "version": "101"
+        },
+        {
+          "releaseDate": "2022-05-24",
+          "status": "retired",
+          "version": "102"
+        },
+        {
+          "releaseDate": "2022-06-21",
+          "status": "retired",
+          "version": "103"
+        },
+        {
+          "releaseDate": "2022-08-02",
+          "status": "retired",
+          "version": "104"
+        },
+        {
+          "releaseDate": "2022-09-02",
+          "status": "retired",
+          "version": "105"
+        },
+        {
+          "releaseDate": "2022-09-27",
+          "status": "retired",
+          "version": "106"
+        },
+        {
+          "releaseDate": "2022-10-25",
+          "status": "retired",
+          "version": "107"
+        },
+        {
+          "releaseDate": "2022-11-29",
+          "status": "retired",
+          "version": "108"
+        },
+        {
+          "releaseDate": "2023-01-10",
+          "status": "retired",
+          "version": "109"
+        },
+        {
+          "releaseDate": "2023-02-07",
+          "status": "retired",
+          "version": "110"
+        },
+        {
+          "releaseDate": "2023-03-07",
+          "status": "retired",
+          "version": "111"
+        },
+        {
+          "releaseDate": "2023-04-04",
+          "status": "retired",
+          "version": "112"
+        },
+        {
+          "releaseDate": "2023-05-02",
+          "status": "retired",
+          "version": "113"
+        },
+        {
+          "releaseDate": "2023-05-30",
+          "status": "retired",
+          "version": "114"
+        },
+        {
+          "releaseDate": "2023-07-21",
+          "status": "retired",
+          "version": "115"
+        },
+        {
+          "releaseDate": "2023-08-15",
+          "status": "retired",
+          "version": "116"
+        },
+        {
+          "releaseDate": "2023-09-12",
+          "status": "retired",
+          "version": "117"
+        },
+        {
+          "releaseDate": "2023-10-10",
+          "status": "retired",
+          "version": "118"
+        },
+        {
+          "releaseDate": "2023-10-31",
+          "status": "retired",
+          "version": "119"
+        },
+        {
+          "releaseDate": "2023-12-05",
+          "status": "retired",
+          "version": "120"
+        },
+        {
+          "releaseDate": "2024-01-23",
+          "status": "retired",
+          "version": "121"
+        },
+        {
+          "releaseDate": "2024-02-20",
+          "status": "retired",
+          "version": "122"
+        },
+        {
+          "releaseDate": "2024-03-19",
+          "status": "retired",
+          "version": "123"
+        },
+        {
+          "releaseDate": "2024-04-16",
+          "status": "retired",
+          "version": "124"
+        },
+        {
+          "releaseDate": "2024-05-14",
+          "status": "retired",
+          "version": "125"
+        },
+        {
+          "releaseDate": "2024-06-11",
+          "status": "retired",
+          "version": "126"
+        },
+        {
+          "releaseDate": "2024-07-23",
+          "status": "retired",
+          "version": "127"
+        },
+        {
+          "releaseDate": "2024-08-20",
+          "status": "retired",
+          "version": "128"
+        },
+        {
+          "releaseDate": "2024-09-17",
+          "status": "retired",
+          "version": "129"
+        },
+        {
+          "releaseDate": "2024-10-15",
+          "status": "retired",
+          "version": "130"
+        },
+        {
+          "releaseDate": "2024-11-12",
+          "status": "retired",
+          "version": "131"
+        },
+        {
+          "releaseDate": "2025-01-14",
+          "status": "retired",
+          "version": "132"
+        },
+        {
+          "releaseDate": "2025-02-04",
+          "status": "retired",
+          "version": "133"
+        },
+        {
+          "releaseDate": "2025-03-04",
+          "status": "retired",
+          "version": "134"
+        },
+        {
+          "releaseDate": "2025-04-01",
+          "status": "retired",
+          "version": "135"
+        },
+        {
+          "releaseDate": "2025-04-29",
+          "status": "retired",
+          "version": "136"
+        },
+        {
+          "releaseDate": "2025-05-27",
+          "status": "retired",
+          "version": "137"
+        },
+        {
+          "releaseDate": "2025-06-24",
+          "status": "retired",
+          "version": "138"
+        },
+        {
+          "releaseDate": "2025-08-05",
+          "status": "retired",
+          "version": "139"
+        },
+        {
+          "releaseDate": "2025-09-02",
+          "status": "retired",
+          "version": "140"
+        },
+        {
+          "releaseDate": "2025-09-30",
+          "status": "retired",
+          "version": "141"
+        },
+        {
+          "releaseDate": "2025-10-28",
+          "status": "retired",
+          "version": "142"
+        },
+        {
+          "releaseDate": "2025-12-02",
+          "status": "retired",
+          "version": "143"
+        },
+        {
+          "releaseDate": "2026-01-13",
+          "status": "retired",
+          "version": "144"
+        },
+        {
+          "releaseDate": "2026-02-10",
+          "status": "retired",
+          "version": "145"
+        },
+        {
+          "releaseDate": "2026-03-10",
+          "status": "retired",
+          "version": "146"
+        },
+        {
+          "releaseDate": "2026-04-07",
+          "status": "retired",
+          "version": "147"
+        },
+        {
+          "releaseDate": "2026-05-05",
+          "status": "retired",
+          "version": "148"
+        },
+        {
+          "releaseDate": "2026-06-02",
+          "status": "retired",
+          "version": "149"
+        },
+        {
+          "releaseDate": "2026-06-30",
+          "status": "current",
+          "version": "150"
+        },
+        {
+          "releaseDate": "2026-07-28",
+          "status": "beta",
+          "version": "151"
+        },
+        {
+          "releaseDate": "2026-08-25",
+          "status": "nightly",
+          "version": "152"
+        },
+        {
+          "status": "planned",
+          "version": "153"
+        }
+      ],
+      "upstream": "chrome"
+    },
     "edge": {
       "id": "edge",
       "name": "Edge",
@@ -1975,6 +2626,708 @@
         }
       ]
     },
+    "firefox_android": {
+      "id": "firefox_android",
+      "name": "Firefox for Android",
+      "releases": [
+        {
+          "releaseDate": "2011-03-29",
+          "status": "retired",
+          "version": "4"
+        },
+        {
+          "releaseDate": "2011-06-21",
+          "status": "retired",
+          "version": "5"
+        },
+        {
+          "releaseDate": "2011-08-16",
+          "status": "retired",
+          "version": "6"
+        },
+        {
+          "releaseDate": "2011-09-27",
+          "status": "retired",
+          "version": "7"
+        },
+        {
+          "releaseDate": "2011-11-08",
+          "status": "retired",
+          "version": "8"
+        },
+        {
+          "releaseDate": "2011-12-21",
+          "status": "retired",
+          "version": "9"
+        },
+        {
+          "releaseDate": "2012-01-31",
+          "status": "retired",
+          "version": "10"
+        },
+        {
+          "releaseDate": "2012-06-26",
+          "status": "retired",
+          "version": "14"
+        },
+        {
+          "releaseDate": "2012-08-28",
+          "status": "retired",
+          "version": "15"
+        },
+        {
+          "releaseDate": "2012-10-09",
+          "status": "retired",
+          "version": "16"
+        },
+        {
+          "releaseDate": "2012-11-20",
+          "status": "retired",
+          "version": "17"
+        },
+        {
+          "releaseDate": "2013-01-08",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2013-02-19",
+          "status": "retired",
+          "version": "19"
+        },
+        {
+          "releaseDate": "2013-04-02",
+          "status": "retired",
+          "version": "20"
+        },
+        {
+          "releaseDate": "2013-05-14",
+          "status": "retired",
+          "version": "21"
+        },
+        {
+          "releaseDate": "2013-06-25",
+          "status": "retired",
+          "version": "22"
+        },
+        {
+          "releaseDate": "2013-08-06",
+          "status": "retired",
+          "version": "23"
+        },
+        {
+          "releaseDate": "2013-09-17",
+          "status": "retired",
+          "version": "24"
+        },
+        {
+          "releaseDate": "2013-10-29",
+          "status": "retired",
+          "version": "25"
+        },
+        {
+          "releaseDate": "2013-12-10",
+          "status": "retired",
+          "version": "26"
+        },
+        {
+          "releaseDate": "2014-02-04",
+          "status": "retired",
+          "version": "27"
+        },
+        {
+          "releaseDate": "2014-03-18",
+          "status": "retired",
+          "version": "28"
+        },
+        {
+          "releaseDate": "2014-04-29",
+          "status": "retired",
+          "version": "29"
+        },
+        {
+          "releaseDate": "2014-06-10",
+          "status": "retired",
+          "version": "30"
+        },
+        {
+          "releaseDate": "2014-07-22",
+          "status": "retired",
+          "version": "31"
+        },
+        {
+          "releaseDate": "2014-09-02",
+          "status": "retired",
+          "version": "32"
+        },
+        {
+          "releaseDate": "2014-10-14",
+          "status": "retired",
+          "version": "33"
+        },
+        {
+          "releaseDate": "2014-12-01",
+          "status": "retired",
+          "version": "34"
+        },
+        {
+          "releaseDate": "2015-01-13",
+          "status": "retired",
+          "version": "35"
+        },
+        {
+          "releaseDate": "2015-02-27",
+          "status": "retired",
+          "version": "36"
+        },
+        {
+          "releaseDate": "2015-03-31",
+          "status": "retired",
+          "version": "37"
+        },
+        {
+          "releaseDate": "2015-05-12",
+          "status": "retired",
+          "version": "38"
+        },
+        {
+          "releaseDate": "2015-07-02",
+          "status": "retired",
+          "version": "39"
+        },
+        {
+          "releaseDate": "2015-08-11",
+          "status": "retired",
+          "version": "40"
+        },
+        {
+          "releaseDate": "2015-09-22",
+          "status": "retired",
+          "version": "41"
+        },
+        {
+          "releaseDate": "2015-11-03",
+          "status": "retired",
+          "version": "42"
+        },
+        {
+          "releaseDate": "2015-12-15",
+          "status": "retired",
+          "version": "43"
+        },
+        {
+          "releaseDate": "2016-01-26",
+          "status": "retired",
+          "version": "44"
+        },
+        {
+          "releaseDate": "2016-03-08",
+          "status": "retired",
+          "version": "45"
+        },
+        {
+          "releaseDate": "2016-04-26",
+          "status": "retired",
+          "version": "46"
+        },
+        {
+          "releaseDate": "2016-06-07",
+          "status": "retired",
+          "version": "47"
+        },
+        {
+          "releaseDate": "2016-08-02",
+          "status": "retired",
+          "version": "48"
+        },
+        {
+          "releaseDate": "2016-09-20",
+          "status": "retired",
+          "version": "49"
+        },
+        {
+          "releaseDate": "2016-11-15",
+          "status": "retired",
+          "version": "50"
+        },
+        {
+          "releaseDate": "2017-01-24",
+          "status": "retired",
+          "version": "51"
+        },
+        {
+          "releaseDate": "2017-03-07",
+          "status": "retired",
+          "version": "52"
+        },
+        {
+          "releaseDate": "2017-04-19",
+          "status": "retired",
+          "version": "53"
+        },
+        {
+          "releaseDate": "2017-06-13",
+          "status": "retired",
+          "version": "54"
+        },
+        {
+          "releaseDate": "2017-08-08",
+          "status": "retired",
+          "version": "55"
+        },
+        {
+          "releaseDate": "2017-09-28",
+          "status": "retired",
+          "version": "56"
+        },
+        {
+          "releaseDate": "2017-11-28",
+          "status": "retired",
+          "version": "57"
+        },
+        {
+          "releaseDate": "2018-01-22",
+          "status": "retired",
+          "version": "58"
+        },
+        {
+          "releaseDate": "2018-03-13",
+          "status": "retired",
+          "version": "59"
+        },
+        {
+          "releaseDate": "2018-05-09",
+          "status": "retired",
+          "version": "60"
+        },
+        {
+          "releaseDate": "2018-06-26",
+          "status": "retired",
+          "version": "61"
+        },
+        {
+          "releaseDate": "2018-09-05",
+          "status": "retired",
+          "version": "62"
+        },
+        {
+          "releaseDate": "2018-10-23",
+          "status": "retired",
+          "version": "63"
+        },
+        {
+          "releaseDate": "2018-12-11",
+          "status": "retired",
+          "version": "64"
+        },
+        {
+          "releaseDate": "2019-01-29",
+          "status": "retired",
+          "version": "65"
+        },
+        {
+          "releaseDate": "2019-03-19",
+          "status": "retired",
+          "version": "66"
+        },
+        {
+          "releaseDate": "2019-05-21",
+          "status": "retired",
+          "version": "67"
+        },
+        {
+          "releaseDate": "2019-07-09",
+          "status": "retired",
+          "version": "68"
+        },
+        {
+          "releaseDate": "2020-07-28",
+          "status": "retired",
+          "version": "79"
+        },
+        {
+          "releaseDate": "2020-08-31",
+          "status": "retired",
+          "version": "80"
+        },
+        {
+          "releaseDate": "2020-09-22",
+          "status": "retired",
+          "version": "81"
+        },
+        {
+          "releaseDate": "2020-10-20",
+          "status": "retired",
+          "version": "82"
+        },
+        {
+          "releaseDate": "2020-11-17",
+          "status": "retired",
+          "version": "83"
+        },
+        {
+          "releaseDate": "2020-12-15",
+          "status": "retired",
+          "version": "84"
+        },
+        {
+          "releaseDate": "2021-01-26",
+          "status": "retired",
+          "version": "85"
+        },
+        {
+          "releaseDate": "2021-02-23",
+          "status": "retired",
+          "version": "86"
+        },
+        {
+          "releaseDate": "2021-03-23",
+          "status": "retired",
+          "version": "87"
+        },
+        {
+          "releaseDate": "2021-04-19",
+          "status": "retired",
+          "version": "88"
+        },
+        {
+          "releaseDate": "2021-06-01",
+          "status": "retired",
+          "version": "89"
+        },
+        {
+          "releaseDate": "2021-07-13",
+          "status": "retired",
+          "version": "90"
+        },
+        {
+          "releaseDate": "2021-08-10",
+          "status": "retired",
+          "version": "91"
+        },
+        {
+          "releaseDate": "2021-09-07",
+          "status": "retired",
+          "version": "92"
+        },
+        {
+          "releaseDate": "2021-10-05",
+          "status": "retired",
+          "version": "93"
+        },
+        {
+          "releaseDate": "2021-11-02",
+          "status": "retired",
+          "version": "94"
+        },
+        {
+          "releaseDate": "2021-12-07",
+          "status": "retired",
+          "version": "95"
+        },
+        {
+          "releaseDate": "2022-01-11",
+          "status": "retired",
+          "version": "96"
+        },
+        {
+          "releaseDate": "2022-02-08",
+          "status": "retired",
+          "version": "97"
+        },
+        {
+          "releaseDate": "2022-03-08",
+          "status": "retired",
+          "version": "98"
+        },
+        {
+          "releaseDate": "2022-04-05",
+          "status": "retired",
+          "version": "99"
+        },
+        {
+          "releaseDate": "2022-05-03",
+          "status": "retired",
+          "version": "100"
+        },
+        {
+          "releaseDate": "2022-05-31",
+          "status": "retired",
+          "version": "101"
+        },
+        {
+          "releaseDate": "2022-06-28",
+          "status": "retired",
+          "version": "102"
+        },
+        {
+          "releaseDate": "2022-07-26",
+          "status": "retired",
+          "version": "103"
+        },
+        {
+          "releaseDate": "2022-08-23",
+          "status": "retired",
+          "version": "104"
+        },
+        {
+          "releaseDate": "2022-09-20",
+          "status": "retired",
+          "version": "105"
+        },
+        {
+          "releaseDate": "2022-10-18",
+          "status": "retired",
+          "version": "106"
+        },
+        {
+          "releaseDate": "2022-11-15",
+          "status": "retired",
+          "version": "107"
+        },
+        {
+          "releaseDate": "2022-12-13",
+          "status": "retired",
+          "version": "108"
+        },
+        {
+          "releaseDate": "2023-01-17",
+          "status": "retired",
+          "version": "109"
+        },
+        {
+          "releaseDate": "2023-02-14",
+          "status": "retired",
+          "version": "110"
+        },
+        {
+          "releaseDate": "2023-03-14",
+          "status": "retired",
+          "version": "111"
+        },
+        {
+          "releaseDate": "2023-04-11",
+          "status": "retired",
+          "version": "112"
+        },
+        {
+          "releaseDate": "2023-05-09",
+          "status": "retired",
+          "version": "113"
+        },
+        {
+          "releaseDate": "2023-06-06",
+          "status": "retired",
+          "version": "114"
+        },
+        {
+          "releaseDate": "2023-07-04",
+          "status": "retired",
+          "version": "115"
+        },
+        {
+          "releaseDate": "2023-08-01",
+          "status": "retired",
+          "version": "116"
+        },
+        {
+          "releaseDate": "2023-08-29",
+          "status": "retired",
+          "version": "117"
+        },
+        {
+          "releaseDate": "2023-09-26",
+          "status": "retired",
+          "version": "118"
+        },
+        {
+          "releaseDate": "2023-10-24",
+          "status": "retired",
+          "version": "119"
+        },
+        {
+          "releaseDate": "2023-11-21",
+          "status": "retired",
+          "version": "120"
+        },
+        {
+          "releaseDate": "2023-12-19",
+          "status": "retired",
+          "version": "121"
+        },
+        {
+          "releaseDate": "2024-01-23",
+          "status": "retired",
+          "version": "122"
+        },
+        {
+          "releaseDate": "2024-02-20",
+          "status": "retired",
+          "version": "123"
+        },
+        {
+          "releaseDate": "2024-03-19",
+          "status": "retired",
+          "version": "124"
+        },
+        {
+          "releaseDate": "2024-04-16",
+          "status": "retired",
+          "version": "125"
+        },
+        {
+          "releaseDate": "2024-05-14",
+          "status": "retired",
+          "version": "126"
+        },
+        {
+          "releaseDate": "2024-06-11",
+          "status": "retired",
+          "version": "127"
+        },
+        {
+          "releaseDate": "2024-07-09",
+          "status": "retired",
+          "version": "128"
+        },
+        {
+          "releaseDate": "2024-08-06",
+          "status": "retired",
+          "version": "129"
+        },
+        {
+          "releaseDate": "2024-09-03",
+          "status": "retired",
+          "version": "130"
+        },
+        {
+          "releaseDate": "2024-10-01",
+          "status": "retired",
+          "version": "131"
+        },
+        {
+          "releaseDate": "2024-10-29",
+          "status": "retired",
+          "version": "132"
+        },
+        {
+          "releaseDate": "2024-11-26",
+          "status": "retired",
+          "version": "133"
+        },
+        {
+          "releaseDate": "2025-01-07",
+          "status": "retired",
+          "version": "134"
+        },
+        {
+          "releaseDate": "2025-02-04",
+          "status": "retired",
+          "version": "135"
+        },
+        {
+          "releaseDate": "2025-03-04",
+          "status": "retired",
+          "version": "136"
+        },
+        {
+          "releaseDate": "2025-04-01",
+          "status": "retired",
+          "version": "137"
+        },
+        {
+          "releaseDate": "2025-04-29",
+          "status": "retired",
+          "version": "138"
+        },
+        {
+          "releaseDate": "2025-05-27",
+          "status": "retired",
+          "version": "139"
+        },
+        {
+          "releaseDate": "2025-06-24",
+          "status": "esr",
+          "version": "140"
+        },
+        {
+          "releaseDate": "2025-07-22",
+          "status": "retired",
+          "version": "141"
+        },
+        {
+          "releaseDate": "2025-08-19",
+          "status": "retired",
+          "version": "142"
+        },
+        {
+          "releaseDate": "2025-09-16",
+          "status": "retired",
+          "version": "143"
+        },
+        {
+          "releaseDate": "2025-10-14",
+          "status": "retired",
+          "version": "144"
+        },
+        {
+          "releaseDate": "2025-11-11",
+          "status": "retired",
+          "version": "145"
+        },
+        {
+          "releaseDate": "2025-12-09",
+          "status": "retired",
+          "version": "146"
+        },
+        {
+          "releaseDate": "2026-01-13",
+          "status": "retired",
+          "version": "147"
+        },
+        {
+          "releaseDate": "2026-02-24",
+          "status": "retired",
+          "version": "148"
+        },
+        {
+          "releaseDate": "2026-03-24",
+          "status": "retired",
+          "version": "149"
+        },
+        {
+          "releaseDate": "2026-04-21",
+          "status": "retired",
+          "version": "150"
+        },
+        {
+          "releaseDate": "2026-05-19",
+          "status": "retired",
+          "version": "151"
+        },
+        {
+          "releaseDate": "2026-06-16",
+          "status": "current",
+          "version": "152"
+        },
+        {
+          "releaseDate": "2026-07-21",
+          "status": "beta",
+          "version": "153"
+        },
+        {
+          "releaseDate": "2026-08-18",
+          "status": "nightly",
+          "version": "154"
+        },
+        {
+          "releaseDate": "2026-09-01",
+          "status": "planned",
+          "version": "155"
+        }
+      ],
+      "upstream": "firefox"
+    },
     "safari": {
       "id": "safari",
       "name": "Safari",
@@ -2279,9 +3632,1188 @@
           "version": "27"
         }
       ]
+    },
+    "safari_ios": {
+      "id": "safari_ios",
+      "name": "Safari on iOS",
+      "releases": [
+        {
+          "releaseDate": "2007-06-29",
+          "status": "retired",
+          "version": "1"
+        },
+        {
+          "releaseDate": "2008-07-11",
+          "status": "retired",
+          "version": "2"
+        },
+        {
+          "releaseDate": "2009-06-17",
+          "status": "retired",
+          "version": "3"
+        },
+        {
+          "releaseDate": "2010-04-03",
+          "status": "retired",
+          "version": "3.2"
+        },
+        {
+          "releaseDate": "2010-06-21",
+          "status": "retired",
+          "version": "4"
+        },
+        {
+          "releaseDate": "2010-11-22",
+          "status": "retired",
+          "version": "4.2"
+        },
+        {
+          "releaseDate": "2011-10-12",
+          "status": "retired",
+          "version": "5"
+        },
+        {
+          "releaseDate": "2012-09-10",
+          "status": "retired",
+          "version": "6"
+        },
+        {
+          "releaseDate": "2013-09-18",
+          "status": "retired",
+          "version": "7"
+        },
+        {
+          "releaseDate": "2014-09-17",
+          "status": "retired",
+          "version": "8"
+        },
+        {
+          "releaseDate": "2015-09-16",
+          "status": "retired",
+          "version": "9"
+        },
+        {
+          "releaseDate": "2016-03-21",
+          "status": "retired",
+          "version": "9.3"
+        },
+        {
+          "releaseDate": "2016-09-13",
+          "status": "retired",
+          "version": "10"
+        },
+        {
+          "releaseDate": "2017-03-27",
+          "status": "retired",
+          "version": "10.3"
+        },
+        {
+          "releaseDate": "2017-09-19",
+          "status": "retired",
+          "version": "11"
+        },
+        {
+          "releaseDate": "2018-03-29",
+          "status": "retired",
+          "version": "11.3"
+        },
+        {
+          "releaseDate": "2018-09-17",
+          "status": "retired",
+          "version": "12"
+        },
+        {
+          "releaseDate": "2019-03-25",
+          "status": "retired",
+          "version": "12.2"
+        },
+        {
+          "releaseDate": "2019-09-19",
+          "status": "retired",
+          "version": "13"
+        },
+        {
+          "releaseDate": "2020-03-24",
+          "status": "retired",
+          "version": "13.4"
+        },
+        {
+          "releaseDate": "2020-09-16",
+          "status": "retired",
+          "version": "14"
+        },
+        {
+          "releaseDate": "2021-04-26",
+          "status": "retired",
+          "version": "14.5"
+        },
+        {
+          "releaseDate": "2021-09-20",
+          "status": "retired",
+          "version": "15"
+        },
+        {
+          "releaseDate": "2021-10-25",
+          "status": "retired",
+          "version": "15.1"
+        },
+        {
+          "releaseDate": "2021-12-13",
+          "status": "retired",
+          "version": "15.2"
+        },
+        {
+          "releaseDate": "2022-01-26",
+          "status": "retired",
+          "version": "15.3"
+        },
+        {
+          "releaseDate": "2022-03-14",
+          "status": "retired",
+          "version": "15.4"
+        },
+        {
+          "releaseDate": "2022-05-16",
+          "status": "retired",
+          "version": "15.5"
+        },
+        {
+          "releaseDate": "2022-07-20",
+          "status": "retired",
+          "version": "15.6"
+        },
+        {
+          "releaseDate": "2022-09-12",
+          "status": "retired",
+          "version": "16"
+        },
+        {
+          "releaseDate": "2022-10-24",
+          "status": "retired",
+          "version": "16.1"
+        },
+        {
+          "releaseDate": "2022-12-13",
+          "status": "retired",
+          "version": "16.2"
+        },
+        {
+          "releaseDate": "2023-01-23",
+          "status": "retired",
+          "version": "16.3"
+        },
+        {
+          "releaseDate": "2023-03-27",
+          "status": "retired",
+          "version": "16.4"
+        },
+        {
+          "releaseDate": "2023-05-18",
+          "status": "retired",
+          "version": "16.5"
+        },
+        {
+          "releaseDate": "2023-07-24",
+          "status": "retired",
+          "version": "16.6"
+        },
+        {
+          "releaseDate": "2023-09-18",
+          "status": "retired",
+          "version": "17"
+        },
+        {
+          "releaseDate": "2023-10-25",
+          "status": "retired",
+          "version": "17.1"
+        },
+        {
+          "releaseDate": "2023-12-11",
+          "status": "retired",
+          "version": "17.2"
+        },
+        {
+          "releaseDate": "2024-01-22",
+          "status": "retired",
+          "version": "17.3"
+        },
+        {
+          "releaseDate": "2024-03-05",
+          "status": "retired",
+          "version": "17.4"
+        },
+        {
+          "releaseDate": "2024-05-13",
+          "status": "retired",
+          "version": "17.5"
+        },
+        {
+          "releaseDate": "2024-07-29",
+          "status": "retired",
+          "version": "17.6"
+        },
+        {
+          "releaseDate": "2024-09-16",
+          "status": "retired",
+          "version": "18"
+        },
+        {
+          "releaseDate": "2024-10-28",
+          "status": "retired",
+          "version": "18.1"
+        },
+        {
+          "releaseDate": "2024-12-11",
+          "status": "retired",
+          "version": "18.2"
+        },
+        {
+          "releaseDate": "2025-01-27",
+          "status": "retired",
+          "version": "18.3"
+        },
+        {
+          "releaseDate": "2025-03-31",
+          "status": "retired",
+          "version": "18.4"
+        },
+        {
+          "releaseDate": "2025-05-12",
+          "status": "retired",
+          "version": "18.5"
+        },
+        {
+          "releaseDate": "2025-07-29",
+          "status": "retired",
+          "version": "18.6"
+        },
+        {
+          "releaseDate": "2025-09-15",
+          "status": "retired",
+          "version": "26"
+        },
+        {
+          "releaseDate": "2025-11-03",
+          "status": "retired",
+          "version": "26.1"
+        },
+        {
+          "releaseDate": "2025-12-12",
+          "status": "retired",
+          "version": "26.2"
+        },
+        {
+          "releaseDate": "2026-02-11",
+          "status": "retired",
+          "version": "26.3"
+        },
+        {
+          "releaseDate": "2026-03-24",
+          "status": "retired",
+          "version": "26.4"
+        },
+        {
+          "releaseDate": "2026-05-11",
+          "status": "current",
+          "version": "26.5"
+        },
+        {
+          "status": "beta",
+          "version": "27"
+        }
+      ],
+      "upstream": "safari"
+    },
+    "samsunginternet_android": {
+      "id": "samsunginternet_android",
+      "name": "Samsung Internet",
+      "releases": [
+        {
+          "releaseDate": "2013-04-27",
+          "status": "retired",
+          "version": "1.0"
+        },
+        {
+          "releaseDate": "2013-09-25",
+          "status": "retired",
+          "version": "1.5"
+        },
+        {
+          "releaseDate": "2014-04-11",
+          "status": "retired",
+          "version": "1.6"
+        },
+        {
+          "releaseDate": "2014-10-17",
+          "status": "retired",
+          "version": "2.0"
+        },
+        {
+          "releaseDate": "2015-01-07",
+          "status": "retired",
+          "version": "2.1"
+        },
+        {
+          "releaseDate": "2015-04-10",
+          "status": "retired",
+          "version": "3.0"
+        },
+        {
+          "releaseDate": "2015-08-24",
+          "status": "retired",
+          "version": "3.2"
+        },
+        {
+          "releaseDate": "2016-03-11",
+          "status": "retired",
+          "version": "4.0"
+        },
+        {
+          "releaseDate": "2016-08-02",
+          "status": "retired",
+          "version": "4.2"
+        },
+        {
+          "releaseDate": "2016-12-15",
+          "status": "retired",
+          "version": "5.0"
+        },
+        {
+          "releaseDate": "2017-04-21",
+          "status": "retired",
+          "version": "5.2"
+        },
+        {
+          "releaseDate": "2017-05-17",
+          "status": "retired",
+          "version": "5.4"
+        },
+        {
+          "releaseDate": "2017-08-23",
+          "status": "retired",
+          "version": "6.0"
+        },
+        {
+          "releaseDate": "2017-10-26",
+          "status": "retired",
+          "version": "6.2"
+        },
+        {
+          "releaseDate": "2018-02-19",
+          "status": "retired",
+          "version": "6.4"
+        },
+        {
+          "releaseDate": "2018-03-16",
+          "status": "retired",
+          "version": "7.0"
+        },
+        {
+          "releaseDate": "2018-06-20",
+          "status": "retired",
+          "version": "7.2"
+        },
+        {
+          "releaseDate": "2018-07-18",
+          "status": "retired",
+          "version": "8.0"
+        },
+        {
+          "releaseDate": "2018-09-12",
+          "status": "retired",
+          "version": "7.4"
+        },
+        {
+          "releaseDate": "2018-09-15",
+          "status": "retired",
+          "version": "9.0"
+        },
+        {
+          "releaseDate": "2018-12-21",
+          "status": "retired",
+          "version": "8.2"
+        },
+        {
+          "releaseDate": "2019-04-02",
+          "status": "retired",
+          "version": "9.2"
+        },
+        {
+          "releaseDate": "2019-07-25",
+          "status": "retired",
+          "version": "9.4"
+        },
+        {
+          "releaseDate": "2019-08-22",
+          "status": "retired",
+          "version": "10.0"
+        },
+        {
+          "releaseDate": "2019-10-09",
+          "status": "retired",
+          "version": "10.2"
+        },
+        {
+          "releaseDate": "2019-12-05",
+          "status": "retired",
+          "version": "11.0"
+        },
+        {
+          "releaseDate": "2020-03-22",
+          "status": "retired",
+          "version": "11.2"
+        },
+        {
+          "releaseDate": "2020-06-19",
+          "status": "retired",
+          "version": "12.0"
+        },
+        {
+          "releaseDate": "2020-07-07",
+          "status": "retired",
+          "version": "12.1"
+        },
+        {
+          "releaseDate": "2020-12-02",
+          "status": "retired",
+          "version": "13.0"
+        },
+        {
+          "releaseDate": "2021-01-20",
+          "status": "retired",
+          "version": "13.2"
+        },
+        {
+          "releaseDate": "2021-04-17",
+          "status": "retired",
+          "version": "14.0"
+        },
+        {
+          "releaseDate": "2021-06-25",
+          "status": "retired",
+          "version": "14.2"
+        },
+        {
+          "releaseDate": "2021-08-13",
+          "status": "retired",
+          "version": "15.0"
+        },
+        {
+          "releaseDate": "2021-11-25",
+          "status": "retired",
+          "version": "16.0"
+        },
+        {
+          "releaseDate": "2022-03-06",
+          "status": "retired",
+          "version": "16.2"
+        },
+        {
+          "releaseDate": "2022-05-04",
+          "status": "retired",
+          "version": "17.0"
+        },
+        {
+          "releaseDate": "2022-08-08",
+          "status": "retired",
+          "version": "18.0"
+        },
+        {
+          "releaseDate": "2022-09-09",
+          "status": "retired",
+          "version": "18.1"
+        },
+        {
+          "releaseDate": "2022-11-01",
+          "status": "retired",
+          "version": "19.0"
+        },
+        {
+          "releaseDate": "2022-11-08",
+          "status": "retired",
+          "version": "19.1"
+        },
+        {
+          "releaseDate": "2023-02-10",
+          "status": "retired",
+          "version": "20.0"
+        },
+        {
+          "releaseDate": "2023-05-19",
+          "status": "retired",
+          "version": "21.0"
+        },
+        {
+          "releaseDate": "2023-07-14",
+          "status": "retired",
+          "version": "22.0"
+        },
+        {
+          "releaseDate": "2023-10-18",
+          "status": "retired",
+          "version": "23.0"
+        },
+        {
+          "releaseDate": "2024-01-25",
+          "status": "retired",
+          "version": "24.0"
+        },
+        {
+          "releaseDate": "2024-04-24",
+          "status": "retired",
+          "version": "25.0"
+        },
+        {
+          "releaseDate": "2024-06-07",
+          "status": "retired",
+          "version": "26.0"
+        },
+        {
+          "releaseDate": "2024-11-06",
+          "status": "retired",
+          "version": "27.0"
+        },
+        {
+          "releaseDate": "2025-04-02",
+          "status": "retired",
+          "version": "28.0"
+        },
+        {
+          "releaseDate": "2025-10-25",
+          "status": "current",
+          "version": "29.0"
+        }
+      ],
+      "upstream": "chrome_android"
+    },
+    "webview_android": {
+      "id": "webview_android",
+      "name": "WebView Android",
+      "releases": [
+        {
+          "releaseDate": "2008-09-23",
+          "status": "retired",
+          "version": "1"
+        },
+        {
+          "releaseDate": "2009-04-27",
+          "status": "retired",
+          "version": "1.5"
+        },
+        {
+          "releaseDate": "2009-10-26",
+          "status": "retired",
+          "version": "2"
+        },
+        {
+          "releaseDate": "2010-05-20",
+          "status": "retired",
+          "version": "2.2"
+        },
+        {
+          "releaseDate": "2011-02-22",
+          "status": "retired",
+          "version": "3"
+        },
+        {
+          "releaseDate": "2011-10-18",
+          "status": "retired",
+          "version": "4"
+        },
+        {
+          "releaseDate": "2013-12-09",
+          "status": "retired",
+          "version": "4.4"
+        },
+        {
+          "releaseDate": "2014-06-02",
+          "status": "retired",
+          "version": "4.4.3"
+        },
+        {
+          "releaseDate": "2014-09-03",
+          "status": "retired",
+          "version": "37"
+        },
+        {
+          "releaseDate": "2014-10-08",
+          "status": "retired",
+          "version": "38"
+        },
+        {
+          "releaseDate": "2014-11-12",
+          "status": "retired",
+          "version": "39"
+        },
+        {
+          "releaseDate": "2015-01-21",
+          "status": "retired",
+          "version": "40"
+        },
+        {
+          "releaseDate": "2015-03-11",
+          "status": "retired",
+          "version": "41"
+        },
+        {
+          "releaseDate": "2015-04-15",
+          "status": "retired",
+          "version": "42"
+        },
+        {
+          "releaseDate": "2015-05-27",
+          "status": "retired",
+          "version": "43"
+        },
+        {
+          "releaseDate": "2015-07-29",
+          "status": "retired",
+          "version": "44"
+        },
+        {
+          "releaseDate": "2015-09-01",
+          "status": "retired",
+          "version": "45"
+        },
+        {
+          "releaseDate": "2015-10-14",
+          "status": "retired",
+          "version": "46"
+        },
+        {
+          "releaseDate": "2015-12-02",
+          "status": "retired",
+          "version": "47"
+        },
+        {
+          "releaseDate": "2016-01-26",
+          "status": "retired",
+          "version": "48"
+        },
+        {
+          "releaseDate": "2016-03-09",
+          "status": "retired",
+          "version": "49"
+        },
+        {
+          "releaseDate": "2016-04-13",
+          "status": "retired",
+          "version": "50"
+        },
+        {
+          "releaseDate": "2016-06-08",
+          "status": "retired",
+          "version": "51"
+        },
+        {
+          "releaseDate": "2016-07-27",
+          "status": "retired",
+          "version": "52"
+        },
+        {
+          "releaseDate": "2016-09-07",
+          "status": "retired",
+          "version": "53"
+        },
+        {
+          "releaseDate": "2016-10-19",
+          "status": "retired",
+          "version": "54"
+        },
+        {
+          "releaseDate": "2016-12-06",
+          "status": "retired",
+          "version": "55"
+        },
+        {
+          "releaseDate": "2017-02-01",
+          "status": "retired",
+          "version": "56"
+        },
+        {
+          "releaseDate": "2017-03-16",
+          "status": "retired",
+          "version": "57"
+        },
+        {
+          "releaseDate": "2017-04-25",
+          "status": "retired",
+          "version": "58"
+        },
+        {
+          "releaseDate": "2017-06-06",
+          "status": "retired",
+          "version": "59"
+        },
+        {
+          "releaseDate": "2017-08-01",
+          "status": "retired",
+          "version": "60"
+        },
+        {
+          "releaseDate": "2017-09-05",
+          "status": "retired",
+          "version": "61"
+        },
+        {
+          "releaseDate": "2017-10-24",
+          "status": "retired",
+          "version": "62"
+        },
+        {
+          "releaseDate": "2017-12-05",
+          "status": "retired",
+          "version": "63"
+        },
+        {
+          "releaseDate": "2018-01-23",
+          "status": "retired",
+          "version": "64"
+        },
+        {
+          "releaseDate": "2018-03-06",
+          "status": "retired",
+          "version": "65"
+        },
+        {
+          "releaseDate": "2018-04-17",
+          "status": "retired",
+          "version": "66"
+        },
+        {
+          "releaseDate": "2018-05-31",
+          "status": "retired",
+          "version": "67"
+        },
+        {
+          "releaseDate": "2018-07-24",
+          "status": "retired",
+          "version": "68"
+        },
+        {
+          "releaseDate": "2018-09-04",
+          "status": "retired",
+          "version": "69"
+        },
+        {
+          "releaseDate": "2018-10-17",
+          "status": "retired",
+          "version": "70"
+        },
+        {
+          "releaseDate": "2018-12-04",
+          "status": "retired",
+          "version": "71"
+        },
+        {
+          "releaseDate": "2019-01-29",
+          "status": "retired",
+          "version": "72"
+        },
+        {
+          "releaseDate": "2019-03-12",
+          "status": "retired",
+          "version": "73"
+        },
+        {
+          "releaseDate": "2019-04-24",
+          "status": "retired",
+          "version": "74"
+        },
+        {
+          "releaseDate": "2019-06-04",
+          "status": "retired",
+          "version": "75"
+        },
+        {
+          "releaseDate": "2019-07-30",
+          "status": "retired",
+          "version": "76"
+        },
+        {
+          "releaseDate": "2019-09-10",
+          "status": "retired",
+          "version": "77"
+        },
+        {
+          "releaseDate": "2019-10-22",
+          "status": "retired",
+          "version": "78"
+        },
+        {
+          "releaseDate": "2019-12-17",
+          "status": "retired",
+          "version": "79"
+        },
+        {
+          "releaseDate": "2020-02-04",
+          "status": "retired",
+          "version": "80"
+        },
+        {
+          "releaseDate": "2020-04-07",
+          "status": "retired",
+          "version": "81"
+        },
+        {
+          "releaseDate": "2020-05-19",
+          "status": "retired",
+          "version": "83"
+        },
+        {
+          "releaseDate": "2020-07-27",
+          "status": "retired",
+          "version": "84"
+        },
+        {
+          "releaseDate": "2020-08-25",
+          "status": "retired",
+          "version": "85"
+        },
+        {
+          "releaseDate": "2020-10-20",
+          "status": "retired",
+          "version": "86"
+        },
+        {
+          "releaseDate": "2020-11-17",
+          "status": "retired",
+          "version": "87"
+        },
+        {
+          "releaseDate": "2021-01-19",
+          "status": "retired",
+          "version": "88"
+        },
+        {
+          "releaseDate": "2021-03-02",
+          "status": "retired",
+          "version": "89"
+        },
+        {
+          "releaseDate": "2021-04-13",
+          "status": "retired",
+          "version": "90"
+        },
+        {
+          "releaseDate": "2021-05-25",
+          "status": "retired",
+          "version": "91"
+        },
+        {
+          "releaseDate": "2021-07-20",
+          "status": "retired",
+          "version": "92"
+        },
+        {
+          "releaseDate": "2021-08-31",
+          "status": "retired",
+          "version": "93"
+        },
+        {
+          "releaseDate": "2021-09-21",
+          "status": "retired",
+          "version": "94"
+        },
+        {
+          "releaseDate": "2021-10-19",
+          "status": "retired",
+          "version": "95"
+        },
+        {
+          "releaseDate": "2021-11-15",
+          "status": "retired",
+          "version": "96"
+        },
+        {
+          "releaseDate": "2022-01-04",
+          "status": "retired",
+          "version": "97"
+        },
+        {
+          "releaseDate": "2022-02-01",
+          "status": "retired",
+          "version": "98"
+        },
+        {
+          "releaseDate": "2022-03-01",
+          "status": "retired",
+          "version": "99"
+        },
+        {
+          "releaseDate": "2022-03-29",
+          "status": "retired",
+          "version": "100"
+        },
+        {
+          "releaseDate": "2022-04-26",
+          "status": "retired",
+          "version": "101"
+        },
+        {
+          "releaseDate": "2022-05-24",
+          "status": "retired",
+          "version": "102"
+        },
+        {
+          "releaseDate": "2022-06-21",
+          "status": "retired",
+          "version": "103"
+        },
+        {
+          "releaseDate": "2022-08-02",
+          "status": "retired",
+          "version": "104"
+        },
+        {
+          "releaseDate": "2022-09-02",
+          "status": "retired",
+          "version": "105"
+        },
+        {
+          "releaseDate": "2022-09-27",
+          "status": "retired",
+          "version": "106"
+        },
+        {
+          "releaseDate": "2022-10-25",
+          "status": "retired",
+          "version": "107"
+        },
+        {
+          "releaseDate": "2022-11-29",
+          "status": "retired",
+          "version": "108"
+        },
+        {
+          "releaseDate": "2023-01-10",
+          "status": "retired",
+          "version": "109"
+        },
+        {
+          "releaseDate": "2023-02-07",
+          "status": "retired",
+          "version": "110"
+        },
+        {
+          "releaseDate": "2023-03-01",
+          "status": "retired",
+          "version": "111"
+        },
+        {
+          "releaseDate": "2023-04-04",
+          "status": "retired",
+          "version": "112"
+        },
+        {
+          "releaseDate": "2023-05-02",
+          "status": "retired",
+          "version": "113"
+        },
+        {
+          "releaseDate": "2023-05-30",
+          "status": "retired",
+          "version": "114"
+        },
+        {
+          "releaseDate": "2023-07-21",
+          "status": "retired",
+          "version": "115"
+        },
+        {
+          "releaseDate": "2023-08-15",
+          "status": "retired",
+          "version": "116"
+        },
+        {
+          "releaseDate": "2023-09-12",
+          "status": "retired",
+          "version": "117"
+        },
+        {
+          "releaseDate": "2023-10-10",
+          "status": "retired",
+          "version": "118"
+        },
+        {
+          "releaseDate": "2023-10-31",
+          "status": "retired",
+          "version": "119"
+        },
+        {
+          "releaseDate": "2023-12-05",
+          "status": "retired",
+          "version": "120"
+        },
+        {
+          "releaseDate": "2024-01-23",
+          "status": "retired",
+          "version": "121"
+        },
+        {
+          "releaseDate": "2024-02-20",
+          "status": "retired",
+          "version": "122"
+        },
+        {
+          "releaseDate": "2024-03-19",
+          "status": "retired",
+          "version": "123"
+        },
+        {
+          "releaseDate": "2024-04-16",
+          "status": "retired",
+          "version": "124"
+        },
+        {
+          "releaseDate": "2024-05-14",
+          "status": "retired",
+          "version": "125"
+        },
+        {
+          "releaseDate": "2024-06-11",
+          "status": "retired",
+          "version": "126"
+        },
+        {
+          "releaseDate": "2024-07-23",
+          "status": "retired",
+          "version": "127"
+        },
+        {
+          "releaseDate": "2024-08-20",
+          "status": "retired",
+          "version": "128"
+        },
+        {
+          "releaseDate": "2024-09-17",
+          "status": "retired",
+          "version": "129"
+        },
+        {
+          "releaseDate": "2024-10-15",
+          "status": "retired",
+          "version": "130"
+        },
+        {
+          "releaseDate": "2024-11-12",
+          "status": "retired",
+          "version": "131"
+        },
+        {
+          "releaseDate": "2025-01-14",
+          "status": "retired",
+          "version": "132"
+        },
+        {
+          "releaseDate": "2025-02-04",
+          "status": "retired",
+          "version": "133"
+        },
+        {
+          "releaseDate": "2025-03-04",
+          "status": "retired",
+          "version": "134"
+        },
+        {
+          "releaseDate": "2025-04-01",
+          "status": "retired",
+          "version": "135"
+        },
+        {
+          "releaseDate": "2025-04-29",
+          "status": "retired",
+          "version": "136"
+        },
+        {
+          "releaseDate": "2025-05-27",
+          "status": "retired",
+          "version": "137"
+        },
+        {
+          "releaseDate": "2025-06-24",
+          "status": "retired",
+          "version": "138"
+        },
+        {
+          "releaseDate": "2025-08-05",
+          "status": "retired",
+          "version": "139"
+        },
+        {
+          "releaseDate": "2025-09-02",
+          "status": "retired",
+          "version": "140"
+        },
+        {
+          "releaseDate": "2025-09-30",
+          "status": "retired",
+          "version": "141"
+        },
+        {
+          "releaseDate": "2025-10-28",
+          "status": "retired",
+          "version": "142"
+        },
+        {
+          "releaseDate": "2025-12-02",
+          "status": "retired",
+          "version": "143"
+        },
+        {
+          "releaseDate": "2026-01-13",
+          "status": "retired",
+          "version": "144"
+        },
+        {
+          "releaseDate": "2026-02-10",
+          "status": "retired",
+          "version": "145"
+        },
+        {
+          "releaseDate": "2026-03-10",
+          "status": "retired",
+          "version": "146"
+        },
+        {
+          "releaseDate": "2026-04-07",
+          "status": "retired",
+          "version": "147"
+        },
+        {
+          "releaseDate": "2026-05-05",
+          "status": "retired",
+          "version": "148"
+        },
+        {
+          "releaseDate": "2026-06-02",
+          "status": "retired",
+          "version": "149"
+        },
+        {
+          "releaseDate": "2026-06-30",
+          "status": "current",
+          "version": "150"
+        },
+        {
+          "releaseDate": "2026-07-28",
+          "status": "beta",
+          "version": "151"
+        },
+        {
+          "releaseDate": "2026-08-25",
+          "status": "nightly",
+          "version": "152"
+        },
+        {
+          "status": "planned",
+          "version": "153"
+        }
+      ],
+      "upstream": "chrome_android"
     }
   },
-  "catalogueVersion": "1.0.0",
+  "catalogueVersion": "2.0.0",
   "controlMappings": [
     {
       "combination": "all",
@@ -2306,6 +4838,36 @@
       "controlId": "strict-dynamic",
       "mappingState": "active",
       "paths": ["http.headers.Content-Security-Policy.strict-dynamic"]
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-base-uri",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy.base-uri"]
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-frame-ancestors",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy.frame-ancestors"]
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-form-action",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy.form-action"]
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-upgrade-insecure-requests",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy.upgrade-insecure-requests"]
+    },
+    {
+      "combination": "all",
+      "controlId": "csp-sandbox",
+      "mappingState": "active",
+      "paths": ["http.headers.Content-Security-Policy.sandbox"]
     },
     {
       "combination": "all",
@@ -2342,6 +4904,18 @@
     },
     {
       "combination": "all",
+      "controlId": "coep-credentialless",
+      "mappingState": "active",
+      "paths": ["http.headers.Cross-Origin-Embedder-Policy.credentialless"]
+    },
+    {
+      "combination": "all",
+      "controlId": "origin-agent-cluster",
+      "mappingState": "active",
+      "paths": ["http.headers.Origin-Agent-Cluster"]
+    },
+    {
+      "combination": "all",
       "controlId": "fetch-metadata",
       "mappingState": "active",
       "paths": [
@@ -2356,6 +4930,24 @@
       "controlId": "permissions-policy",
       "mappingState": "active",
       "paths": ["http.headers.Permissions-Policy"]
+    },
+    {
+      "combination": "all",
+      "controlId": "strict-transport-security",
+      "mappingState": "active",
+      "paths": ["http.headers.Strict-Transport-Security"]
+    },
+    {
+      "combination": "all",
+      "controlId": "x-content-type-options",
+      "mappingState": "active",
+      "paths": ["http.headers.X-Content-Type-Options"]
+    },
+    {
+      "combination": "all",
+      "controlId": "clear-site-data",
+      "mappingState": "active",
+      "paths": ["http.headers.Clear-Site-Data"]
     },
     {
       "combination": "all",
@@ -2377,13 +4969,185 @@
     },
     {
       "combination": "all",
+      "controlId": "httponly-cookies",
+      "mappingState": "active",
+      "paths": ["http.headers.Set-Cookie.HttpOnly"]
+    },
+    {
+      "combination": "all",
+      "controlId": "secure-cookie-prefixes",
+      "mappingState": "active",
+      "paths": ["http.headers.Set-Cookie.host_secure_prefixes"]
+    },
+    {
+      "combination": "all",
+      "controlId": "webauthn-platform-authenticator",
+      "mappingState": "active",
+      "paths": ["api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static"]
+    },
+    {
+      "combination": "all",
+      "controlId": "webauthn-prf",
+      "mappingState": "active",
+      "paths": [
+        "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+        "api.CredentialsContainer.get.publicKey_option.extensions.prf"
+      ]
+    },
+    {
+      "combination": "all",
       "controlId": "webauthn-conditional-mediation",
       "mappingState": "active",
       "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
     }
   ],
   "features": {
+    "api.CredentialsContainer.create.publicKey_option.extensions.prf": {
+      "baseline": [],
+      "description": "<code>prf</code> extension (pseudo-random function)",
+      "path": "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+      "sourceFile": "api/CredentialsContainer.json",
+      "specUrls": ["https://w3c.github.io/webauthn/#prf-extension"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "139"
+          },
+          {
+            "notes": "Not supported on macOS.",
+            "partial_implementation": true,
+            "version_added": "135",
+            "version_last": "138",
+            "version_removed": "139"
+          }
+        ],
+        "firefox_android": [
+          {
+            "impl_url": "https://bugzil.la/1958716",
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "24.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "api.CredentialsContainer.get.publicKey_option.extensions.prf": {
+      "baseline": [],
+      "description": "<code>prf</code> extension (pseudo-random function)",
+      "path": "api.CredentialsContainer.get.publicKey_option.extensions.prf",
+      "sourceFile": "api/CredentialsContainer.json",
+      "specUrls": ["https://w3c.github.io/webauthn/#prf-extension"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "116"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "139"
+          },
+          {
+            "notes": "Not supported on macOS.",
+            "partial_implementation": true,
+            "version_added": "135",
+            "version_last": "138",
+            "version_removed": "139"
+          }
+        ],
+        "firefox_android": [
+          {
+            "impl_url": "https://bugzil.la/1958716",
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "impl_url": "https://webkit.org/b/259934",
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "impl_url": "https://webkit.org/b/259934",
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "24.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
     "api.PublicKeyCredential.isConditionalMediationAvailable_static": {
+      "baseline": [
+        {
+          "featureId": "webauthn",
+          "highDate": "2026-04-24",
+          "lowDate": "2023-10-24",
+          "name": "Web authentication",
+          "status": "high"
+        }
+      ],
       "description": "<code>isConditionalMediationAvailable()</code> static method",
       "mdnUrl": "https://developer.mozilla.org/docs/Web/API/PublicKeyCredential/isConditionalMediationAvailable_static",
       "path": "api.PublicKeyCredential.isConditionalMediationAvailable_static",
@@ -2402,6 +5166,11 @@
             "version_added": "108"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "108"
+          }
+        ],
         "edge": [
           {
             "version_added": "108"
@@ -2412,14 +5181,120 @@
             "version_added": "119"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "119"
+          }
+        ],
         "safari": [
           {
             "version_added": "16"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "16"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "21.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
+          }
+        ]
+      }
+    },
+    "api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static": {
+      "baseline": [
+        {
+          "featureId": "webauthn",
+          "highDate": "2024-03-07",
+          "lowDate": "2021-09-07",
+          "name": "Web authentication",
+          "status": "high"
+        }
+      ],
+      "description": "<code>isUserVerifyingPlatformAuthenticatorAvailable()</code> static method",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/API/PublicKeyCredential/isUserVerifyingPlatformAuthenticatorAvailable_static",
+      "path": "api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static",
+      "sourceFile": "api/PublicKeyCredential.json",
+      "specUrls": [
+        "https://w3c.github.io/webauthn/#dom-publickeycredential-isuserverifyingplatformauthenticatoravailable"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "67"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "70"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "firefox": [
+          {
+            "notes": "Only supports USB U2F tokens.",
+            "version_added": "60"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "92"
+          },
+          {
+            "notes": "Only supports USB U2F tokens.",
+            "partial_implementation": true,
+            "version_added": "60",
+            "version_last": "91",
+            "version_removed": "92"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "10.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
           }
         ]
       }
     },
     "api.trustedTypes": {
+      "baseline": [
+        {
+          "featureId": "trusted-types",
+          "lowDate": "2026-02-24",
+          "name": "Trusted types",
+          "status": "low"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/API/Window/trustedTypes",
       "path": "api.trustedTypes",
       "sourceFile": "api/_globals/trustedTypes.json",
@@ -2437,6 +5312,11 @@
             "version_added": "83"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "83"
+          }
+        ],
         "edge": [
           {
             "version_added": "83"
@@ -2447,14 +5327,43 @@
             "version_added": "148"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "148"
+          }
+        ],
         "safari": [
           {
             "version_added": "26"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "26"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "13.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "83"
           }
         ]
       }
     },
     "html.elements.link.integrity": {
+      "baseline": [
+        {
+          "featureId": "subresource-integrity",
+          "highDate": "2020-10-30",
+          "lowDate": "2018-04-30",
+          "name": "Subresource integrity",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTML/Reference/Attributes/integrity",
       "path": "html.elements.link.integrity",
       "sourceFile": "html/elements/link.json",
@@ -2473,6 +5382,11 @@
             "version_added": "45"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "45"
+          }
+        ],
         "edge": [
           {
             "version_added": "17"
@@ -2483,14 +5397,43 @@
             "version_added": "43"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "43"
+          }
+        ],
         "safari": [
           {
             "version_added": "11.1"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "11.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "5.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "45"
           }
         ]
       }
     },
     "html.elements.script.integrity": {
+      "baseline": [
+        {
+          "featureId": "subresource-integrity",
+          "highDate": "2020-10-30",
+          "lowDate": "2018-04-30",
+          "name": "Subresource integrity",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTML/Reference/Attributes/integrity",
       "path": "html.elements.script.integrity",
       "sourceFile": "html/elements/script.json",
@@ -2509,6 +5452,11 @@
             "version_added": "45"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "45"
+          }
+        ],
         "edge": [
           {
             "version_added": "17"
@@ -2519,14 +5467,110 @@
             "version_added": "43"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "43"
+          }
+        ],
         "safari": [
           {
             "version_added": "11.1"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "11.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "5.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "45"
+          }
+        ]
+      }
+    },
+    "http.headers.Clear-Site-Data": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "highDate": "2026-03-18",
+          "lowDate": "2023-09-18",
+          "name": "Clearing site data",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Clear-Site-Data",
+      "path": "http.headers.Clear-Site-Data",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "8.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "61"
           }
         ]
       }
     },
     "http.headers.Content-Security-Policy": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2019-02-02",
+          "lowDate": "2016-08-02",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy",
       "path": "http.headers.Content-Security-Policy",
       "sourceFile": "http/headers/Content-Security-Policy.json",
@@ -2546,6 +5590,15 @@
             "version_added": "14"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "25"
+          },
+          {
+            "alternative_name": "X-Webkit-CSP",
+            "version_added": "18"
+          }
+        ],
         "edge": [
           {
             "version_added": "14"
@@ -2560,6 +5613,11 @@
             "version_added": "4"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "23"
+          }
+        ],
         "safari": [
           {
             "version_added": "7"
@@ -2568,10 +5626,260 @@
             "alternative_name": "X-Webkit-CSP",
             "version_added": "6"
           }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "7"
+          },
+          {
+            "alternative_name": "X-Webkit-CSP",
+            "version_added": "6"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.5"
+          },
+          {
+            "alternative_name": "X-Webkit-CSP",
+            "version_added": "1.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
+          },
+          {
+            "alternative_name": "X-Webkit-CSP",
+            "version_added": "4.4"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.base-uri": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2022-07-15",
+          "lowDate": "2020-01-15",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/base-uri",
+      "path": "http.headers.Content-Security-Policy.base-uri",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-base-uri"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "35"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "35"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "9.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "40"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.form-action": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2019-10-05",
+          "lowDate": "2017-04-05",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/form-action",
+      "path": "http.headers.Content-Security-Policy.form-action",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-form-action"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "15"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "36"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "36"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "9.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "40"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.frame-ancestors": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2020-07-23",
+          "lowDate": "2018-01-23",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors",
+      "path": "http.headers.Content-Security-Policy.frame-ancestors",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-frame-ancestors"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "40"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "15"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "58"
+          },
+          {
+            "notes": "Before Firefox 58, <code>frame-ancestors</code> is ignored in <code>Content-Security-Policy-Report-Only</code>.",
+            "partial_implementation": true,
+            "version_added": "33",
+            "version_last": "57",
+            "version_removed": "58"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "58"
+          },
+          {
+            "notes": "Before Firefox for Android 58, <code>frame-ancestors</code> is ignored in <code>Content-Security-Policy-Report-Only</code>.",
+            "partial_implementation": true,
+            "version_added": "33",
+            "version_last": "57",
+            "version_removed": "58"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "9.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "40"
+          }
         ]
       }
     },
     "http.headers.Content-Security-Policy.require-trusted-types-for": {
+      "baseline": [
+        {
+          "featureId": "trusted-types",
+          "lowDate": "2026-02-24",
+          "name": "Trusted types",
+          "status": "low"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/require-trusted-types-for",
       "path": "http.headers.Content-Security-Policy.require-trusted-types-for",
       "sourceFile": "http/headers/Content-Security-Policy.json",
@@ -2589,6 +5897,11 @@
             "version_added": "83"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "83"
+          }
+        ],
         "edge": [
           {
             "version_added": "83"
@@ -2599,14 +5912,110 @@
             "version_added": "148"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "148"
+          }
+        ],
         "safari": [
           {
             "version_added": "26"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "26"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "13.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "83"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.sandbox": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2019-05-15",
+          "lowDate": "2016-11-15",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/sandbox",
+      "path": "http.headers.Content-Security-Policy.sandbox",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-csp/#directive-sandbox"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "25"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "25"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "14"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.5"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
           }
         ]
       }
     },
     "http.headers.Content-Security-Policy.strict-dynamic": {
+      "baseline": [
+        {
+          "featureId": "csp",
+          "highDate": "2024-09-14",
+          "lowDate": "2022-03-14",
+          "name": "Content Security Policy (CSP)",
+          "status": "high"
+        }
+      ],
       "description": "<code>strict-dynamic</code> source value",
       "path": "http.headers.Content-Security-Policy.strict-dynamic",
       "sourceFile": "http/headers/Content-Security-Policy.json",
@@ -2622,6 +6031,11 @@
             "version_added": "52"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "52"
+          }
+        ],
         "edge": [
           {
             "version_added": "79"
@@ -2632,14 +6046,102 @@
             "version_added": "52"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "52"
+          }
+        ],
         "safari": [
           {
             "version_added": "15.4"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "15.4"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "6.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "52"
+          }
+        ]
+      }
+    },
+    "http.headers.Content-Security-Policy.upgrade-insecure-requests": {
+      "baseline": [
+        {
+          "featureId": "upgrade-insecure-requests",
+          "highDate": "2020-10-30",
+          "lowDate": "2018-04-30",
+          "name": "Upgrade insecure requests",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/upgrade-insecure-requests",
+      "path": "http.headers.Content-Security-Policy.upgrade-insecure-requests",
+      "sourceFile": "http/headers/Content-Security-Policy.json",
+      "specUrls": ["https://w3c.github.io/webappsec-upgrade-insecure-requests/#delivery"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "43"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "43"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "42"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "42"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "10.1"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "10.3"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "4.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "43"
           }
         ]
       }
     },
     "http.headers.Cross-Origin-Embedder-Policy": {
+      "baseline": [],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy",
       "path": "http.headers.Cross-Origin-Embedder-Policy",
       "sourceFile": "http/headers/Cross-Origin-Embedder-Policy.json",
@@ -2655,6 +6157,11 @@
             "version_added": "83"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "83"
+          }
+        ],
         "edge": [
           {
             "version_added": "83"
@@ -2665,14 +6172,93 @@
             "version_added": "79"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "79"
+          }
+        ],
         "safari": [
           {
             "version_added": "15.2"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "15.2"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "13.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "86"
+          }
+        ]
+      }
+    },
+    "http.headers.Cross-Origin-Embedder-Policy.credentialless": {
+      "baseline": [],
+      "path": "http.headers.Cross-Origin-Embedder-Policy.credentialless",
+      "sourceFile": "http/headers/Cross-Origin-Embedder-Policy.json",
+      "specUrls": ["https://html.spec.whatwg.org/multipage/browsers.html#coep-credentialless"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "96"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "96"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "96"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "119"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "17.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "96"
           }
         ]
       }
     },
     "http.headers.Cross-Origin-Opener-Policy": {
+      "baseline": [],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Cross-Origin-Opener-Policy",
       "path": "http.headers.Cross-Origin-Opener-Policy",
       "sourceFile": "http/headers/Cross-Origin-Opener-Policy.json",
@@ -2688,6 +6274,11 @@
             "version_added": "83"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "83"
+          }
+        ],
         "edge": [
           {
             "version_added": "83"
@@ -2698,14 +6289,35 @@
             "version_added": "79"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "79"
+          }
+        ],
         "safari": [
           {
             "version_added": "15.2"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "15.2"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "13.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": false
           }
         ]
       }
     },
     "http.headers.Cross-Origin-Resource-Policy": {
+      "baseline": [],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Cross-Origin-Resource-Policy",
       "path": "http.headers.Cross-Origin-Resource-Policy",
       "sourceFile": "http/headers/Cross-Origin-Resource-Policy.json",
@@ -2725,6 +6337,15 @@
             "version_added": "73"
           }
         ],
+        "chrome_android": [
+          {
+            "notes": [
+              "Until version 75, downloads for files with this header would fail in Chrome Android. See <a href=\"https://crbug.com/41452948\">bug 41452948</a>.",
+              "From version 80 to 85, linearized PDFs served inline with this header fail to render properly. See <a href=\"https://crbug.com/40127935\">bug 40127935</a>. From version 86, partial PDF loading is disabled."
+            ],
+            "version_added": "73"
+          }
+        ],
         "edge": [
           {
             "version_added": "79"
@@ -2735,14 +6356,104 @@
             "version_added": "74"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "79"
+          }
+        ],
         "safari": [
           {
             "version_added": "12"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "11.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "notes": [
+              "Until version 75, downloads for files with this header would fail in WebView Android. See <a href=\"https://crbug.com/41452948\">bug 41452948</a>.",
+              "From version 80 to 85, linearized PDFs served inline with this header fail to render properly. See <a href=\"https://crbug.com/40127935\">bug 40127935</a>. From version 86, partial PDF loading is disabled."
+            ],
+            "version_added": "73"
+          }
+        ]
+      }
+    },
+    "http.headers.Origin-Agent-Cluster": {
+      "baseline": [],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Origin-Agent-Cluster",
+      "path": "http.headers.Origin-Agent-Cluster",
+      "sourceFile": "http/headers/Origin-Agent-Cluster.json",
+      "specUrls": ["https://html.spec.whatwg.org/multipage/browsers.html#origin-agent-cluster"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "90"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "138"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "preview"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "90"
           }
         ]
       }
     },
     "http.headers.Permissions-Policy": {
+      "baseline": [
+        {
+          "featureId": "permissions-policy",
+          "name": "Permissions policy",
+          "status": false
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy",
       "path": "http.headers.Permissions-Policy",
       "sourceFile": "http/headers/Permissions-Policy.json",
@@ -2760,6 +6471,11 @@
             "version_added": "88"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
         "edge": [
           {
             "version_added": "88"
@@ -2771,14 +6487,44 @@
             "version_added": false
           }
         ],
+        "firefox_android": [
+          {
+            "impl_url": "https://bugzil.la/1531012",
+            "version_added": false
+          }
+        ],
         "safari": [
           {
             "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
           }
         ]
       }
     },
     "http.headers.Referrer-Policy": {
+      "baseline": [
+        {
+          "featureId": "referrer-policy",
+          "highDate": "2022-07-15",
+          "lowDate": "2020-01-15",
+          "name": "Referrer policy",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Referrer-Policy",
       "path": "http.headers.Referrer-Policy",
       "sourceFile": "http/headers/Referrer-Policy.json",
@@ -2794,6 +6540,11 @@
             "version_added": "56"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "56"
+          }
+        ],
         "edge": [
           {
             "version_added": "79"
@@ -2804,14 +6555,43 @@
             "version_added": "50"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
         "safari": [
           {
             "version_added": "11.1"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "7.2"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "56"
           }
         ]
       }
     },
     "http.headers.Sec-Fetch-Dest": {
+      "baseline": [
+        {
+          "featureId": "fetch-metadata",
+          "highDate": "2025-09-27",
+          "lowDate": "2023-03-27",
+          "name": "Fetch metadata request headers",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest",
       "path": "http.headers.Sec-Fetch-Dest",
       "sourceFile": "http/headers/Sec-Fetch-Dest.json",
@@ -2827,6 +6607,11 @@
             "version_added": "80"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "80"
+          }
+        ],
         "edge": [
           {
             "version_added": "80"
@@ -2837,14 +6622,43 @@
             "version_added": "90"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "90"
+          }
+        ],
         "safari": [
           {
             "version_added": "16.4"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "16.4"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "13.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "80"
           }
         ]
       }
     },
     "http.headers.Sec-Fetch-Mode": {
+      "baseline": [
+        {
+          "featureId": "fetch-metadata",
+          "highDate": "2025-09-27",
+          "lowDate": "2023-03-27",
+          "name": "Fetch metadata request headers",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Mode",
       "path": "http.headers.Sec-Fetch-Mode",
       "sourceFile": "http/headers/Sec-Fetch-Mode.json",
@@ -2860,6 +6674,11 @@
             "version_added": "76"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "76"
+          }
+        ],
         "edge": [
           {
             "version_added": "79"
@@ -2870,14 +6689,43 @@
             "version_added": "90"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "90"
+          }
+        ],
         "safari": [
           {
             "version_added": "16.4"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "16.4"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "12.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "76"
           }
         ]
       }
     },
     "http.headers.Sec-Fetch-Site": {
+      "baseline": [
+        {
+          "featureId": "fetch-metadata",
+          "highDate": "2025-09-27",
+          "lowDate": "2023-03-27",
+          "name": "Fetch metadata request headers",
+          "status": "high"
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Site",
       "path": "http.headers.Sec-Fetch-Site",
       "sourceFile": "http/headers/Sec-Fetch-Site.json",
@@ -2893,6 +6741,11 @@
             "version_added": "76"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "76"
+          }
+        ],
         "edge": [
           {
             "version_added": "79"
@@ -2903,14 +6756,41 @@
             "version_added": "90"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "90"
+          }
+        ],
         "safari": [
           {
             "version_added": "16.4"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "16.4"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "12.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "76"
           }
         ]
       }
     },
     "http.headers.Sec-Fetch-User": {
+      "baseline": [
+        {
+          "featureId": "fetch-metadata",
+          "name": "Fetch metadata request headers",
+          "status": false
+        }
+      ],
       "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Sec-Fetch-User",
       "path": "http.headers.Sec-Fetch-User",
       "sourceFile": "http/headers/Sec-Fetch-User.json",
@@ -2926,6 +6806,11 @@
             "version_added": "76"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "76"
+          }
+        ],
         "edge": [
           {
             "version_added": "79"
@@ -2936,15 +6821,180 @@
             "version_added": "90"
           }
         ],
+        "firefox_android": [
+          {
+            "version_added": "90"
+          }
+        ],
         "safari": [
           {
             "impl_url": "https://webkit.org/b/247697",
             "version_added": false
           }
+        ],
+        "safari_ios": [
+          {
+            "impl_url": "https://webkit.org/b/247697",
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "12.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "76"
+          }
+        ]
+      }
+    },
+    "http.headers.Set-Cookie.host_secure_prefixes": {
+      "baseline": [
+        {
+          "featureId": "cookies",
+          "highDate": "2022-07-15",
+          "lowDate": "2020-01-15",
+          "name": "Cookies",
+          "status": "high"
+        }
+      ],
+      "description": "Cookie prefixes: <code>__Host-</code> and <code>__Secure-</code>",
+      "path": "http.headers.Set-Cookie.host_secure_prefixes",
+      "sourceFile": "http/headers/Set-Cookie.json",
+      "specUrls": [
+        "https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-__host-prefix",
+        "https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-__secure-prefix"
+      ],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "49"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "49"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "13"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "5.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "49"
+          }
+        ]
+      }
+    },
+    "http.headers.Set-Cookie.HttpOnly": {
+      "baseline": [
+        {
+          "featureId": "cookies",
+          "highDate": "2018-01-29",
+          "lowDate": "2015-07-29",
+          "name": "Cookies",
+          "status": "high"
+        }
+      ],
+      "path": "http.headers.Set-Cookie.HttpOnly",
+      "sourceFile": "http/headers/Set-Cookie.json",
+      "specUrls": ["https://httpwg.org/specs/rfc6265.html#httponly-attribute"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "1"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "3"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "5"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
+          }
         ]
       }
     },
     "http.headers.Set-Cookie.Partitioned": {
+      "baseline": [
+        {
+          "featureId": "partitioned-cookies",
+          "lowDate": "2025-12-12",
+          "name": "Partitioned cookies",
+          "status": "low"
+        }
+      ],
       "path": "http.headers.Set-Cookie.Partitioned",
       "sourceFile": "http/headers/Set-Cookie.json",
       "specUrls": [
@@ -2961,12 +7011,22 @@
             "version_added": "114"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "114"
+          }
+        ],
         "edge": [
           {
             "version_added": "114"
           }
         ],
         "firefox": [
+          {
+            "version_added": "141"
+          }
+        ],
+        "firefox_android": [
           {
             "version_added": "141"
           }
@@ -2981,10 +7041,40 @@
             "version_last": "18.4",
             "version_removed": "18.5"
           }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "26.2"
+          },
+          {
+            "impl_url": "https://webkit.org/b/292975",
+            "version_added": "18.4",
+            "version_last": "18.4",
+            "version_removed": "18.5"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "23.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "114"
+          }
         ]
       }
     },
     "http.headers.Set-Cookie.SameSite": {
+      "baseline": [
+        {
+          "featureId": "cookies",
+          "highDate": "2022-03-19",
+          "lowDate": "2019-09-19",
+          "name": "Cookies",
+          "status": "high"
+        }
+      ],
       "path": "http.headers.Set-Cookie.SameSite",
       "sourceFile": "http/headers/Set-Cookie.json",
       "specUrls": [
@@ -3002,12 +7092,22 @@
             "version_added": "51"
           }
         ],
+        "chrome_android": [
+          {
+            "version_added": "51"
+          }
+        ],
         "edge": [
           {
             "version_added": "16"
           }
         ],
         "firefox": [
+          {
+            "version_added": "60"
+          }
+        ],
+        "firefox_android": [
           {
             "version_added": "60"
           }
@@ -3024,10 +7124,187 @@
             "version_last": "12.1",
             "version_removed": "13"
           }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "13"
+          },
+          {
+            "notes": "Treats <code>SameSite=None</code> and invalid values as <code>Strict</code> in iOS before 13. See <a href=\"https://webkit.org/b/198181\">bug 198181</a>.",
+            "partial_implementation": true,
+            "version_added": "12.2",
+            "version_last": "12.2",
+            "version_removed": "13"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "5.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "51"
+          }
+        ]
+      }
+    },
+    "http.headers.Strict-Transport-Security": {
+      "baseline": [
+        {
+          "featureId": "hsts",
+          "highDate": "2018-01-29",
+          "lowDate": "2015-07-29",
+          "name": "HTTP Strict Transport Security",
+          "status": "high"
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security",
+      "path": "http.headers.Strict-Transport-Security",
+      "sourceFile": "http/headers/Strict-Transport-Security.json",
+      "specUrls": ["https://www.rfc-editor.org/info/rfc6797/#section-6.1"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "18"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "4"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "7"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "1.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "4.4"
+          }
+        ]
+      }
+    },
+    "http.headers.X-Content-Type-Options": {
+      "baseline": [],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/X-Content-Type-Options",
+      "path": "http.headers.X-Content-Type-Options",
+      "sourceFile": "http/headers/X-Content-Type-Options.json",
+      "specUrls": ["https://fetch.spec.whatwg.org/#x-content-type-options-header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "64"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "1",
+            "version_last": "63",
+            "version_removed": "64"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "64"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "18",
+            "version_last": "63",
+            "version_removed": "64"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "12"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "50"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "11"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "11"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "9.0"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "1.0",
+            "version_last": "8.2",
+            "version_removed": "9.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "64"
+          },
+          {
+            "notes": "Not supported for stylesheets.",
+            "partial_implementation": true,
+            "version_added": "4.4",
+            "version_last": "63",
+            "version_removed": "64"
+          }
         ]
       }
     }
   },
-  "schemaFingerprint": "e10a65697f661ad66810d9bfbd2c2226e21964ff31d9df2880fe7e48b95526c8",
-  "schemaVersion": 1
+  "schemaFingerprint": "d36a4074ab4cd467067cfe3aa0b75bd7fe9ba3783c1b41c91bd08fa5fe34e3f7",
+  "schemaVersion": 2,
+  "webFeaturesVersion": "3.34.1"
 }

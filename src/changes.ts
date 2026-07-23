@@ -6,10 +6,11 @@ import {
   type SelectedSnapshot,
   selectedSnapshotSchema
 } from "./contracts";
+import { BROWSER_IDS } from "./browsers";
 import { canonicalJson } from "./canonical";
 
 type ChangeType = ChangeEvent["type"];
-const BROWSERS: readonly BrowserId[] = ["chrome", "edge", "firefox", "safari"];
+const BROWSERS: readonly BrowserId[] = BROWSER_IDS;
 
 function eventId(payload: Omit<ChangeEvent, "id">): string {
   return createHash("sha256").update(canonicalJson(payload, 0)).digest("hex").slice(0, 24);

@@ -5,7 +5,9 @@
 ControlCurrent answers:
 
 > For an explicit set of minimum browser versions, what availability and
-> qualifications does MDN BCD record for a curated browser security control?
+> qualifications does MDN BCD record for a curated browser security control,
+> and what adoptability context does WebDX Baseline associate with its exact
+> feature paths?
 
 It does not answer whether an application is secure or a control is configured
 correctly.
@@ -70,6 +72,17 @@ unqualified check mark.
 The static matrix uses the release entries marked `current` in the selected BCD
 package. It is an informational view, not a recommended organisational browser
 policy. The planner accepts explicit minimum versions.
+
+## Baseline context
+
+Web Platform Features is joined to the selected BCD subset only when a feature
+explicitly declares the exact compatibility path. Path-specific status is
+preferred when the source supplies it.
+
+Baseline status and low/high dates describe cross-browser adoptability. They do
+not change the BCD result for a selected browser, establish correct
+configuration, or replace application testing. An absent exact association
+remains absent rather than being inferred from a nearby feature.
 
 ## Change events
 

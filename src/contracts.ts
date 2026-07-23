@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { BROWSER_IDS } from "./browsers";
 
-export const browserIdSchema = z.enum(["chrome", "edge", "firefox", "safari"]);
+export const browserIdSchema = z.enum(BROWSER_IDS);
 export type BrowserId = z.infer<typeof browserIdSchema>;
 
 export const outcomeSchema = z.enum([
@@ -57,6 +58,19 @@ export const selectedFeatureSchema = z
       })
       .strict()
       .optional(),
+    baseline: z
+      .array(
+        z
+          .object({
+            featureId: z.string().min(1).max(128),
+            name: z.string().min(1).max(256),
+            status: z.union([z.literal(false), z.enum(["low", "high"])]),
+            lowDate: z.iso.date().optional(),
+            highDate: z.iso.date().optional()
+          })
+          .strict()
+      )
+      .max(8),
     support: z.partialRecord(browserIdSchema, supportStatementsSchema)
   })
   .strict();
@@ -90,9 +104,10 @@ export const controlMappingSchema = z
 
 export const selectedSnapshotSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     bcdVersion: z.string().min(1).max(64),
     bcdTimestamp: z.iso.datetime(),
+    webFeaturesVersion: z.string().min(1).max(64),
     catalogueVersion: z.string().min(1).max(64),
     schemaFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
     browsers: z.record(browserIdSchema, selectedBrowserSchema),
@@ -114,7 +129,7 @@ export const deploymentProfileSchema = z
   .object({
     schemaVersion: z.literal(1),
     name: z.string().trim().min(1).max(80),
-    baselines: z.array(browserBaselineSchema).min(1).max(4)
+    baselines: z.array(browserBaselineSchema).min(1).max(BROWSER_IDS.length)
   })
   .strict()
   .superRefine((profile, context) => {
@@ -164,7 +179,7 @@ export const profileEvaluationSchema = z
     bcdTimestamp: z.iso.datetime(),
     catalogueVersion: z.string().min(1).max(64),
     profile: deploymentProfileSchema,
-    results: z.record(z.string(), z.array(controlEvaluationSchema).max(4))
+    results: z.record(z.string(), z.array(controlEvaluationSchema).max(BROWSER_IDS.length))
   })
   .strict();
 export type ProfileEvaluation = z.infer<typeof profileEvaluationSchema>;
@@ -177,7 +192,7 @@ export const policyRuleSchema = z.enum(["review", "fail"]);
 export const policyExceptionSchema = z
   .object({
     controlId: z.string().min(1).max(80),
-    browsers: z.array(browserIdSchema).min(1).max(4).optional(),
+    browsers: z.array(browserIdSchema).min(1).max(BROWSER_IDS.length).optional(),
     outcomes: z.array(outcomeSchema).min(1).max(7),
     reason: z.string().trim().min(8).max(512),
     expiresOn: z.iso.date()
@@ -189,7 +204,7 @@ export const policyProfileSchema = z
   .object({
     schemaVersion: z.literal(1),
     name: z.string().trim().min(1).max(80),
-    baselines: z.array(browserBaselineSchema).min(1).max(4),
+    baselines: z.array(browserBaselineSchema).min(1).max(BROWSER_IDS.length),
     requiredControls: z.array(z.string().min(1).max(80)).min(1).max(64),
     rules: z
       .object({
@@ -266,7 +281,7 @@ export type PolicyEvaluation = z.infer<typeof policyEvaluationSchema>;
 export const minimumBaselineRequestSchema = z
   .object({
     controlIds: z.array(z.string().min(1).max(80)).min(1).max(64),
-    browsers: z.array(browserIdSchema).min(1).max(4),
+    browsers: z.array(browserIdSchema).min(1).max(BROWSER_IDS.length),
     allowQualified: z.boolean()
   })
   .strict();

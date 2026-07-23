@@ -10,14 +10,14 @@ import { formatDate } from "../format";
 >
   <header class="shell page-header">
     <span class="eyebrow">Source governance</span>
-    <h1>One attributed source, a bounded selected subset</h1>
+    <h1>Two attributed sources, one bounded selected subset</h1>
     <p>
       The deployed application contains the security-control slice needed for its calculations. It
-      does not republish the complete Browser Compatibility Data package.
+      does not republish either complete upstream dataset.
     </p>
   </header>
   <article class="shell prose">
-    <h2>Primary source</h2>
+    <h2>Browser compatibility source</h2>
     <dl>
       <dt>Operator</dt>
       <dd>MDN Web Docs Open Web Docs community project</dd>
@@ -38,19 +38,44 @@ import { formatDate } from "../format";
       </a>
     </p>
 
+    <h2>Feature adoptability source</h2>
+    <dl>
+      <dt>Operator</dt>
+      <dd>W3C WebDX Community Group</dd>
+      <dt>Package</dt>
+      <dd><code>web-features</code> {selectedSnapshot.webFeaturesVersion}</dd>
+      <dt>Licence</dt>
+      <dd>Apache License 2.0</dd>
+      <dt>Use</dt>
+      <dd>Exact compatibility-path associations and Baseline status metadata</dd>
+    </dl>
+    <p>
+      <a href="https://github.com/web-platform-dx/web-features" rel="noopener noreferrer">
+        View Web Platform Features
+      </a>
+    </p>
+
     <h2>Retained fields</h2>
     <ul>
       <li>Selected feature paths, source files, MDN and specification URLs.</li>
-      <li>Support statements for Chrome, Edge, Firefox, and Safari.</li>
+      <li>
+        Support statements for Chrome, Edge, Firefox, Safari, Chrome for Android, Firefox for
+        Android, Safari on iOS, Android WebView, and Samsung Internet.
+      </li>
       <li>Version added, removed, or last supported.</li>
       <li>Partial implementation, flags, prefixes, alternative names, and bounded notes.</li>
       <li>Browser release status and dates needed for explicit baseline selection.</li>
-      <li>BCD version, package timestamp, catalogue version, and schema fingerprint.</li>
+      <li>Exact WebDX feature associations and Baseline status and dates where available.</li>
+      <li>
+        BCD version, Web Platform Features version, package timestamp, catalogue version, and schema
+        fingerprint.
+      </li>
     </ul>
 
     <h2>Not retained</h2>
     <ul>
       <li>The complete BCD dataset.</li>
+      <li>The complete Web Platform Features dataset.</li>
       <li>MDN article prose or diagrams.</li>
       <li>Website observations, user-agent strings, visitor profiles, or analytics.</li>
       <li>Market-share data or project-authored browser policy defaults.</li>
@@ -59,8 +84,8 @@ import { formatDate } from "../format";
     <h2>Licence boundary</h2>
     <p>
       ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains
-      available under CC0. The project licence does not relicense upstream data, specifications, or
-      linked documentation.
+      available under CC0, and selected Web Platform Features metadata remains under Apache-2.0. The
+      project licence does not relicense upstream data, specifications, or linked documentation.
     </p>
   </article>
 </Layout>

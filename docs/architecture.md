@@ -2,15 +2,17 @@
 
 ## System boundary
 
-ControlCurrent is a static security-compatibility application. Its only primary
-data dependency is the locked `@mdn/browser-compat-data` package used during
-development and build verification.
+ControlCurrent is a static security-compatibility application. Its locked source
+dependencies are `@mdn/browser-compat-data` for browser-specific support
+statements and `web-features` for exact feature associations and Baseline
+adoptability context.
 
 ```text
 package-lock.json
       |
-      v
-@mdn/browser-compat-data
+      +--> @mdn/browser-compat-data
+      |
+      +--> web-features
       |
       v
 fixed selected-path importer
@@ -43,14 +45,15 @@ bundled by the build. There is no runtime source request.
 
 The catalogue owns every requested BCD path. The generator:
 
-1. loads the exact package selected by the lockfile;
-2. validates package version and timestamp;
+1. loads the exact packages selected by the lockfile;
+2. validates package versions and the BCD timestamp;
 3. resolves each path through own properties only;
 4. requires a `__compat` statement;
-5. retains only Chrome, Edge, Firefox, and Safari statements;
-6. validates bounded source fields;
-7. retains bounded release metadata for explicit version choices;
-8. emits canonical JSON and a structural schema fingerprint.
+5. retains nine explicit desktop and mobile browser families;
+6. associates only WebDX features that explicitly declare the selected BCD path;
+7. validates bounded source fields;
+8. retains bounded release metadata for explicit version choices;
+9. emits canonical JSON and a structural schema fingerprint.
 
 Prototype-related segments and excessive path depth are refused.
 
@@ -84,7 +87,8 @@ Feature evaluation preserves:
 
 Control evaluation combines path outcomes according to the catalogue. Profile
 evaluation applies the same calculation independently to each selected browser
-minimum.
+minimum. Baseline status is displayed as secondary adoptability evidence and
+does not alter a browser-specific compatibility outcome.
 
 ## Client boundary
 

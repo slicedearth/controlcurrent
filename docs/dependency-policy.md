@@ -14,8 +14,9 @@ Dependencies must be:
 
 ## Runtime dependencies
 
-`@mdn/browser-compat-data` is the primary data package. Zod validates selected
-source and public calculation contracts.
+`@mdn/browser-compat-data` is the browser-specific compatibility source.
+`web-features` supplies exact path associations and Baseline adoptability
+metadata. Zod validates selected source and public calculation contracts.
 
 The deployed application has no server runtime dependency.
 
@@ -43,7 +44,7 @@ Dependabot may propose npm and Actions updates. A merge requires:
 - changelog and support-policy review;
 - lockfile diff review;
 - licence and install-script review;
-- selected BCD path review when applicable;
+- selected BCD path and WebDX association review when applicable;
 - unit, type, build, dependency, browser, accessibility, and public-tree checks.
 
 Automatic major-version merges are not configured.

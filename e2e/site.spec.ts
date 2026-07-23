@@ -13,6 +13,7 @@ test("renders real source provenance and makes no external request", async ({ pa
     page.getByRole("heading", { name: "Can your browser baseline carry the control?" })
   ).toBeVisible();
   await expect(page.getByText("BCD package").locator("..")).toContainText("8.0.7");
+  await expect(page.getByText("WebDX data").locator("..")).toContainText("3.34.1");
   await expect(page.getByText("Runtime API").locator("..")).toContainText("none");
   expect(externalRequests).toEqual([]);
 
@@ -26,7 +27,7 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
   await page.getByRole("button", { name: "Evaluate profile" }).click();
 
   await expect(page.getByRole("heading", { name: "Control availability" })).toBeVisible();
-  await expect(page.locator(".result-card")).toHaveCount(15);
+  await expect(page.locator(".result-card")).toHaveCount(29);
   await expect(page.getByText("Profile evaluated locally")).toBeVisible();
 
   await page.getByRole("button", { name: "Save locally" }).click();

@@ -1,4 +1,4 @@
-export const CATALOGUE_VERSION = "1.0.0";
+export const CATALOGUE_VERSION = "2.0.0";
 
 export type ControlMappingState = "active" | "unsupported";
 export type CombinationRule = "all" | "any";
@@ -7,7 +7,12 @@ export type SecurityControl = {
   id: string;
   name: string;
   shortName: string;
-  category: "Content execution" | "Cross-origin isolation" | "Browser privacy" | "Authentication";
+  category:
+    | "Content execution"
+    | "Cross-origin isolation"
+    | "Transport and response hardening"
+    | "Browser privacy"
+    | "Authentication";
   summary: string;
   threatClasses: readonly string[];
   doesNotAddress: readonly string[];
@@ -107,6 +112,98 @@ export const SECURITY_CONTROLS = [
     combination: "all",
     bcdPaths: ["http.headers.Content-Security-Policy.strict-dynamic"],
     specificationUrls: ["https://w3c.github.io/webappsec-csp/#strict-dynamic-usage"]
+  },
+  {
+    id: "csp-base-uri",
+    name: "CSP base-uri restriction",
+    shortName: "CSP base-uri",
+    category: "Content execution",
+    summary: "Restricts which URLs a document may use as its base URL.",
+    threatClasses: ["Base-tag injection", "Relative URL target manipulation"],
+    doesNotAddress: [
+      "Absolute malicious URLs",
+      "Unsafe permitted base URLs",
+      "Server-side routing"
+    ],
+    prerequisites: ["A CSP delivered for the protected document"],
+    fallback: "Use absolute security-sensitive URLs and prevent untrusted base elements.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Content-Security-Policy.base-uri"],
+    specificationUrls: ["https://w3c.github.io/webappsec-csp/#directive-base-uri"]
+  },
+  {
+    id: "csp-frame-ancestors",
+    name: "CSP frame-ancestors restriction",
+    shortName: "frame-ancestors",
+    category: "Content execution",
+    summary: "Restricts which parent documents may embed a page in a frame.",
+    threatClasses: ["Clickjacking", "Unapproved cross-origin embedding"],
+    doesNotAddress: ["Same-origin UI redressing", "Pop-up windows", "Application authorisation"],
+    prerequisites: ["An explicit inventory of permitted embedding origins"],
+    fallback:
+      "Retain application-level anti-framing design and legacy X-Frame-Options where needed.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Content-Security-Policy.frame-ancestors"],
+    specificationUrls: ["https://w3c.github.io/webappsec-csp/#directive-frame-ancestors"]
+  },
+  {
+    id: "csp-form-action",
+    name: "CSP form-action restriction",
+    shortName: "form-action",
+    category: "Content execution",
+    summary: "Restricts the destinations to which a document may submit forms.",
+    threatClasses: ["Injected form exfiltration", "Unexpected cross-origin form submission"],
+    doesNotAddress: [
+      "Scripted fetch requests",
+      "Permitted malicious endpoints",
+      "Server authorisation"
+    ],
+    prerequisites: ["A complete inventory of legitimate form destinations"],
+    fallback: "Validate destinations and sensitive operations on the server.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Content-Security-Policy.form-action"],
+    specificationUrls: ["https://w3c.github.io/webappsec-csp/#directive-form-action"]
+  },
+  {
+    id: "csp-upgrade-insecure-requests",
+    name: "CSP upgrade-insecure-requests",
+    shortName: "Upgrade insecure requests",
+    category: "Content execution",
+    summary: "Asks the browser to rewrite eligible insecure resource requests to HTTPS.",
+    threatClasses: ["Mixed-content downgrade", "Accidental insecure subresource requests"],
+    doesNotAddress: [
+      "Unavailable HTTPS resources",
+      "Insecure external redirects",
+      "Transport setup"
+    ],
+    prerequisites: ["HTTPS availability for every upgraded resource"],
+    fallback: "Migrate every resource URL to HTTPS and block mixed content explicitly.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Content-Security-Policy.upgrade-insecure-requests"],
+    specificationUrls: ["https://w3c.github.io/webappsec-upgrade-insecure-requests/"]
+  },
+  {
+    id: "csp-sandbox",
+    name: "CSP sandbox",
+    shortName: "CSP sandbox",
+    category: "Content execution",
+    summary: "Applies a configurable sandbox to a protected resource.",
+    threatClasses: ["Over-privileged embedded documents", "Untrusted active content"],
+    doesNotAddress: [
+      "Every browser exploit",
+      "Unsafe granted sandbox tokens",
+      "Server authorisation"
+    ],
+    prerequisites: ["A tested list of required sandbox capabilities"],
+    fallback: "Isolate untrusted content on a separate origin and minimise active capabilities.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Content-Security-Policy.sandbox"],
+    specificationUrls: ["https://w3c.github.io/webappsec-csp/#directive-sandbox"]
   },
   {
     id: "trusted-types",
@@ -215,6 +312,43 @@ export const SECURITY_CONTROLS = [
     specificationUrls: ["https://fetch.spec.whatwg.org/#cross-origin-resource-policy-header"]
   },
   {
+    id: "coep-credentialless",
+    name: "Credentialless cross-origin embedding",
+    shortName: "COEP credentialless",
+    category: "Cross-origin isolation",
+    summary:
+      "Allows selected cross-origin no-CORS resources to load without credentials under COEP.",
+    threatClasses: [
+      "Credential-bearing cross-origin resource inclusion",
+      "Isolation deployment gaps"
+    ],
+    doesNotAddress: ["Public resource disclosure", "Application authorisation", "CORS correctness"],
+    prerequisites: ["COEP deployment", "A resource inventory that tolerates credential omission"],
+    fallback: "Use require-corp with explicit CORS or CORP opt-in from embedded resources.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Cross-Origin-Embedder-Policy.credentialless"],
+    specificationUrls: ["https://html.spec.whatwg.org/multipage/browsers.html#coep"]
+  },
+  {
+    id: "origin-agent-cluster",
+    name: "Origin-Agent-Cluster",
+    shortName: "Origin-Agent-Cluster",
+    category: "Cross-origin isolation",
+    summary: "Requests origin-keyed browser agent clustering for a document.",
+    threatClasses: ["Unnecessary same-site process sharing", "Origin isolation ambiguity"],
+    doesNotAddress: ["Complete process isolation", "Application authorisation", "Browser defects"],
+    prerequisites: ["Consistent delivery across an origin"],
+    fallback:
+      "Use separate origins for security boundaries and avoid relying on process placement.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Origin-Agent-Cluster"],
+    specificationUrls: [
+      "https://html.spec.whatwg.org/multipage/origin.html#origin-keyed-agent-clusters"
+    ]
+  },
+  {
     id: "fetch-metadata",
     name: "Fetch Metadata request headers",
     shortName: "Fetch Metadata",
@@ -258,6 +392,62 @@ export const SECURITY_CONTROLS = [
     combination: "all",
     bcdPaths: ["http.headers.Permissions-Policy"],
     specificationUrls: ["https://w3c.github.io/webappsec-permissions-policy/"]
+  },
+  {
+    id: "strict-transport-security",
+    name: "HTTP Strict Transport Security",
+    shortName: "HSTS",
+    category: "Transport and response hardening",
+    summary: "Tells supporting browsers to use HTTPS for a host during a declared period.",
+    threatClasses: ["HTTP downgrade", "Accidental insecure navigation"],
+    doesNotAddress: [
+      "First-visit downgrade before policy is known",
+      "TLS defects",
+      "Certificate compromise"
+    ],
+    prerequisites: ["Reliable HTTPS", "A carefully chosen host and subdomain policy"],
+    fallback:
+      "Redirect HTTP to HTTPS and remove insecure links while assessing preload separately.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Strict-Transport-Security"],
+    specificationUrls: ["https://www.rfc-editor.org/rfc/rfc6797"]
+  },
+  {
+    id: "x-content-type-options",
+    name: "X-Content-Type-Options nosniff",
+    shortName: "nosniff",
+    category: "Transport and response hardening",
+    summary: "Prevents selected responses from being interpreted as a different MIME type.",
+    threatClasses: ["MIME confusion", "Unexpected script or style interpretation"],
+    doesNotAddress: [
+      "Incorrect declared MIME types",
+      "Content injection",
+      "Every navigation response"
+    ],
+    prerequisites: ["Correct Content-Type headers"],
+    fallback:
+      "Serve accurate media types and avoid hosting active content in untrusted upload locations.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.X-Content-Type-Options"],
+    specificationUrls: ["https://fetch.spec.whatwg.org/#x-content-type-options-header"]
+  },
+  {
+    id: "clear-site-data",
+    name: "Clear-Site-Data",
+    shortName: "Clear-Site-Data",
+    category: "Transport and response hardening",
+    summary: "Requests removal of selected browser-held data for an origin.",
+    threatClasses: ["Residual session data", "Persistent state after account or device reset"],
+    doesNotAddress: ["Server-side data", "Every browser cache", "Data outside the origin scope"],
+    prerequisites: ["A deliberate logout or reset flow", "Secure-context delivery"],
+    fallback:
+      "Expire application credentials and storage explicitly in addition to server-side revocation.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Clear-Site-Data"],
+    specificationUrls: ["https://w3c.github.io/webappsec-clear-site-data/"]
   },
   {
     id: "referrer-policy",
@@ -316,6 +506,82 @@ export const SECURITY_CONTROLS = [
     specificationUrls: [
       "https://datatracker.ietf.org/doc/html/draft-cutler-httpbis-partitioned-cookies"
     ]
+  },
+  {
+    id: "httponly-cookies",
+    name: "HttpOnly cookies",
+    shortName: "HttpOnly",
+    category: "Browser privacy",
+    summary: "Prevents browser scripts from reading a cookie through ordinary cookie APIs.",
+    threatClasses: ["Session-cookie theft through script access"],
+    doesNotAddress: [
+      "Authenticated actions performed by injected script",
+      "Network theft",
+      "Server compromise"
+    ],
+    prerequisites: ["Cookies that do not require client-side script access"],
+    fallback:
+      "Minimise credential lifetime and prevent script injection regardless of cookie visibility.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Set-Cookie.HttpOnly"],
+    specificationUrls: ["https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html"]
+  },
+  {
+    id: "secure-cookie-prefixes",
+    name: "Secure cookie prefixes",
+    shortName: "Cookie prefixes",
+    category: "Browser privacy",
+    summary: "Applies browser-enforced naming constraints to selected secure cookies.",
+    threatClasses: ["Cookie scope confusion", "Insecure cookie replacement"],
+    doesNotAddress: ["All cookie tossing", "Cross-site scripting", "Weak session design"],
+    prerequisites: ["HTTPS", "Correct Secure, Path, and Domain attributes"],
+    fallback: "Use host-only Secure cookies with narrow scope and server-side session controls.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["http.headers.Set-Cookie.host_secure_prefixes"],
+    specificationUrls: ["https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html"]
+  },
+  {
+    id: "webauthn-platform-authenticator",
+    name: "WebAuthn platform authenticator detection",
+    shortName: "Platform WebAuthn",
+    category: "Authentication",
+    summary: "Detects whether a user-verifying platform authenticator is available.",
+    threatClasses: ["Phishing-prone password dependence", "Credential reuse"],
+    doesNotAddress: [
+      "Account recovery weaknesses",
+      "Server verification defects",
+      "Authenticator policy"
+    ],
+    prerequisites: ["A complete WebAuthn registration and authentication flow"],
+    fallback:
+      "Offer standards-based roaming authenticators and a carefully protected recovery path.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: ["api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static"],
+    specificationUrls: [
+      "https://w3c.github.io/webauthn/#sctn-isUserVerifyingPlatformAuthenticatorAvailable"
+    ]
+  },
+  {
+    id: "webauthn-prf",
+    name: "WebAuthn PRF extension",
+    shortName: "WebAuthn PRF",
+    category: "Authentication",
+    summary: "Derives scoped pseudorandom outputs from a compatible WebAuthn credential.",
+    threatClasses: ["Exportable application key material", "Password-derived local secrets"],
+    doesNotAddress: ["Account recovery", "Relying-party verification", "Every authenticator"],
+    prerequisites: ["A compatible authenticator", "A reviewed WebAuthn extension design"],
+    fallback:
+      "Keep key derivation and recovery independent of the extension where it is unavailable.",
+    mappingState: "active",
+    combination: "all",
+    bcdPaths: [
+      "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+      "api.CredentialsContainer.get.publicKey_option.extensions.prf"
+    ],
+    specificationUrls: ["https://w3c.github.io/webauthn/#prf-extension"]
   },
   {
     id: "webauthn-conditional-mediation",

@@ -20,6 +20,19 @@ does not require it.
 ControlCurrent does not copy MDN article prose or diagrams. Project-authored
 security explanations link to MDN feature pages and primary specifications.
 
+## Web Platform Features
+
+Selected Baseline metadata is transformed from:
+
+- **Source:** Web Platform Features
+- **Repository:** <https://github.com/web-platform-dx/web-features>
+- **Package:** `web-features`
+- **Licence:** Apache License 2.0
+
+ControlCurrent retains the exact package version and only the feature identity,
+compatibility-path association, Baseline status, and associated dates required
+for its selected paths. It does not reproduce the complete package.
+
 ## Specifications
 
 Specifications remain subject to the terms of their respective publishers.
@@ -30,6 +43,7 @@ Links do not incorporate specification text into the project licence.
 The MIT licence applies to ControlCurrent source code. It does not relicense:
 
 - the selected BCD-derived data;
+- selected Web Platform Features metadata;
 - linked MDN documentation;
 - linked standards;
 - dependency source code.
@@ -37,5 +51,6 @@ The MIT licence applies to ControlCurrent source code. It does not relicense:
 ## Data redistribution
 
 The public repository retains a compact selected subset rather than the
-complete BCD package. The subset includes only fields needed for attribution,
-support calculations, release selection, source review, and change history.
+complete upstream packages. The subset includes only fields needed for
+attribution, support calculations, Baseline context, release selection, source
+review, and change history.
