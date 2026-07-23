@@ -60,9 +60,9 @@ import Layout from "../components/Layout.astro";
       <li>No website is scanned and no runtime behaviour is observed.</li>
       <li>
         The optional assessment sees only supplied evidence. A bundle can reveal variation among
-        included routes and can identify missing evidence from a declared surface manifest, but it
-        cannot discover omitted routes, redirects, status codes, cached responses, user states, or
-        environments.
+        included routes, applies explicit per-surface requirements, and can identify missing
+        evidence from a declared surface manifest. It cannot discover omitted routes, redirects,
+        status codes, cached responses, user states, or environments.
       </li>
       <li>
         CSP can be correlated with supplied inline markup and bounded local resource bytes can be
@@ -81,19 +81,19 @@ import Layout from "../components/Layout.astro";
     <p>These are project self-assessments, not benchmark scores.</p>
     <ul>
       <li>
-        <strong>9.5/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
-        WPT, policy-profile, and deployment-evidence layers are kept distinct.
+        <strong>9.6/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
+        WPT, compatibility-policy, deployment-evidence, and evidence-policy layers are kept distinct.
       </li>
       <li>
-        <strong>9/10 as an engineering decision aid:</strong> bounded multi-surface evidence, expected
-        coverage, deterministic regression reports, local export, and transparent composites support design
-        and CI review decisions.
+        <strong>9.5/10 as an engineering decision aid:</strong> explicit surface applicability, provenance
+        fingerprints, detail-aware compatible comparisons, independent CI policy, bounded exceptions,
+        local export, and transparent composites support design and release decisions.
       </li>
       <li>
-        <strong>5/10 as production security assurance:</strong> supplied policy, markup, and local resource
-        evidence can reveal real configuration gaps, but there is no authenticated collection, discovered
-        route inventory, runtime enforcement test, remote resource verification, adversarial test, or
-        continuous monitoring.
+        <strong>5.5/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
+        and local resource evidence can reveal real configuration gaps and now fails closed against an
+        independent declared policy. There is still no authenticated collection, discovered route inventory,
+        runtime enforcement test, remote resource verification, adversarial test, or continuous monitoring.
       </li>
     </ul>
   </article>

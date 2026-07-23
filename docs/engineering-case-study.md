@@ -83,10 +83,12 @@ observations become `inconclusive`, invalid evidence cannot be hidden by a
 favourable snapshot, and composite deployment candidates remain separate from
 browser-support outcomes.
 
-An expected-surface manifest makes missing evidence explicit within an
-operator-declared scope. Deterministic comparison of two reduced reports then
-separates regressions, resolutions, other changes, and incomparable evidence
-without reintroducing raw inputs.
+An expected-surface manifest makes missing evidence and control applicability
+explicit within an operator-declared scope. Reduced reports pin their analysis
+and source model, carry a canonical fingerprint, and retain bounded safe detail.
+Compatible comparison separates regressions, resolutions, detail changes, and
+incomparable evidence without reintroducing raw inputs. A separate policy
+profile lets CI enforce requirements that the evidence producer cannot weaken.
 
 ## Privacy through absence
 

@@ -74,3 +74,35 @@ consumer explicitly accepts source-recorded qualifications.
 
 The default current date affects exception expiry. Supply `--as-of` when a
 reproducible historical decision is required.
+
+## Deployment evidence policy
+
+Browser-support policy and deployment-evidence policy are separate contracts.
+`examples/evidence-policy.json` defines the latter. It can require:
+
+- exact analyser and catalogue versions;
+- an exact BCD version when the consumer wants source pinning;
+- specific opaque surfaces and semantic roles;
+- evidence kinds expected for each surface;
+- controls and project-authored composites required for each surface;
+- treatment of missing, report-only, inconclusive, unevaluated, and
+  composite-review outcomes;
+- bounded exceptions tied to one surface and target.
+
+The profile is evaluated against an exported schema 4 reduced report, not
+against raw evidence:
+
+```sh
+npm run cli -- check-evidence examples/evidence-policy.json report.json \
+  --as-of 2026-07-23
+```
+
+Add `--strict-review` to make both `review` and `fail` decisions exit with code
+1. Use `--json` for a deterministic machine-readable result.
+
+The policy is intentionally independent of the evidence bundle. A producer
+cannot remove a required control, composite, or evidence kind from its bundle
+manifest to weaken the consumer's gate. The evaluator recomputes the report
+fingerprint before applying policy. Model mismatches always fail. Active
+exceptions convert a matching negative finding to `review`, never `pass`;
+expired exceptions remain visible and stop affecting the decision.

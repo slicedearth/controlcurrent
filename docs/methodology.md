@@ -138,22 +138,37 @@ context was supplied. It does not prove that an application server rejects
 inappropriate requests. WebAuthn evidence describes selected configuration
 fields; it does not run a ceremony or establish authenticator support.
 
-Control findings are merged across applicable evidence. A favourable snapshot
-cannot erase invalid evidence, and conflicting observed/missing states become
-`inconclusive`. Project-authored strict CSP, cross-origin isolation, and cookie
-attribute composites are transparent candidate recipes rather than
-certification or policy scores.
+Every bundle must declare its expected surfaces. Each surface identifies
+required evidence kinds, controls, and composite candidates explicitly. The
+semantic role provides context but does not silently choose a default policy.
+This avoids declaring a logout, API, embedded, or authentication surface
+compliant against requirements that were never selected.
 
-An optional expected-surface manifest declares which opaque surfaces should
-have response, HTML, resource-byte, request, or WebAuthn evidence. Coverage is
-complete only for the declared manifest. A satisfied result never claims that
-the manifest contains every production route or user state.
+Control findings are first merged within each applicable surface. A favourable
+snapshot cannot erase invalid evidence, and conflicting observed/missing states
+become `inconclusive`. Cross-surface findings then include only surfaces that
+require that control. A control required nowhere is `not_applicable`; a required
+control with insufficient evidence remains missing, invalid, inconclusive,
+report-only, or not evaluated.
 
-Reduced report comparison operates on normalised states only. Moving from an
-observed finding or satisfied composite to another conclusive state is a
-regression; the inverse is a resolution. Transitions involving
-`not_evaluated`, absent controls, or absent composites are incomparable rather
-than favourable or unfavourable. Surface gaps are compared separately.
+Project-authored strict CSP, cross-origin isolation, and cookie attribute
+composites are transparent candidate recipes rather than certification or
+policy scores. They are evaluated only for surfaces that explicitly require
+them.
+
+Coverage is complete only for the declared manifest. A satisfied result never
+claims that the manifest contains every production route or user state.
+
+Reduced reports pin the analyser, catalogue, BCD, Web Platform Features, and
+selected-schema versions and carry a fingerprint over canonical reduced output.
+Report comparison proceeds semantically only when analyser and catalogue
+versions match. It compares normalised states and retained reduced details, so
+an HSTS duration or other bounded detail can change without being hidden behind
+an unchanged `observed` state. Moving from an observed finding or satisfied
+composite to another conclusive state is a regression; the inverse is a
+resolution. Transitions involving `not_evaluated`, `not_applicable`, absent
+controls, or absent composites are incomparable rather than favourable or
+unfavourable. Surface gaps and policy changes are compared separately.
 
 ## Conformance evidence
 

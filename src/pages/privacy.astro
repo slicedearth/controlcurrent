@@ -43,7 +43,9 @@ import Layout from "../components/Layout.astro";
       reports. Reduced reports also omit HTML, resource locations, inline content, CSP nonces and
       hashes, request targets, credentials, cookie data, WebAuthn challenges, relying-party
       identifiers, user identifiers, and credential identifiers. Labels and opaque surface IDs
-      remain in an export, so keep them non-identifying.
+      remain in an export, as do surface requirements, model provenance, and a SHA-256 fingerprint
+      of the reduced report. The fingerprint does not cover raw inputs. Keep labels, surface IDs,
+      and evidence-policy exception reasons non-identifying.
     </p>
 
     <h2>Network boundary</h2>

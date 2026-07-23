@@ -83,7 +83,9 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | WebAuthn configurations per bundle      |               16 |
 | Evidence bundle input                   |            2 MiB |
 | Reduced evidence export                 |          512 KiB |
-| Reduced comparison events               |              256 |
+| Reduced comparison events emitted       |              512 |
+| Evidence-policy exceptions              |              128 |
+| Evidence-policy findings                |            4,096 |
 | WPT mappings                            |               64 |
 | WPT suites per control                  |                4 |
 | Public file                             |            2 MiB |
@@ -151,11 +153,11 @@ contain a raw header value, cookie name, or cookie value.
 
 ## Evidence bundle
 
-Evidence-bundle input schema 1 contains a bounded name, an optional manifest of
-up to 32 expected surfaces, and five optional collections:
+Evidence-bundle input schema 2 contains a bounded name, a required manifest of
+one to 32 expected surfaces, and five bounded collections:
 
-- expected surfaces with an opaque ID, semantic role, and unique required
-  evidence kinds;
+- expected surfaces with an opaque ID, semantic role, unique required evidence
+  kinds, explicit required control IDs, and explicit required composite IDs;
 
 - response header snapshots using the established header schema;
 - HTML document inputs capped at 128 KiB each;
@@ -176,18 +178,42 @@ Fetch Metadata reports retain one reduced finding and counts. Credential
 headers are refused. WebAuthn reports retain only the explicit reduced
 configuration and three catalogue-aligned findings.
 
-Bundle report schema 3 merges applicable findings per control. Conflicting states
-become `inconclusive`; invalid evidence cannot be overridden by a favourable
-snapshot. Four project-authored composite candidates report `satisfied`,
-`review`, `gap`, or `not_evaluated` independently of browser compatibility.
-Surface coverage records contain only opaque IDs, roles, and required,
-observed, and missing evidence kinds.
+Bundle report schema 4 evaluates each surface against its declared control and
+composite applicability before producing a bounded cross-surface merge.
+Conflicting applicable states become `inconclusive`; invalid evidence cannot be
+overridden by a favourable snapshot. Controls and composites required by no
+surface are `not_applicable`, which is distinct from missing evidence and from
+an unevaluated required control.
 
-Evidence comparison schema 1 accepts two validated schema 3 reports and emits
-bounded deterministic events. It compares normalised control states, composite
-states, and expected-surface coverage. Events contain stable keys and
-before/after states, not original headers, HTML, resource data, or private
-identifiers.
+The report contains:
+
+- surface coverage and surface-scoped policy assessments;
+- bounded reduced subreports;
+- analyser, catalogue, BCD, Web Platform Features, and selected-schema
+  provenance;
+- a SHA-256 fingerprint over the canonical reduced report before the
+  fingerprint field is added.
+
+The fingerprint identifies the reduced report, not the raw evidence. Raw HTML,
+resource bytes, request targets, nonce values, digest values, cookie identities,
+and WebAuthn identifiers do not enter the fingerprint.
+Comparison and evidence-policy evaluation recompute this fingerprint and refuse
+modified report content.
+
+Evidence comparison schema 1 accepts two validated schema 4 reports and emits at
+most 512 deterministic events while retaining bounded total counts. Analyser or
+catalogue model mismatches make the reports semantically incomparable.
+Compatible comparisons detect state changes, surface-policy and coverage
+changes, and changes in retained reduced detail even when a state remains the
+same. Events contain stable keys and before/after states, not original headers,
+HTML, resource data, or private identifiers.
+
+Evidence policy schema 1 is independent of the submitted evidence bundle. It
+pins expected analyser, catalogue, and optionally BCD versions, then declares
+required surfaces, evidence kinds, controls, composites, rules, and at most 128
+expiring exceptions. Active exceptions can downgrade a negative finding to
+`review`; they never create a pass. Expired exceptions remain visible and no
+longer affect the decision.
 
 ## WPT evidence registry
 

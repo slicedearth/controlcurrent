@@ -26,9 +26,13 @@ It is not a general compatibility index and it does not scan websites.
   local SRI byte verification, Fetch Metadata request context, and reduced
   WebAuthn configuration
 - An expected-surface manifest that distinguishes missing evidence from
-  unexamined application scope
-- Deterministic reduced-report comparison with explicit regressions,
-  resolutions, other changes, and incomparable evidence
+  unexamined application scope and declares which controls and composites
+  actually apply to each surface
+- Provenance-stamped reduced reports with deterministic SHA-256 fingerprints
+- Detail-aware reduced-report comparison with explicit model compatibility,
+  regressions, resolutions, other changes, and incomparable evidence
+- An independent evidence-policy profile and CI exit code with expiring,
+  visible exceptions
 - Project-authored composite checks that keep candidate deployment recipes
   separate from browser support and production assurance
 - Current-channel compatibility matrix and browser release views
@@ -160,9 +164,20 @@ Compare two exported reduced reports and fail only for classified regressions:
 npm run cli -- compare-reports before.json after.json --fail-regression --json
 ```
 
+Evaluate an exported report against an independently maintained evidence
+policy:
+
+```sh
+npm run cli -- check-evidence examples/evidence-policy.json report.json \
+  --as-of 2026-07-23 --strict-review
+```
+
 The bundle command exits non-zero for invalid or inconsistent evidence. Add
 `--fail-missing` to include absent controls, or `--strict-composites` to require
-each project-authored composite candidate to avoid a review or gap state.
+each applicable project-authored composite candidate to avoid a review or gap
+state. Controls outside every declared surface policy are `not_applicable`, not
+failures. Evidence policy requirements come from a separate file, so weakening
+the submitted bundle cannot weaken the CI gate.
 
 ## Architecture
 
@@ -192,7 +207,14 @@ local response, HTML, request, and WebAuthn inputs
  non-executing bounded evidence reduction
           |
           v
- redacted findings and composite candidates
+ surface-scoped findings and composite candidates
+          |
+          v
+ provenance-stamped reduced report
+          |
+          +--> compatible detail-aware comparison
+          |
+          +--> independent evidence-policy gate
 ```
 
 The selected data is a build input. The deployed site makes no runtime request

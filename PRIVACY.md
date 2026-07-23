@@ -73,7 +73,15 @@ identifiers, user identifiers, and credential identifiers.
 Bundle labels and reduced WebAuthn selections remain in exported reports. Use
 non-identifying labels and review a generated file before sharing it.
 Expected-surface IDs and roles also remain in reports. Report comparison uses
-only reduced exports and stores neither report.
+only reduced exports and stores neither report. Surface control and composite
+requirements, source-model provenance, and a SHA-256 reduced-report fingerprint
+also remain in the export. The fingerprint covers the canonical reduced report,
+not raw HTML, resource bytes, nonce or digest values, cookie identities,
+request targets, or WebAuthn identifiers.
+
+Evidence-policy evaluations contain the reduced report fingerprint, pinned
+model provenance, the policy profile, decisions, and exception reasons. Use
+non-identifying exception reasons and review evaluation files before sharing.
 
 ## Source data
 

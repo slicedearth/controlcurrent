@@ -159,7 +159,7 @@ bounded local inputs
       +--> expected-surface coverage
       |
       v
-per-surface redacted reports
+explicit per-surface applicability and redacted reports
       |
       v
 control-level consistency merge
@@ -167,7 +167,12 @@ control-level consistency merge
       v
 project-authored composite candidates
       |
-      +--> deterministic comparison with another reduced report
+      v
+provenance-stamped, fingerprinted reduced report
+      |
+      +--> compatible, detail-aware comparison
+      |
+      +--> independent evidence-policy evaluation
 ```
 
 The HTML parser retains only counts, recognised integrity algorithms, parse

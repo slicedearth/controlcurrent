@@ -85,9 +85,17 @@ credential identifiers.
 
 An expected-surface manifest can itself be incomplete or misleading. The tool
 therefore describes coverage only for declared opaque surfaces and never calls
-the manifest a discovered route inventory. Comparison refuses invalid or
-future report schemas and does not infer a resolution from absent,
-`not_evaluated`, or incomparable evidence.
+the manifest a discovered route inventory. Per-surface control and composite
+requirements must be explicit; semantic roles do not silently add policy.
+Comparison refuses invalid or future report schemas, fails closed across
+incompatible analyser or catalogue versions, and does not infer a resolution
+from absent, `not_evaluated`, `not_applicable`, or incomparable evidence.
+
+Evidence-policy profiles are supplied separately from evidence reports. This
+prevents a report producer from weakening a gate by omitting requirements from
+the bundle. Model mismatches always fail. Exceptions are bounded, specific, and
+expiring; active exceptions produce review rather than pass, while expired
+exceptions remain visible.
 
 ## Build and workflow risks
 
