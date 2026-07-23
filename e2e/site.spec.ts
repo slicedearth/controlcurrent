@@ -51,7 +51,7 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
 
 test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
-  for (const path of ["/", "/matrix/", "/planner/"]) {
+  for (const path of ["/", "/matrix/", "/planner/", "/changes/"]) {
     await page.goto(path);
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
@@ -68,6 +68,15 @@ test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => 
     scrollWidth: element.scrollWidth
   }));
   expect(matrixDimensions.scrollWidth).toBeGreaterThan(matrixDimensions.clientWidth);
+});
+
+test("shows the reviewed source manifest without inventing review timestamps", async ({ page }) => {
+  await page.goto("/changes/");
+  await expect(page.getByRole("heading", { name: "Reviewed source states" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Reviewed source states" })).toContainText(
+    "3.34.1"
+  );
+  await expect(page.getByText("It is not the time a reviewer ran ControlCurrent")).toBeVisible();
 });
 
 test("does not detect the actual browser or expose a runtime connection surface", async ({

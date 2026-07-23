@@ -1,0 +1,18 @@
+{
+  "entries": [
+    {
+      "baselineAssociationCount": 25,
+      "bcdTimestamp": "2026-07-17T18:04:31.500Z",
+      "bcdVersion": "8.0.7",
+      "browserCount": 9,
+      "catalogueVersion": "2.0.0",
+      "controlCount": 29,
+      "id": "b4319cb8af6d70b544023a50",
+      "pathCount": 33,
+      "schemaFingerprint": "d36a4074ab4cd467067cfe3aa0b75bd7fe9ba3783c1b41c91bd08fa5fe34e3f7",
+      "associatedEventCount": 17,
+      "webFeaturesVersion": "3.34.1"
+    }
+  ],
+  "schemaVersion": 1
+}

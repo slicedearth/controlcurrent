@@ -1,20 +1,20 @@
 ---
 import Layout from "../components/Layout.astro";
-import { changeEvents, selectedSnapshot } from "../data";
+import { changeEvents, selectedSnapshot, sourceHistory } from "../data";
 import { formatDate } from "../format";
 ---
 
 <Layout
   title="Compatibility changes"
-  description="Observed changes in the selected MDN BCD security-control subset and the ControlCurrent catalogue."
+  description="Observed changes in the selected compatibility sources and ControlCurrent catalogue."
 >
   <header class="shell page-header">
     <span class="eyebrow">Versioned evidence</span>
     <h1>Support data changes, without rewriting browser history</h1>
     <p>
-      Events separate upstream BCD revisions, control-catalogue changes, browser release metadata,
-      and calculated deployment results. A source-data correction is not automatically a browser
-      regression or fix.
+      Events separate upstream BCD revisions, WebDX Baseline metadata, control-catalogue changes,
+      browser release metadata, and calculated deployment results. A source-data correction is not
+      automatically a browser regression or fix.
     </p>
   </header>
   <section class="shell section">
@@ -25,7 +25,11 @@ import { formatDate } from "../format";
         >
         <h2>Selected-subset timeline</h2>
       </div>
-      <p>Current source: MDN BCD {selectedSnapshot.bcdVersion}</p>
+      <p>
+        Current sources: MDN BCD {selectedSnapshot.bcdVersion} and WebDX {
+          selectedSnapshot.webFeaturesVersion
+        }
+      </p>
     </div>
     <ol class="event-list">
       {
@@ -45,5 +49,53 @@ import { formatDate } from "../format";
       This first release establishes a real BCD baseline. It does not invent historical events from
       versions that ControlCurrent did not retain and compare.
     </div>
+  </section>
+  <section class="shell section">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Append-only source manifest</span>
+        <h2>Reviewed source states</h2>
+      </div>
+      <p>
+        Each entry records the exact package pair, catalogue, structural fingerprint, and selected
+        counts that produced a committed snapshot.
+      </p>
+    </div>
+    <div class="table-wrap" role="region" aria-label="Reviewed source states" tabindex="0">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">BCD source date</th>
+            <th scope="col">BCD</th>
+            <th scope="col">WebDX</th>
+            <th scope="col">Catalogue</th>
+            <th scope="col">Controls</th>
+            <th scope="col">Paths</th>
+            <th scope="col">Baseline links</th>
+            <th scope="col">Associated events</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            [...sourceHistory.entries].reverse().map((entry) => (
+              <tr>
+                <th scope="row">{formatDate(entry.bcdTimestamp)}</th>
+                <td>{entry.bcdVersion}</td>
+                <td>{entry.webFeaturesVersion}</td>
+                <td>{entry.catalogueVersion}</td>
+                <td>{entry.controlCount}</td>
+                <td>{entry.pathCount}</td>
+                <td>{entry.baselineAssociationCount}</td>
+                <td>{entry.associatedEventCount}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>
+      The BCD package timestamp is an upstream source timestamp. It is not the time a reviewer ran
+      ControlCurrent, and it does not reconstruct versions that were never retained.
+    </p>
   </section>
 </Layout>

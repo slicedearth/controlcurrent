@@ -66,6 +66,7 @@ export function compareSnapshots(beforeInput: unknown, afterInput: unknown): Cha
   const base = {
     schemaVersion: 1 as const,
     observedInBcdVersion: after.bcdVersion,
+    observedInWebFeaturesVersion: after.webFeaturesVersion,
     sourceTimestamp: after.bcdTimestamp
   };
   const events: ChangeEvent[] = [];
@@ -96,6 +97,21 @@ export function compareSnapshots(beforeInput: unknown, afterInput: unknown): Cha
   }
 
   for (const path of [...afterPaths].filter((item) => beforePaths.has(item)).sort()) {
+    const previousBaseline = before.features[path]?.baseline;
+    const currentBaseline = after.features[path]?.baseline;
+    if (JSON.stringify(previousBaseline) !== JSON.stringify(currentBaseline)) {
+      events.push(
+        makeEvent({
+          ...base,
+          type: "baseline_metadata_changed",
+          path,
+          before: previousBaseline,
+          after: currentBaseline,
+          summary: `WebDX Baseline metadata changed for ${path}.`
+        })
+      );
+    }
+
     for (const browser of BROWSERS) {
       const previous = comparableSupport(before, path, browser);
       const current = comparableSupport(after, path, browser);
@@ -180,6 +196,7 @@ export function baselineEvent(snapshotInput: unknown): ChangeEvent {
     schemaVersion: 1,
     type: "baseline_established",
     observedInBcdVersion: snapshot.bcdVersion,
+    observedInWebFeaturesVersion: snapshot.webFeaturesVersion,
     sourceTimestamp: snapshot.bcdTimestamp,
     summary: `ControlCurrent established its first selected BCD baseline at version ${snapshot.bcdVersion}.`
   };

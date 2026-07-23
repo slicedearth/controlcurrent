@@ -21,7 +21,7 @@ It is not a general compatibility index and it does not scan websites.
 - Version-controlled policy profiles with expiring, visible exceptions
 - A local CLI for policy checks, explanations, and minimum-baseline calculation
 - Current-channel compatibility matrix and browser release views
-- Deterministic selected-source snapshots and change events
+- Deterministic selected-source snapshots, change events, and source history
 - Static pages suitable for GitHub Pages
 - Original deployment guidance, fallbacks, and limitations
 
@@ -89,7 +89,12 @@ Source updates are deliberate:
 3. Run `npm install` with the repository's npm version.
 4. Run `npm run generate`.
 5. Inspect `data/selected-bcd.json` and `data/change-events.json`.
-6. Run the complete verification suite.
+6. Inspect the appended `data/source-history.json` entry.
+7. Run the complete verification suite.
+
+The weekly source-review workflow is read-only. It reports when either locked
+source package is behind npm registry metadata and does not edit files, open
+issues, commit, push, or deploy.
 
 `npm run generate:check` fails when the locked package and committed selected
 snapshot differ. A missing configured path fails generation rather than

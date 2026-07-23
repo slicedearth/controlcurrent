@@ -6,14 +6,20 @@ import { z } from "zod";
 import { BROWSER_IDS } from "../src/browsers";
 import { canonicalJson } from "../src/canonical";
 import { baselineEvent, compareSnapshots } from "../src/changes";
-import { changeEventSchema, selectedSnapshotSchema } from "../src/contracts";
+import { changeEventSchema, selectedSnapshotSchema, sourceHistorySchema } from "../src/contracts";
 import { buildSelectedSnapshot, schemaFingerprint } from "../src/source";
+import {
+  appendSourceHistory,
+  entryMatchesSnapshot,
+  sourceHistoryEntry
+} from "../src/source-history";
 
 const require = createRequire(import.meta.url);
 const bcd = require("@mdn/browser-compat-data") as CompatData;
 const root = resolve(import.meta.dirname, "..");
 const snapshotPath = resolve(root, "data", "selected-bcd.json");
 const eventsPath = resolve(root, "data", "change-events.json");
+const sourceHistoryPath = resolve(root, "data", "source-history.json");
 const checkOnly = process.argv.includes("--check");
 const eventListSchema = z.array(changeEventSchema).max(10_000);
 const packageSchema = z.looseObject({
@@ -38,6 +44,7 @@ const generated = buildSelectedSnapshot(bcd, {
 const generatedText = canonicalJson(generated);
 const existingInput = await readJson(snapshotPath);
 const existingEventsInput = await readJson(eventsPath);
+const sourceHistoryInput = await readJson(sourceHistoryPath);
 
 function migrateLegacySnapshot(input: unknown) {
   if (
@@ -91,6 +98,13 @@ function migrateLegacySnapshot(input: unknown) {
 if (checkOnly) {
   const existing = migrateLegacySnapshot(existingInput);
   eventListSchema.parse(existingEventsInput);
+  const sourceHistory = sourceHistorySchema.parse(sourceHistoryInput);
+  const latestSource = sourceHistory.entries.at(-1);
+  if (!latestSource || !entryMatchesSnapshot(latestSource, generated)) {
+    throw new Error(
+      "The source history does not describe the locked selected subset. Run npm run generate and review data/source-history.json."
+    );
+  }
   if (canonicalJson(existing) !== generatedText) {
     throw new Error(
       "The committed selected BCD subset does not match the locked package. Run npm run generate and review the change events."
@@ -119,10 +133,24 @@ if (checkOnly) {
           left.id.localeCompare(right.id)
       )
   );
+  const associatedEventCount =
+    sourceHistoryInput === undefined
+      ? combinedEvents.filter(
+          (event) =>
+            event.observedInBcdVersion === generated.bcdVersion &&
+            event.sourceTimestamp === generated.bcdTimestamp
+        ).length
+      : newEvents.length;
+  const historyEntry = sourceHistoryEntry(generated, associatedEventCount);
+  const sourceHistory = appendSourceHistory(sourceHistoryInput, historyEntry);
 
   await mkdir(resolve(root, "data"), { recursive: true });
   await writeFile(snapshotPath, generatedText, { encoding: "utf8", mode: 0o644 });
   await writeFile(eventsPath, canonicalJson(combinedEvents), {
+    encoding: "utf8",
+    mode: 0o644
+  });
+  await writeFile(sourceHistoryPath, canonicalJson(sourceHistory), {
     encoding: "utf8",
     mode: 0o644
   });

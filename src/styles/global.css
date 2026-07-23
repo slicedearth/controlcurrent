@@ -734,8 +734,16 @@ select:disabled {
   display: grid;
   padding: 1.2rem 0;
   border-top: 1px solid var(--line);
-  grid-template-columns: 10rem 1fr;
+  grid-template-columns: 10rem minmax(0, 1fr);
   gap: 1rem;
+}
+
+.event-list li > * {
+  min-width: 0;
+}
+
+.event-list h3 {
+  overflow-wrap: anywhere;
 }
 
 .event-list time {
@@ -834,7 +842,7 @@ footer {
   }
 
   .event-list li {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.2rem;
   }
 

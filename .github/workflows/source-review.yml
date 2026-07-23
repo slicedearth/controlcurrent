@@ -1,17 +1,19 @@
-name: Source update dry run
+name: Source review
 
 on:
+  schedule:
+    - cron: "17 7 * * 1"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: source-update-dry-run
+  group: source-review
   cancel-in-progress: true
 
 jobs:
-  inspect:
+  compare:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -31,13 +33,11 @@ jobs:
       - name: Verify committed source selection
         run: npm run generate:check
 
-      - name: Report current BCD package version
-        run: npm view @mdn/browser-compat-data version --json
+      - name: Compare locked packages with the registry
+        run: npm outdated @mdn/browser-compat-data web-features
 
-      - name: Report current Web Platform Features package version
-        run: npm view web-features version --json
-
-      - name: State dry-run boundary
+      - name: State read-only boundary
+        if: always()
         run: |
-          echo "No package, data, issue, commit, push, workflow, or deployment was changed."
-          echo "Review newer packages locally before updating the lockfile and selected source subset."
+          echo "This review does not edit packages or data."
+          echo "It does not create issues, commits, pushes, deployments, or releases."

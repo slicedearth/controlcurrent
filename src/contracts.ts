@@ -314,6 +314,7 @@ export const changeEventSchema = z
       "prefix_changed",
       "alternative_name_changed",
       "note_changed",
+      "baseline_metadata_changed",
       "selected_path_added",
       "selected_path_removed",
       "browser_release_added",
@@ -321,6 +322,7 @@ export const changeEventSchema = z
       "source_became_incomparable"
     ]),
     observedInBcdVersion: z.string().min(1).max(64),
+    observedInWebFeaturesVersion: z.string().min(1).max(64).optional(),
     sourceTimestamp: z.iso.datetime(),
     path: z.string().max(256).optional(),
     browser: browserIdSchema.optional(),
@@ -330,3 +332,28 @@ export const changeEventSchema = z
   })
   .strict();
 export type ChangeEvent = z.infer<typeof changeEventSchema>;
+
+export const sourceHistoryEntrySchema = z
+  .object({
+    id: z.string().regex(/^[a-f0-9]{24}$/u),
+    bcdVersion: z.string().min(1).max(64),
+    bcdTimestamp: z.iso.datetime(),
+    webFeaturesVersion: z.string().min(1).max(64),
+    catalogueVersion: z.string().min(1).max(64),
+    schemaFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    browserCount: z.number().int().min(1).max(BROWSER_IDS.length),
+    controlCount: z.number().int().min(0).max(64),
+    pathCount: z.number().int().min(0).max(64),
+    baselineAssociationCount: z.number().int().min(0).max(512),
+    associatedEventCount: z.number().int().min(0).max(10_000)
+  })
+  .strict();
+export type SourceHistoryEntry = z.infer<typeof sourceHistoryEntrySchema>;
+
+export const sourceHistorySchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    entries: z.array(sourceHistoryEntrySchema).max(512)
+  })
+  .strict();
+export type SourceHistory = z.infer<typeof sourceHistorySchema>;

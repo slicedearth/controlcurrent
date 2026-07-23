@@ -63,6 +63,7 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Stored profile                          |      4,096 bytes |
 | Profile export                          |          512 KiB |
 | Change events                           |           10,000 |
+| Source-history entries                  |              512 |
 | Public file                             |            2 MiB |
 | Public build                            |           25 MiB |
 
@@ -89,3 +90,15 @@ families. Catalogue changes use a separate catalogue version. Source package
 changes preserve their package versions and BCD timestamp. Algorithm changes
 that alter results must change the catalogue or relevant contract version and
 add regression fixtures.
+
+## Source history
+
+`data/source-history.json` records the reviewed source states that produced
+committed snapshots. Each entry contains the exact BCD, Web Platform Features,
+and catalogue versions; the structural fingerprint; selected browser, control,
+path, and Baseline-association counts; and the number of associated change events
+emitted for that state.
+
+Entry identifiers are content-derived. Re-running generation for an identical
+source state does not append another entry. The bounded manifest does not
+reconstruct source versions that ControlCurrent never retained.

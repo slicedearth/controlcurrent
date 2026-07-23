@@ -1,10 +1,12 @@
 import selectedInput from "../data/selected-bcd.json";
 import changesInput from "../data/change-events.json";
+import sourceHistoryInput from "../data/source-history.json";
 import { z } from "zod";
 import { BROWSER_IDS } from "./browsers";
 import {
   changeEventSchema,
   selectedSnapshotSchema,
+  sourceHistorySchema,
   type BrowserId,
   type DeploymentProfile
 } from "./contracts";
@@ -12,6 +14,7 @@ import { evaluateProfile } from "./evaluate";
 
 export const selectedSnapshot = selectedSnapshotSchema.parse(selectedInput);
 export const changeEvents = z.array(changeEventSchema).parse(changesInput);
+export const sourceHistory = sourceHistorySchema.parse(sourceHistoryInput);
 
 export function currentBrowserProfile(): DeploymentProfile {
   const ids: readonly BrowserId[] = BROWSER_IDS;

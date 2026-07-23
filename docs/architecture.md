@@ -113,10 +113,18 @@ catalogue updates compare the previous complete subset with the new subset and
 append deterministic events. Event identifiers are content-derived. A build
 does not invent history for BCD versions that were never retained.
 
+`data/source-history.json` separately records every reviewed package pair and
+selected structural fingerprint. It is append-only and bounded. Its timestamp
+is the BCD package timestamp, not a claim about the exact time a reviewer or
+browser changed state.
+
 ## Deployment
 
 Astro produces directory-form static routes. GitHub Pages configuration is
 enabled only in the manually dispatched Pages workflow. The site uses a
 repository base path in GitHub Actions and root paths in local development.
 
-No scheduled update or write-capable data workflow is present.
+A weekly read-only source review compares the locked BCD and Web Platform
+Features packages with npm registry metadata. It fails visibly when a newer
+version needs review, but cannot edit packages or data, open issues, commit,
+push, or deploy. The manual dry run has the same no-write boundary.
