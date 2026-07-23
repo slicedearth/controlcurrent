@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   MAX_PUBLIC_JSON_FILE_BYTES,
   MAX_PUBLIC_JSON_TOTAL_BYTES,
+  auditPagesWorkflow,
   auditPublicJson,
   auditPublicJsonTotal,
-  auditRepositoryPaths
+  auditRepositoryPaths,
+  auditWorkflow
 } from "../src/repository-audit";
 
 describe("repository publication audit", () => {
@@ -58,5 +60,56 @@ describe("repository publication audit", () => {
     expect(() => auditPublicJsonTotal(MAX_PUBLIC_JSON_TOTAL_BYTES + 1)).toThrow(
       /aggregate size bound/u
     );
+  });
+
+  it("accepts reviewed immutable action references", () => {
+    const workflow = `
+name: CI
+on: push
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@${"a".repeat(40)} # v7.0.0
+      - uses: ./local-action
+`;
+    expect(() =>
+      auditWorkflow(".github/workflows/ci.yml", workflow, workflow.length)
+    ).not.toThrow();
+  });
+
+  it("rejects mutable actions and privileged workflow patterns", () => {
+    const rejected = [
+      "on:\n  pull_request_target:\n",
+      "jobs:\n  test:\n    runs-on: self-hosted\n",
+      "permissions: write-all\n",
+      "steps:\n  - uses: actions/checkout@v7 # v7.0.0\n",
+      `steps:\n  - uses: actions/checkout@${"a".repeat(40)}\n`
+    ];
+    for (const workflow of rejected) {
+      expect(() =>
+        auditWorkflow(".github/workflows/unsafe.yml", workflow, workflow.length)
+      ).toThrow();
+    }
+  });
+
+  it("keeps Pages credentials out of the dependency build job", () => {
+    const safe = `
+jobs:
+  build:
+    permissions:
+      contents: read
+      pages: read
+  deploy:
+    permissions:
+      pages: write
+      id-token: write
+`;
+    expect(() => auditPagesWorkflow(safe)).not.toThrow();
+
+    const privilegedBuild = safe.replace("      pages: read", "      pages: write");
+    expect(() => auditPagesWorkflow(privilegedBuild)).toThrow(/build job must limit Pages/u);
   });
 });

@@ -116,10 +116,12 @@ Attestation, inventory, identity, and freshness findings cannot receive a
 surface exception. The reduced result omits certificates, complete bundles,
 transparency entries, and upstream diagnostic messages.
 
-The verifier uses Sigstore's packaged TUF seed with live refresh disabled in a
-new temporary cache. This avoids an unreviewed runtime trust-root request and
-makes the locked dependency version part of the trust decision. It also means a
-trust-root update requires a dependency review.
+The verifier reads the reviewed `trusted_root.json` target directly from
+Sigstore's lockfile-pinned package seed, verifies a project-pinned SHA-256
+digest, and converts it with the maintained protobuf implementation. It never
+starts the TUF client or performs a trust-material network request. The locked
+dependency version and pinned digest are part of the trust decision, so a
+trust-root update requires explicit code, dependency, and fixture review.
 
 A valid attestation proves that the configured identity signed the matching
 statement under the accepted Sigstore trust material. It does not prove that
@@ -158,10 +160,22 @@ and freshness cannot be exempted through surface exceptions.
 - Lifecycle scripts are explicitly reviewed in `allowScripts`.
 - CI has read-only content permission.
 - Pages deployment has only required Pages and identity permissions.
+- Dependency installation and the static build receive no Pages write or OIDC
+  credentials; those credentials exist only in the dependency-free deploy job.
 - Actions are pinned to full commit SHAs.
 - No workflow commits, pushes, creates issues, or uses `pull_request_target`.
 - The scheduled source review is read-only and cannot modify repository or
   deployment state.
+- A generated-site audit refuses source maps, inline executable content,
+  executable URL schemes, runtime network APIs, external active resources, and
+  missing restrictive meta-policy directives.
+
+GitHub Pages cannot attach a project-controlled `frame-ancestors` response
+header. A browser-side guard refuses interactive use when framing is detected,
+but it is defence in depth and cannot isolate sibling applications on the same
+origin. Organisation-specific evidence belongs on a dedicated reviewed origin;
+the shared Pages origin is limited to public data and deliberately redacted
+examples.
 
 ## Out of scope
 

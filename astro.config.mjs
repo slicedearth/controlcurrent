@@ -10,6 +10,12 @@ export default defineConfig({
   trailingSlash: "always",
   integrations: [sitemap()],
   build: {
-    format: "directory"
+    format: "directory",
+    inlineStylesheets: "never"
+  },
+  vite: {
+    build: {
+      assetsInlineLimit: 0
+    }
   }
 });

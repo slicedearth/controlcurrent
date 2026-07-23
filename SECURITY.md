@@ -46,7 +46,8 @@ ControlCurrent is a static application:
 - fail-closed independent policy for attestation, identity, and evidence
   freshness;
 - optional CLI-only Sigstore verification with exact issuer and URI identity,
-  bounded DSSE input, packaged TUF trust material, and no live trust refresh.
+  bounded DSSE input, a hash-pinned packaged trust target, and no trust-material
+  network request.
 
 The build treats the BCD package as hostile structured input. Selected paths,
 string lengths, statement counts, browser releases, schema versions, and output
@@ -61,9 +62,13 @@ schema stops publication.
 - Dependencies are installed from the committed lockfile.
 - Sigstore verification uses maintained libraries rather than project-authored
   cryptography and is excluded from the browser build.
-- GitHub Actions use least privilege and immutable action revisions.
-- The public-tree audit checks size, secrets, unsafe source links, and local
-  development URLs.
+- GitHub Actions use immutable action revisions; deployment credentials exist
+  only in the dependency-free Pages deployment job.
+- The repository audit refuses mutable action references, privileged triggers,
+  self-hosted runners, and deployment credentials in the build job.
+- The public-tree audit checks size, secrets, executable URL schemes, inline
+  scripts and event handlers, runtime network APIs, restrictive CSP markers,
+  source maps, unsafe source links, and local development URLs.
 
 ## Not a security assessment
 

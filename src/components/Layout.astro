@@ -11,8 +11,8 @@ const { title, description } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const contentSecurityPolicy = import.meta.env.DEV
-  ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
-  : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests";
+  ? "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-attr 'none'; img-src 'self' data:; connect-src 'self' ws:; font-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'self'; form-action 'none'"
+  : "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data:; connect-src 'none'; font-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests";
 const nav = [
   { href: "/", label: "Overview" },
   { href: "/controls/", label: "Controls" },
@@ -41,6 +41,13 @@ const pathWithBase = (path: string) => `${base}${path}`;
     <title>{title} · ControlCurrent</title>
   </head>
   <body>
+    <aside id="embedding-warning" class="embedding-warning" role="alert" hidden>
+      <strong>Open ControlCurrent directly</strong>
+      <p>
+        Interactive planning and assessment are disabled inside an embedded frame. Open this page in
+        its own browser tab before entering any redacted evidence.
+      </p>
+    </aside>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
       <div class="shell header-inner">
@@ -103,5 +110,12 @@ const pathWithBase = (path: string) => `${base}${path}`;
         </nav>
       </div>
     </footer>
+    <script>
+      const warning = document.querySelector<HTMLElement>("#embedding-warning");
+      if (warning && window.self !== window.top) {
+        document.documentElement.dataset.embedding = "blocked";
+        warning.hidden = false;
+      }
+    </script>
   </body>
 </html>

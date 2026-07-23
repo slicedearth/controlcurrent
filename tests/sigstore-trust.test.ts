@@ -1,19 +1,16 @@
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { getTrustedRoot } from "@sigstore/tuf";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import {
+  PACKAGED_SIGSTORE_TRUST_ROOT_SHA256,
+  loadPackagedSigstoreTrustedRoot
+} from "../src/sigstore-trust";
 
 describe("packaged Sigstore trust material", () => {
-  it("loads the locked TUF seed with live refresh disabled", async () => {
-    const cachePath = await mkdtemp(join(tmpdir(), "controlcurrent-tuf-test-"));
+  it("loads the reviewed locked-package target without network access", async () => {
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockRejectedValue(new Error("Network is disabled."));
     try {
-      const trustedRoot = await getTrustedRoot({
-        cachePath,
-        forceCache: true,
-        retry: 0,
-        timeout: 1_000
-      });
+      const trustedRoot = await loadPackagedSigstoreTrustedRoot();
 
       expect(trustedRoot.mediaType).toBe(
         "application/vnd.dev.sigstore.trustedroot+json;version=0.1"
@@ -21,8 +18,10 @@ describe("packaged Sigstore trust material", () => {
       expect(trustedRoot.certificateAuthorities.length).toBeGreaterThan(0);
       expect(trustedRoot.tlogs.length).toBeGreaterThan(0);
       expect(trustedRoot.ctlogs.length).toBeGreaterThan(0);
+      expect(PACKAGED_SIGSTORE_TRUST_ROOT_SHA256).toMatch(/^[a-f0-9]{64}$/u);
+      expect(fetch).not.toHaveBeenCalled();
     } finally {
-      await rm(cachePath, { force: true, recursive: true });
+      fetch.mockRestore();
     }
   });
 });

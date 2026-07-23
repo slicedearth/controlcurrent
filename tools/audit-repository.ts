@@ -5,9 +5,11 @@ import { promisify } from "node:util";
 import {
   ALLOWED_PUBLIC_DATA_FILES,
   ALLOWED_SYNTHETIC_EXAMPLE_FILES,
+  auditPagesWorkflow,
   auditPublicJson,
   auditPublicJsonTotal,
-  auditRepositoryPaths
+  auditRepositoryPaths,
+  auditWorkflow
 } from "../src/repository-audit";
 
 const run = promisify(execFile);
@@ -38,6 +40,17 @@ for (const file of jsonFiles) {
 }
 auditPublicJsonTotal(totalBytes);
 
+const workflowFiles = files.filter(
+  (file) => file.startsWith(".github/workflows/") && /\.ya?ml$/u.test(file)
+);
+for (const file of workflowFiles) {
+  const path = resolve(root, file);
+  const metadata = await stat(path);
+  const contents = await readFile(path, "utf8");
+  auditWorkflow(file, contents, metadata.size);
+  if (file === ".github/workflows/pages.yml") auditPagesWorkflow(contents);
+}
+
 console.log(
-  `Audited ${String(files.length)} tracked or unignored paths and ${String(jsonFiles.length)} bounded public JSON files (${String(totalBytes)} bytes); no local exports or prohibited content found.`
+  `Audited ${String(files.length)} tracked or unignored paths, ${String(jsonFiles.length)} bounded public JSON files (${String(totalBytes)} bytes), and ${String(workflowFiles.length)} workflow files; no local exports, prohibited content, mutable action references, or privileged build permissions found.`
 );

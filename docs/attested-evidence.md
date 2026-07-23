@@ -98,10 +98,12 @@ The verifier requires a DSSE envelope with the in-toto payload type, a supported
 Sigstore bundle, one certificate-transparency verification, one transparency-log
 verification, and the exact policy identity.
 
-The CLI uses the Sigstore libraries' packaged TUF seed with live refresh
-disabled. It creates a temporary trust cache for one invocation and removes it
-after verification. Updating the locked Sigstore dependencies is therefore a
-deliberate trust-material review.
+The CLI reads the reviewed `trusted_root.json` target directly from the
+lockfile-pinned `@sigstore/tuf` package, verifies its project-pinned SHA-256
+digest, and converts it with `@sigstore/protobuf-specs`. It never starts the TUF
+client or performs a trust-material network request. Updating the locked
+Sigstore dependencies or accepted digest is therefore a deliberate
+trust-material review.
 
 Reduced verification states are:
 

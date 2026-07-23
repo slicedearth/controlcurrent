@@ -19,17 +19,20 @@ Dependencies must be:
 metadata. Zod validates selected source and public calculation contracts.
 parse5 provides a maintained WHATWG-compatible HTML parser so supplied markup
 can be inspected as a tree without browser execution or resource loading.
-`@sigstore/bundle`, `@sigstore/tuf`, and `@sigstore/verify` provide maintained
-bundle parsing, TUF trust material, certificate and transparency verification,
-and signature-policy enforcement for the CLI-only evidence-attestation path.
+`@sigstore/bundle`, `@sigstore/protobuf-specs`, `@sigstore/tuf`, and
+`@sigstore/verify` provide maintained bundle parsing, trust-root conversion,
+packaged trust material, certificate and transparency verification, and
+signature-policy enforcement for the CLI-only evidence-attestation path.
 ControlCurrent does not implement its own cryptography.
 
 The deployed application has no server runtime dependency.
 
-The Sigstore libraries are excluded from the browser build. Verification uses a
-new temporary cache and the trust snapshot packaged with the locked TUF
-dependency. Live trust refresh, signing, OIDC acquisition, and transparency-log
-publication are not part of the verifier.
+The Sigstore libraries are excluded from the browser build. Verification reads
+the reviewed `trusted_root.json` target directly from the lockfile-pinned
+`@sigstore/tuf` package, verifies its project-pinned SHA-256 digest, converts it
+with `@sigstore/protobuf-specs`, and never starts the TUF client. Trust refresh,
+signing, OIDC acquisition, and transparency-log publication are not part of the
+verifier.
 
 ## Development dependencies
 

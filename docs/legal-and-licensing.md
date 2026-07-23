@@ -72,16 +72,17 @@ submitted HTML.
 The CLI-only verifier uses:
 
 - **@sigstore/bundle:** Apache License 2.0;
+- **@sigstore/protobuf-specs:** Apache License 2.0;
 - **@sigstore/tuf:** Apache License 2.0;
 - **@sigstore/verify:** Apache License 2.0;
 - their locked transitive dependencies under the licences recorded in
   `package-lock.json`.
 
-The libraries parse and verify user-supplied Sigstore bundles against the
-packaged public-good trust snapshot. They are not bundled into the static
-website. ControlCurrent does not copy Sigstore documentation, issue
-certificates, sign statements, obtain OIDC tokens, or publish transparency-log
-entries.
+The libraries parse and verify user-supplied Sigstore bundles against a
+hash-pinned public-good trust target packaged by the locked dependency. They are
+not bundled into the static website. ControlCurrent does not copy Sigstore
+documentation, issue certificates, sign statements, obtain OIDC tokens, or
+publish transparency-log entries.
 
 ## Licence separation
 

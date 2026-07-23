@@ -104,9 +104,16 @@ under the ignored `private-data/` directory rather than forcing an export into
 Git history.
 
 Attestation verification is a CLI-only operation. It reads a user-supplied
-bundle in process memory, creates a temporary trust cache from the dependency's
-packaged TUF seed, disables live refresh, and removes that cache after the
-invocation. The static website neither receives nor verifies a bundle.
+bundle in process memory, loads the reviewed `trusted_root.json` target directly
+from the lockfile-pinned `@sigstore/tuf` package, verifies its project-pinned
+SHA-256 digest, and performs no TUF or network refresh. The static website
+neither receives nor verifies a bundle.
+
+The static site refuses interactive use when it detects that it is embedded in
+a frame. This is defence in depth rather than a substitute for a response-header
+`frame-ancestors` policy. On a shared hosting origin, enter only deliberately
+redacted examples; use a dedicated origin before handling organisation-specific
+evidence.
 
 ## Source data
 

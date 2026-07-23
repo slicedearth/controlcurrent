@@ -58,8 +58,13 @@ import Layout from "../components/Layout.astro";
     <p>
       Compatibility data ships with the static site. The Content Security Policy denies runtime
       connections, and the planner makes no fetch request. External documentation links use a
-      no-referrer policy. Sigstore verification does not run in the browser and uses packaged trust
-      material without a live refresh.
+      no-referrer policy. Sigstore verification does not run in the browser and uses a hash-pinned
+      packaged trust target without a network refresh.
+    </p>
+    <p>
+      ControlCurrent refuses interactive use when it detects an embedded frame. On a shared hosting
+      origin, enter only deliberately redacted examples; use a dedicated reviewed origin before
+      handling organisation-specific evidence.
     </p>
 
     <h2>Deletion</h2>

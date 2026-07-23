@@ -226,13 +226,14 @@ identity selected by schema 4 evidence policy, then compares the verified
 subject and predicate with the supplied report. It requires
 certificate-transparency and transparency-log evidence.
 
-Sigstore verification is excluded from the browser build. The CLI creates a
-temporary TUF cache, uses only the trust snapshot packaged with the locked
-`@sigstore/tuf` dependency, disables live refresh, and deletes the cache after
-the invocation. The reduced result retains no bundle, certificate, transparency
-entry, or dependency error message. A verified result authenticates the signed
-statement and configured signer identity; it does not authenticate how the
-underlying evidence was collected or prove that the producer was uncompromised.
+Sigstore verification is excluded from the browser build. The CLI reads the
+reviewed `trusted_root.json` target directly from the lockfile-pinned
+`@sigstore/tuf` package, verifies its project-pinned SHA-256 digest, converts it
+with `@sigstore/protobuf-specs`, and never starts the TUF client. The reduced
+result retains no bundle, certificate, transparency entry, or dependency error
+message. A verified result authenticates the signed statement and configured
+signer identity; it does not authenticate how the underlying evidence was
+collected or prove that the producer was uncompromised.
 
 ## Conformance evidence boundary
 
@@ -262,6 +263,16 @@ browser changed state.
 Astro produces directory-form static routes. GitHub Pages configuration is
 enabled only in the manually dispatched Pages workflow. The site uses a
 repository base path in GitHub Actions and root paths in local development.
+Dependency installation and verification run without Pages write or OIDC
+credentials. A separate dependency-free job receives only the permissions
+required to deploy the reviewed artifact.
+
+The deployed meta policy blocks scripts, styles, frames, workers, forms, media,
+and connections outside the explicit static requirements. Because
+`frame-ancestors` is enforceable only as an HTTP response header and GitHub
+Pages does not expose project-controlled headers, a client-side guard refuses
+framed interaction. The guard is not a substitute for origin isolation; use a
+dedicated reviewed origin before processing organisation-specific evidence.
 
 A weekly read-only source review compares the locked BCD and Web Platform
 Features packages with npm registry metadata. It fails visibly when a newer

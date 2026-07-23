@@ -48,6 +48,34 @@ body {
   line-height: 1.65;
 }
 
+html[data-embedding="blocked"] body > :not(.embedding-warning) {
+  display: none !important;
+}
+
+.embedding-warning {
+  width: min(calc(100% - 2rem), 42rem);
+  margin: 2rem auto;
+  padding: 1.25rem;
+  border: 1px solid var(--amber);
+  border-radius: var(--radius);
+  background: #111b1d;
+  box-shadow: var(--shadow);
+}
+
+.embedding-warning[hidden] {
+  display: none;
+}
+
+.embedding-warning strong {
+  color: var(--amber);
+  font-size: 1.2rem;
+}
+
+.embedding-warning p {
+  margin-bottom: 0;
+  color: var(--ink);
+}
+
 a {
   color: var(--accent);
   text-underline-offset: 0.2em;

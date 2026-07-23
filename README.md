@@ -91,9 +91,10 @@ The deployed site has:
 - no HTML execution or resource loading in evidence-bundle analysis;
 - no automatic profile persistence.
 
-Sigstore verification is CLI-only. It uses a temporary cache and the trust
-snapshot packaged with the locked TUF dependency, with live refresh disabled.
-The static website never receives an attestation bundle.
+Sigstore verification is CLI-only. It loads the reviewed `trusted_root.json`
+target bundled with the lockfile-pinned `@sigstore/tuf` package, verifies its
+project-pinned SHA-256 digest, and performs no TUF or network refresh. The
+static website never receives an attestation bundle.
 
 A supplied scope inventory is reduced in memory. The public report retains its
 kind, completeness, generation time, counts, and semantic fingerprint, but not
@@ -292,6 +293,7 @@ for compatibility data.
 - [Conformance evidence](docs/conformance-evidence.md)
 - [Methodology](docs/methodology.md)
 - [Threat model](docs/threat-model.md)
+- [Deployment security](docs/deployment-security.md)
 - [Dependency policy](docs/dependency-policy.md)
 - [Legal and licensing](docs/legal-and-licensing.md)
 - [Engineering case study](docs/engineering-case-study.md)

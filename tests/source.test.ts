@@ -2,6 +2,11 @@ import { createRequire } from "node:module";
 import type { CompatData } from "@mdn/browser-compat-data";
 import { describe, expect, it } from "vitest";
 import selected from "../data/selected-bcd.json";
+import {
+  featureEvaluationSchema,
+  selectedFeatureSchema,
+  supportStatementSchema
+} from "../src/contracts";
 import { buildSelectedSnapshot, resolveIdentifier } from "../src/source";
 
 const require = createRequire(import.meta.url);
@@ -23,5 +28,44 @@ describe("locked BCD source selection", () => {
       /does not resolve to an identifier/u
     );
     expect(() => resolveIdentifier(bcd, "http.headers")).toThrow(/has no __compat statement/u);
+  });
+
+  it("refuses source links that could execute or disclose credentials", () => {
+    const feature = selectedFeatureSchema.parse(selected.features["http.headers.Clear-Site-Data"]);
+
+    expect(() =>
+      selectedFeatureSchema.parse({
+        ...feature,
+        mdnUrl: "javascript:alert(1)"
+      })
+    ).toThrow(/Source URLs must use HTTPS/u);
+    expect(() =>
+      selectedFeatureSchema.parse({
+        ...feature,
+        mdnUrl: "https://example.com/not-mdn"
+      })
+    ).toThrow(/developer\.mozilla\.org/u);
+    expect(() =>
+      selectedFeatureSchema.parse({
+        ...feature,
+        specUrls: ["https://user:password@example.com/specification"]
+      })
+    ).toThrow(/without embedded credentials/u);
+    expect(() =>
+      supportStatementSchema.parse({
+        version_added: "1",
+        impl_url: "data:text/html,<script>alert(1)</script>"
+      })
+    ).toThrow(/Source URLs must use HTTPS/u);
+    expect(() =>
+      featureEvaluationSchema.parse({
+        path: "http.headers.Clear-Site-Data",
+        browser: "chrome",
+        minimumVersion: "120",
+        outcome: "available_unqualified",
+        qualifications: [],
+        sourceUrl: "file:///private/source"
+      })
+    ).toThrow(/Source URLs must use HTTPS/u);
   });
 });

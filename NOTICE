@@ -128,6 +128,12 @@ Copyright The Sigstore Authors
 Licensed under the Apache License, Version 2.0
 https://www.apache.org/licenses/LICENSE-2.0
 
+@sigstore/protobuf-specs
+https://github.com/sigstore/protobuf-specs
+Copyright The Sigstore Authors
+Licensed under the Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
 @sigstore/tuf
 https://github.com/sigstore/sigstore-js
 Copyright The Sigstore Authors
@@ -140,10 +146,10 @@ Copyright The Sigstore Authors
 Licensed under the Apache License, Version 2.0
 https://www.apache.org/licenses/LICENSE-2.0
 
-The verifier uses the packages' maintained bundle, TUF, certificate,
-transparency, and signature-verification implementations. It does not
-redistribute dependency source code or bundle those libraries into the static
-website.
+The verifier uses the packages' maintained bundle, protobuf, certificate,
+transparency, and signature-verification implementations with packaged
+hash-pinned trust material. It does not redistribute dependency source code or
+bundle those libraries into the static website.
 
 The MIT licence for ControlCurrent source code does not relicense upstream data,
 linked specifications, tests, result data, or third-party documentation.

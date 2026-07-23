@@ -22,7 +22,31 @@ export const outcomeSchema = z.enum([
 export type Outcome = z.infer<typeof outcomeSchema>;
 
 const boundedText = z.string().max(2_048);
-const boundedUrl = z.url().max(2_048);
+const boundedHttpsUrl = z
+  .url()
+  .max(2_048)
+  .refine(
+    (value) => {
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" && url.username === "" && url.password === "";
+      } catch {
+        return false;
+      }
+    },
+    {
+      message: "Source URLs must use HTTPS without embedded credentials."
+    }
+  );
+const boundedMdnUrl = boundedHttpsUrl.refine(
+  (value) => {
+    const url = new URL(value);
+    return url.hostname === "developer.mozilla.org" && url.port === "";
+  },
+  {
+    message: "MDN source URLs must use the developer.mozilla.org host."
+  }
+);
 
 export const flagSchema = z
   .object({
@@ -40,7 +64,7 @@ export const supportStatementSchema = z
     prefix: z.string().max(64).optional(),
     alternative_name: z.string().max(128).optional(),
     flags: z.array(flagSchema).max(16).optional(),
-    impl_url: z.union([boundedUrl, z.array(boundedUrl).min(2).max(16)]).optional(),
+    impl_url: z.union([boundedHttpsUrl, z.array(boundedHttpsUrl).min(2).max(16)]).optional(),
     partial_implementation: z.literal(true).optional(),
     notes: z.union([boundedText, z.array(boundedText).min(2).max(32)]).optional()
   })
@@ -54,8 +78,8 @@ export const selectedFeatureSchema = z
     path: z.string().min(1).max(256),
     sourceFile: z.string().min(1).max(512),
     description: boundedText.optional(),
-    mdnUrl: boundedUrl.optional(),
-    specUrls: z.array(boundedUrl).max(16),
+    mdnUrl: boundedMdnUrl.optional(),
+    specUrls: z.array(boundedHttpsUrl).max(16),
     status: z
       .object({
         deprecated: z.boolean(),
@@ -161,7 +185,7 @@ export const featureEvaluationSchema = z
     outcome: outcomeSchema,
     statements: supportStatementsSchema.optional(),
     qualifications: z.array(z.string().max(512)).max(64),
-    sourceUrl: boundedUrl.optional()
+    sourceUrl: boundedHttpsUrl.optional()
   })
   .strict();
 export type FeatureEvaluation = z.infer<typeof featureEvaluationSchema>;

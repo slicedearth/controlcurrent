@@ -1,6 +1,3 @@
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { z } from "zod";
 import { canonicalJson } from "./canonical";
 import {
@@ -20,6 +17,7 @@ import {
   EVIDENCE_ATTESTATION_VERIFIER_VERSION
 } from "./evidence-model";
 import { validateEvidenceReport } from "./evidence-report";
+import { loadPackagedSigstoreTrustedRoot } from "./sigstore-trust";
 
 const MAX_STATEMENT_BASE64_CHARACTERS = 64 * 1_024;
 
@@ -125,72 +123,64 @@ export function absentEvidenceAttestation(
 }
 
 export const verifySigstoreBundle: EvidenceBundleVerifier = async (bundle, policy) => {
-  const cachePath = await mkdtemp(join(tmpdir(), "controlcurrent-sigstore-"));
+  const [{ ValidationError, bundleFromJSON }, verification] = await Promise.all([
+    import("@sigstore/bundle"),
+    import("@sigstore/verify")
+  ]);
+  const { PolicyError, VerificationError, Verifier, toSignedEntity, toTrustMaterial } =
+    verification;
+
+  let trustedRoot: Awaited<ReturnType<typeof loadPackagedSigstoreTrustedRoot>>;
   try {
-    const [{ ValidationError, bundleFromJSON }, { TUFError, getTrustedRoot }, verification] =
-      await Promise.all([
-        import("@sigstore/bundle"),
-        import("@sigstore/tuf"),
-        import("@sigstore/verify")
-      ]);
-    const { PolicyError, VerificationError, Verifier, toSignedEntity, toTrustMaterial } =
-      verification;
-    try {
-      const trustedRoot = await getTrustedRoot({
-        cachePath,
-        forceCache: true,
-        retry: 0,
-        timeout: 5_000
-      });
-      const verifier = new Verifier(toTrustMaterial(trustedRoot), {
-        ctlogThreshold: 1,
-        tlogThreshold: 1
-      });
-      const signer = verifier.verify(toSignedEntity(bundleFromJSON(bundle)), {
-        subjectAlternativeName: exactPattern(policy.certificateIdentity),
-        extensions: {
-          issuer: policy.certificateIssuer
-        }
-      });
-      const issuer = signer.identity?.extensions?.issuer;
-      const identity = signer.identity?.subjectAlternativeName;
-      if (!issuer || !identity) {
-        throw new EvidenceBundleVerificationError(
-          "signer_mismatch",
-          "The verified certificate did not expose the required issuer and URI identity."
-        );
+    trustedRoot = await loadPackagedSigstoreTrustedRoot();
+  } catch {
+    throw new EvidenceBundleVerificationError(
+      "trust_unavailable",
+      "The pinned Sigstore trust material was unavailable."
+    );
+  }
+
+  try {
+    const verifier = new Verifier(toTrustMaterial(trustedRoot), {
+      ctlogThreshold: 1,
+      tlogThreshold: 1
+    });
+    const signer = verifier.verify(toSignedEntity(bundleFromJSON(bundle)), {
+      subjectAlternativeName: exactPattern(policy.certificateIdentity),
+      extensions: {
+        issuer: policy.certificateIssuer
       }
-      return { issuer, identity };
-    } catch (error) {
-      if (error instanceof EvidenceBundleVerificationError) throw error;
-      if (error instanceof PolicyError) {
-        throw new EvidenceBundleVerificationError(
-          "signer_mismatch",
-          "The bundle signature was valid but its certificate identity did not match policy."
-        );
-      }
-      if (error instanceof TUFError) {
-        throw new EvidenceBundleVerificationError(
-          "trust_unavailable",
-          "The pinned Sigstore trust material was unavailable."
-        );
-      }
-      if (error instanceof ValidationError) {
-        throw new EvidenceBundleVerificationError(
-          "invalid_bundle",
-          "The supplied Sigstore bundle did not satisfy the supported bundle contract."
-        );
-      }
-      if (error instanceof VerificationError) {
-        throw new EvidenceBundleVerificationError(
-          "verification_failed",
-          "The Sigstore signature, certificate, timestamp, or transparency evidence did not verify."
-        );
-      }
-      throw error;
+    });
+    const issuer = signer.identity?.extensions?.issuer;
+    const identity = signer.identity?.subjectAlternativeName;
+    if (!issuer || !identity) {
+      throw new EvidenceBundleVerificationError(
+        "signer_mismatch",
+        "The verified certificate did not expose the required issuer and URI identity."
+      );
     }
-  } finally {
-    await rm(cachePath, { force: true, recursive: true });
+    return { issuer, identity };
+  } catch (error) {
+    if (error instanceof EvidenceBundleVerificationError) throw error;
+    if (error instanceof PolicyError) {
+      throw new EvidenceBundleVerificationError(
+        "signer_mismatch",
+        "The bundle signature was valid but its certificate identity did not match policy."
+      );
+    }
+    if (error instanceof ValidationError) {
+      throw new EvidenceBundleVerificationError(
+        "invalid_bundle",
+        "The supplied Sigstore bundle did not satisfy the supported bundle contract."
+      );
+    }
+    if (error instanceof VerificationError) {
+      throw new EvidenceBundleVerificationError(
+        "verification_failed",
+        "The Sigstore signature, certificate, timestamp, or transparency evidence did not verify."
+      );
+    }
+    throw error;
   }
 };
 

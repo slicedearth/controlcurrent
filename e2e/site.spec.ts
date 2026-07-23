@@ -243,3 +243,27 @@ test("does not detect the actual browser or expose a runtime connection surface"
   expect(source).not.toContain("navigator.userAgent");
   expect(source).not.toContain("userAgentData");
 });
+
+test("publishes a restrictive meta policy and refuses embedded interaction", async ({ page }) => {
+  await page.goto("/assess/");
+  const policy = await page
+    .locator('meta[http-equiv="Content-Security-Policy"]')
+    .getAttribute("content");
+  expect(policy).toContain("script-src-attr 'none'");
+  expect(policy).toContain("style-src-attr 'none'");
+  expect(policy).toContain("connect-src 'none'");
+  expect(policy).toContain("frame-src 'none'");
+  expect(policy).toContain("worker-src 'none'");
+  expect(policy).not.toContain("frame-ancestors");
+
+  await page.route("http://127.0.0.1:4389/__frame-test.html", async (route) => {
+    await route.fulfill({
+      body: '<iframe title="Embedded ControlCurrent" src="/assess/"></iframe>',
+      contentType: "text/html"
+    });
+  });
+  await page.goto("http://127.0.0.1:4389/__frame-test.html");
+  const embedded = page.frameLocator('iframe[title="Embedded ControlCurrent"]');
+  await expect(embedded.getByRole("alert")).toContainText("Open ControlCurrent directly");
+  await expect(embedded.getByLabel("HTTP response headers")).toBeHidden();
+});

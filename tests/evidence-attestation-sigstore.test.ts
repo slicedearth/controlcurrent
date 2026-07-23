@@ -16,11 +16,11 @@ const sigstoreBundle = vi.hoisted(() => {
   };
 });
 
-const sigstoreTuf = vi.hoisted(() => {
-  class TUFError extends Error {}
+const sigstoreTrust = vi.hoisted(() => {
   return {
-    TUFError,
-    getTrustedRoot: vi.fn(() => Promise.resolve({ mediaType: "synthetic-trusted-root" }))
+    loadPackagedSigstoreTrustedRoot: vi.fn(() =>
+      Promise.resolve({ mediaType: "synthetic-trusted-root" })
+    )
   };
 });
 
@@ -48,8 +48,8 @@ const sigstoreVerify = vi.hoisted(() => {
 });
 
 vi.mock("@sigstore/bundle", () => sigstoreBundle);
-vi.mock("@sigstore/tuf", () => sigstoreTuf);
 vi.mock("@sigstore/verify", () => sigstoreVerify);
+vi.mock("../src/sigstore-trust", () => sigstoreTrust);
 
 const policy: EvidenceAttestationPolicy = {
   required: true,
@@ -104,14 +104,16 @@ async function attestationBundle(evidenceReport: EvidenceBundleReport): Promise<
 describe("Sigstore evidence adapter", () => {
   beforeEach(() => {
     sigstoreBundle.bundleFromJSON.mockClear();
-    sigstoreTuf.getTrustedRoot.mockClear();
-    sigstoreTuf.getTrustedRoot.mockResolvedValue({ mediaType: "synthetic-trusted-root" });
+    sigstoreTrust.loadPackagedSigstoreTrustedRoot.mockClear();
+    sigstoreTrust.loadPackagedSigstoreTrustedRoot.mockResolvedValue({
+      mediaType: "synthetic-trusted-root"
+    });
     sigstoreVerify.verify.mockReset();
     sigstoreVerify.toSignedEntity.mockClear();
     sigstoreVerify.toTrustMaterial.mockClear();
   });
 
-  it("pins the signer and verifies from bundled trust material without a live refresh", async () => {
+  it("pins the signer and verifies from packaged trust material without a live refresh", async () => {
     const evidenceReport = await report();
     sigstoreVerify.verify.mockReturnValue({
       identity: {
@@ -127,13 +129,7 @@ describe("Sigstore evidence adapter", () => {
     );
 
     expect(result.state).toBe("verified");
-    expect(sigstoreTuf.getTrustedRoot).toHaveBeenCalledWith(
-      expect.objectContaining({
-        forceCache: true,
-        retry: 0,
-        timeout: 5_000
-      })
-    );
+    expect(sigstoreTrust.loadPackagedSigstoreTrustedRoot).toHaveBeenCalledOnce();
     expect(sigstoreVerify.verify).toHaveBeenCalledWith(expect.anything(), {
       subjectAlternativeName:
         "^https://github\\.com/example/example/\\.github/workflows/evidence\\.yml@refs/heads/main$",
@@ -166,7 +162,9 @@ describe("Sigstore evidence adapter", () => {
 
   it("distinguishes unavailable trust material before bundle verification", async () => {
     const evidenceReport = await report();
-    sigstoreTuf.getTrustedRoot.mockRejectedValue(new sigstoreTuf.TUFError("private-trust-detail"));
+    sigstoreTrust.loadPackagedSigstoreTrustedRoot.mockRejectedValue(
+      new Error("private-trust-detail")
+    );
 
     const result = await verifyEvidenceAttestation(
       evidenceReport,
