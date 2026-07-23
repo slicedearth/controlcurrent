@@ -108,6 +108,40 @@ test("stacks homepage actions evenly on mobile", async ({ page }) => {
   expect(second.y).toBeLessThan(third.y);
 });
 
+test("uses a contained mobile navigation menu without horizontal scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const toggle = page.locator(".nav-toggle");
+  const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveText(/Menu/u);
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(navigation).toBeHidden();
+
+  await toggle.click();
+  await expect(toggle).toHaveText(/Close/u);
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole("link")).toHaveCount(8);
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+
+  const violations = await new AxeBuilder({ page }).include(".site-header").analyze();
+  expect(violations.violations).toEqual([]);
+
+  await page.keyboard.press("Escape");
+  await expect(toggle).toHaveText(/Menu/u);
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(toggle).toBeFocused();
+  await expect(navigation).toBeHidden();
+});
+
 test("shows pinned WPT mappings without fetching result data", async ({ page }) => {
   const externalRequests: string[] = [];
   page.on("request", (request) => {

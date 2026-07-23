@@ -64,24 +64,35 @@ const pathWithBase = (path: string) => `${base}${path}`;
             <small>browser defence readiness</small>
           </span>
         </a>
-        <nav aria-label="Primary navigation">
-          <ul>
-            {
-              nav.map((item) => (
-                <li>
-                  <a
-                    href={pathWithBase(item.href)}
-                    aria-current={
-                      Astro.url.pathname === pathWithBase(item.href) ? "page" : undefined
-                    }
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
+        <div class="navigation-shell">
+          <button
+            class="nav-toggle"
+            type="button"
+            aria-controls="primary-navigation"
+            aria-expanded="false"
+          >
+            <span class="nav-toggle-label">Menu</span>
+            <i aria-hidden="true"><span></span><span></span></i>
+          </button>
+          <nav id="primary-navigation" aria-label="Primary navigation" data-open="false">
+            <ul>
+              {
+                nav.map((item) => (
+                  <li>
+                    <a
+                      href={pathWithBase(item.href)}
+                      aria-current={
+                        Astro.url.pathname === pathWithBase(item.href) ? "page" : undefined
+                      }
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </div>
       </div>
     </header>
     <main id="main-content">
@@ -120,6 +131,46 @@ const pathWithBase = (path: string) => `${base}${path}`;
       if (warning && window.self !== window.top) {
         document.documentElement.dataset.embedding = "blocked";
         warning.hidden = false;
+      }
+
+      const navigationShell = document.querySelector<HTMLElement>(".navigation-shell");
+      const navigation = document.querySelector<HTMLElement>("#primary-navigation");
+      const navigationToggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+      const navigationToggleLabel = document.querySelector<HTMLElement>(".nav-toggle-label");
+
+      if (navigationShell && navigation && navigationToggle && navigationToggleLabel) {
+        document.documentElement.dataset.navigation = "enhanced";
+
+        const setNavigationOpen = (open: boolean): void => {
+          navigation.dataset.open = String(open);
+          navigationToggle.setAttribute("aria-expanded", String(open));
+          navigationToggleLabel.textContent = open ? "Close" : "Menu";
+        };
+
+        navigationToggle.addEventListener("click", () => {
+          setNavigationOpen(navigation.dataset.open !== "true");
+        });
+
+        navigation.addEventListener("click", (event) => {
+          if (event.target instanceof HTMLAnchorElement) setNavigationOpen(false);
+        });
+
+        document.addEventListener("click", (event) => {
+          if (event.target instanceof Node && !navigationShell.contains(event.target)) {
+            setNavigationOpen(false);
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && navigation.dataset.open === "true") {
+            setNavigationOpen(false);
+            navigationToggle.focus();
+          }
+        });
+
+        window.matchMedia("(max-width: 62rem)").addEventListener("change", () => {
+          setNavigationOpen(false);
+        });
       }
     </script>
   </body>
