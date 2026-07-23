@@ -53,12 +53,20 @@ test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => 
   await page.setViewportSize({ width: 320, height: 800 });
   for (const path of [
     "/",
+    "/controls/",
     "/matrix/",
     "/planner/",
     "/assess/",
     "/evidence/",
     "/changes/",
-    "/controls/trusted-types/"
+    "/browsers/",
+    "/data/",
+    "/privacy/",
+    "/limitations/",
+    "/corrections/",
+    "/methodology/",
+    "/controls/trusted-types/",
+    "/404.html"
   ]) {
     await page.goto(path);
     const dimensions = await page.evaluate(() => ({
@@ -76,6 +84,28 @@ test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => 
     scrollWidth: element.scrollWidth
   }));
   expect(matrixDimensions.scrollWidth).toBeGreaterThan(matrixDimensions.clientWidth);
+});
+
+test("stacks homepage actions evenly on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const actions = page.locator(".hero-actions .button");
+  await expect(actions).toHaveCount(3);
+  const boxes = await actions.evaluateAll((elements) =>
+    elements.map((element) => {
+      const box = element.getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height };
+    })
+  );
+
+  expect(new Set(boxes.map((box) => box.x)).size).toBe(1);
+  expect(new Set(boxes.map((box) => box.width)).size).toBe(1);
+  expect(new Set(boxes.map((box) => box.height)).size).toBe(1);
+  const [first, second, third] = boxes;
+  if (!first || !second || !third) throw new Error("Expected three homepage actions.");
+  expect(first.y).toBeLessThan(second.y);
+  expect(second.y).toBeLessThan(third.y);
 });
 
 test("shows pinned WPT mappings without fetching result data", async ({ page }) => {

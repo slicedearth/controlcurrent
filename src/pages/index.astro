@@ -38,11 +38,17 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
         <a class="button" href={`${base}/assess/`}>Inspect headers</a>
         <a class="button" href={`${base}/evidence/`}>Review test evidence</a>
       </div>
+      <ul class="hero-principles" aria-label="Product principles">
+        <li>Curated control catalogue</li>
+        <li>Source qualifications preserved</li>
+        <li>Local-only evaluation</li>
+      </ul>
     </div>
     <aside class="hero-terminal" aria-label="Current data baseline">
       <div class="terminal-title">
-        <i></i><i></i><i></i>
-        selected-bcd.json
+        <span class="terminal-indicator" aria-hidden="true"></span>
+        <span>Reviewed source baseline</span>
+        <small>selected-bcd.json</small>
       </div>
       <div class="terminal-body">
         <dl>
@@ -69,22 +75,26 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
     </aside>
   </section>
 
-  <section class="section">
+  <section class="section section--stats">
     <div class="shell">
       <div class="stats-grid">
         <div class="stat-card">
+          <small>01 · broad availability</small>
           <strong>{availableCount}</strong>
           <span>controls unqualified across current release channels</span>
         </div>
         <div class="stat-card">
+          <small>02 · retained nuance</small>
           <strong>{qualifiedCount}</strong>
           <span>controls with at least one BCD qualification</span>
         </div>
         <div class="stat-card">
+          <small>03 · explicit scope</small>
           <strong>{currentProfile.baselines.length}</strong>
           <span>desktop and mobile browser families evaluated explicitly</span>
         </div>
         <div class="stat-card">
+          <small>04 · privacy posture</small>
           <strong>0</strong>
           <span>visitor or website observations collected</span>
         </div>
@@ -92,7 +102,7 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section--catalogue">
     <div class="shell">
       <div class="section-heading">
         <div>
@@ -118,7 +128,7 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section--closing">
     <div class="shell detail-grid">
       <div>
         <span class="eyebrow">What this answers</span>

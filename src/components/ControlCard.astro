@@ -13,7 +13,7 @@ const { control, evaluations } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 ---
 
-<article class="control-card">
+<article class="control-card" data-category={control.category}>
   <div class="card-topline">
     <span class="category">{control.category}</span>
     <span class="mapping-count">
@@ -24,7 +24,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       }
     </span>
   </div>
-  <h3><a href={`${base}/controls/${control.id}/`}>{control.name}</a></h3>
+  <h3>
+    <a href={`${base}/controls/${control.id}/`}>
+      {control.name}
+      <span aria-hidden="true">↗</span>
+    </a>
+  </h3>
   <p>{control.summary}</p>
   <div class="mini-results" aria-label={`Current support summary for ${control.name}`}>
     {
