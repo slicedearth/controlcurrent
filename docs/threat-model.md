@@ -160,6 +160,8 @@ and freshness cannot be exempted through surface exceptions.
 - Lifecycle scripts are explicitly reviewed in `allowScripts`.
 - CI has read-only content permission.
 - Pages deployment has only required Pages and identity permissions.
+- Automatic Pages publication accepts only a successful CI run caused by a
+  push to `main` and checks out that run's exact commit SHA.
 - Dependency installation and the static build receive no Pages write or OIDC
   credentials; those credentials exist only in the dependency-free deploy job.
 - Actions are pinned to full commit SHAs.

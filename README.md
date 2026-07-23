@@ -142,6 +142,10 @@ The weekly source-review workflow is read-only. It reports when either locked
 source package is behind npm registry metadata and does not edit files, open
 issues, commit, push, or deploy.
 
+Reviewed changes merged or pushed to `main` deploy automatically only after CI
+succeeds, using the exact commit SHA checked by that CI run. Dependabot and
+source-review results do not merge or publish changes on their own.
+
 `npm run generate:check` fails when the locked package and committed selected
 snapshot differ. A missing configured path fails generation rather than
 silently becoming supported.

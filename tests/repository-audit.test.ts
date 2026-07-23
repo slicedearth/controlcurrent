@@ -112,4 +112,41 @@ jobs:
     const privilegedBuild = safe.replace("      pages: read", "      pages: write");
     expect(() => auditPagesWorkflow(privilegedBuild)).toThrow(/build job must limit Pages/u);
   });
+
+  it("binds automatic Pages publication to the successful main push checked by CI", () => {
+    const safe = `
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@${"a".repeat(40)} # v7.0.1
+        with:
+          ref: \${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+  deploy:
+    permissions:
+      pages: write
+      id-token: write
+`;
+    expect(() => auditPagesWorkflow(safe)).not.toThrow();
+
+    for (const unsafe of [
+      safe.replace("conclusion == 'success'", "conclusion == 'failure'"),
+      safe.replace("workflow_run.event == 'push'", "workflow_run.event == 'pull_request'"),
+      safe.replace("workflow_run.head_branch == 'main'", "workflow_run.head_branch == 'release'"),
+      safe.replace("workflow_run.head_sha || github.sha", "github.sha")
+    ]) {
+      expect(() => auditPagesWorkflow(unsafe)).toThrow(/Pages/u);
+    }
+  });
 });

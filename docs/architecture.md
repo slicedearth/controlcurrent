@@ -260,12 +260,13 @@ browser changed state.
 
 ## Deployment
 
-Astro produces directory-form static routes. GitHub Pages configuration is
-enabled only in the manually dispatched Pages workflow. The site uses a
-repository base path in GitHub Actions and root paths in local development.
-Dependency installation and verification run without Pages write or OIDC
-credentials. A separate dependency-free job receives only the permissions
-required to deploy the reviewed artifact.
+Astro produces directory-form static routes. The Pages workflow runs
+automatically only after CI succeeds for a push to `main`, checks out the exact
+commit SHA verified by that CI run, and retains a manual dispatch path. The site
+uses a repository base path in GitHub Actions and root paths in local
+development. Dependency installation and verification run without Pages write
+or OIDC credentials. A separate dependency-free job receives only the
+permissions required to deploy the reviewed artifact.
 
 The deployed meta policy blocks scripts, styles, frames, workers, forms, media,
 and connections outside the explicit static requirements. Because

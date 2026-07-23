@@ -135,4 +135,26 @@ export function auditPagesWorkflow(contents: string): void {
   if (/^\s{6}contents:\s*write\s*$/mu.test(deploy)) {
     throw new Error("The Pages deploy job must not receive repository write access.");
   }
+
+  if (/^ {2}workflow_run:\s*$/mu.test(contents)) {
+    const requiredTriggerFragments = [
+      "workflows:\n      - CI",
+      "types:\n      - completed",
+      "branches:\n      - main"
+    ];
+    if (requiredTriggerFragments.some((fragment) => !contents.includes(fragment))) {
+      throw new Error("The Pages workflow_run trigger must follow completed CI runs on main.");
+    }
+    const requiredBuildGuards = [
+      "github.event.workflow_run.conclusion == 'success'",
+      "github.event.workflow_run.event == 'push'",
+      "github.event.workflow_run.head_branch == 'main'"
+    ];
+    if (requiredBuildGuards.some((guard) => !build.includes(guard))) {
+      throw new Error("The Pages build must accept only successful main push CI runs.");
+    }
+    if (!build.includes("github.event.workflow_run.head_sha || github.sha")) {
+      throw new Error("The Pages build must check out the exact commit verified by CI.");
+    }
+  }
 }

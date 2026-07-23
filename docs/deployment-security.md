@@ -15,7 +15,10 @@ path is not an origin-isolation boundary.
 
 ## Build and deployment boundary
 
-The manually dispatched Pages workflow separates two trust levels:
+The Pages workflow runs after CI completes successfully for a push to `main`
+and may also be dispatched manually. Automatic publication is bound to the
+exact commit SHA reported by the successful CI run. The workflow separates two
+trust levels:
 
 1. the build job checks out source, installs locked dependencies, runs the full
    verification suite, and uploads the generated artifact with read-only
@@ -29,7 +32,8 @@ runners, `write-all`, missing reviewed version comments, or deployment
 credentials in the build job.
 
 The workflow does not commit, push, create issues, publish packages, or expose a
-runtime secret.
+runtime secret. Pull-request, failed, cancelled, manually dispatched CI, and
+non-`main` runs cannot start automatic publication.
 
 ## Browser boundary
 
@@ -132,5 +136,7 @@ After deployment:
    export, and framed-use browser tests against the deployed origin;
 7. retain the deployment URL and verification time in the release notes.
 
-Deployment is a separate remote action. A successful local audit does not
-authorise a workflow dispatch or publication.
+Merging or pushing a reviewed change to `main` authorises publication only
+after that exact commit passes CI. A successful local audit, pull-request check,
+or read-only source review does not publish anything. Manual workflow dispatch
+remains an explicit remote deployment action.
