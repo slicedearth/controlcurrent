@@ -23,8 +23,8 @@ describe("bounded evidence bundles", () => {
       name: "Document shell",
       html: `<!doctype html>
 <script>globalThis.controlCurrentExecuted = true</script>
-<script src="/assets/app.js" integrity="sha384-YWJj"></script>
-<link rel="stylesheet" href="https://cdn.example.invalid/app.css" integrity="sha512-ZGVm">
+<script src="/assets/app.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>
+<link rel="stylesheet" href="https://cdn.example.invalid/app.css" integrity="sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==">
 <img src="https://private.example.invalid/person.png">`
     });
 
@@ -44,7 +44,7 @@ describe("bounded evidence bundles", () => {
     const partial = inspectHtmlResources({
       schemaVersion: 1,
       name: "Partial SRI",
-      html: `<script src="/one.js" integrity="sha256-YWJj"></script>
+      html: `<script src="/one.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="></script>
 <script src="/two.js"></script>`
     });
     const invalid = inspectHtmlResources({
@@ -129,7 +129,7 @@ describe("bounded evidence bundles", () => {
           name: "Document response",
           headers: {
             "Content-Security-Policy":
-              "default-src 'self'; script-src 'nonce-YWJj'; base-uri 'none'",
+              "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'",
             "Cross-Origin-Opener-Policy": "same-origin",
             "Cross-Origin-Embedder-Policy": "credentialless",
             "Set-Cookie": "__Host-session=secret; Path=/; Secure; HttpOnly; SameSite=Lax"
@@ -140,7 +140,7 @@ describe("bounded evidence bundles", () => {
         {
           schemaVersion: 1,
           name: "Document HTML",
-          html: '<script src="/app.js" integrity="sha384-YWJj"></script>'
+          html: '<script src="/app.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
         }
       ],
       requests: [
@@ -192,7 +192,18 @@ describe("bounded evidence bundles", () => {
     expect(serialised).not.toContain("__Host-session");
     expect(serialised).not.toContain("secret");
     expect(serialised).not.toContain("/app.js");
-    expect(serialised).not.toContain("nonce-YWJj");
+    expect(serialised).not.toContain("nonce-AAAAAAAAAAAAAAAAAAAAAA==");
+  });
+
+  it("rejects supported integrity metadata with the wrong decoded digest length", () => {
+    const report = inspectHtmlResources({
+      schemaVersion: 1,
+      name: "Short digest",
+      html: '<script src="/app.js" integrity="sha384-REDACTED"></script>'
+    });
+
+    expect(report.finding.state).toBe("invalid");
+    expect(report.invalidIntegrityCount).toBe(1);
   });
 
   it("surfaces route variation instead of choosing the favourable response", () => {

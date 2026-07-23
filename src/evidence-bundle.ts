@@ -20,6 +20,7 @@ import {
   webauthnReportSchema
 } from "./contracts";
 import { inspectHeaders } from "./assurance";
+import { parseIntegrityMetadata } from "./integrity";
 
 const MAX_HTML_ELEMENTS = 8_192;
 const MAX_ELIGIBLE_RESOURCES = 512;
@@ -94,14 +95,11 @@ function supportedIntegrityAlgorithms(value: string): {
   algorithms: ("sha256" | "sha384" | "sha512")[];
   valid: boolean;
 } {
-  const algorithms = new Set<"sha256" | "sha384" | "sha512">();
-  for (const token of value.split(/\s+/u).filter(Boolean)) {
-    const match = /^(sha256|sha384|sha512)-([A-Za-z0-9+/_-]+={0,2})(?:\?[^\s]*)?$/u.exec(token);
-    if (match?.[1]) algorithms.add(match[1] as "sha256" | "sha384" | "sha512");
-  }
+  const parsed = parseIntegrityMetadata(value);
+  const algorithms = new Set(parsed.metadata.map((item) => item.algorithm));
   return {
     algorithms: [...algorithms].sort(),
-    valid: algorithms.size > 0
+    valid: algorithms.size > 0 && parsed.invalidSupportedTokenCount === 0
   };
 }
 

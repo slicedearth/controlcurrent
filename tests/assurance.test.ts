@@ -11,7 +11,7 @@ describe("offline response-header assurance", () => {
   it("parses recognised controls without retaining cookie names or values", () => {
     const report = inspectHeaders(
       parseHeaderBlock(`HTTP/1.1 200 OK
-Content-Security-Policy: default-src 'self'; script-src 'nonce-REDACTED' 'strict-dynamic'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; upgrade-insecure-requests
+Content-Security-Policy: default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA==' 'strict-dynamic'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; upgrade-insecure-requests
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Embedder-Policy: require-corp
 Cross-Origin-Resource-Policy: same-origin
@@ -83,7 +83,7 @@ X-Content-Type-Options: nosniff`);
   it("keeps report-only CSP separate from enforced policy", () => {
     const report = inspectHeaders(
       parseHeaderBlock(
-        "Content-Security-Policy-Report-Only: default-src 'self'; script-src 'nonce-abc123'; base-uri 'none'"
+        "Content-Security-Policy-Report-Only: default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
       )
     );
 
@@ -95,10 +95,14 @@ X-Content-Type-Options: nosniff`);
 
   it("checks CSP hashes only in effective script and style source lists", () => {
     const irrelevant = inspectHeaders(
-      parseHeaderBlock("Content-Security-Policy: img-src 'sha256-YWJj'")
+      parseHeaderBlock(
+        "Content-Security-Policy: img-src 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='"
+      )
     );
     const fallback = inspectHeaders(
-      parseHeaderBlock("Content-Security-Policy: default-src 'sha256-YWJj'")
+      parseHeaderBlock(
+        "Content-Security-Policy: default-src 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='"
+      )
     );
 
     expect(finding(irrelevant, "csp-hashes").state).toBe("missing");
@@ -110,13 +114,36 @@ X-Content-Type-Options: nosniff`);
       schemaVersion: 1,
       name: "Intersecting CSP policies",
       headers: {
-        "Content-Security-Policy": ["script-src 'sha256-YWJj'", "script-src 'self'"]
+        "Content-Security-Policy": [
+          "script-src 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='",
+          "script-src 'self'"
+        ]
       }
     });
 
     expect(finding(report, "content-security-policy").state).toBe("observed");
     expect(finding(report, "csp-hashes").state).toBe("inconclusive");
     expect(report.summary.inconclusive).toBeGreaterThanOrEqual(1);
+  });
+
+  it("validates decoded CSP nonce and digest lengths without claiming unpredictability", () => {
+    const shortNonce = inspectHeaders(
+      parseHeaderBlock("Content-Security-Policy: script-src 'nonce-YWJj'")
+    );
+    const shortDigest = inspectHeaders(
+      parseHeaderBlock("Content-Security-Policy: script-src 'sha384-YWJj'")
+    );
+    const valid = inspectHeaders(
+      parseHeaderBlock(
+        "Content-Security-Policy: script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA==' 'sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+      )
+    );
+
+    expect(finding(shortNonce, "csp-nonces").state).toBe("inconclusive");
+    expect(finding(shortDigest, "csp-hashes").state).toBe("invalid");
+    expect(finding(valid, "csp-nonces").state).toBe("observed");
+    expect(finding(valid, "csp-nonces").summary).toContain("remain unverified");
+    expect(finding(valid, "csp-hashes").state).toBe("observed");
   });
 
   it("validates HSTS directives without treating max-age zero as protection", () => {

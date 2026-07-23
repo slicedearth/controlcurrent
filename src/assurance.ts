@@ -6,6 +6,7 @@ import {
   assuranceReportSchema,
   headerSnapshotSchema
 } from "./contracts";
+import { parseCspHashSource, parseCspNonceSource } from "./integrity";
 
 export const MAX_HEADER_BLOCK_BYTES = 64 * 1_024;
 
@@ -285,6 +286,161 @@ function cspTokenFinding(
         : reported
           ? `${label} appears only in report-only CSP and is not enforced.`
           : `${label} was not declared in an applicable CSP source list.`
+  );
+}
+
+function cspNonceFinding(enforced: CspParseResult, reportOnly: CspParseResult): AssuranceFinding {
+  if (enforced.state === "invalid") {
+    return finding("csp-nonces", "invalid", ["content-security-policy"], enforced.summary);
+  }
+  if (reportOnly.state === "invalid") {
+    return finding(
+      "csp-nonces",
+      "invalid",
+      ["content-security-policy-report-only"],
+      reportOnly.summary
+    );
+  }
+  const states = (result: CspParseResult) =>
+    result.state === "present"
+      ? result.policies.flatMap((policy) =>
+          effectiveDirectiveTokens(policy, [...SCRIPT_SOURCE_CHAINS, ...STYLE_SOURCE_CHAINS])
+            .flat()
+            .map(parseCspNonceSource)
+            .filter((item) => item.state !== "not_nonce")
+        )
+      : [];
+  const enforcedStates = states(enforced);
+  const reportOnlyStates = states(reportOnly);
+  const malformed = enforcedStates.filter((item) => item.state === "invalid").length;
+  const short = enforcedStates.filter((item) => item.state === "short").length;
+  const valid = enforcedStates.filter((item) => item.state === "valid").length;
+  const reportOnlyValid = reportOnlyStates.some((item) => item.state === "valid");
+  const multiplePolicies = enforced.state === "present" && enforced.policies.length > 1;
+
+  if (malformed > 0) {
+    return finding(
+      "csp-nonces",
+      "invalid",
+      ["content-security-policy"],
+      "CSP contains a malformed nonce source expression.",
+      `${String(malformed)} malformed nonce source${malformed === 1 ? "" : "s"}`
+    );
+  }
+  if (short > 0) {
+    return finding(
+      "csp-nonces",
+      "inconclusive",
+      ["content-security-policy"],
+      "A nonce source decodes to fewer than 128 bits; syntax alone cannot establish unpredictability or per-response generation.",
+      `${String(valid)} nonce sources at least 128 bits; ${String(short)} shorter`
+    );
+  }
+  if (valid > 0 && multiplePolicies) {
+    return finding(
+      "csp-nonces",
+      "inconclusive",
+      ["content-security-policy"],
+      `A nonce source is declared, but effective authorisation depends on the intersection of ${String(enforced.policies.length)} enforced policies.`,
+      `${String(valid)} nonce source${valid === 1 ? "" : "s"} at least 128 bits`
+    );
+  }
+  if (valid > 0) {
+    return finding(
+      "csp-nonces",
+      "observed",
+      ["content-security-policy"],
+      "A CSP nonce source of at least 128 bits was declared; unpredictability, reuse, and source matching remain unverified.",
+      `${String(valid)} nonce source${valid === 1 ? "" : "s"} at least 128 bits`
+    );
+  }
+  if (reportOnlyValid) {
+    return finding(
+      "csp-nonces",
+      "report_only",
+      ["content-security-policy-report-only"],
+      "A nonce source appears only in report-only CSP and is not enforced."
+    );
+  }
+  return finding(
+    "csp-nonces",
+    "missing",
+    ["content-security-policy"],
+    "A CSP nonce source was not declared in an applicable source list."
+  );
+}
+
+function cspHashFinding(enforced: CspParseResult, reportOnly: CspParseResult): AssuranceFinding {
+  if (enforced.state === "invalid") {
+    return finding("csp-hashes", "invalid", ["content-security-policy"], enforced.summary);
+  }
+  if (reportOnly.state === "invalid") {
+    return finding(
+      "csp-hashes",
+      "invalid",
+      ["content-security-policy-report-only"],
+      reportOnly.summary
+    );
+  }
+  const analyses = (result: CspParseResult) =>
+    result.state === "present"
+      ? result.policies.flatMap((policy) =>
+          effectiveDirectiveTokens(policy, [...SCRIPT_SOURCE_CHAINS, ...STYLE_SOURCE_CHAINS])
+            .flat()
+            .filter((token) => /^'(?:sha256|sha384|sha512)-/iu.test(token))
+            .map(parseCspHashSource)
+        )
+      : [];
+  const enforcedAnalyses = analyses(enforced);
+  const reportOnlyAnalyses = analyses(reportOnly);
+  const invalid = enforcedAnalyses.reduce(
+    (total, item) => total + item.invalidSupportedTokenCount,
+    0
+  );
+  const valid = enforcedAnalyses.reduce((total, item) => total + item.metadata.length, 0);
+  const reportOnlyValid = reportOnlyAnalyses.some((item) => item.metadata.length > 0);
+  const multiplePolicies = enforced.state === "present" && enforced.policies.length > 1;
+
+  if (invalid > 0) {
+    return finding(
+      "csp-hashes",
+      "invalid",
+      ["content-security-policy"],
+      "CSP contains a SHA-2 hash source whose decoded digest length does not match its algorithm.",
+      `${String(valid)} valid hash sources; ${String(invalid)} invalid`
+    );
+  }
+  if (valid > 0 && multiplePolicies) {
+    return finding(
+      "csp-hashes",
+      "inconclusive",
+      ["content-security-policy"],
+      `A valid hash source is declared, but effective authorisation depends on the intersection of ${String(enforced.policies.length)} enforced policies.`,
+      `${String(valid)} valid hash source${valid === 1 ? "" : "s"}`
+    );
+  }
+  if (valid > 0) {
+    return finding(
+      "csp-hashes",
+      "observed",
+      ["content-security-policy"],
+      "A CSP hash source has a recognised algorithm and matching decoded digest length; content matching remains unverified.",
+      `${String(valid)} valid hash source${valid === 1 ? "" : "s"}`
+    );
+  }
+  if (reportOnlyValid) {
+    return finding(
+      "csp-hashes",
+      "report_only",
+      ["content-security-policy-report-only"],
+      "A valid hash source appears only in report-only CSP and is not enforced."
+    );
+  }
+  return finding(
+    "csp-hashes",
+    "missing",
+    ["content-security-policy"],
+    "A valid CSP hash source was not declared in an applicable source list."
   );
 }
 
@@ -801,28 +957,8 @@ export function inspectHeaders(snapshotInput: unknown): AssuranceReport {
                 `${String(csp.policies.length)} policies and ${String(csp.directiveCount)} directives`
               )
   );
-  byControl.set(
-    "csp-nonces",
-    cspTokenFinding(
-      csp,
-      reportOnlyCsp,
-      "csp-nonces",
-      [...SCRIPT_SOURCE_CHAINS, ...STYLE_SOURCE_CHAINS],
-      (token) => /^'nonce-[A-Za-z0-9+/_-]+={0,2}'$/u.test(token),
-      "A CSP nonce source expression"
-    )
-  );
-  byControl.set(
-    "csp-hashes",
-    cspTokenFinding(
-      csp,
-      reportOnlyCsp,
-      "csp-hashes",
-      [...SCRIPT_SOURCE_CHAINS, ...STYLE_SOURCE_CHAINS],
-      (token) => /^'(?:sha256|sha384|sha512)-[A-Za-z0-9+/_-]+={0,2}'$/u.test(token),
-      "A CSP hash source expression"
-    )
-  );
+  byControl.set("csp-nonces", cspNonceFinding(csp, reportOnlyCsp));
+  byControl.set("csp-hashes", cspHashFinding(csp, reportOnlyCsp));
   byControl.set(
     "strict-dynamic",
     cspTokenFinding(
