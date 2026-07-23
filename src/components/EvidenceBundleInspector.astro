@@ -1,4 +1,16 @@
-<section class="inspector-panel bundle-panel" aria-labelledby="bundle-heading">
+---
+import { selectedSnapshot } from "../data";
+---
+
+<section
+  id="evidence-bundle-panel"
+  class="inspector-panel bundle-panel"
+  aria-labelledby="bundle-heading"
+  data-bcd-version={selectedSnapshot.bcdVersion}
+  data-bcd-timestamp={selectedSnapshot.bcdTimestamp}
+  data-web-features-version={selectedSnapshot.webFeaturesVersion}
+  data-selected-schema-fingerprint={selectedSnapshot.schemaFingerprint}
+>
   <div class="planner-intro">
     <span class="eyebrow">Multi-surface, local evidence</span>
     <h2 id="bundle-heading">Assess a bounded evidence bundle</h2>
@@ -18,7 +30,7 @@
       rows="24"
       spellcheck="false"
       aria-describedby="bundle-guidance"
-      placeholder='{"schemaVersion":1,"name":"Release candidate","responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
+      placeholder='{"schemaVersion":2,"name":"Release candidate","surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
     ></textarea>
     <p id="bundle-guidance" class="form-message">
       Use descriptive labels rather than URLs. Remove secrets, personal data, page content that is
@@ -98,20 +110,46 @@
   import { exportEvidenceBundleReport, exportEvidenceReportComparison } from "../export";
 
   const example = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: "Release candidate",
     surfaces: [
       {
-        id: "document",
-        role: "document",
-        requiredEvidence: ["response", "html", "request", "webauthn"]
+        id: "sign-in",
+        role: "authentication",
+        requiredEvidence: ["response", "html", "request", "webauthn"],
+        requiredControls: [
+          "content-security-policy",
+          "csp-nonces",
+          "csp-base-uri",
+          "csp-frame-ancestors",
+          "csp-form-action",
+          "subresource-integrity",
+          "integrity-policy",
+          "cross-origin-opener-policy",
+          "cross-origin-embedder-policy",
+          "strict-transport-security",
+          "x-content-type-options",
+          "referrer-policy",
+          "samesite-cookies",
+          "httponly-cookies",
+          "secure-cookie-prefixes",
+          "fetch-metadata",
+          "webauthn-platform-authenticator",
+          "webauthn-prf",
+          "webauthn-conditional-mediation"
+        ],
+        requiredComposites: [
+          "strict-csp-candidate",
+          "cross-origin-isolation-candidate",
+          "cookie-attribute-coverage"
+        ]
       }
     ],
     responses: [
       {
         schemaVersion: 1,
         name: "Document response",
-        surfaceId: "document",
+        surfaceId: "sign-in",
         headers: {
           "Content-Security-Policy":
             "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
@@ -130,7 +168,7 @@
       {
         schemaVersion: 1,
         name: "Document HTML",
-        surfaceId: "document",
+        surfaceId: "sign-in",
         html:
           '<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">console.log("local example")</scr' +
           'ipt><link rel="stylesheet" href="/assets/app.css" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">'
@@ -141,7 +179,7 @@
       {
         schemaVersion: 1,
         name: "Navigation request",
-        surfaceId: "document",
+        surfaceId: "sign-in",
         headers: {
           "Sec-Fetch-Site": "same-origin",
           "Sec-Fetch-Mode": "navigate",
@@ -154,7 +192,7 @@
       {
         schemaVersion: 1,
         name: "Passkey retrieval",
-        surfaceId: "document",
+        surfaceId: "sign-in",
         operation: "get",
         authenticatorAttachment: "platform",
         userVerification: "required",
@@ -167,6 +205,7 @@
   } as const;
 
   const form = document.querySelector<HTMLFormElement>("#bundle-form");
+  const panel = document.querySelector<HTMLElement>("#evidence-bundle-panel");
   const input = document.querySelector<HTMLTextAreaElement>("#bundle-block");
   const message = document.querySelector<HTMLElement>("#bundle-message");
   const results = document.querySelector<HTMLElement>("#bundle-results");
@@ -186,6 +225,7 @@
   const comparisonEvents = document.querySelector<HTMLElement>("#comparison-events");
 
   if (
+    !panel ||
     !form ||
     !input ||
     !message ||
@@ -216,6 +256,7 @@
     missing: "Not observed",
     invalid: "Invalid or ambiguous",
     not_evaluated: "Not evaluated",
+    not_applicable: "Not applicable",
     report_only: "Report only",
     inconclusive: "Needs review"
   };
@@ -223,7 +264,14 @@
     satisfied: "Candidate satisfied",
     review: "Needs review",
     gap: "Gap observed",
-    not_evaluated: "Not evaluated"
+    not_evaluated: "Not evaluated",
+    not_applicable: "Not applicable"
+  };
+  const sourceContext = {
+    bcdVersion: panel.dataset.bcdVersion ?? "",
+    bcdTimestamp: panel.dataset.bcdTimestamp ?? "",
+    webFeaturesVersion: panel.dataset.webFeaturesVersion ?? "",
+    selectedSchemaFingerprint: panel.dataset.selectedSchemaFingerprint ?? ""
   };
   let latestReport: EvidenceBundleReport | undefined;
   let latestComparison: EvidenceReportComparison | undefined;
@@ -346,6 +394,20 @@
     );
   }
 
+  function surfaceAssessmentInventory(
+    report: EvidenceBundleReport["surfaceAssessments"][number]
+  ): HTMLElement {
+    const observed = report.findings.filter((finding) => finding.state === "observed").length;
+    const satisfied = report.composites.filter(
+      (composite) => composite.state === "satisfied"
+    ).length;
+    return inventoryCard(
+      `Surface policy · ${report.surfaceId}`,
+      `${report.role} · explicit applicability`,
+      `${String(observed)} of ${String(report.requiredControls.length)} required controls observed · ${String(satisfied)} of ${String(report.requiredComposites.length)} required composites satisfied`
+    );
+  }
+
   function comparisonEventCard(event: EvidenceReportComparison["events"][number]): HTMLElement {
     return inventoryCard(
       event.type.replaceAll("_", " "),
@@ -387,7 +449,8 @@
       stat(report.summary.invalid, "invalid observations"),
       stat(report.summary.reportOnly, "controls present only in report-only policy"),
       stat(report.summary.inconclusive, "controls needing contextual review"),
-      stat(report.summary.notEvaluated, "controls without applicable evidence")
+      stat(report.summary.notEvaluated, "required controls without applicable evidence"),
+      stat(report.summary.notApplicable, "controls outside declared surface policy")
     );
     composites!.replaceChildren(...report.composites.map(compositeCard));
     findings!.replaceChildren(
@@ -401,10 +464,11 @@
       resourceVerificationInventory(report.resourceVerificationReport),
       ...report.cspMarkupReports.map(cspMarkupInventory),
       ...report.surfaceCoverage.map(surfaceInventory),
+      ...report.surfaceAssessments.map(surfaceAssessmentInventory),
       ...report.requestReports.map(requestInventory),
       ...report.webauthnReports.map(webauthnInventory)
     );
-    source!.textContent = `${report.name} · reduced report only`;
+    source!.textContent = `${report.name} · analyser ${report.provenance.analyserVersion} · catalogue ${report.provenance.catalogueVersion} · BCD ${report.provenance.bcdVersion}`;
     exportButton!.disabled = false;
     latestComparison = undefined;
     comparisonExportButton!.disabled = true;
@@ -418,7 +482,7 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
-      render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown));
+      render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown, sourceContext));
       message!.textContent =
         "Bundle assessed locally. Raw HTML, resource locations and bytes, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
     } catch (error) {
@@ -460,15 +524,17 @@
         stat(latestComparison.summary.regressions, "regressions"),
         stat(latestComparison.summary.resolutions, "resolutions"),
         stat(latestComparison.summary.changed, "other changes"),
-        stat(latestComparison.summary.incomparable, "incomparable changes")
+        stat(latestComparison.summary.incomparable, "incomparable changes"),
+        stat(latestComparison.summary.totalEvents, "total changes")
       );
       comparisonEvents!.replaceChildren(...latestComparison.events.map(comparisonEventCard));
       comparisonExportButton!.disabled = false;
       comparisonResults!.hidden = false;
-      comparisonMessage!.textContent =
-        latestComparison.events.length === 0
+      comparisonMessage!.textContent = !latestComparison.compatible
+        ? latestComparison.compatibilityReasons.join(" ")
+        : latestComparison.events.length === 0
           ? "No normalised evidence changes were detected."
-          : `${String(latestComparison.events.length)} normalised evidence changes detected.`;
+          : `${String(latestComparison.summary.totalEvents)} normalised evidence changes detected${latestComparison.summary.truncated ? `; showing the first ${String(latestComparison.summary.emittedEvents)}` : ""}.`;
     } catch (error) {
       latestComparison = undefined;
       comparisonExportButton!.disabled = true;

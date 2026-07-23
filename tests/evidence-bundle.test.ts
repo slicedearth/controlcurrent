@@ -5,6 +5,7 @@ import {
   inspectHtmlResources,
   inspectWebauthnConfiguration
 } from "../src/evidence-bundle";
+import { evidenceSourceContext } from "./helpers";
 
 function finding(report: Awaited<ReturnType<typeof inspectEvidenceBundle>>, controlId: string) {
   const result = report.findings.find((candidate) => candidate.controlId === controlId);
@@ -120,65 +121,88 @@ describe("bounded evidence bundles", () => {
   });
 
   it("combines response, HTML, request, and WebAuthn evidence conservatively", async () => {
-    const report = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Release candidate",
-      surfaces: [
-        {
-          id: "document",
-          role: "document",
-          requiredEvidence: ["response", "html", "request", "webauthn"]
-        }
-      ],
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "Document response",
-          surfaceId: "document",
-          headers: {
-            "Content-Security-Policy":
-              "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'",
-            "Cross-Origin-Opener-Policy": "same-origin",
-            "Cross-Origin-Embedder-Policy": "credentialless",
-            "Set-Cookie": "__Host-session=secret; Path=/; Secure; HttpOnly; SameSite=Lax"
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Release candidate",
+        surfaces: [
+          {
+            id: "document",
+            role: "document",
+            requiredEvidence: ["response", "html", "request", "webauthn"],
+            requiredControls: [
+              "content-security-policy",
+              "csp-nonces",
+              "csp-base-uri",
+              "subresource-integrity",
+              "cross-origin-opener-policy",
+              "cross-origin-embedder-policy",
+              "samesite-cookies",
+              "httponly-cookies",
+              "secure-cookie-prefixes",
+              "fetch-metadata",
+              "webauthn-platform-authenticator",
+              "webauthn-prf",
+              "webauthn-conditional-mediation"
+            ],
+            requiredComposites: [
+              "strict-csp-candidate",
+              "cross-origin-isolation-candidate",
+              "cookie-attribute-coverage"
+            ]
           }
-        }
-      ],
-      htmlDocuments: [
-        {
-          schemaVersion: 1,
-          name: "Document HTML",
-          surfaceId: "document",
-          html: '<script src="/app.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
-        }
-      ],
-      requests: [
-        {
-          schemaVersion: 1,
-          name: "Navigation request",
-          surfaceId: "document",
-          headers: {
-            "Sec-Fetch-Site": "same-origin",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Dest": "document"
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Document response",
+            surfaceId: "document",
+            headers: {
+              "Content-Security-Policy":
+                "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'",
+              "Cross-Origin-Opener-Policy": "same-origin",
+              "Cross-Origin-Embedder-Policy": "credentialless",
+              "Set-Cookie": "__Host-session=secret; Path=/; Secure; HttpOnly; SameSite=Lax"
+            }
           }
-        }
-      ],
-      webauthn: [
-        {
-          schemaVersion: 1,
-          name: "Passkey retrieval",
-          surfaceId: "document",
-          operation: "get",
-          authenticatorAttachment: "platform",
-          userVerification: "required",
-          residentKey: "unspecified",
-          attestation: "unspecified",
-          mediation: "conditional",
-          prfRequested: true
-        }
-      ]
-    });
+        ],
+        htmlDocuments: [
+          {
+            schemaVersion: 1,
+            name: "Document HTML",
+            surfaceId: "document",
+            html: '<script src="/app.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
+          }
+        ],
+        requests: [
+          {
+            schemaVersion: 1,
+            name: "Navigation request",
+            surfaceId: "document",
+            headers: {
+              "Sec-Fetch-Site": "same-origin",
+              "Sec-Fetch-Mode": "navigate",
+              "Sec-Fetch-Dest": "document"
+            }
+          }
+        ],
+        webauthn: [
+          {
+            schemaVersion: 1,
+            name: "Passkey retrieval",
+            surfaceId: "document",
+            operation: "get",
+            authenticatorAttachment: "platform",
+            userVerification: "required",
+            residentKey: "unspecified",
+            attestation: "unspecified",
+            mediation: "conditional",
+            prfRequested: true
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
 
     expect(report.coverage).toEqual({
       responses: 1,
@@ -194,6 +218,15 @@ describe("bounded evidence bundles", () => {
     expect(finding(report, "subresource-integrity").state).toBe("observed");
     expect(finding(report, "fetch-metadata").state).toBe("observed");
     expect(finding(report, "webauthn-conditional-mediation").state).toBe("observed");
+    expect(finding(report, "csp-hashes").state).toBe("not_applicable");
+    expect(report.schemaVersion).toBe(4);
+    expect(report.provenance).toMatchObject({
+      analyserVersion: "2.0.0",
+      catalogueVersion: "2.2.0",
+      ...evidenceSourceContext
+    });
+    expect(report.reportFingerprint).toMatch(/^[a-f0-9]{64}$/u);
+    expect(report.surfaceAssessments).toHaveLength(1);
     expect(report.composites.find((item) => item.id === "strict-csp-candidate")?.state).toBe(
       "satisfied"
     );
@@ -222,40 +255,58 @@ describe("bounded evidence bundles", () => {
   });
 
   it("correlates CSP with inline markup and verifies bounded local resource bytes", async () => {
-    const report = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Correlated deployment",
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "Document response",
-          surfaceId: "document",
-          headers: {
-            "Content-Security-Policy":
-              "default-src 'self'; script-src 'sha384-aNt7yvywWYBYpp63/KbxBKfOC3dOvuimlpmeA0nnW+QwA4uxZiTUgb1zO4MbEPPw'; style-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Correlated deployment",
+        surfaces: [
+          {
+            id: "document",
+            role: "document",
+            requiredEvidence: ["response", "html", "resource_bytes"],
+            requiredControls: [
+              "content-security-policy",
+              "csp-nonces",
+              "csp-hashes",
+              "csp-base-uri",
+              "subresource-integrity"
+            ],
+            requiredComposites: ["strict-csp-candidate"]
           }
-        }
-      ],
-      htmlDocuments: [
-        {
-          schemaVersion: 1,
-          name: "Document HTML",
-          surfaceId: "document",
-          html: `<script>console.log("ok")</script>
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Document response",
+            surfaceId: "document",
+            headers: {
+              "Content-Security-Policy":
+                "default-src 'self'; script-src 'sha384-aNt7yvywWYBYpp63/KbxBKfOC3dOvuimlpmeA0nnW+QwA4uxZiTUgb1zO4MbEPPw'; style-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
+            }
+          }
+        ],
+        htmlDocuments: [
+          {
+            schemaVersion: 1,
+            name: "Document HTML",
+            surfaceId: "document",
+            html: `<script>console.log("ok")</script>
 <style nonce="AAAAAAAAAAAAAAAAAAAAAA==">body { color: black; }</style>
 <script src="/assets/app.js" integrity="sha384-yIW1OD7Ye7R8I78er1J55+Q+qj8gUDxJIjk7VcTFyfuuWN65iE1isyj/6ZJU0M4o"></script>`
-        }
-      ],
-      resourceBytes: [
-        {
-          schemaVersion: 1,
-          resourceId: "app-js",
-          surfaceId: "document",
-          reference: "/assets/app.js",
-          bodyBase64: "ZXhwb3J0IGNvbnN0IG9rID0gdHJ1ZTsK"
-        }
-      ]
-    });
+          }
+        ],
+        resourceBytes: [
+          {
+            schemaVersion: 1,
+            resourceId: "app-js",
+            surfaceId: "document",
+            reference: "/assets/app.js",
+            bodyBase64: "ZXhwb3J0IGNvbnN0IG9rID0gdHJ1ZTsK"
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
 
     expect(report.resourceVerificationReport.finding.state).toBe("observed");
     expect(report.resourceVerificationReport.verifiedResourceCount).toBe(1);
@@ -275,54 +326,73 @@ describe("bounded evidence bundles", () => {
   });
 
   it("makes broad CSP sources, nonce reuse, and digest mismatch reviewable", async () => {
-    const report = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Review evidence",
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "First response",
-          surfaceId: "first",
-          headers: {
-            "Content-Security-Policy":
-              "script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA==' 'unsafe-eval'; base-uri 'none'"
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Review evidence",
+        surfaces: [
+          {
+            id: "first",
+            role: "document",
+            requiredEvidence: ["response", "html", "resource_bytes"],
+            requiredControls: ["content-security-policy", "csp-nonces", "csp-base-uri"],
+            requiredComposites: ["strict-csp-candidate"]
+          },
+          {
+            id: "second",
+            role: "document",
+            requiredEvidence: ["response", "html"],
+            requiredControls: ["content-security-policy", "csp-nonces", "csp-base-uri"],
+            requiredComposites: ["strict-csp-candidate"]
           }
-        },
-        {
-          schemaVersion: 1,
-          name: "Second response",
-          surfaceId: "second",
-          headers: {
-            "Content-Security-Policy":
-              "script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "First response",
+            surfaceId: "first",
+            headers: {
+              "Content-Security-Policy":
+                "script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA==' 'unsafe-eval'; base-uri 'none'"
+            }
+          },
+          {
+            schemaVersion: 1,
+            name: "Second response",
+            surfaceId: "second",
+            headers: {
+              "Content-Security-Policy":
+                "script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'"
+            }
           }
-        }
-      ],
-      htmlDocuments: [
-        {
-          schemaVersion: 1,
-          name: "First document",
-          surfaceId: "first",
-          html: `<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">one()</script>
+        ],
+        htmlDocuments: [
+          {
+            schemaVersion: 1,
+            name: "First document",
+            surfaceId: "first",
+            html: `<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">one()</script>
 <script src="/asset.js" integrity="sha384-yIW1OD7Ye7R8I78er1J55+Q+qj8gUDxJIjk7VcTFyfuuWN65iE1isyj/6ZJU0M4o"></script>`
-        },
-        {
-          schemaVersion: 1,
-          name: "Second document",
-          surfaceId: "second",
-          html: '<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">two()</script>'
-        }
-      ],
-      resourceBytes: [
-        {
-          schemaVersion: 1,
-          resourceId: "asset",
-          surfaceId: "first",
-          reference: "/asset.js",
-          bodyBase64: "d3Jvbmc="
-        }
-      ]
-    });
+          },
+          {
+            schemaVersion: 1,
+            name: "Second document",
+            surfaceId: "second",
+            html: '<script nonce="AAAAAAAAAAAAAAAAAAAAAA==">two()</script>'
+          }
+        ],
+        resourceBytes: [
+          {
+            schemaVersion: 1,
+            resourceId: "asset",
+            surfaceId: "first",
+            reference: "/asset.js",
+            bodyBase64: "d3Jvbmc="
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
 
     expect(report.resourceVerificationReport.finding.state).toBe("invalid");
     expect(report.resourceVerificationReport.mismatchedResourceCount).toBe(1);
@@ -334,47 +404,66 @@ describe("bounded evidence bundles", () => {
   });
 
   it("surfaces route variation instead of choosing the favourable response", async () => {
-    const report = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Route comparison",
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "Protected route",
-          headers: { "Content-Security-Policy": "default-src 'self'" }
-        },
-        {
-          schemaVersion: 1,
-          name: "Unprotected route",
-          headers: { "X-Content-Type-Options": "nosniff" }
-        }
-      ]
-    });
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Route comparison",
+        surfaces: [
+          {
+            id: "document",
+            role: "document",
+            requiredEvidence: ["response"],
+            requiredControls: ["content-security-policy", "x-content-type-options"],
+            requiredComposites: []
+          }
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Protected route",
+            surfaceId: "document",
+            headers: { "Content-Security-Policy": "default-src 'self'" }
+          },
+          {
+            schemaVersion: 1,
+            name: "Unprotected route",
+            surfaceId: "document",
+            headers: { "X-Content-Type-Options": "nosniff" }
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
 
     expect(finding(report, "content-security-policy").state).toBe("inconclusive");
     expect(finding(report, "x-content-type-options").state).toBe("inconclusive");
   });
 
   it("makes missing expected-surface evidence explicit", async () => {
-    const report = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Incomplete manifest",
-      surfaces: [
-        {
-          id: "account",
-          role: "authentication",
-          requiredEvidence: ["response", "html", "request"]
-        }
-      ],
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "Account response",
-          surfaceId: "account",
-          headers: { "Content-Security-Policy": "default-src 'self'" }
-        }
-      ]
-    });
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Incomplete manifest",
+        surfaces: [
+          {
+            id: "account",
+            role: "authentication",
+            requiredEvidence: ["response", "html", "request"],
+            requiredControls: ["content-security-policy"],
+            requiredComposites: []
+          }
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Account response",
+            surfaceId: "account",
+            headers: { "Content-Security-Policy": "default-src 'self'" }
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
 
     expect(report.coverage.surfaceGaps).toBe(1);
     expect(report.surfaceCoverage[0]).toMatchObject({
@@ -390,19 +479,76 @@ describe("bounded evidence bundles", () => {
 
   it("refuses observations outside a declared surface manifest", async () => {
     await expect(
-      inspectEvidenceBundle({
-        schemaVersion: 1,
-        name: "Unknown surface",
-        surfaces: [{ id: "expected", role: "document", requiredEvidence: ["response"] }],
-        responses: [
-          {
-            schemaVersion: 1,
-            name: "Unexpected response",
-            surfaceId: "unexpected",
-            headers: { "X-Content-Type-Options": "nosniff" }
-          }
-        ]
-      })
+      inspectEvidenceBundle(
+        {
+          schemaVersion: 2,
+          name: "Unknown surface",
+          surfaces: [
+            {
+              id: "expected",
+              role: "document",
+              requiredEvidence: ["response"],
+              requiredControls: ["x-content-type-options"],
+              requiredComposites: []
+            }
+          ],
+          responses: [
+            {
+              schemaVersion: 1,
+              name: "Unexpected response",
+              surfaceId: "unexpected",
+              headers: { "X-Content-Type-Options": "nosniff" }
+            }
+          ]
+        },
+        evidenceSourceContext
+      )
     ).rejects.toThrow(/declared surface/u);
+  });
+
+  it("refuses legacy bundles and unknown surface controls instead of inventing policy", async () => {
+    await expect(
+      inspectEvidenceBundle(
+        {
+          schemaVersion: 1,
+          name: "Legacy",
+          responses: [
+            {
+              schemaVersion: 1,
+              name: "Response",
+              headers: { "X-Content-Type-Options": "nosniff" }
+            }
+          ]
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow();
+
+    await expect(
+      inspectEvidenceBundle(
+        {
+          schemaVersion: 2,
+          name: "Unknown control",
+          surfaces: [
+            {
+              id: "document",
+              role: "document",
+              requiredEvidence: ["response"],
+              requiredControls: ["future-control"],
+              requiredComposites: []
+            }
+          ],
+          responses: [
+            {
+              schemaVersion: 1,
+              name: "Response",
+              surfaceId: "document",
+              headers: { "X-Content-Type-Options": "nosniff" }
+            }
+          ]
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow(/Unknown required control/u);
   });
 });

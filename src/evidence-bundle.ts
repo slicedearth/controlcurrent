@@ -1,5 +1,5 @@
 import { parseFragment, type DefaultTreeAdapterTypes } from "parse5";
-import { SECURITY_CONTROLS } from "./catalogue";
+import { CATALOGUE_VERSION, SECURITY_CONTROLS } from "./catalogue";
 import {
   type AssuranceFinding,
   type AssuranceReport,
@@ -11,19 +11,24 @@ import {
   type HtmlResourceReport,
   type ResourceVerificationReport,
   type SurfaceCoverage,
+  type SurfaceAssessment,
   type WebauthnReport,
   assuranceFindingSchema,
   cspMarkupReportSchema,
   evidenceBundleInputSchema,
   evidenceBundleReportSchema,
+  evidenceSourceContextSchema,
   fetchMetadataReportSchema,
   headerSnapshotSchema,
   htmlDocumentInputSchema,
   htmlResourceReportSchema,
   resourceVerificationReportSchema,
+  surfaceAssessmentSchema,
   webauthnConfigurationSchema,
   webauthnReportSchema
 } from "./contracts";
+import { EVIDENCE_ANALYSER_VERSION, EVIDENCE_COMPOSITE_IDS } from "./evidence-model";
+import { fingerprintEvidenceReportBody } from "./evidence-report";
 import { cspElementTokens, extractCspEvidence, inspectHeaders, type CspPolicy } from "./assurance";
 import {
   decodeBase64Bytes,
@@ -845,7 +850,22 @@ function mergeFindings(controlId: string, inputs: AssuranceFinding[]): Assurance
   }
   const states = new Set(evaluated.map((input) => input.state));
   const sourceHeaders = [...new Set(evaluated.flatMap((input) => input.sourceHeaders))].slice(0, 4);
-  const evidence = `${String(inputs.filter((input) => input.state === "observed").length)} observed; ${String(inputs.filter((input) => input.state === "missing").length)} missing; ${String(inputs.filter((input) => input.state === "report_only").length)} report only; ${String(inputs.filter((input) => input.state === "invalid").length)} invalid; ${String(inputs.filter((input) => input.state === "inconclusive").length)} inconclusive`;
+  const reducedDetails = [
+    ...new Set(evaluated.flatMap((input) => (input.evidence ? [input.evidence] : [])))
+  ].sort();
+  const retainedDetails = reducedDetails.slice(0, 4).map((detail) => detail.slice(0, 96));
+  const counts = `${String(inputs.filter((input) => input.state === "observed").length)} observed; ${String(inputs.filter((input) => input.state === "missing").length)} missing; ${String(inputs.filter((input) => input.state === "report_only").length)} report only; ${String(inputs.filter((input) => input.state === "invalid").length)} invalid; ${String(inputs.filter((input) => input.state === "inconclusive").length)} inconclusive`;
+  const evidence = [
+    counts,
+    ...(retainedDetails.length > 0 ? [`reduced detail ${retainedDetails.join(" | ")}`] : []),
+    ...(reducedDetails.length > retainedDetails.length
+      ? [
+          `${String(reducedDetails.length - retainedDetails.length)} additional detail value(s) omitted`
+        ]
+      : [])
+  ]
+    .join("; ")
+    .slice(0, 512);
   if (states.has("invalid")) {
     return finding(
       controlId,
@@ -890,6 +910,77 @@ function mergeFindings(controlId: string, inputs: AssuranceFinding[]): Assurance
     `Not observed in ${String(evaluated.length)} applicable evidence item${evaluated.length === 1 ? "" : "s"}.`,
     evidence
   );
+}
+
+function notApplicableFinding(controlId: string): AssuranceFinding {
+  return finding(controlId, "not_applicable", [], "No declared surface requires this control.");
+}
+
+function notApplicableComposite(id: (typeof EVIDENCE_COMPOSITE_IDS)[number]): CompositeAssessment {
+  const templates: Readonly<
+    Record<
+      (typeof EVIDENCE_COMPOSITE_IDS)[number],
+      Pick<CompositeAssessment, "name" | "requirements">
+    >
+  > = {
+    "strict-csp-candidate": {
+      name: "Strict CSP candidate",
+      requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
+    },
+    "cross-origin-isolation-candidate": {
+      name: "Cross-origin isolation header candidate",
+      requirements: [
+        "COOP same-origin on every supplied response",
+        "COEP require-corp or credentialless on every supplied response"
+      ]
+    },
+    "cookie-attribute-coverage": {
+      name: "Cookie attribute coverage",
+      requirements: [
+        "SameSite on every observed cookie",
+        "HttpOnly on every observed cookie",
+        "No invalid recognised secure-prefix declaration"
+      ]
+    }
+  };
+  return {
+    id,
+    name: templates[id].name,
+    state: "not_applicable",
+    summary: "No declared surface requires this composite.",
+    requirements: templates[id].requirements
+  };
+}
+
+function mergeCompositeAssessments(
+  id: (typeof EVIDENCE_COMPOSITE_IDS)[number],
+  inputs: readonly CompositeAssessment[]
+): CompositeAssessment {
+  if (inputs.length === 0) return notApplicableComposite(id);
+  const template = inputs[0];
+  if (!template) return notApplicableComposite(id);
+  const states = new Set(inputs.map((input) => input.state));
+  if (states.size === 1) {
+    return {
+      ...template,
+      summary:
+        template.state === "satisfied"
+          ? `Satisfied across ${String(inputs.length)} required surface${inputs.length === 1 ? "" : "s"}.`
+          : template.summary
+    };
+  }
+  if (states.has("review") || states.has("not_evaluated")) {
+    return {
+      ...template,
+      state: "review",
+      summary: "Required surfaces do not support one consistent composite conclusion."
+    };
+  }
+  return {
+    ...template,
+    state: "gap",
+    summary: "At least one required surface does not satisfy this composite."
+  };
 }
 
 function stateOf(findings: AssuranceFinding[], controlId: string): AssuranceFinding["state"] {
@@ -1074,8 +1165,36 @@ function cookieComposite(responseReports: AssuranceReport[]): CompositeAssessmen
   };
 }
 
-export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBundleReport> {
+function evaluateComposite(
+  id: (typeof EVIDENCE_COMPOSITE_IDS)[number],
+  findings: AssuranceFinding[],
+  responseReports: AssuranceReport[],
+  markupReports: readonly CspMarkupReport[]
+): CompositeAssessment {
+  switch (id) {
+    case "strict-csp-candidate":
+      return strictCspComposite(findings, markupReports);
+    case "cross-origin-isolation-candidate":
+      return crossOriginComposite(responseReports);
+    case "cookie-attribute-coverage":
+      return cookieComposite(responseReports);
+  }
+}
+
+export async function inspectEvidenceBundle(
+  input: unknown,
+  sourceContextInput: unknown
+): Promise<EvidenceBundleReport> {
   const bundle = evidenceBundleInputSchema.parse(input);
+  const sourceContext = evidenceSourceContextSchema.parse(sourceContextInput);
+  const knownControls = new Set<string>(SECURITY_CONTROLS.map((control) => control.id));
+  for (const surface of bundle.surfaces) {
+    for (const controlId of surface.requiredControls) {
+      if (!knownControls.has(controlId)) {
+        throw new Error(`Unknown required control on surface ${surface.id}: ${controlId}`);
+      }
+    }
+  }
   const totalHtmlBytes = bundle.htmlDocuments.reduce(
     (total, document) => total + byteLength(document.html),
     0
@@ -1094,30 +1213,110 @@ export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBun
   const webauthnReports = bundle.webauthn.map((configuration) =>
     inspectWebauthnConfiguration(configuration)
   );
-  const allFindings = [
-    ...responseReports.flatMap((report) => report.findings),
-    ...htmlReports.map((report) => report.finding),
-    resourceVerificationReport.finding,
-    ...markupReports.map((report) => report.finding),
-    ...requestReports.map((report) => report.finding),
-    ...webauthnReports.flatMap((report) => report.findings)
-  ];
-  const findings = SECURITY_CONTROLS.map((control) =>
-    mergeFindings(
-      control.id,
-      allFindings.filter((item) => item.controlId === control.id)
-    )
-  );
+  const resourceReportsBySurface = new Map<string, ResourceVerificationReport>();
+  for (const surface of bundle.surfaces) {
+    const htmlEntries = bundle.htmlDocuments
+      .map((document, index) => ({ document, analysis: htmlAnalyses[index] }))
+      .filter(
+        (
+          entry
+        ): entry is {
+          document: (typeof bundle.htmlDocuments)[number];
+          analysis: HtmlAnalysis;
+        } => entry.document.surfaceId === surface.id && entry.analysis !== undefined
+      );
+    resourceReportsBySurface.set(
+      surface.id,
+      await verifyResourceBytes(
+        {
+          ...bundle,
+          surfaces: [surface],
+          htmlDocuments: htmlEntries.map((entry) => entry.document),
+          resourceBytes: bundle.resourceBytes.filter((item) => item.surfaceId === surface.id),
+          responses: bundle.responses.filter((item) => item.surfaceId === surface.id),
+          requests: bundle.requests.filter((item) => item.surfaceId === surface.id),
+          webauthn: bundle.webauthn.filter((item) => item.surfaceId === surface.id)
+        },
+        htmlEntries.map((entry) => entry.analysis)
+      )
+    );
+  }
+
+  const surfaceAssessments: SurfaceAssessment[] = bundle.surfaces.map((surface) => {
+    const scopedResponseReports = responseReports.filter(
+      (_, index) => bundle.responses[index]?.surfaceId === surface.id
+    );
+    const scopedMarkupReports = markupReports.filter((report) => report.surfaceId === surface.id);
+    const scopedResourceReport = resourceReportsBySurface.get(surface.id);
+    const scopedEvidence = [
+      ...scopedResponseReports.flatMap((report) => report.findings),
+      ...htmlReports
+        .filter((_, index) => bundle.htmlDocuments[index]?.surfaceId === surface.id)
+        .map((report) => report.finding),
+      ...(scopedResourceReport ? [scopedResourceReport.finding] : []),
+      ...scopedMarkupReports.map((report) => report.finding),
+      ...requestReports
+        .filter((_, index) => bundle.requests[index]?.surfaceId === surface.id)
+        .map((report) => report.finding),
+      ...webauthnReports
+        .filter((_, index) => bundle.webauthn[index]?.surfaceId === surface.id)
+        .flatMap((report) => report.findings)
+    ];
+    const allSurfaceFindings = SECURITY_CONTROLS.map((control) =>
+      mergeFindings(
+        control.id,
+        scopedEvidence.filter((item) => item.controlId === control.id)
+      )
+    );
+    const findings = surface.requiredControls.map(
+      (controlId) =>
+        allSurfaceFindings.find((item) => item.controlId === controlId) ??
+        notApplicableFinding(controlId)
+    );
+    const composites = surface.requiredComposites.map((id) =>
+      evaluateComposite(id, allSurfaceFindings, scopedResponseReports, scopedMarkupReports)
+    );
+    return surfaceAssessmentSchema.parse({
+      surfaceId: surface.id,
+      role: surface.role,
+      requiredControls: [...surface.requiredControls].sort(),
+      requiredComposites: [...surface.requiredComposites].sort(),
+      findings,
+      composites
+    });
+  });
+
+  const findings = SECURITY_CONTROLS.map((control) => {
+    const requiredFindings = surfaceAssessments.flatMap((surface) =>
+      surface.findings.filter((item) => item.controlId === control.id)
+    );
+    const onlyFinding = requiredFindings.length === 1 ? requiredFindings[0] : undefined;
+    return (
+      onlyFinding ??
+      (requiredFindings.length === 0
+        ? notApplicableFinding(control.id)
+        : mergeFindings(control.id, requiredFindings))
+    );
+  });
   const composites = [
-    strictCspComposite(findings, markupReports),
-    crossOriginComposite(responseReports),
-    cookieComposite(responseReports),
+    ...EVIDENCE_COMPOSITE_IDS.map((id) =>
+      mergeCompositeAssessments(
+        id,
+        surfaceAssessments.flatMap((surface) =>
+          surface.composites.filter((composite) => composite.id === id)
+        )
+      )
+    ),
     surfaceCoverageComposite(surfaceCoverage)
   ];
-
-  return evidenceBundleReportSchema.parse({
-    schemaVersion: 3,
+  const reportWithoutFingerprint = {
+    schemaVersion: 4 as const,
     name: bundle.name,
+    provenance: {
+      analyserVersion: EVIDENCE_ANALYSER_VERSION,
+      catalogueVersion: CATALOGUE_VERSION,
+      ...sourceContext
+    },
     coverage: {
       responses: responseReports.length,
       htmlDocuments: htmlReports.length,
@@ -1129,11 +1328,13 @@ export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBun
       surfaceGaps: surfaceCoverage.filter((surface) => surface.state === "gap").length
     },
     surfaceCoverage,
+    surfaceAssessments,
     summary: {
       observed: findings.filter((result) => result.state === "observed").length,
       missing: findings.filter((result) => result.state === "missing").length,
       invalid: findings.filter((result) => result.state === "invalid").length,
       notEvaluated: findings.filter((result) => result.state === "not_evaluated").length,
+      notApplicable: findings.filter((result) => result.state === "not_applicable").length,
       reportOnly: findings.filter((result) => result.state === "report_only").length,
       inconclusive: findings.filter((result) => result.state === "inconclusive").length
     },
@@ -1145,5 +1346,7 @@ export async function inspectEvidenceBundle(input: unknown): Promise<EvidenceBun
     cspMarkupReports: markupReports,
     requestReports,
     webauthnReports
-  });
+  };
+  const reportFingerprint = await fingerprintEvidenceReportBody(reportWithoutFingerprint);
+  return evidenceBundleReportSchema.parse({ ...reportWithoutFingerprint, reportFingerprint });
 }

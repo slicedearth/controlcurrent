@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BROWSER_IDS } from "./browsers";
+import { EVIDENCE_COMPOSITE_IDS } from "./evidence-model";
 
 export const browserIdSchema = z.enum(BROWSER_IDS);
 export type BrowserId = z.infer<typeof browserIdSchema>;
@@ -399,6 +400,7 @@ export const assuranceStateSchema = z.enum([
   "missing",
   "invalid",
   "not_evaluated",
+  "not_applicable",
   "report_only",
   "inconclusive"
 ]);
@@ -575,6 +577,10 @@ export const webauthnReportSchema = z
   .strict();
 export type WebauthnReport = z.infer<typeof webauthnReportSchema>;
 
+const evidenceSurfaceIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u);
+const evidenceControlIdSchema = z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/u);
+export const evidenceCompositeIdSchema = z.enum(EVIDENCE_COMPOSITE_IDS);
+
 export const surfaceEvidenceKindSchema = z.enum([
   "response",
   "html",
@@ -586,9 +592,11 @@ export type SurfaceEvidenceKind = z.infer<typeof surfaceEvidenceKindSchema>;
 
 export const expectedSurfaceSchema = z
   .object({
-    id: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    id: evidenceSurfaceIdSchema,
     role: z.enum(["document", "api", "authentication", "logout", "embedded", "other"]),
-    requiredEvidence: z.array(surfaceEvidenceKindSchema).min(1).max(5)
+    requiredEvidence: z.array(surfaceEvidenceKindSchema).min(1).max(5),
+    requiredControls: z.array(evidenceControlIdSchema).max(64),
+    requiredComposites: z.array(evidenceCompositeIdSchema).max(EVIDENCE_COMPOSITE_IDS.length)
   })
   .strict()
   .superRefine((surface, context) => {
@@ -599,12 +607,26 @@ export const expectedSurfaceSchema = z
         path: ["requiredEvidence"]
       });
     }
+    if (new Set(surface.requiredControls).size !== surface.requiredControls.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Required surface controls must be unique.",
+        path: ["requiredControls"]
+      });
+    }
+    if (new Set(surface.requiredComposites).size !== surface.requiredComposites.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Required surface composites must be unique.",
+        path: ["requiredComposites"]
+      });
+    }
   });
 export type ExpectedSurface = z.infer<typeof expectedSurfaceSchema>;
 
 export const surfaceCoverageSchema = z
   .object({
-    surfaceId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    surfaceId: evidenceSurfaceIdSchema,
     role: z.enum(["document", "api", "authentication", "logout", "embedded", "other"]),
     state: z.enum(["complete", "gap"]),
     requiredEvidence: z.array(surfaceEvidenceKindSchema).min(1).max(5),
@@ -616,9 +638,9 @@ export type SurfaceCoverage = z.infer<typeof surfaceCoverageSchema>;
 
 export const evidenceBundleInputSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     name: z.string().trim().min(1).max(80),
-    surfaces: z.array(expectedSurfaceSchema).max(32).default([]),
+    surfaces: z.array(expectedSurfaceSchema).min(1).max(32),
     responses: z.array(headerSnapshotSchema).max(16).default([]),
     htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
     resourceBytes: z.array(resourceBytesInputSchema).max(32).default([]),
@@ -677,17 +699,49 @@ export const compositeAssessmentSchema = z
   .object({
     id: z.string().min(1).max(80),
     name: z.string().min(1).max(120),
-    state: z.enum(["satisfied", "review", "gap", "not_evaluated"]),
+    state: z.enum(["satisfied", "review", "gap", "not_evaluated", "not_applicable"]),
     summary: z.string().min(1).max(1_024),
     requirements: z.array(z.string().min(1).max(256)).max(8)
   })
   .strict();
 export type CompositeAssessment = z.infer<typeof compositeAssessmentSchema>;
 
+export const evidenceSourceContextSchema = z
+  .object({
+    bcdVersion: z.string().min(1).max(64),
+    bcdTimestamp: z.iso.datetime(),
+    webFeaturesVersion: z.string().min(1).max(64),
+    selectedSchemaFingerprint: z.string().regex(/^[a-f0-9]{64}$/u)
+  })
+  .strict();
+export type EvidenceSourceContext = z.infer<typeof evidenceSourceContextSchema>;
+
+export const evidenceProvenanceSchema = evidenceSourceContextSchema
+  .extend({
+    analyserVersion: z.string().regex(/^\d+\.\d+\.\d+$/u),
+    catalogueVersion: z.string().min(1).max(64)
+  })
+  .strict();
+export type EvidenceProvenance = z.infer<typeof evidenceProvenanceSchema>;
+
+export const surfaceAssessmentSchema = z
+  .object({
+    surfaceId: evidenceSurfaceIdSchema,
+    role: z.enum(["document", "api", "authentication", "logout", "embedded", "other"]),
+    requiredControls: z.array(evidenceControlIdSchema).max(64),
+    requiredComposites: z.array(evidenceCompositeIdSchema).max(EVIDENCE_COMPOSITE_IDS.length),
+    findings: z.array(assuranceFindingSchema).max(64),
+    composites: z.array(compositeAssessmentSchema).max(EVIDENCE_COMPOSITE_IDS.length)
+  })
+  .strict();
+export type SurfaceAssessment = z.infer<typeof surfaceAssessmentSchema>;
+
 export const evidenceBundleReportSchema = z
   .object({
-    schemaVersion: z.literal(3),
+    schemaVersion: z.literal(4),
     name: z.string().min(1).max(80),
+    provenance: evidenceProvenanceSchema,
+    reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
     coverage: z
       .object({
         responses: z.number().int().min(0).max(16),
@@ -701,12 +755,14 @@ export const evidenceBundleReportSchema = z
       })
       .strict(),
     surfaceCoverage: z.array(surfaceCoverageSchema).max(32),
+    surfaceAssessments: z.array(surfaceAssessmentSchema).max(32),
     summary: z
       .object({
         observed: z.number().int().min(0).max(64),
         missing: z.number().int().min(0).max(64),
         invalid: z.number().int().min(0).max(64),
         notEvaluated: z.number().int().min(0).max(64),
+        notApplicable: z.number().int().min(0).max(64),
         reportOnly: z.number().int().min(0).max(64),
         inconclusive: z.number().int().min(0).max(64)
       })
@@ -736,11 +792,12 @@ export const evidenceComparisonEventSchema = z
       "surface_gap_added",
       "surface_gap_resolved",
       "surface_changed",
+      "coverage_changed",
       "evidence_became_incomparable"
     ]),
-    key: z.string().min(1).max(160),
-    beforeState: z.string().min(1).max(40),
-    afterState: z.string().min(1).max(40),
+    key: z.string().min(1).max(256),
+    beforeState: z.string().min(1).max(80),
+    afterState: z.string().min(1).max(80),
     summary: z.string().min(1).max(512)
   })
   .strict();
@@ -753,13 +810,119 @@ export const evidenceReportComparisonSchema = z
     afterName: z.string().min(1).max(80),
     summary: z
       .object({
-        regressions: z.number().int().min(0).max(256),
-        resolutions: z.number().int().min(0).max(256),
-        changed: z.number().int().min(0).max(256),
-        incomparable: z.number().int().min(0).max(256)
+        regressions: z.number().int().min(0).max(4_096),
+        resolutions: z.number().int().min(0).max(4_096),
+        changed: z.number().int().min(0).max(4_096),
+        incomparable: z.number().int().min(0).max(4_096),
+        totalEvents: z.number().int().min(0).max(4_096),
+        emittedEvents: z.number().int().min(0).max(512),
+        truncated: z.boolean()
       })
       .strict(),
-    events: z.array(evidenceComparisonEventSchema).max(256)
+    compatible: z.boolean(),
+    compatibilityReasons: z.array(z.string().min(1).max(256)).max(8),
+    beforeProvenance: evidenceProvenanceSchema,
+    afterProvenance: evidenceProvenanceSchema,
+    events: z.array(evidenceComparisonEventSchema).max(512)
   })
   .strict();
 export type EvidenceReportComparison = z.infer<typeof evidenceReportComparisonSchema>;
+
+export const evidencePolicyOutcomeSchema = z.enum([
+  "observed",
+  "satisfied",
+  "complete",
+  "missing",
+  "invalid",
+  "not_evaluated",
+  "not_applicable",
+  "report_only",
+  "inconclusive",
+  "gap",
+  "review",
+  "absent",
+  "role_mismatch",
+  "model_mismatch"
+]);
+export type EvidencePolicyOutcome = z.infer<typeof evidencePolicyOutcomeSchema>;
+
+export const evidencePolicyExceptionSchema = z
+  .object({
+    surfaceId: evidenceSurfaceIdSchema,
+    targetKind: z.enum(["evidence", "control", "composite"]),
+    targetId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    outcomes: z.array(evidencePolicyOutcomeSchema).min(1).max(16),
+    reason: z.string().trim().min(8).max(512),
+    expiresOn: z.iso.date()
+  })
+  .strict();
+export type EvidencePolicyException = z.infer<typeof evidencePolicyExceptionSchema>;
+
+export const evidencePolicyProfileSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    name: z.string().trim().min(1).max(80),
+    expectedAnalyserVersion: z.string().regex(/^\d+\.\d+\.\d+$/u),
+    expectedCatalogueVersion: z.string().min(1).max(64),
+    expectedBcdVersion: z.string().min(1).max(64).optional(),
+    surfaces: z.array(expectedSurfaceSchema).min(1).max(32),
+    rules: z
+      .object({
+        missing: policyRuleSchema,
+        reportOnly: policyRuleSchema,
+        inconclusive: policyRuleSchema,
+        notEvaluated: policyRuleSchema,
+        compositeReview: policyRuleSchema
+      })
+      .strict(),
+    exceptions: z.array(evidencePolicyExceptionSchema).max(128).default([])
+  })
+  .strict()
+  .superRefine((profile, context) => {
+    const surfaces = new Set<string>();
+    for (const [index, surface] of profile.surfaces.entries()) {
+      if (surfaces.has(surface.id)) {
+        context.addIssue({
+          code: "custom",
+          message: `Duplicate evidence policy surface: ${surface.id}`,
+          path: ["surfaces", index, "id"]
+        });
+      }
+      surfaces.add(surface.id);
+    }
+  });
+export type EvidencePolicyProfile = z.infer<typeof evidencePolicyProfileSchema>;
+
+export const evidencePolicyFindingSchema = z
+  .object({
+    surfaceId: evidenceSurfaceIdSchema.optional(),
+    targetKind: z.enum(["model", "surface", "evidence", "control", "composite"]),
+    targetId: z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u),
+    outcome: evidencePolicyOutcomeSchema,
+    decision: policyDecisionSchema,
+    explanation: z.string().min(1).max(1_024),
+    exceptionState: z.enum(["active", "expired"]).optional(),
+    exceptionReason: z.string().max(512).optional(),
+    exceptionExpiresOn: z.iso.date().optional()
+  })
+  .strict();
+export type EvidencePolicyFinding = z.infer<typeof evidencePolicyFindingSchema>;
+
+export const evidencePolicyEvaluationSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    evaluatedAsOf: z.iso.date(),
+    reportFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    reportProvenance: evidenceProvenanceSchema,
+    profile: evidencePolicyProfileSchema,
+    summary: z
+      .object({
+        pass: z.number().int().min(0).max(4_096),
+        review: z.number().int().min(0).max(4_096),
+        fail: z.number().int().min(0).max(4_096)
+      })
+      .strict(),
+    findings: z.array(evidencePolicyFindingSchema).max(4_096)
+  })
+  .strict();
+export type EvidencePolicyEvaluation = z.infer<typeof evidencePolicyEvaluationSchema>;

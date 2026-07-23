@@ -4,9 +4,14 @@ import { inspectHeaders } from "../src/assurance";
 import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
 import { selectedSnapshot } from "../src/data";
-import { browserIdSchema, policyProfileSchema } from "../src/contracts";
+import {
+  browserIdSchema,
+  evidencePolicyProfileSchema,
+  policyProfileSchema
+} from "../src/contracts";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { compareEvidenceReports } from "../src/evidence-comparison";
+import { evaluateEvidencePolicy } from "../src/evidence-policy";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
 
@@ -19,7 +24,8 @@ function usage(): never {
   npm run cli -- explain <control-id> [--json]
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
-  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]`);
+  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]
+  npm run cli -- check-evidence <policy.json> <report.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]`);
   process.exitCode = 2;
   throw new Error("Invalid command.");
 }
@@ -137,7 +143,12 @@ async function inspectHeaderSnapshot(): Promise<void> {
 
 async function inspectBundle(): Promise<void> {
   const path = process.argv[3] ?? usage();
-  const report = await inspectEvidenceBundle(await readBoundedJson(path, 2 * 1_024 * 1_024));
+  const report = await inspectEvidenceBundle(await readBoundedJson(path, 2 * 1_024 * 1_024), {
+    bcdVersion: selectedSnapshot.bcdVersion,
+    bcdTimestamp: selectedSnapshot.bcdTimestamp,
+    webFeaturesVersion: selectedSnapshot.webFeaturesVersion,
+    selectedSchemaFingerprint: selectedSnapshot.schemaFingerprint
+  });
   const strictComposites = process.argv.includes("--strict-composites");
   const failed =
     report.summary.invalid > 0 ||
@@ -185,6 +196,36 @@ async function compareReports(): Promise<void> {
   process.exitCode = failed ? 1 : 0;
 }
 
+async function checkEvidence(): Promise<void> {
+  const profilePath = process.argv[3] ?? usage();
+  const reportPath = process.argv[4] ?? usage();
+  const asOf = optionValue("--as-of") ?? utcDate();
+  const profile = evidencePolicyProfileSchema.parse(await readBoundedJson(profilePath));
+  const evaluation = await evaluateEvidencePolicy(
+    await readBoundedJson(reportPath, 1_024 * 1_024),
+    profile,
+    asOf
+  );
+  const strictReview = process.argv.includes("--strict-review");
+  const failed = evaluation.summary.fail > 0 || (strictReview && evaluation.summary.review > 0);
+  if (process.argv.includes("--json")) {
+    process.stdout.write(canonicalJson(evaluation));
+  } else {
+    console.log(
+      `${profile.name}: ${failed ? "evidence policy failed" : "evidence policy satisfied"}`
+    );
+    console.log(
+      `${String(evaluation.summary.pass)} pass, ${String(evaluation.summary.review)} review, ${String(evaluation.summary.fail)} fail`
+    );
+    for (const finding of evaluation.findings.filter((item) => item.decision !== "pass")) {
+      console.log(
+        `- ${finding.decision.toUpperCase()} ${finding.surfaceId ?? "report"} ${finding.targetKind}:${finding.targetId}: ${finding.outcome}`
+      );
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
 try {
   switch (process.argv[2]) {
     case "check":
@@ -204,6 +245,9 @@ try {
       break;
     case "compare-reports":
       await compareReports();
+      break;
+    case "check-evidence":
+      await checkEvidence();
       break;
     default:
       usage();

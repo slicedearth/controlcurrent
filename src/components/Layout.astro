@@ -10,6 +10,9 @@ interface Props {
 const { title, description } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const contentSecurityPolicy = import.meta.env.DEV
+  ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+  : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests";
 const nav = [
   { href: "/", label: "Overview" },
   { href: "/controls/", label: "Controls" },
@@ -30,10 +33,7 @@ const pathWithBase = (path: string) => `${base}${path}`;
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
-    />
+    <meta http-equiv="Content-Security-Policy" content={contentSecurityPolicy} />
     <meta name="referrer" content="no-referrer" />
     <meta name="color-scheme" content="dark" />
     <link rel="canonical" href={canonical} />

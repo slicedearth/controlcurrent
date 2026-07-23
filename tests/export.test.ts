@@ -8,7 +8,7 @@ import {
 import { compareEvidenceReports } from "../src/evidence-comparison";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateProfile } from "../src/evaluate";
-import { feature, snapshot } from "./helpers";
+import { evidenceSourceContext, feature, snapshot } from "./helpers";
 
 describe("profile exports", () => {
   it("serialises deterministically", () => {
@@ -34,17 +34,30 @@ describe("profile exports", () => {
   });
 
   it("exports only the reduced evidence report", async () => {
-    const report = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Export",
-      htmlDocuments: [
-        {
-          schemaVersion: 1,
-          name: "Document",
-          html: '<script src="/private.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
-        }
-      ]
-    });
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Export",
+        surfaces: [
+          {
+            id: "document",
+            role: "document",
+            requiredEvidence: ["html"],
+            requiredControls: ["subresource-integrity"],
+            requiredComposites: []
+          }
+        ],
+        htmlDocuments: [
+          {
+            schemaVersion: 1,
+            name: "Document",
+            surfaceId: "document",
+            html: '<script src="/private.js" integrity="sha384-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></script>'
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
     const exported = exportEvidenceBundleReport(report);
 
     expect(exported).toContain('"eligibleResourceCount": 1');
@@ -53,28 +66,54 @@ describe("profile exports", () => {
   });
 
   it("exports deterministic reduced evidence comparisons", async () => {
-    const before = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "Before",
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "Response",
-          headers: { "X-Content-Type-Options": "nosniff" }
-        }
-      ]
-    });
-    const after = await inspectEvidenceBundle({
-      schemaVersion: 1,
-      name: "After",
-      responses: [
-        {
-          schemaVersion: 1,
-          name: "Response",
-          headers: { "Content-Security-Policy": "default-src 'none'" }
-        }
-      ]
-    });
+    const before = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "Before",
+        surfaces: [
+          {
+            id: "document",
+            role: "document",
+            requiredEvidence: ["response"],
+            requiredControls: ["content-security-policy", "x-content-type-options"],
+            requiredComposites: []
+          }
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Response",
+            surfaceId: "document",
+            headers: { "X-Content-Type-Options": "nosniff" }
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
+    const after = await inspectEvidenceBundle(
+      {
+        schemaVersion: 2,
+        name: "After",
+        surfaces: [
+          {
+            id: "document",
+            role: "document",
+            requiredEvidence: ["response"],
+            requiredControls: ["content-security-policy", "x-content-type-options"],
+            requiredComposites: []
+          }
+        ],
+        responses: [
+          {
+            schemaVersion: 1,
+            name: "Response",
+            surfaceId: "document",
+            headers: { "Content-Security-Policy": "default-src 'none'" }
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
     const comparison = await compareEvidenceReports(before, after);
     const exported = exportEvidenceReportComparison(comparison);
 

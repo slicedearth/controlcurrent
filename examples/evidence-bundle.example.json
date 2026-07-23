@@ -1,11 +1,37 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "name": "Example release candidate",
   "surfaces": [
     {
       "id": "document",
       "role": "document",
-      "requiredEvidence": ["response", "html", "request", "webauthn"]
+      "requiredEvidence": ["response", "html", "request", "webauthn"],
+      "requiredControls": [
+        "content-security-policy",
+        "csp-nonces",
+        "csp-base-uri",
+        "csp-frame-ancestors",
+        "csp-form-action",
+        "subresource-integrity",
+        "integrity-policy",
+        "cross-origin-opener-policy",
+        "cross-origin-embedder-policy",
+        "strict-transport-security",
+        "x-content-type-options",
+        "referrer-policy",
+        "samesite-cookies",
+        "httponly-cookies",
+        "secure-cookie-prefixes",
+        "fetch-metadata",
+        "webauthn-platform-authenticator",
+        "webauthn-prf",
+        "webauthn-conditional-mediation"
+      ],
+      "requiredComposites": [
+        "strict-csp-candidate",
+        "cross-origin-isolation-candidate",
+        "cookie-attribute-coverage"
+      ]
     }
   ],
   "responses": [

@@ -146,6 +146,16 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
   await expect(results.getByRole("heading", { name: "Cookie attribute coverage" })).toBeVisible();
   await expect(results.getByRole("heading", { name: "Expected surface coverage" })).toBeVisible();
   await expect(results.getByText("Complete: html, request, response, webauthn")).toBeVisible();
+  await expect(results.getByRole("heading", { name: "Surface policy · sign-in" })).toBeVisible();
+  await expect(
+    results.getByText("19 of 19 required controls observed · 3 of 3 required composites satisfied")
+  ).toBeVisible();
+  await expect(
+    results.getByText("No declared surface requires this control.").first()
+  ).toBeVisible();
+  await expect(results.locator("#bundle-source")).toContainText(
+    "analyser 2.0.0 · catalogue 2.2.0 · BCD 8.0.7"
+  );
   await expect(page.getByText("Compare with a previous reduced report")).toBeVisible();
   const reportText = await results.textContent();
   expect(reportText).not.toContain("/assets/app.css");

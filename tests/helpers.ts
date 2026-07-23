@@ -8,6 +8,13 @@ import { BROWSER_IDS } from "../src/browsers";
 
 const browserIds: readonly BrowserId[] = BROWSER_IDS;
 
+export const evidenceSourceContext = {
+  bcdVersion: "1.0.0",
+  bcdTimestamp: "2026-01-01T00:00:00.000Z",
+  webFeaturesVersion: "1.0.0",
+  selectedSchemaFingerprint: "a".repeat(64)
+} as const;
+
 export function feature(
   path: string,
   statements: Partial<Record<BrowserId, SupportStatement[]>>

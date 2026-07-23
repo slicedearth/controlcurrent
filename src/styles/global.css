@@ -788,6 +788,10 @@ select:disabled {
   color: var(--violet);
 }
 
+.assurance--not_applicable {
+  color: var(--muted);
+}
+
 .assurance--report_only {
   color: var(--amber);
 }
@@ -814,6 +818,10 @@ select:disabled {
 .composite--review,
 .composite--not_evaluated {
   color: var(--violet);
+}
+
+.composite--not_applicable {
+  color: var(--muted);
 }
 
 .composite--gap {

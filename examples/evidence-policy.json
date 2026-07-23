@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "name": "Release evidence baseline",
+  "expectedAnalyserVersion": "2.0.0",
+  "expectedCatalogueVersion": "2.2.0",
+  "expectedBcdVersion": "8.0.7",
+  "surfaces": [
+    {
+      "id": "document",
+      "role": "document",
+      "requiredEvidence": ["response", "html", "request", "webauthn"],
+      "requiredControls": [
+        "content-security-policy",
+        "csp-nonces",
+        "csp-base-uri",
+        "csp-frame-ancestors",
+        "csp-form-action",
+        "subresource-integrity",
+        "integrity-policy",
+        "cross-origin-opener-policy",
+        "cross-origin-embedder-policy",
+        "strict-transport-security",
+        "x-content-type-options",
+        "referrer-policy",
+        "samesite-cookies",
+        "httponly-cookies",
+        "secure-cookie-prefixes",
+        "fetch-metadata",
+        "webauthn-platform-authenticator",
+        "webauthn-prf",
+        "webauthn-conditional-mediation"
+      ],
+      "requiredComposites": [
+        "strict-csp-candidate",
+        "cross-origin-isolation-candidate",
+        "cookie-attribute-coverage"
+      ]
+    }
+  ],
+  "rules": {
+    "missing": "fail",
+    "reportOnly": "fail",
+    "inconclusive": "review",
+    "notEvaluated": "fail",
+    "compositeReview": "review"
+  },
+  "exceptions": []
+}
