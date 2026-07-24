@@ -282,6 +282,21 @@ test("publishes third-party licence notices with the static site", async ({ page
   expect(notices).toContain("entities");
 });
 
+test("states capability maturity without numerical assurance scores", async ({ page }) => {
+  await page.goto("/limitations/");
+
+  await expect(page.getByRole("heading", { name: "Capability maturity" })).toBeVisible();
+  const maturity = page.getByRole("region", { name: "ControlCurrent capability maturity" });
+  await expect(maturity.getByRole("row")).toHaveCount(8);
+  await expect(maturity.getByText("Runtime enforcement")).toBeVisible();
+  await expect(maturity.getByText("Not assessed")).toBeVisible();
+  await expect(maturity.getByText("Production certification")).toBeVisible();
+  await expect(page.getByText(/\/10/u)).toHaveCount(0);
+
+  const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
+  expect(violations.violations).toEqual([]);
+});
+
 test("does not detect the actual browser or expose a runtime connection surface", async ({
   page,
   request

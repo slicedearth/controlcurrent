@@ -85,27 +85,84 @@ import Layout from "../components/Layout.astro";
       <li>No result should be treated as legal, compliance, or certification advice.</li>
     </ul>
 
-    <h2>Practical usefulness</h2>
-    <p>These are project self-assessments, not benchmark scores.</p>
-    <ul>
-      <li>
-        <strong>9.7/10 for focused education and browser-policy planning:</strong> exact BCD, Baseline,
-        WPT, compatibility-policy, deployment-evidence, and evidence-policy layers are kept distinct.
-      </li>
-      <li>
-        <strong>9.9/10 as an engineering decision aid:</strong> explicit inventory and surface applicability,
-        subject-identified fingerprints, application and environment comparison boundaries, revision-aware
-        freshness policy, exact scope and Sigstore signer policy, detail-aware comparisons, bounded exceptions,
-        local export, and transparent composites support design and release decisions.
-      </li>
-      <li>
-        <strong>7.2/10 as production security assurance:</strong> supplied policy, markup, request, WebAuthn,
-        and local resource evidence can reveal real configuration gaps; the independent gate now rejects
-        the wrong scope inventory, completeness, source kind, inventory age, application, environment,
-        revision, producer class, capture duration, evidence age, report digest, and verified signer identity.
-        There is still no authenticated collector, independently verified route discovery, runtime enforcement
-        test, remote resource verification, adversarial test, or continuous monitoring.
-      </li>
-    </ul>
+    <h2>Capability maturity</h2>
+    <p>
+      Maturity describes the evidence ControlCurrent can establish. It is not a product score,
+      certification level, or comparison with another security tool.
+    </p>
+    <div
+      class="table-wrap"
+      role="region"
+      aria-label="ControlCurrent capability maturity"
+      tabindex="0"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Capability</th>
+            <th scope="col">Maturity</th>
+            <th scope="col">Evidence boundary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Browser compatibility planning</th>
+            <td><strong>Mature</strong></td>
+            <td>
+              Exact selected BCD paths, qualifications, WebDX context, and explicit browser
+              minimums.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Engineering policy decisions</th>
+            <td><strong>Mature with limitations</strong></td>
+            <td>
+              Versioned policy, deterministic minimums, explicit exceptions, and source provenance;
+              organisational suitability remains a human decision.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Supplied configuration evidence</th>
+            <td><strong>Partial</strong></td>
+            <td>
+              Bounded headers, HTML, local resources, request context, and reduced WebAuthn
+              configuration are analysed without execution or fetching.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Report integrity and signer identity</th>
+            <td><strong>Mature for retained claims</strong></td>
+            <td>
+              Canonical fingerprints and optional Sigstore verification detect report changes and
+              authenticate the configured signer, not the truth of collection claims.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Collection and route completeness</th>
+            <td><strong>Externally asserted</strong></td>
+            <td>
+              Inventories and expected surfaces are supplied by the operator. Omitted production
+              routes, states, and environments cannot currently be discovered independently.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Runtime enforcement</th>
+            <td><strong>Not assessed</strong></td>
+            <td>
+              ControlCurrent does not exercise browser enforcement, server authorisation,
+              authenticators, or remote resources.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Production certification</th>
+            <td><strong>Out of scope</strong></td>
+            <td>
+              No result is a vulnerability assessment, compliance decision, penetration test, or
+              certification.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </article>
 </Layout>
