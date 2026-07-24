@@ -96,6 +96,10 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Collector request timeout               |       10 seconds |
 | Evidence-policy exceptions              |              128 |
 | Evidence-policy findings                |            4,096 |
+| Browser-policy exceptions               |               64 |
+| Browser-policy findings                 |            1,024 |
+| Browser-policy import/export            |          128 KiB |
+| Two-part decision packet                |            4 MiB |
 | Sigstore bundle input                   |          512 KiB |
 | Encoded DSSE statement                  |           64 KiB |
 | Decoded attestation statement           |           48 KiB |
@@ -116,6 +120,26 @@ The normalised outcome vocabulary is:
 - `unknown`;
 - `unsupported_mapping`;
 - `source_inconsistent`.
+
+## Browser policy and decision packets
+
+Browser-policy schema 1 contains one explicit baseline per browser, one or more
+required catalogue controls, rules for qualified, unknown, and unmapped
+outcomes, and at most 64 expiring exceptions. Exception controls must be
+required, exception browsers must occur in the baseline, duplicate values are
+refused, and two exceptions cannot overlap on the same control, browser, and
+outcome.
+
+Policy evaluation schema 1 emits at most 1,024 browser-control findings. Active
+exceptions convert a matching result to `review`, never `pass`; expired
+exceptions remain visible and do not affect the decision.
+
+Decision packet schema 1 contains one fingerprinted policy evaluation and
+either one validated schema 7 reduced evidence report or one schema 4
+evidence-policy evaluation. Each lane has its own SHA-256 fingerprint and the
+packet has a fingerprint over its canonical body. The packet contains explicit
+false values for combined scoring, runtime-assurance equivalence, and
+independent-collection proof.
 
 Missing or incompatible source data never becomes `unavailable` or
 `available_unqualified`.

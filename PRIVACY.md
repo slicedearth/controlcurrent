@@ -54,6 +54,18 @@ JSON exports are generated locally from the displayed calculation. They contain
 the selected browser profile, BCD version, catalogue version, and calculated
 results. They contain no visitor identifier or browser telemetry.
 
+Browser-policy exports and printable decision records can contain project names,
+browser minimums, required controls, exception reasons, and exception expiry
+dates. The planner stores none of these values automatically. Import, evaluation,
+fingerprinting, and export happen locally.
+
+A two-part decision packet deliberately copies the complete browser-policy
+evaluation and either a privacy-reduced evidence report or an evidence-policy
+evaluation into one local JSON export. That evidence can contain the opaque
+application, environment, revision, build, producer, surface, and policy fields
+described below. Review the packet before sharing it and do not commit
+organisation-specific packets to the public repository.
+
 ## Offline deployment assessment
 
 Pasted response headers remain in page memory. ControlCurrent does not fetch a

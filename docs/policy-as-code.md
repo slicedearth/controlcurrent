@@ -34,7 +34,19 @@ The website exports:
 - canonical policy JSON for review or version control; and
 - a self-contained printable HTML decision record containing the browser
   minimums, source versions, rules, exceptions, fallbacks, detailed results,
-  and explicit limitations.
+  explicit limitations, and SHA-256 fingerprints for the canonical inputs.
+
+An exported policy can be imported again. The planner restores its browser
+minimums, required controls, rules, and exceptions, then evaluates it against
+the source snapshot bundled with the current site. Unsupported future schemas,
+unavailable browser releases, unknown controls, and ambiguous exceptions are
+refused rather than approximated.
+
+The on-page decision view can be searched and filtered by decision. A generated
+command shows how to run the same policy contract through the command-line
+checker. The command records an explicit evaluation date; reproducibility also
+requires a reviewed ControlCurrent checkout with the stated BCD and catalogue
+versions.
 
 The report loads no script, image, font, analytics, or remote resource. It
 records a browser-policy decision and is not a production security certificate.
@@ -51,7 +63,25 @@ An exception must identify:
 
 An active exception converts a failure into a visible review result. It never
 creates an unqualified pass. Expired exceptions remain visible and stop
-affecting the policy decision.
+affecting the policy decision. Two exceptions must not cover the same control,
+browser, and outcome because array order must never decide which expiry or
+reason applies.
+
+## Two-part decision packet
+
+The website can attach either a validated privacy-reduced evidence report or a
+command-line evidence-policy evaluation to a browser-policy decision. The
+resulting JSON packet contains:
+
+- a fingerprinted browser-policy evaluation;
+- a separately fingerprinted evidence result;
+- a fingerprint over the complete packet; and
+- explicit flags stating that no combined security score or assurance claim
+  was created.
+
+Browser availability and supplied configuration evidence remain separate
+decision lanes. A packet does not prove independent collection, complete
+coverage, correct runtime enforcement, or production security.
 
 ## Commands
 

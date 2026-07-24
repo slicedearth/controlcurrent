@@ -8,6 +8,7 @@ import {
 } from "./contracts";
 
 export const MAX_POLICY_EXPORT_BYTES = 128 * 1_024;
+export const MAX_POLICY_IMPORT_BYTES = 128 * 1_024;
 
 export function buildPolicyProfile(input: {
   profile: DeploymentProfile;
@@ -45,4 +46,21 @@ export function exportPolicyProfile(input: unknown): string {
     throw new Error(`Policy export exceeds the ${String(MAX_POLICY_EXPORT_BYTES)}-byte limit.`);
   }
   return serialised;
+}
+
+export function importPolicyProfile(contents: string): PolicyProfile {
+  if (new TextEncoder().encode(contents).byteLength > MAX_POLICY_IMPORT_BYTES) {
+    throw new Error(`Policy import exceeds the ${String(MAX_POLICY_IMPORT_BYTES)}-byte limit.`);
+  }
+  const policy = policyProfileSchema.parse(JSON.parse(contents) as unknown);
+  return buildPolicyProfile({
+    profile: {
+      schemaVersion: 1,
+      name: policy.name,
+      baselines: policy.baselines
+    },
+    requiredControls: policy.requiredControls,
+    rules: policy.rules,
+    exceptions: policy.exceptions
+  });
 }

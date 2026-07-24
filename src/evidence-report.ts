@@ -1,10 +1,8 @@
-import { canonicalJson } from "./canonical";
+import { fingerprintCanonical } from "./canonical-fingerprint";
 import { type EvidenceBundleReport, evidenceBundleReportSchema } from "./contracts";
 
 export async function fingerprintEvidenceReportBody(input: unknown): Promise<string> {
-  const bytes = new TextEncoder().encode(canonicalJson(input, 0));
-  const digest = new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes));
-  return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return fingerprintCanonical(input);
 }
 
 export async function validateEvidenceReport(input: unknown): Promise<EvidenceBundleReport> {

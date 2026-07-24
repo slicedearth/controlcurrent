@@ -33,6 +33,11 @@ describe("repository publication audit", () => {
     for (const file of [
       "controlcurrent-collected-evidence.json",
       "controlcurrent-profile.json",
+      "controlcurrent-engineering-report.md",
+      "controlcurrent-policy.json",
+      "controlcurrent-decision-report.html",
+      "controlcurrent-decision-packet.json",
+      "source-review.json",
       "reports/controlcurrent-evidence-report.json",
       "audit/statement.json",
       "sigstore-bundle.json"

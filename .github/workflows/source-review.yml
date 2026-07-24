@@ -34,7 +34,17 @@ jobs:
         run: npm run generate:check
 
       - name: Compare locked packages with the registry
-        run: npm outdated @mdn/browser-compat-data web-features
+        id: compare_sources
+        continue-on-error: true
+        run: npm outdated @mdn/browser-compat-data web-features --json > source-review.json
+
+      - name: Summarise source review
+        if: always()
+        run: npm run source-review:summary -- source-review.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Require review when an update is available
+        if: steps.compare_sources.outcome != 'success'
+        run: exit 1
 
       - name: State read-only boundary
         if: always()

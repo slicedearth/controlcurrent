@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { inspectEvidenceBundle } from "../src/evidence-bundle";
+import { evidenceIdentity, evidenceSourceContext } from "../tests/helpers";
 
 test("renders real source provenance and makes no external request", async ({ page }) => {
   const externalRequests: string[] = [];
@@ -140,10 +142,23 @@ test("imports explicit browser minimums and builds a local policy report", async
   await page.getByRole("button", { name: "Check policy" }).click();
   await expect(page.getByRole("heading", { name: "Policy decision" })).toBeVisible();
   await expect(page.locator("#policy-json")).toContainText('"requiredControls"');
+  await expect(page.locator("[data-policy-finding]")).toHaveCount(15);
+  await expect(page.locator("#policy-ci-command")).toContainText(
+    "npm run cli -- check path/to/controlcurrent-policy.json"
+  );
+  await page.locator("#policy-decision").selectOption("review");
+  expect(await page.locator("[data-policy-finding]:visible").count()).toBeGreaterThan(0);
+  expect(await page.locator("[data-policy-finding]:visible").count()).toBeLessThan(15);
+  await page.getByRole("button", { name: "Clear filters" }).last().click();
+  await expect(page.locator("[data-policy-finding]:visible")).toHaveCount(15);
 
   const policyPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export policy JSON" }).click();
-  expect((await policyPromise).suggestedFilename()).toBe("controlcurrent-policy.json");
+  const policyDownload = await policyPromise;
+  expect(policyDownload.suggestedFilename()).toBe("controlcurrent-policy.json");
+  const policyPath = await policyDownload.path();
+  if (!policyPath) throw new Error("The policy export path is unavailable.");
+  const policyText = await readFile(policyPath);
 
   const reportPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export printable decision report" }).click();
@@ -154,7 +169,62 @@ test("imports explicit browser minimums and builds a local policy report", async
   const reportText = await readFile(reportPath, "utf8");
   expect(reportText).toContain("ControlCurrent engineering decision record");
   expect(reportText).toContain("connect-src 'none'");
+  expect(reportText).toContain("Record fingerprints");
   expect(reportText).not.toContain("<script");
+
+  const evidence = await inspectEvidenceBundle(
+    {
+      schemaVersion: 4,
+      identity: evidenceIdentity,
+      name: "Release evidence",
+      surfaces: [
+        {
+          id: "document",
+          role: "document",
+          requiredEvidence: ["response"],
+          requiredControls: ["content-security-policy"],
+          requiredComposites: []
+        }
+      ],
+      responses: [
+        {
+          schemaVersion: 1,
+          name: "Document response",
+          surfaceId: "document",
+          headers: { "Content-Security-Policy": "default-src 'none'" }
+        }
+      ]
+    },
+    evidenceSourceContext
+  );
+  await page.getByLabel("Evidence result JSON").setInputFiles({
+    name: "evidence-report.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(evidence))
+  });
+  await expect(page.getByText(/Reduced evidence report attached locally/u)).toBeVisible();
+  const packetPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export two-part decision packet" }).click();
+  const packet = await packetPromise;
+  expect(packet.suggestedFilename()).toBe("controlcurrent-decision-packet.json");
+  const packetPath = await packet.path();
+  if (!packetPath) throw new Error("The decision packet path is unavailable.");
+  expect(JSON.parse(await readFile(packetPath, "utf8"))).toMatchObject({
+    schemaVersion: 1,
+    limitations: {
+      combinedScore: false,
+      browserAvailabilityIsRuntimeAssurance: false
+    },
+    evidence: { kind: "reduced_evidence_report" }
+  });
+
+  await page.getByLabel("Import an existing ControlCurrent policy").setInputFiles({
+    name: "controlcurrent-policy.json",
+    mimeType: "application/json",
+    buffer: policyText
+  });
+  await expect(page.getByText(/Policy imported and checked locally/u)).toBeVisible();
+  await expect(page.locator("[data-policy-finding]")).toHaveCount(15);
 
   await page.locator("#import-browser-config").setInputFiles({
     name: ".browserslistrc",
@@ -184,6 +254,45 @@ test("calculates minimum browser baselines without a network request", async ({ 
 
   const violations = await new AxeBuilder({ page }).include("#minimum-form").analyze();
   expect(violations.violations).toEqual([]);
+});
+
+test("wraps long browser-data labels without clipping", async ({ page }) => {
+  async function expectLabelsInsideBounds() {
+    const labels = page.locator(".outcome, .category").filter({
+      hasText: /^Not enough browser data$/u
+    });
+    expect(await labels.count()).toBeGreaterThan(0);
+    const boxes = await labels.evaluateAll((elements) =>
+      elements.map((element) => {
+        const box = element.getBoundingClientRect();
+        return {
+          clientWidth: element.clientWidth,
+          scrollWidth: element.scrollWidth,
+          clientHeight: element.clientHeight,
+          scrollHeight: element.scrollHeight,
+          left: box.left,
+          right: box.right,
+          viewportWidth: window.innerWidth
+        };
+      })
+    );
+    for (const box of boxes) {
+      expect(box.scrollWidth).toBeLessThanOrEqual(box.clientWidth + 1);
+      expect(box.scrollHeight).toBeLessThanOrEqual(box.clientHeight + 1);
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(box.viewportWidth + 1);
+    }
+  }
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/planner/");
+  await page.getByRole("button", { name: "Load example" }).click();
+  await page.getByRole("button", { name: "Check support" }).click();
+  await page.getByRole("button", { name: "Find oldest versions" }).click();
+  await expectLabelsInsideBounds();
+
+  await page.setViewportSize({ width: 320, height: 800 });
+  await expectLabelsInsideBounds();
 });
 
 test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => {

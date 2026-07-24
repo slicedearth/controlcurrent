@@ -26,6 +26,9 @@ import Layout from "../components/Layout.astro";
       after its bundled browser data changes. This is opt-in browser storage, is not synchronised,
       and can be cleared with “Delete saved plan”. Imported <code>.browserslistrc</code>,
       <code>package.json</code>, policy, and result files are read locally and are not uploaded.
+      Imported policy values, decision-record fingerprints, and optional two-part decision packets
+      are also created only on the visitor's device. A packet repeats the selected browser-policy
+      result and supplied reduced evidence, so it should be reviewed before sharing.
     </p>
 
     <h2>Your browser is not detected</h2>

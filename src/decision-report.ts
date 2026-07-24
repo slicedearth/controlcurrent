@@ -1,6 +1,7 @@
 import { SECURITY_CONTROLS } from "./catalogue";
 import { policyEvaluationSchema, profileEvaluationSchema } from "./contracts";
 import { canonicalJson } from "./canonical";
+import { fingerprintCanonical } from "./canonical-fingerprint";
 import { browserNames, outcomeLabels } from "./format";
 
 export const MAX_DECISION_REPORT_BYTES = 1_024 * 1_024;
@@ -14,10 +15,10 @@ function html(value: string): string {
     .replaceAll("'", "&#39;");
 }
 
-export function exportDecisionReport(
+export async function exportDecisionReport(
   evaluationInput: unknown,
   policyEvaluationInput: unknown
-): string {
+): Promise<string> {
   const evaluation = profileEvaluationSchema.parse(evaluationInput);
   const policyEvaluation = policyEvaluationSchema.parse(policyEvaluationInput);
   const profile = policyEvaluation.profile;
@@ -37,6 +38,14 @@ export function exportDecisionReport(
   ) {
     throw new Error("The policy decision and browser result use different browser plans.");
   }
+  const profileFingerprint = await fingerprintCanonical(profile);
+  const browserResultFingerprint = await fingerprintCanonical(evaluation);
+  const policyDecisionFingerprint = await fingerprintCanonical(policyEvaluation);
+  const decisionRecordFingerprint = await fingerprintCanonical({
+    browserResultFingerprint,
+    policyDecisionFingerprint,
+    profileFingerprint
+  });
   const controlNames = new Map<string, string>(
     SECURITY_CONTROLS.map((control) => [control.id, control.name])
   );
@@ -89,7 +98,7 @@ export function exportDecisionReport(
   <meta name="referrer" content="no-referrer">
   <title>${html(profile.name)} · ControlCurrent decision report</title>
   <style>
-    :root{font-family:system-ui,sans-serif;color:#14201d;background:#fff}body{max-width:1100px;margin:0 auto;padding:40px;line-height:1.5}h1,h2{line-height:1.15}h2{margin-top:2rem;border-top:1px solid #ccd8d4;padding-top:1rem}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.summary div{border:1px solid #ccd8d4;padding:1rem}.summary strong{display:block;font-size:1.8rem}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:.65rem;border:1px solid #ccd8d4;text-align:left;vertical-align:top}th{background:#eef5f2}.limit{border-left:4px solid #b7791f;padding:1rem;background:#fff8e8}@media(max-width:700px){body{padding:20px}.summary{grid-template-columns:1fr}.table{overflow-x:auto}table{min-width:800px}}@media print{body{max-width:none;padding:0}.table{overflow:visible}a{color:inherit}}
+    :root{font-family:system-ui,sans-serif;color:#14201d;background:#fff}body{max-width:1100px;margin:0 auto;padding:40px;line-height:1.5}h1,h2{line-height:1.15}h2{margin-top:2rem;border-top:1px solid #ccd8d4;padding-top:1rem}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.summary div{border:1px solid #ccd8d4;padding:1rem}.summary strong{display:block;font-size:1.8rem}dt{font-weight:700}dd{margin:0 0 .75rem}code{overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:.65rem;border:1px solid #ccd8d4;text-align:left;vertical-align:top}th{background:#eef5f2}.limit{border-left:4px solid #b7791f;padding:1rem;background:#fff8e8}@media(max-width:700px){body{padding:20px}.summary{grid-template-columns:1fr}.table{overflow-x:auto}table{min-width:800px}}@media print{body{max-width:none;padding:0}.table{overflow:visible}a{color:inherit}}
   </style>
 </head>
 <body>
@@ -105,6 +114,16 @@ export function exportDecisionReport(
       <div><strong>${String(policyEvaluation.summary.review)}</strong>review</div>
       <div><strong>${String(policyEvaluation.summary.fail)}</strong>fail</div>
     </div>
+  </section>
+  <section>
+    <h2>Record fingerprints</h2>
+    <p>These SHA-256 fingerprints identify the canonical records used to generate this report. They detect changed content; they do not identify or authenticate the author.</p>
+    <dl>
+      <dt>Decision record</dt><dd><code>${decisionRecordFingerprint}</code></dd>
+      <dt>Policy profile</dt><dd><code>${profileFingerprint}</code></dd>
+      <dt>Browser result</dt><dd><code>${browserResultFingerprint}</code></dd>
+      <dt>Policy decision</dt><dd><code>${policyDecisionFingerprint}</code></dd>
+    </dl>
   </section>
   <section>
     <h2>Supported browsers</h2>

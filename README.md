@@ -62,8 +62,14 @@ checker or certification service.
 - Decide whether known limitations, unknown data and unmapped features require
   review or fail the policy.
 - Add visible, expiring exceptions with a reason.
+- Import an existing policy for local editing and re-evaluation.
+- Search and filter the individual policy findings.
 - Export the policy as deterministic JSON.
-- Export a self-contained, printable HTML decision report.
+- Export a self-contained, printable HTML decision report with canonical
+  record fingerprints.
+- Generate a command-line hand-off for continuous-integration checks.
+- Attach a privacy-reduced evidence result as a separate lane in a fingerprinted
+  two-part decision packet.
 
 ### Explore the source data
 

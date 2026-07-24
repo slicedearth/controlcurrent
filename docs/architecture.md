@@ -136,8 +136,18 @@ blockers.
 Engineering comparison reports are deterministic Markdown generated in the
 browser. The policy builder also emits canonical JSON and a self-contained,
 printable HTML decision record with selected rules, exceptions, fallbacks, and
-results. The HTML report escapes all supplied text and loads no remote
-resources. These exports are not uploaded or retained by the site.
+results. Policies can be imported for local editing and re-evaluation. The
+schema rejects overlapping exception scopes so array order cannot change which
+exception applies. The on-page result exposes filterable findings and a
+command-line hand-off.
+
+The HTML report escapes all supplied text, loads no remote resources, and
+includes SHA-256 identifiers for the policy, browser result, and evaluated
+decision. An optional canonical JSON packet can combine that decision with a
+validated privacy-reduced evidence report or evidence-policy evaluation. Its
+two evidence lanes remain distinct and its contract explicitly refuses a
+combined score or assurance implication. These exports are not uploaded or
+retained by the site.
 
 ## Offline assurance boundary
 
@@ -328,6 +338,7 @@ presence therefore represents deployment preparation rather than current
 enforcement; actual delivery must be verified after any hosting change.
 
 A weekly read-only source review compares the locked BCD and Web Platform
-Features packages with npm registry metadata. It fails visibly when a newer
-version needs review, but cannot edit packages or data, open issues, commit,
-push, or deploy. The manual dry run has the same no-write boundary.
+Features packages with npm registry metadata and writes a bounded package-version
+table to the workflow summary. It fails visibly when a newer version needs
+review, but cannot edit packages or data, open issues, commit, push, or deploy.
+The manual dry run has the same no-write boundary.

@@ -11,6 +11,6 @@ const { outcome, detail } = Astro.props;
 ---
 
 <span class:list={["outcome", `outcome--${outcome}`]} title={detail}>
-  <span aria-hidden="true"></span>
-  {outcomeLabels[outcome]}
+  <span class="outcome__dot" aria-hidden="true"></span>
+  <span class="outcome__label">{outcomeLabels[outcome]}</span>
 </span>

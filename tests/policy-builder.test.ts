@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildPolicyProfile, exportPolicyProfile } from "../src/policy-builder";
+import {
+  buildPolicyProfile,
+  exportPolicyProfile,
+  importPolicyProfile,
+  MAX_POLICY_IMPORT_BYTES
+} from "../src/policy-builder";
 
 const profile = {
   schemaVersion: 1 as const,
@@ -35,6 +40,7 @@ describe("browser policy builder", () => {
     const exported = exportPolicyProfile(policy);
     expect(JSON.parse(exported)).toEqual(policy);
     expect(exportPolicyProfile(policy)).toBe(exported);
+    expect(importPolicyProfile(exported)).toEqual(policy);
   });
 
   it("refuses unknown features and exceptions outside the selected policy", () => {
@@ -80,5 +86,50 @@ describe("browser policy builder", () => {
         ]
       })
     ).toThrow(/included in the browser plan/u);
+  });
+
+  it("refuses overlapping and duplicated exception scopes", () => {
+    expect(() =>
+      buildPolicyProfile({
+        profile,
+        requiredControls: ["content-security-policy"],
+        rules,
+        exceptions: [
+          {
+            controlId: "content-security-policy",
+            outcomes: ["unavailable"],
+            reason: "A broad temporary exception is already recorded.",
+            expiresOn: "2026-08-31"
+          },
+          {
+            controlId: "content-security-policy",
+            browsers: ["firefox"],
+            outcomes: ["unavailable"],
+            reason: "This narrower exception overlaps the broad exception.",
+            expiresOn: "2026-09-30"
+          }
+        ]
+      })
+    ).toThrow(/must not overlap/u);
+    expect(() =>
+      buildPolicyProfile({
+        profile,
+        requiredControls: ["content-security-policy"],
+        rules,
+        exceptions: [
+          {
+            controlId: "content-security-policy",
+            browsers: ["firefox", "firefox"],
+            outcomes: ["unavailable"],
+            reason: "A duplicated browser must not create an ambiguous scope.",
+            expiresOn: "2026-08-31"
+          }
+        ]
+      })
+    ).toThrow(/Duplicate exception browser/u);
+  });
+
+  it("bounds imported policy files", () => {
+    expect(() => importPolicyProfile("x".repeat(MAX_POLICY_IMPORT_BYTES + 1))).toThrow(/exceeds/u);
   });
 });

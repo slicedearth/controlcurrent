@@ -15,6 +15,7 @@
     "dev": "astro dev",
     "generate": "tsx tools/generate.ts",
     "generate:check": "tsx tools/generate.ts --check",
+    "source-review:summary": "tsx tools/source-review-summary.ts",
     "lint": "eslint src tools tests e2e --max-warnings=0",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.tools.json",

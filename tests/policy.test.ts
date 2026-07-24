@@ -95,4 +95,31 @@ describe("policy profiles", () => {
       )
     ).toThrow("Unknown required control");
   });
+
+  it("rejects overlapping exception matches before evaluation", () => {
+    expect(() =>
+      evaluatePolicyProfile(
+        selectedSnapshot,
+        {
+          ...profile,
+          exceptions: [
+            {
+              controlId: "csp-nonces",
+              outcomes: ["unsupported_mapping"],
+              reason: "A broad temporary exception is under active review.",
+              expiresOn: "2026-08-31"
+            },
+            {
+              controlId: "csp-nonces",
+              browsers: ["safari"],
+              outcomes: ["unsupported_mapping"],
+              reason: "A narrower exception must not depend on array order.",
+              expiresOn: "2026-09-30"
+            }
+          ]
+        },
+        "2026-07-23"
+      )
+    ).toThrow(/must not overlap/u);
+  });
 });

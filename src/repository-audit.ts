@@ -20,6 +20,11 @@ export const ALLOWED_SYNTHETIC_EXAMPLE_FILES = new Set([
 const prohibitedBasenames = new Set([
   "controlcurrent-collected-evidence.json",
   "controlcurrent-profile.json",
+  "controlcurrent-engineering-report.md",
+  "controlcurrent-policy.json",
+  "controlcurrent-decision-report.html",
+  "controlcurrent-decision-packet.json",
+  "source-review.json",
   "controlcurrent-evidence-report.json",
   "controlcurrent-evidence-comparison.json",
   "report.json",

@@ -373,6 +373,7 @@ code {
     monospace;
   letter-spacing: 0.13em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .hero-terminal {
@@ -863,9 +864,10 @@ code {
 }
 
 .outcome {
-  display: inline-flex;
+  display: inline-grid;
   width: fit-content;
   max-width: 100%;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.4rem;
   padding: 0.22rem 0.52rem;
@@ -876,15 +878,20 @@ code {
   font:
     650 0.7rem/1.25 ui-monospace,
     monospace;
-  white-space: nowrap;
+  white-space: normal;
 }
 
-.outcome > span {
+.outcome__dot {
   width: 0.4rem;
   height: 0.4rem;
   flex: 0 0 auto;
   border-radius: 50%;
   background: currentcolor;
+}
+
+.outcome__label {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .outcome--available_unqualified {
@@ -1286,6 +1293,106 @@ thead tr > :first-child {
   overflow-wrap: anywhere;
 }
 
+.policy-findings {
+  margin-top: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.policy-finding {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+}
+
+.policy-finding[hidden] {
+  display: none;
+}
+
+.policy-finding .result-card__header {
+  min-height: 0;
+}
+
+.policy-finding .result-card__header h4 {
+  min-width: 0;
+  margin: 0;
+}
+
+.policy-finding .result-card__header a {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.policy-decision {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  flex: 0 1 auto;
+  padding: 0.24rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font:
+    700 0.7rem/1.35 ui-monospace,
+    monospace;
+  overflow-wrap: anywhere;
+}
+
+.policy-decision--pass {
+  color: var(--accent);
+}
+
+.policy-decision--review {
+  color: var(--amber);
+}
+
+.policy-decision--fail {
+  color: var(--red);
+}
+
+.policy-exception-state {
+  margin: 0;
+  padding: 0.75rem;
+  border-left: 3px solid var(--amber);
+  background: rgb(251 191 36 / 6%);
+  color: var(--muted);
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+}
+
+.policy-exception-state--expired {
+  border-left-color: var(--red);
+}
+
+.policy-output,
+.policy-handoff {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: rgb(6 16 18 / 65%);
+}
+
+.policy-output > summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.policy-handoff h4 {
+  margin-top: 0.45rem;
+}
+
+.policy-handoff > :last-child {
+  margin-bottom: 0;
+}
+
+.policy-handoff label {
+  display: grid;
+  max-width: 40rem;
+  margin-block: 1rem;
+  gap: 0.35rem;
+}
+
 .planner-workflow {
   padding-block: clamp(3.5rem, 7vw, 6rem);
   border-top: 1px solid var(--line);
@@ -1516,6 +1623,16 @@ select:disabled {
   align-items: start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.result-card__header > :first-child {
+  min-width: 0;
+}
+
+.result-card__header .category {
+  max-width: 100%;
+  flex: 0 1 auto;
+  line-height: 1.45;
 }
 
 .result-card__header h3 a {

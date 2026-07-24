@@ -107,6 +107,10 @@ const defaultRequiredControls = new Set([
           accept=".browserslistrc,.json,application/json,text/plain"
         />
       </label>
+      <label>
+        <span>Import an existing ControlCurrent policy</span>
+        <input id="import-policy" type="file" accept="application/json,.json" />
+      </label>
     </div>
     <label class="toggle-row remember-result">
       <input id="remember-result" type="checkbox" />
@@ -294,7 +298,56 @@ const defaultRequiredControls = new Set([
         >
           <h3 id="policy-preview-heading">Policy decision</h3>
           <div id="policy-summary" class="stats-grid"></div>
-          <pre id="policy-json" tabindex="0" aria-label="Generated policy JSON"></pre>
+          <form id="policy-filters" class="result-filters" aria-label="Filter policy findings">
+            <label>
+              <span>Search policy findings</span>
+              <input id="policy-search" type="search" placeholder="Feature, browser, or reason" />
+            </label>
+            <label>
+              <span>Decision</span>
+              <select id="policy-decision">
+                <option value="">All decisions</option>
+                <option value="pass">Pass</option>
+                <option value="review">Require review</option>
+                <option value="fail">Fail</option>
+              </select>
+            </label>
+            <label class="toggle-row result-filter-toggle">
+              <input id="policy-exceptions-only" type="checkbox" />
+              <span>Show exception findings only</span>
+            </label>
+            <button type="button" class="button" id="clear-policy-filters">Clear filters</button>
+          </form>
+          <p id="policy-filter-status" class="form-message" role="status" aria-live="polite"></p>
+          <div id="policy-findings" class="results-list policy-findings"></div>
+          <details class="policy-output">
+            <summary>Review the canonical policy JSON</summary>
+            <pre id="policy-json" tabindex="0" aria-label="Generated policy JSON"></pre>
+          </details>
+          <section class="policy-handoff" aria-labelledby="policy-ci-heading">
+            <span class="eyebrow">Engineering hand-off</span>
+            <h4 id="policy-ci-heading">Check the exported policy in continuous integration</h4>
+            <p id="policy-ci-context"></p>
+            <pre id="policy-ci-command" tabindex="0" aria-label="Command-line policy check"></pre>
+          </section>
+          <section class="policy-handoff" aria-labelledby="decision-packet-heading">
+            <span class="eyebrow">Optional two-part record</span>
+            <h4 id="decision-packet-heading">Attach a privacy-reduced evidence result</h4>
+            <p>
+              Add either a reduced evidence report or a command-line evidence-policy result.
+              ControlCurrent keeps browser availability and supplied configuration evidence as
+              separate sections. It does not calculate a combined security score.
+            </p>
+            <label>
+              <span>Evidence result JSON</span>
+              <input id="decision-evidence" type="file" accept="application/json,.json" />
+            </label>
+            <p id="decision-evidence-status" class="form-message" role="status" aria-live="polite">
+            </p>
+            <button type="button" class="button" id="export-decision-packet" disabled>
+              Export two-part decision packet
+            </button>
+          </section>
         </section>
       </div>
     </details>
@@ -322,11 +375,14 @@ const defaultRequiredControls = new Set([
   import { SECURITY_CONTROLS } from "../catalogue";
   import { selectedSnapshot } from "../data";
   import {
+    type DecisionPacketEvidence,
     profileEvaluationSchema,
     type BrowserId,
     type Outcome,
+    type PolicyDecision,
     type PolicyException,
     type PolicyEvaluation,
+    type PolicyFinding,
     type PolicyProfile,
     type ProfileComparison,
     type ProfileEvaluation
@@ -349,9 +405,20 @@ const defaultRequiredControls = new Set([
     saveEvaluation,
     summariseEvaluationUpdate
   } from "../evaluation-storage";
-  import { buildPolicyProfile, exportPolicyProfile } from "../policy-builder";
+  import {
+    buildPolicyProfile,
+    exportPolicyProfile,
+    importPolicyProfile,
+    MAX_POLICY_IMPORT_BYTES
+  } from "../policy-builder";
   import { evaluatePolicyProfile } from "../policy";
   import { exportDecisionReport } from "../decision-report";
+  import {
+    buildDecisionPacket,
+    exportDecisionPacket,
+    MAX_DECISION_PACKET_BYTES,
+    validateDecisionPacketEvidence
+  } from "../decision-packet";
 
   const browsers: readonly BrowserId[] = BROWSER_IDS;
   const form = document.querySelector<HTMLFormElement>("#profile-form");
@@ -386,10 +453,22 @@ const defaultRequiredControls = new Set([
   const exceptionList = document.querySelector<HTMLElement>("#policy-exceptions");
   const exportPolicyButton = document.querySelector<HTMLButtonElement>("#export-policy");
   const exportDecisionButton = document.querySelector<HTMLButtonElement>("#export-decision-report");
+  const importPolicyInput = document.querySelector<HTMLInputElement>("#import-policy");
   const policyMessage = document.querySelector<HTMLElement>("#policy-message");
   const policyPreview = document.querySelector<HTMLElement>("#policy-preview");
   const policySummary = document.querySelector<HTMLElement>("#policy-summary");
+  const policySearch = document.querySelector<HTMLInputElement>("#policy-search");
+  const policyDecision = document.querySelector<HTMLSelectElement>("#policy-decision");
+  const policyExceptionsOnly = document.querySelector<HTMLInputElement>("#policy-exceptions-only");
+  const policyFilterStatus = document.querySelector<HTMLElement>("#policy-filter-status");
+  const policyFindings = document.querySelector<HTMLElement>("#policy-findings");
   const policyJson = document.querySelector<HTMLElement>("#policy-json");
+  const policyCiContext = document.querySelector<HTMLElement>("#policy-ci-context");
+  const policyCiCommand = document.querySelector<HTMLElement>("#policy-ci-command");
+  const decisionEvidenceInput = document.querySelector<HTMLInputElement>("#decision-evidence");
+  const decisionEvidenceStatus = document.querySelector<HTMLElement>("#decision-evidence-status");
+  const exportDecisionPacketButton =
+    document.querySelector<HTMLButtonElement>("#export-decision-packet");
   let latestEvaluation: ProfileEvaluation | undefined;
   let comparisonBaseline: ProfileEvaluation | undefined;
   let latestComparison: ProfileComparison | undefined;
@@ -397,6 +476,7 @@ const defaultRequiredControls = new Set([
   let policyExceptions: PolicyException[] = [];
   let latestPolicy: PolicyProfile | undefined;
   let latestPolicyEvaluation: PolicyEvaluation | undefined;
+  let decisionEvidence: DecisionPacketEvidence | undefined;
   const basePath = import.meta.env.BASE_URL.replace(/\/$/u, "");
 
   type ResultGroupId = "ready" | "limited" | "unsupported" | "unknown";
@@ -464,10 +544,21 @@ const defaultRequiredControls = new Set([
     !exceptionList ||
     !exportPolicyButton ||
     !exportDecisionButton ||
+    !importPolicyInput ||
     !policyMessage ||
     !policyPreview ||
     !policySummary ||
-    !policyJson
+    !policySearch ||
+    !policyDecision ||
+    !policyExceptionsOnly ||
+    !policyFilterStatus ||
+    !policyFindings ||
+    !policyJson ||
+    !policyCiContext ||
+    !policyCiCommand ||
+    !decisionEvidenceInput ||
+    !decisionEvidenceStatus ||
+    !exportDecisionPacketButton
   ) {
     throw new Error("Planner controls are unavailable.");
   }
@@ -542,9 +633,14 @@ const defaultRequiredControls = new Set([
     latestPolicyEvaluation = undefined;
     exportPolicyButton!.disabled = true;
     exportDecisionButton!.disabled = true;
+    exportDecisionPacketButton!.disabled = true;
     policyPreview!.hidden = true;
     policySummary!.replaceChildren();
+    policyFindings!.replaceChildren();
+    policyFilterStatus!.textContent = "";
     policyJson!.textContent = "";
+    policyCiContext!.textContent = "";
+    policyCiCommand!.textContent = "";
   }
 
   function resultClass(outcome: string): string {
@@ -764,8 +860,12 @@ const defaultRequiredControls = new Set([
         const badge = document.createElement("span");
         badge.className = resultClass(item.outcome);
         const dot = document.createElement("span");
+        dot.className = "outcome__dot";
         dot.setAttribute("aria-hidden", "true");
-        badge.append(dot, document.createTextNode(outcomeLabels[item.outcome]));
+        const label = document.createElement("span");
+        label.className = "outcome__label";
+        label.textContent = outcomeLabels[item.outcome];
+        badge.append(dot, label);
         const detail = document.createElement("p");
         detail.textContent = item.explanation;
         row.append(browser, badge, detail);
@@ -911,6 +1011,91 @@ const defaultRequiredControls = new Set([
     });
   }
 
+  function policyDecisionLabel(decision: PolicyDecision): string {
+    if (decision === "review") return "Require review";
+    return decision === "pass" ? "Pass" : "Fail";
+  }
+
+  function policyFindingCard(finding: PolicyFinding): HTMLElement {
+    const article = document.createElement("article");
+    article.className = "result-card policy-finding";
+    article.dataset.policyFinding = "";
+    article.dataset.decision = finding.decision;
+    article.dataset.exception = finding.exceptionState ?? "";
+    const control =
+      SECURITY_CONTROLS.find((candidate) => candidate.id === finding.controlId) ?? undefined;
+    article.dataset.search =
+      `${control?.name ?? finding.controlId} ${browserNames[finding.browser]} ${finding.explanation} ${finding.exceptionReason ?? ""}`.toLocaleLowerCase(
+        "en-AU"
+      );
+
+    const header = document.createElement("div");
+    header.className = "result-card__header";
+    const heading = document.createElement("h4");
+    const link = document.createElement("a");
+    link.href = `${basePath}/controls/${finding.controlId}/`;
+    link.textContent = control?.name ?? finding.controlId;
+    heading.append(link);
+    const decision = document.createElement("span");
+    decision.className = `policy-decision policy-decision--${finding.decision}`;
+    decision.textContent = policyDecisionLabel(finding.decision);
+    header.append(heading, decision);
+
+    const context = document.createElement("p");
+    context.textContent = `${browserNames[finding.browser]} ${finding.minimumVersion}`;
+    const outcome = document.createElement("span");
+    outcome.className = resultClass(finding.outcome);
+    const dot = document.createElement("span");
+    dot.className = "outcome__dot";
+    dot.setAttribute("aria-hidden", "true");
+    const outcomeLabel = document.createElement("span");
+    outcomeLabel.className = "outcome__label";
+    outcomeLabel.textContent = outcomeLabels[finding.outcome];
+    outcome.append(dot, outcomeLabel);
+    const explanation = document.createElement("p");
+    explanation.className = "assurance-evidence";
+    explanation.textContent = finding.explanation;
+    article.append(header, context, outcome, explanation);
+
+    if (finding.exceptionState) {
+      const exception = document.createElement("p");
+      exception.className = `policy-exception-state policy-exception-state--${finding.exceptionState}`;
+      exception.textContent =
+        finding.exceptionState === "active"
+          ? `Active exception until ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`
+          : `Expired exception from ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`;
+      article.append(exception);
+    }
+    return article;
+  }
+
+  function applyPolicyFilters(): void {
+    const query = policySearch!.value.trim().toLocaleLowerCase("en-AU");
+    const decision = policyDecision!.value;
+    const exceptionsOnly = policyExceptionsOnly!.checked;
+    const cards = [...policyFindings!.querySelectorAll<HTMLElement>("[data-policy-finding]")];
+    let visible = 0;
+    for (const card of cards) {
+      const matches =
+        (query.length === 0 || (card.dataset.search ?? "").includes(query)) &&
+        (decision.length === 0 || card.dataset.decision === decision) &&
+        (!exceptionsOnly || Boolean(card.dataset.exception));
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    }
+    policyFilterStatus!.textContent =
+      visible === cards.length
+        ? `Showing all ${String(cards.length)} policy findings.`
+        : visible === 0
+          ? "No policy findings match these filters."
+          : `Showing ${String(visible)} of ${String(cards.length)} policy findings.`;
+  }
+
+  function renderPolicyFindings(decision: PolicyEvaluation): void {
+    policyFindings!.replaceChildren(...decision.findings.map(policyFindingCard));
+    applyPolicyFilters();
+  }
+
   function createPolicy(): PolicyProfile {
     if (!latestEvaluation) {
       throw new Error("Check browser support before creating a policy.");
@@ -941,10 +1126,14 @@ const defaultRequiredControls = new Set([
       stat(decision.summary.review, "require review"),
       stat(decision.summary.fail, "fail")
     );
+    renderPolicyFindings(decision);
     policyJson!.textContent = exportPolicyProfile(policy);
+    policyCiContext!.textContent = `Run this check from a reviewed ControlCurrent checkout that bundles MDN browser data ${decision.bcdVersion} and catalogue ${decision.catalogueVersion}. A later source snapshot may produce a different result and should be reviewed.`;
+    policyCiCommand!.textContent = `npm run cli -- check path/to/controlcurrent-policy.json --as-of ${decision.evaluatedAsOf} --strict-review`;
     policyPreview!.hidden = false;
     exportPolicyButton!.disabled = false;
     exportDecisionButton!.disabled = false;
+    exportDecisionPacketButton!.disabled = !decisionEvidence;
     policyMessage!.textContent =
       decision.summary.fail > 0
         ? "The policy has failing browser-feature decisions. Review them before adoption."
@@ -952,6 +1141,19 @@ const defaultRequiredControls = new Set([
           ? "The policy has decisions that require a human review."
           : "Every required browser-feature decision passes the selected rules.";
   }
+
+  for (const input of [policySearch, policyDecision, policyExceptionsOnly]) {
+    input.addEventListener("input", applyPolicyFilters);
+    input.addEventListener("change", applyPolicyFilters);
+  }
+
+  document.querySelector("#clear-policy-filters")?.addEventListener("click", () => {
+    policySearch!.value = "";
+    policyDecision!.value = "";
+    policyExceptionsOnly!.checked = false;
+    applyPolicyFilters();
+    policySearch!.focus();
+  });
 
   document.querySelector("#select-policy-controls")?.addEventListener("click", () => {
     for (const input of document.querySelectorAll<HTMLInputElement>(
@@ -1025,14 +1227,67 @@ const defaultRequiredControls = new Set([
     policyMessage!.textContent = "Policy JSON generated locally.";
   });
 
-  exportDecisionButton.addEventListener("click", () => {
+  exportDecisionButton.addEventListener("click", async () => {
     if (!latestEvaluation || !latestPolicyEvaluation) return;
-    download(
-      exportDecisionReport(latestEvaluation, latestPolicyEvaluation),
-      "controlcurrent-decision-report.html",
-      "text/html"
-    );
-    policyMessage!.textContent = "Printable decision report generated locally.";
+    try {
+      download(
+        await exportDecisionReport(latestEvaluation, latestPolicyEvaluation),
+        "controlcurrent-decision-report.html",
+        "text/html"
+      );
+      policyMessage!.textContent = "Printable decision report generated locally.";
+    } catch (error) {
+      policyMessage!.textContent =
+        error instanceof Error ? error.message : "The decision report could not be generated.";
+    }
+  });
+
+  decisionEvidenceInput.addEventListener("change", async () => {
+    try {
+      const parsed = JSON.parse(
+        await readFile(decisionEvidenceInput, MAX_DECISION_PACKET_BYTES)
+      ) as unknown;
+      decisionEvidence = await validateDecisionPacketEvidence(parsed);
+      decisionEvidenceStatus!.textContent =
+        decisionEvidence.kind === "reduced_evidence_report"
+          ? `Reduced evidence report attached locally · ${decisionEvidence.report.name} · fingerprint ${decisionEvidence.fingerprint.slice(0, 12)}…`
+          : `Evidence-policy result attached locally · ${decisionEvidence.evaluation.profile.name} · ${String(decisionEvidence.evaluation.summary.fail)} fail, ${String(decisionEvidence.evaluation.summary.review)} review.`;
+      exportDecisionPacketButton!.disabled = !latestPolicyEvaluation;
+    } catch (error) {
+      decisionEvidence = undefined;
+      exportDecisionPacketButton!.disabled = true;
+      decisionEvidenceStatus!.textContent =
+        error instanceof Error
+          ? error.message
+          : "The supplied evidence result could not be attached.";
+    } finally {
+      decisionEvidenceInput.value = "";
+    }
+  });
+
+  exportDecisionPacketButton.addEventListener("click", async () => {
+    if (!latestPolicyEvaluation || !decisionEvidence) return;
+    try {
+      const evidence =
+        decisionEvidence.kind === "reduced_evidence_report"
+          ? decisionEvidence.report
+          : decisionEvidence.evaluation;
+      const packet = await buildDecisionPacket(
+        latestPolicyEvaluation,
+        evidence,
+        new Date().toISOString().slice(0, 10)
+      );
+      download(
+        await exportDecisionPacket(packet),
+        "controlcurrent-decision-packet.json",
+        "application/json"
+      );
+      decisionEvidenceStatus!.textContent =
+        "Two-part decision packet generated locally. Browser availability and supplied evidence remain separate.";
+    } catch (error) {
+      decisionEvidenceStatus!.textContent =
+        error instanceof Error ? error.message : "The decision packet could not be generated.";
+    }
   });
 
   form.addEventListener("submit", (event) => {
@@ -1109,6 +1364,42 @@ const defaultRequiredControls = new Set([
         error instanceof Error ? error.message : "The profile could not be imported.";
     } finally {
       importInput.value = "";
+    }
+  });
+
+  importPolicyInput.addEventListener("change", async () => {
+    try {
+      const policy = importPolicyProfile(
+        await readFile(importPolicyInput, MAX_POLICY_IMPORT_BYTES)
+      );
+      applyProfile(
+        {
+          schemaVersion: 1,
+          name: policy.name,
+          baselines: policy.baselines
+        },
+        true
+      );
+      const requiredControls = new Set(policy.requiredControls);
+      for (const input of document.querySelectorAll<HTMLInputElement>(
+        'input[name="required-control"]'
+      )) {
+        input.checked = requiredControls.has(input.value);
+      }
+      policyQualifications!.value = policy.rules.qualifications;
+      policyUnknown!.value = policy.rules.unknown;
+      policyUnsupported!.value = policy.rules.unsupported;
+      policyExceptions = [...policy.exceptions];
+      renderPolicyExceptions();
+      render(evaluateProfile(selectedSnapshot, readProfile()));
+      previewPolicy();
+      policyMessage!.textContent =
+        "Policy imported and checked locally against this version's browser data.";
+    } catch (error) {
+      policyMessage!.textContent =
+        error instanceof Error ? error.message : "The policy could not be imported.";
+    } finally {
+      importPolicyInput.value = "";
     }
   });
 

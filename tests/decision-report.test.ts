@@ -28,21 +28,23 @@ const evaluation = evaluateProfile(selectedSnapshot, profile);
 const decision = evaluatePolicyProfile(selectedSnapshot, policy, "2026-07-24");
 
 describe("printable decision report", () => {
-  it("escapes hostile labels and includes no active or remote content", () => {
-    const report = exportDecisionReport(evaluation, decision);
+  it("escapes hostile labels and includes no active or remote content", async () => {
+    const report = await exportDecisionReport(evaluation, decision);
     expect(report).toContain("&lt;img src=&quot;https://example.invalid/a&quot;");
     expect(report).not.toContain('<img src="https://example.invalid/a"');
     expect(report).not.toContain("<script");
     expect(report).toContain("connect-src 'none'");
     expect(report).toContain("What this report cannot prove");
-    expect(exportDecisionReport(evaluation, decision)).toBe(report);
+    expect(report).toContain("Record fingerprints");
+    expect(report).toMatch(/[a-f0-9]{64}/u);
+    expect(await exportDecisionReport(evaluation, decision)).toBe(report);
   });
 
-  it("refuses source and browser-plan mismatches", () => {
-    expect(() => exportDecisionReport({ ...evaluation, bcdVersion: "future" }, decision)).toThrow(
-      /different source versions/u
-    );
-    expect(() =>
+  it("refuses source and browser-plan mismatches", async () => {
+    await expect(
+      exportDecisionReport({ ...evaluation, bcdVersion: "future" }, decision)
+    ).rejects.toThrow(/different source versions/u);
+    await expect(
       exportDecisionReport(
         {
           ...evaluation,
@@ -50,6 +52,6 @@ describe("printable decision report", () => {
         },
         decision
       )
-    ).toThrow(/different browser plans/u);
+    ).rejects.toThrow(/different browser plans/u);
   });
 });

@@ -319,6 +319,64 @@ export const policyProfileSchema = z
       }
       controls.add(controlId);
     }
+
+    for (const [index, exception] of profile.exceptions.entries()) {
+      if (!controls.has(exception.controlId)) {
+        context.addIssue({
+          code: "custom",
+          message: "Every exception must refer to a required security feature.",
+          path: ["exceptions", index, "controlId"]
+        });
+      }
+
+      const exceptionBrowsers = new Set<string>();
+      for (const [browserIndex, browser] of (exception.browsers ?? []).entries()) {
+        if (!browsers.has(browser)) {
+          context.addIssue({
+            code: "custom",
+            message: "Every exception browser must be included in the browser plan.",
+            path: ["exceptions", index, "browsers", browserIndex]
+          });
+        }
+        if (exceptionBrowsers.has(browser)) {
+          context.addIssue({
+            code: "custom",
+            message: `Duplicate exception browser: ${browser}`,
+            path: ["exceptions", index, "browsers", browserIndex]
+          });
+        }
+        exceptionBrowsers.add(browser);
+      }
+
+      const exceptionOutcomes = new Set<Outcome>();
+      for (const [outcomeIndex, outcome] of exception.outcomes.entries()) {
+        if (exceptionOutcomes.has(outcome)) {
+          context.addIssue({
+            code: "custom",
+            message: `Duplicate exception outcome: ${outcome}`,
+            path: ["exceptions", index, "outcomes", outcomeIndex]
+          });
+        }
+        exceptionOutcomes.add(outcome);
+      }
+
+      for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
+        const previous = profile.exceptions[previousIndex];
+        if (previous?.controlId !== exception.controlId) continue;
+        const outcomesOverlap = previous.outcomes.some((outcome) => exceptionOutcomes.has(outcome));
+        const browsersOverlap =
+          !exception.browsers ||
+          (previous.browsers?.some((browser) => exceptionBrowsers.has(browser)) ?? true);
+        if (outcomesOverlap && browsersOverlap) {
+          context.addIssue({
+            code: "custom",
+            message:
+              "Exceptions for the same security feature, browser, and result must not overlap.",
+            path: ["exceptions", index]
+          });
+        }
+      }
+    }
   });
 export type PolicyProfile = z.infer<typeof policyProfileSchema>;
 
@@ -1548,6 +1606,47 @@ export const evidencePolicyEvaluationSchema = z
   })
   .strict();
 export type EvidencePolicyEvaluation = z.infer<typeof evidencePolicyEvaluationSchema>;
+
+export const decisionPacketEvidenceSchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      kind: z.literal("reduced_evidence_report"),
+      fingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+      report: evidenceBundleReportSchema
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal("evidence_policy_evaluation"),
+      fingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+      evaluation: evidencePolicyEvaluationSchema
+    })
+    .strict()
+]);
+export type DecisionPacketEvidence = z.infer<typeof decisionPacketEvidenceSchema>;
+
+export const decisionPacketSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    generatedOn: z.iso.date(),
+    packetFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    browserPolicy: z
+      .object({
+        fingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+        evaluation: policyEvaluationSchema
+      })
+      .strict(),
+    evidence: decisionPacketEvidenceSchema,
+    limitations: z
+      .object({
+        combinedScore: z.literal(false),
+        browserAvailabilityIsRuntimeAssurance: z.literal(false),
+        suppliedEvidenceIsIndependentCollectionProof: z.literal(false)
+      })
+      .strict()
+  })
+  .strict();
+export type DecisionPacket = z.infer<typeof decisionPacketSchema>;
 
 export const attestedEvidenceEvaluationSchema = z
   .object({
