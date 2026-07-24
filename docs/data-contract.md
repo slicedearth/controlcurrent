@@ -89,6 +89,11 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Evidence bundle input                   |            2 MiB |
 | Reduced evidence export                 |          512 KiB |
 | Reduced comparison events emitted       |              512 |
+| Collector manifest                      |           64 KiB |
+| Collector surfaces                      |               32 |
+| Collector response body                 |          128 KiB |
+| Collector redirects                     |                5 |
+| Collector request timeout               |       10 seconds |
 | Evidence-policy exceptions              |              128 |
 | Evidence-policy findings                |            4,096 |
 | Sigstore bundle input                   |          512 KiB |

@@ -62,6 +62,14 @@ import Layout from "../components/Layout.astro";
       packaged trust target without a network refresh.
     </p>
     <p>
+      A separate opt-in CLI collector can make bounded requests to an exact authorised origin. It
+      requires a private manifest, explicit confirmation, and private output path; follows only
+      same-origin redirects; and sends no cookies or credentials. Target origins and paths remain in
+      the private manifest rather than dedicated bundle fields, but captured headers and HTML can
+      still contain locations. The raw bundle therefore remains private. The collector is not
+      reachable from this website.
+    </p>
+    <p>
       ControlCurrent refuses interactive use when it detects an embedded frame. On a shared hosting
       origin, enter only deliberately redacted examples; use a dedicated reviewed origin before
       handling organisation-specific evidence.

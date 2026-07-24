@@ -9,6 +9,7 @@ export const ALLOWED_PUBLIC_DATA_FILES = new Set([
 ]);
 
 export const ALLOWED_SYNTHETIC_EXAMPLE_FILES = new Set([
+  "examples/collector-manifest.example.json",
   "examples/evidence-bundle.example.json",
   "examples/evidence-policy.json",
   "examples/headers.example.json",
@@ -17,6 +18,7 @@ export const ALLOWED_SYNTHETIC_EXAMPLE_FILES = new Set([
 ]);
 
 const prohibitedBasenames = new Set([
+  "controlcurrent-collected-evidence.json",
   "controlcurrent-profile.json",
   "controlcurrent-evidence-report.json",
   "controlcurrent-evidence-comparison.json",

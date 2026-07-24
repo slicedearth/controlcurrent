@@ -1,8 +1,13 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { lstat, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, relative, resolve, sep } from "node:path";
 import { inspectHeaders } from "../src/assurance";
 import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
+import {
+  MAX_COLLECTOR_MANIFEST_BYTES,
+  collectEvidenceBundle,
+  collectorManifestSchema
+} from "../src/collector";
 import { selectedSnapshot } from "../src/data";
 import {
   attestedEvidenceEvaluationSchema,
@@ -20,6 +25,7 @@ import { evaluateEvidencePolicy } from "../src/evidence-policy";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
 import { reduceScopeInventory } from "../src/scope-inventory";
+import { FixedOriginCollectorTransport } from "./collector-network";
 
 const MAX_INPUT_BYTES = 64 * 1_024;
 
@@ -32,6 +38,7 @@ function usage(): never {
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
   npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]
   npm run cli -- reduce-scope-inventory <inventory.json> [--json]
+  npm run cli -- collect-evidence <manifest.json> --output <private-path.json> --confirm-authorised-target [--allow-loopback]
   npm run cli -- create-attestation-statement <report.json>
   npm run cli -- check-evidence <policy.json> <report.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
   npm run cli -- verify-evidence <policy.json> <report.json> <sigstore-bundle.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]`);
@@ -54,6 +61,44 @@ async function readBoundedJson(path: string, maximumBytes = MAX_INPUT_BYTES): Pr
     throw new Error(`Input exceeds ${String(maximumBytes)} bytes.`);
   }
   return JSON.parse(contents) as unknown;
+}
+
+function outputIsPrivate(path: string): boolean {
+  const output = resolve(path);
+  const project = resolve(process.cwd());
+  const projectRelative = relative(project, output);
+  if (projectRelative.startsWith(`..${sep}`) || projectRelative === "..") return true;
+  return (
+    projectRelative.startsWith(`private-data${sep}`) ||
+    projectRelative.startsWith(`.private-data${sep}`)
+  );
+}
+
+async function writePrivateJson(path: string, value: unknown): Promise<string> {
+  const output = resolve(path);
+  if (!outputIsPrivate(output)) {
+    throw new Error(
+      "Collector output must be outside the repository or under private-data/ or .private-data/."
+    );
+  }
+  try {
+    await lstat(output);
+    throw new Error("Collector output already exists; choose a new path.");
+  } catch (error) {
+    if (
+      !(error instanceof Error) ||
+      !("code" in error) ||
+      (error as NodeJS.ErrnoException).code !== "ENOENT"
+    ) {
+      throw error;
+    }
+  }
+  const directory = dirname(output);
+  await mkdir(directory, { recursive: true, mode: 0o700 });
+  const temporary = `${output}.${String(process.pid)}.tmp`;
+  await writeFile(temporary, canonicalJson(value), { encoding: "utf8", mode: 0o600, flag: "wx" });
+  await rename(temporary, output);
+  return output;
 }
 
 async function check(): Promise<void> {
@@ -267,6 +312,30 @@ async function reduceInventory(): Promise<void> {
   process.exitCode = 0;
 }
 
+async function collectEvidence(): Promise<void> {
+  const manifestPath = process.argv[3] ?? usage();
+  const outputPath = optionValue("--output") ?? usage();
+  if (!process.argv.includes("--confirm-authorised-target")) {
+    throw new Error(
+      "Collection requires --confirm-authorised-target to confirm ownership or explicit authorisation."
+    );
+  }
+  const manifest = collectorManifestSchema.parse(
+    await readBoundedJson(manifestPath, MAX_COLLECTOR_MANIFEST_BYTES)
+  );
+  const bundle = await collectEvidenceBundle(
+    manifest,
+    new FixedOriginCollectorTransport(process.argv.includes("--allow-loopback"))
+  );
+  const output = await writePrivateJson(outputPath, bundle);
+  console.log(`Collected ${String(bundle.responses.length)} bounded response observations.`);
+  console.log(`Wrote private evidence bundle: ${output}`);
+  console.log(
+    "No JavaScript, form submission, cookies, credentials, or cross-origin redirect followed."
+  );
+  process.exitCode = 0;
+}
+
 async function verifyEvidence(): Promise<void> {
   const profilePath = process.argv[3] ?? usage();
   const reportPath = process.argv[4] ?? usage();
@@ -332,6 +401,9 @@ try {
       break;
     case "reduce-scope-inventory":
       await reduceInventory();
+      break;
+    case "collect-evidence":
+      await collectEvidence();
       break;
     case "create-attestation-statement":
       await createAttestationStatement();

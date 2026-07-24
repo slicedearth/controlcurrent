@@ -20,6 +20,11 @@ Static hosting infrastructure may produce its own ordinary delivery logs. Those
 logs are outside ControlCurrent's application architecture and are not consumed
 by the project.
 
+The separate CLI includes an opt-in authorised collector. It is not reachable
+from the deployed site and performs no collection unless a local operator
+supplies a fixed manifest, a private output path and the explicit
+`--confirm-authorised-target` flag.
+
 ## Deployment profiles
 
 Profile calculations run in the browser.
@@ -102,6 +107,16 @@ scans the bounded public JSON directories for credential-like values, personal
 email addresses, and private-network locations. Store real assessment material
 under the ignored `private-data/` directory rather than forcing an export into
 Git history.
+
+Authorised collection manifests contain a target origin and exact paths, so
+they are private operational inputs even when the target is public. Generated
+bundles do not add those locations as dedicated metadata, redact redirect
+locations and cookie values, and retain only opaque surface IDs, bounded
+response context, headers, and optional HTML needed for local reduction. Those
+headers and HTML can still contain locations. The CLI refuses authenticated
+collection and does not carry cookies or credentials. Manifests and bundles
+should remain under ignored private storage; only a separately reviewed reduced
+report should be considered for sharing.
 
 Attestation verification is a CLI-only operation. It reads a user-supplied
 bundle in process memory, loads the reviewed `trusted_root.json` target directly

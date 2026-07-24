@@ -23,7 +23,9 @@ planning application. It maps a curated catalogue of defensive browser controls
 to exact paths in MDN Browser Compatibility Data (BCD), preserves support
 qualifications, and evaluates explicit browser minimums entirely in the browser.
 
-It is not a general compatibility index and it does not scan websites.
+It is not a general compatibility index. The static website does not scan
+targets; an optional CLI collector is available only for explicit,
+manifest-bound authorised collection into private local storage.
 
 ## Public deployment
 
@@ -51,6 +53,8 @@ but they cannot merge or publish changes by themselves.
 - Local profile import, semantic comparison, and deterministic engineering reports
 - Version-controlled policy profiles with expiring, visible exceptions
 - A local CLI for policy checks, explanations, and minimum-baseline calculation
+- An explicit-authorisation CLI collector for bounded public, unauthenticated
+  same-origin evidence capture into private local storage
 - An offline response-header inspector with redacted evidence and no URL fetch
 - A bounded evidence bundle for route variation, CSP-to-markup correlation,
   local SRI byte verification, Fetch Metadata request context, and reduced
@@ -218,6 +222,20 @@ Inspect a bounded multi-surface evidence bundle:
 ```sh
 npm run cli -- inspect-bundle examples/evidence-bundle.example.json --json
 ```
+
+Collect an authorised public target into ignored private storage:
+
+```sh
+npm run cli -- collect-evidence private-data/collector/manifest.json \
+  --output private-data/collector/evidence.json \
+  --confirm-authorised-target
+```
+
+The collector is fixed-origin, HTTPS-only outside explicit loopback testing,
+does not execute JavaScript or carry authentication, and never writes target
+paths or origins as dedicated bundle metadata. Captured headers and HTML can
+still contain locations and must remain private. See
+[`docs/authorised-collection.md`](docs/authorised-collection.md).
 
 Reduce an independently produced opaque scope inventory and obtain the exact
 fingerprint for evidence policy:

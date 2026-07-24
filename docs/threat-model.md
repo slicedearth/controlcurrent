@@ -26,6 +26,7 @@ The project treats these as hostile:
   reduced WebAuthn configurations, and opaque scope inventories;
 - reduced evidence reports, Sigstore bundles, and evidence-attestation policy
   identities;
+- private authorised-collector manifests and generated local evidence bundles;
 - dependency packages and build output.
 
 ## Source risks
@@ -100,6 +101,28 @@ excluded entries require one enumerated reason, and contradictory completeness
 claims are refused. Inventory generation cannot follow capture start. Reduction
 sorts semantic entries before hashing and retains no entry IDs or exclusion
 reasons in the report.
+
+### Authorised collector and SSRF
+
+The CLI collector can make network requests, so its trust boundary is separate
+from the static application. It accepts no arbitrary URL at runtime: one
+validated manifest fixes the origin and bounded paths, and a confirmation flag
+records the operator's authorisation assertion. The collector rejects
+credentials in the origin, query strings and fragments in initial paths, all
+non-HTTP schemes, plain HTTP outside explicit loopback testing, cross-origin
+redirect following, and private or reserved address answers.
+
+Every request resolves the hostname immediately before use, refuses the target
+if any answer is non-public, pins one accepted address, and keeps the original
+TLS server name and `Host` value. Redirects repeat validation. Redirect count,
+time, body bytes, headers and values are bounded. Collection sends no cookies
+or credentials and performs no JavaScript, form, browser-profile, subresource
+or upload action.
+
+DNS and certificate validation reduce but do not eliminate operator,
+authorisation, target-side or network risk. The output therefore stays in
+private local storage, collection remains manual, and ordinary tests and CI use
+only injected transports.
 
 ### Attestation confusion and trust substitution
 

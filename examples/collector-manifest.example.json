@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "name": "Authorised staging capture",
+  "baseOrigin": "https://application.example",
+  "applicationId": "example-app",
+  "environment": "staging",
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "buildId": "build-42",
+  "producerId": "local-operator",
+  "completeness": "complete",
+  "surfaces": [
+    {
+      "id": "home",
+      "path": "/",
+      "role": "document",
+      "authentication": "anonymous",
+      "requiredEvidence": ["response", "html"],
+      "requiredControls": [
+        "content-security-policy",
+        "csp-base-uri",
+        "csp-frame-ancestors",
+        "strict-transport-security",
+        "x-content-type-options",
+        "referrer-policy"
+      ],
+      "requiredComposites": ["strict-csp-candidate"]
+    },
+    {
+      "id": "sign-in",
+      "path": "/sign-in",
+      "role": "authentication",
+      "authentication": "anonymous",
+      "requiredEvidence": ["response", "html"],
+      "requiredControls": [
+        "content-security-policy",
+        "csp-base-uri",
+        "csp-frame-ancestors",
+        "csp-form-action",
+        "strict-transport-security",
+        "x-content-type-options",
+        "referrer-policy",
+        "samesite-cookies",
+        "httponly-cookies",
+        "secure-cookie-prefixes"
+      ],
+      "requiredComposites": ["strict-csp-candidate", "cookie-attribute-coverage"]
+    }
+  ]
+}

@@ -155,6 +155,22 @@ The inspector:
 Controls that require HTML, DOM, request, WebAuthn, or runtime evidence remain
 `not_evaluated`.
 
+## Authorised collector boundary
+
+`src/collector.ts` converts a validated fixed-origin manifest and an injected
+transport into the existing evidence-bundle contract. The production transport
+is CLI-only. It resolves and validates all addresses, pins one accepted address,
+preserves the original TLS identity, follows only exact-origin redirects, and
+returns reduced transport errors instead of silently dropping failed routes.
+
+The manifest's target origin and paths do not enter dedicated evidence-bundle
+fields. Captured headers and HTML may still contain locations and therefore
+remain private until reduced. The generated scope inventory contains only
+opaque surface IDs and the producer's complete or unknown claim. The collector
+accepts only anonymous or unknown authentication state and has no credential,
+cookie, JavaScript, form, subresource or browser-profile path. Ordinary tests
+use an injected transport and never contact a target.
+
 ## Evidence-bundle boundary
 
 The evidence-bundle path combines up to 16 response snapshots, 16 HTML

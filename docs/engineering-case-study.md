@@ -69,10 +69,10 @@ unmapped because a nearby HTTPS or cookie suite would overstate the evidence.
 Current wpt.fyi results are linked for investigation but not reduced to a pass
 percentage or used as a policy decision.
 
-## Configuration evidence without a scanner
+## Configuration evidence with a separate collector boundary
 
 The local evidence bundle narrows the gap between compatibility and engineering
-review without introducing active collection. It combines several bounded
+review without requiring active collection. It combines several bounded
 response snapshots with non-executing HTML analysis, CSP-to-markup
 correlation, optional local SRI byte verification, selected Fetch Metadata
 request context, and strict reduced WebAuthn configuration.
@@ -88,6 +88,13 @@ fingerprint without retaining inventory entries. It can identify excluded scope
 and distinguish declared, framework-manifest, authorised-crawl, and test-suite
 claims. An expected-surface manifest then makes missing evidence and control
 applicability explicit within that supplied scope.
+
+For operators who want a repeatable capture, a separate CLI collector accepts a
+reviewed fixed-origin manifest and an explicit authorisation flag. It validates
+and pins public network addresses, follows only same-origin redirects, carries
+no credentials, executes no scripts, and writes a privacy-minimised bundle to
+ignored private storage. This collector boundary does not enter the static
+website or ordinary CI.
 
 Reduced reports pin their analysis and source model, bind the reduced inventory,
 application, environment, revision, build, producer, and capture window into a

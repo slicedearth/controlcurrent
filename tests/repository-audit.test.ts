@@ -31,6 +31,7 @@ describe("repository publication audit", () => {
 
   it("rejects local assessment and attestation exports even when nested", () => {
     for (const file of [
+      "controlcurrent-collected-evidence.json",
       "controlcurrent-profile.json",
       "reports/controlcurrent-evidence-report.json",
       "audit/statement.json",

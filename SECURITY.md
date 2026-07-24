@@ -24,7 +24,7 @@ information.
 
 ## Security architecture
 
-ControlCurrent is a static application:
+The deployed ControlCurrent website is a static application:
 
 - no production server, database, account, or authentication;
 - no website scanning or arbitrary URL input;
@@ -49,6 +49,14 @@ ControlCurrent is a static application:
   bounded DSSE input, a hash-pinned packaged trust target, and no trust-material
   network request.
 
+The separate opt-in CLI collector is restricted to reviewed manifest paths on
+one exact origin. It requires explicit authorisation confirmation, validates
+and pins public DNS answers, follows only same-origin redirects, caps redirects,
+response bytes and duration, writes atomically to private local storage, and
+does not run scripts, submit forms, carry credentials, use cookies or follow a
+cross-origin redirect. Loopback HTTP requires a separate explicit flag. The
+collector is not exposed through the static website or ordinary CI.
+
 The build treats the BCD package as hostile structured input. Selected paths,
 string lengths, statement counts, browser releases, schema versions, and output
 sizes are bounded and validated. A missing configured path or incompatible
@@ -72,11 +80,14 @@ schema stops publication.
 
 ## Not a security assessment
 
-ControlCurrent does not fetch or test an application or browser. The offline
-assessment can compare supplied response snapshots, reduce an HTML resource
+The static application does not fetch or test an application or browser. The
+offline assessment can compare supplied response snapshots, reduce an HTML resource
 inventory, bind assessed surfaces to a supplied opaque scope inventory,
 recognise selected request context, and inspect a strict reduced WebAuthn
-configuration. Neither a compatibility result nor an evidence
+configuration. The optional collector can make bounded unauthenticated
+observations of a target that the operator is authorised to assess; it cannot
+establish complete route coverage, authenticated behaviour, runtime
+enforcement, or continuous compliance. Neither a compatibility result nor an evidence
 observation is a vulnerability finding, compliance result, or assurance that a
 control is effective across an application. A report fingerprint detects edits
 to retained content but is not a signature by itself. A verified attestation

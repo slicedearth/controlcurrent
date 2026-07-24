@@ -649,7 +649,10 @@ function inspectSurfaceCoverage(
     kinds.add(kind);
     observed.set(surfaceId, kinds);
   };
-  for (const item of bundle.responses) add(item.surfaceId, "response");
+  for (const item of bundle.responses) {
+    if (item.schemaVersion === 2 && item.context.outcome === "transport_error") continue;
+    add(item.surfaceId, "response");
+  }
   for (const item of bundle.htmlDocuments) add(item.surfaceId, "html");
   for (const item of bundle.resourceBytes) add(item.surfaceId, "resource_bytes");
   for (const item of bundle.requests) add(item.surfaceId, "request");

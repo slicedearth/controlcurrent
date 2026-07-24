@@ -212,6 +212,24 @@ in UTC calendar days from capture completion to the explicit evaluation date.
 Future-dated evidence fails rather than receiving a negative age. Producer
 timestamps remain claims in an unsigned report.
 
+## Authorised collection
+
+The optional CLI collector derives one evidence bundle from a reviewed list of
+exact same-origin paths. It requires explicit authorisation confirmation and
+does not discover additional paths. It records bounded redirect chains,
+response status, content class, cache evidence, redacted response headers and,
+for required HTML evidence, the bounded final HTML response. Target origins and
+paths remain private manifest fields and are not added as dedicated bundle
+metadata. Captured headers and HTML can still contain locations, so the raw
+bundle remains private until reduction.
+
+The generated `authorised_crawl` inventory inherits the manifest's `complete`
+or `unknown` claim. It is not independently proven. A transport error is
+retained as response context but does not satisfy required response evidence.
+A cross-origin redirect is recorded and not followed. The collector neither
+authenticates nor executes the target, and its observations do not establish
+runtime or server-side control effectiveness.
+
 The same policy can require an inventory, restrict accepted inventory source
 kinds, require a complete claim, pin an exact semantic fingerprint, limit
 excluded entries, and enforce inventory freshness. These inventory decisions

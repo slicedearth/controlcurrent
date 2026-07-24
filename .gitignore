@@ -30,6 +30,7 @@ manifests/
 /statement.json
 /sigstore-bundle.json
 /evidence-policy-evaluation.json
+/controlcurrent-collected-evidence.json
 
 # Local environment and editor files
 .env
