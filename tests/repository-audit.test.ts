@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MAX_PUBLIC_JSON_FILE_BYTES,
   MAX_PUBLIC_JSON_TOTAL_BYTES,
+  auditCiWorkflow,
   auditPagesWorkflow,
   auditPublicJson,
   auditPublicJsonTotal,
@@ -147,6 +148,30 @@ jobs:
       safe.replace("workflow_run.head_sha || github.sha", "github.sha")
     ]) {
       expect(() => auditPagesWorkflow(unsafe)).toThrow(/Pages/u);
+    }
+  });
+
+  it("requires a gated browser suite and a complete dependency audit in CI", () => {
+    const safe = `
+jobs:
+  verify:
+    steps:
+      - run: npm audit --audit-level=high
+  browser:
+    needs: verify
+    steps:
+      - run: npm run test:e2e:install:ci
+      - run: npm run test:e2e
+`;
+    expect(() => auditCiWorkflow(safe)).not.toThrow();
+
+    for (const unsafe of [
+      safe.replace("npm audit --audit-level=high", "npm audit --omit=dev --audit-level=high"),
+      safe.replace("    needs: verify\n", ""),
+      safe.replace("npm run test:e2e:install:ci", "playwright install"),
+      safe.replace("npm run test:e2e\n", "npm test\n")
+    ]) {
+      expect(() => auditCiWorkflow(unsafe)).toThrow(/CI|browser|dependencies/u);
     }
   });
 });

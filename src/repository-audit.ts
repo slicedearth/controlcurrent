@@ -158,3 +158,24 @@ export function auditPagesWorkflow(contents: string): void {
     }
   }
 }
+
+export function auditCiWorkflow(contents: string): void {
+  const verify = workflowJob(contents, "verify");
+  const browser = workflowJob(contents, "browser");
+
+  if (!verify.includes("npm audit --audit-level=high")) {
+    throw new Error("CI must audit all locked dependencies at high severity.");
+  }
+  if (verify.includes("npm audit --omit=dev")) {
+    throw new Error("CI must not exclude build and development dependencies from its audit.");
+  }
+  if (!/^ {4}needs:\s*verify\s*$/mu.test(browser)) {
+    throw new Error("The browser job must run only after the main verification job succeeds.");
+  }
+  if (!/^\s*(?:-\s*)?run:\s*npm run test:e2e:install:ci\s*$/mu.test(browser)) {
+    throw new Error("The browser job must install the locked browser and system dependencies.");
+  }
+  if (!/^\s*(?:-\s*)?run:\s*npm run test:e2e\s*$/mu.test(browser)) {
+    throw new Error("The browser job must run the browser and accessibility test suite.");
+  }
+}

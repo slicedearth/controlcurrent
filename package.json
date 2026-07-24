@@ -26,6 +26,7 @@
     "preview": "astro preview",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
+    "test:e2e:install:ci": "playwright install --with-deps chromium",
     "audit:repository": "tsx tools/audit-repository.ts",
     "audit:public": "tsx tools/audit-public.ts",
     "audit:language": "tsx tools/audit-language.ts",

@@ -5,6 +5,7 @@ import { promisify } from "node:util";
 import {
   ALLOWED_PUBLIC_DATA_FILES,
   ALLOWED_SYNTHETIC_EXAMPLE_FILES,
+  auditCiWorkflow,
   auditPagesWorkflow,
   auditPublicJson,
   auditPublicJsonTotal,
@@ -48,6 +49,7 @@ for (const file of workflowFiles) {
   const metadata = await stat(path);
   const contents = await readFile(path, "utf8");
   auditWorkflow(file, contents, metadata.size);
+  if (file === ".github/workflows/ci.yml") auditCiWorkflow(contents);
   if (file === ".github/workflows/pages.yml") auditPagesWorkflow(contents);
 }
 
