@@ -22,6 +22,23 @@ Unqualified availability passes. Recorded unavailability and removed support
 always fail. Qualified, unknown, and unsupported outcomes follow the configured
 rules.
 
+## Website policy builder
+
+After checking a browser plan, the website can turn the result into the same
+versioned policy contract used by the command line. The visitor chooses required
+controls, decision rules, and optional expiring exceptions. Processing remains
+local.
+
+The website exports:
+
+- canonical policy JSON for review or version control; and
+- a self-contained printable HTML decision record containing the browser
+  minimums, source versions, rules, exceptions, fallbacks, detailed results,
+  and explicit limitations.
+
+The report loads no script, image, font, analytics, or remote resource. It
+records a browser-policy decision and is not a production security certificate.
+
 ## Exceptions
 
 An exception must identify:

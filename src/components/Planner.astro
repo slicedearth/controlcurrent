@@ -2,19 +2,45 @@
 import { selectedSnapshot } from "../data";
 import { browserNames } from "../format";
 import { BROWSER_IDS } from "../browsers";
+import { SECURITY_CONTROLS } from "../catalogue";
 
 const browsers = BROWSER_IDS;
+const controlCategories = [...new Set(SECURITY_CONTROLS.map((control) => control.category))];
+const defaultRequiredControls = new Set([
+  "content-security-policy",
+  "strict-transport-security",
+  "x-content-type-options",
+  "referrer-policy",
+  "samesite-cookies"
+]);
 ---
 
 <section class="planner-panel" aria-labelledby="planner-heading">
   <div class="planner-intro">
-    <span class="eyebrow">Runs in this browser only</span>
-    <h2 id="planner-heading">Define your minimum browser versions</h2>
+    <span class="eyebrow">Step 1</span>
+    <h2 id="planner-heading">Choose the browsers your website supports</h2>
     <p>
-      Select only the browsers your application supports. ControlCurrent does not detect your
-      browser, send the profile to a server, or use market-share data.
+      Include each browser your website promises to support, then choose the oldest accepted
+      version. ControlCurrent does not detect your browser or send these choices to a server.
     </p>
   </div>
+
+  <aside class="guided-example" aria-labelledby="guided-example-heading">
+    <div>
+      <span class="eyebrow">Worked example</span>
+      <h3 id="guided-example-heading">Try Chrome 120, Firefox 115, and Safari 17</h3>
+      <p>
+        Select <strong>Load example</strong>, then <strong>Check support</strong>. Results are
+        grouped into features that are ready, need care, are not supported, or do not have enough
+        browser data.
+      </p>
+    </div>
+    <ol>
+      <li><strong>Choose:</strong> load the three example browser minimums.</li>
+      <li><strong>Read:</strong> open “Why?” to see the browser-specific evidence.</li>
+      <li><strong>Act:</strong> follow the next step and keep the stated fallback.</li>
+    </ol>
+  </aside>
 
   <form id="profile-form" class="profile-form">
     <label class="profile-name">
@@ -55,37 +81,223 @@ const browsers = BROWSER_IDS;
       }
     </div>
     <div class="button-row">
-      <button type="submit" class="button button--primary">Evaluate profile</button>
+      <button type="submit" class="button button--primary">Check support</button>
       <button type="button" class="button" id="load-example">Load example</button>
       <button type="button" class="button" id="save-profile">Save locally</button>
-      <button type="button" class="button" id="clear-profile">Clear saved profile</button>
+      <button type="button" class="button" id="clear-profile">Delete saved plan</button>
       <button type="button" class="button" id="export-profile" disabled>Export JSON</button>
       <button type="button" class="button" id="export-engineering-report" disabled>
-        Export report
+        Export readable report
       </button>
     </div>
     <div class="profile-file-grid">
       <label>
-        <span>Import a profile or exported evaluation</span>
+        <span>Import a saved plan or result</span>
         <input id="import-profile" type="file" accept="application/json,.json" />
       </label>
       <label>
-        <span>Compare with an earlier exported evaluation</span>
+        <span>Compare with an earlier result</span>
         <input id="compare-profile" type="file" accept="application/json,.json" />
       </label>
+      <label>
+        <span>Import browser minimums from .browserslistrc or package.json</span>
+        <input
+          id="import-browser-config"
+          type="file"
+          accept=".browserslistrc,.json,application/json,text/plain"
+        />
+      </label>
     </div>
+    <label class="toggle-row remember-result">
+      <input id="remember-result" type="checkbox" />
+      <span>
+        Remember the latest result on this device so ControlCurrent can compare it after browser
+        data updates.
+      </span>
+    </label>
     <p id="profile-message" class="form-message" role="status" aria-live="polite"></p>
   </form>
 
   <section id="profile-results" class="profile-results" aria-labelledby="results-heading" hidden>
     <div class="section-heading">
       <div>
-        <span class="eyebrow">Calculated result</span>
-        <h2 id="results-heading">Control availability</h2>
+        <span class="eyebrow">Your result</span>
+        <h2 id="results-heading">What your browser choices can support</h2>
       </div>
       <p id="results-source"></p>
     </div>
-    <div id="results-list" class="results-list"></div>
+    <aside id="profile-update" class="update-notice" aria-live="polite" hidden></aside>
+    <form id="result-filters" class="result-filters" aria-label="Filter support results">
+      <label>
+        <span>Search results</span>
+        <input id="result-search" type="search" placeholder="For example CSP or cookies" />
+      </label>
+      <label>
+        <span>Security area</span>
+        <select id="result-category">
+          <option value="">All areas</option>
+          {controlCategories.map((category) => <option value={category}>{category}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>Result type</span>
+        <select id="result-outcome">
+          <option value="">All results</option>
+          <option value="ready">Ready to use</option>
+          <option value="limited">Works with known limitations</option>
+          <option value="unsupported">Not supported</option>
+          <option value="unknown">Not enough information</option>
+        </select>
+      </label>
+      <label class="toggle-row result-filter-toggle">
+        <input id="result-blockers" type="checkbox" />
+        <span>Show blockers only</span>
+      </label>
+      <button type="button" class="button" id="clear-result-filters">Clear filters</button>
+    </form>
+    <p id="result-filter-status" class="form-message" role="status" aria-live="polite"></p>
+    <div id="results-list" class="result-groups"></div>
+
+    <details class="policy-builder">
+      <summary>Turn this result into a reviewable browser policy</summary>
+      <div class="policy-builder__body">
+        <div class="planner-intro">
+          <span class="eyebrow">Optional engineering step</span>
+          <h3>Choose what your project requires</h3>
+          <p>
+            Select required security features, decide how uncertain browser data should be handled,
+            and record any temporary exceptions. The policy and report are generated on this device.
+          </p>
+        </div>
+        <div class="button-row">
+          <button type="button" class="button" id="select-policy-controls">Select all</button>
+          <button type="button" class="button" id="clear-policy-controls">Clear selection</button>
+        </div>
+        <div class="control-choice-groups policy-control-groups">
+          {
+            controlCategories.map((category) => (
+              <fieldset class="control-choice-group">
+                <legend>{category}</legend>
+                {SECURITY_CONTROLS.filter((control) => control.category === category).map(
+                  (control) => (
+                    <label class="choice-row">
+                      <input
+                        type="checkbox"
+                        name="required-control"
+                        value={control.id}
+                        checked={defaultRequiredControls.has(control.id)}
+                      />
+                      <span>{control.name}</span>
+                    </label>
+                  )
+                )}
+              </fieldset>
+            ))
+          }
+        </div>
+        <div class="policy-rule-grid">
+          <label>
+            <span>Known browser limitations</span>
+            <select id="policy-qualifications">
+              <option value="review">Require review</option>
+              <option value="fail">Fail the policy</option>
+            </select>
+          </label>
+          <label>
+            <span>Unknown or inconsistent browser data</span>
+            <select id="policy-unknown">
+              <option value="fail">Fail the policy</option>
+              <option value="review">Require review</option>
+            </select>
+          </label>
+          <label>
+            <span>No precise browser-data mapping</span>
+            <select id="policy-unsupported">
+              <option value="fail">Fail the policy</option>
+              <option value="review">Require review</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="exception-editor">
+          <legend>Temporary exception</legend>
+          <div class="exception-editor__fields">
+            <label>
+              <span>Security feature</span>
+              <select id="exception-control">
+                {
+                  SECURITY_CONTROLS.map((control) => (
+                    <option value={control.id}>{control.name}</option>
+                  ))
+                }
+              </select>
+            </label>
+            <label>
+              <span>Browser</span>
+              <select id="exception-browser">
+                <option value="">All selected browsers</option>
+                {
+                  browsers.map((browser) => (
+                    <option value={browser}>{browserNames[browser]}</option>
+                  ))
+                }
+              </select>
+            </label>
+            <label>
+              <span>Result covered</span>
+              <select id="exception-outcome">
+                <option value="available_with_qualification">Known limitation</option>
+                <option value="unknown">Unknown browser data</option>
+                <option value="source_inconsistent">Inconsistent source data</option>
+                <option value="unsupported_mapping">No precise mapping</option>
+                <option value="unavailable">Not supported</option>
+                <option value="removed">Removed browser support</option>
+                <option value="available_unqualified">Available without qualification</option>
+              </select>
+            </label>
+            <label>
+              <span>Expiry date</span>
+              <input id="exception-expiry" type="date" />
+            </label>
+            <label class="exception-reason">
+              <span>Reason</span>
+              <input
+                id="exception-reason"
+                type="text"
+                minlength="8"
+                maxlength="512"
+                placeholder="Why this temporary exception is justified"
+              />
+            </label>
+          </div>
+          <button type="button" class="button" id="add-policy-exception">Add exception</button>
+          <div id="policy-exceptions" class="exception-list"></div>
+        </fieldset>
+
+        <div class="button-row">
+          <button type="button" class="button button--primary" id="preview-policy">
+            Check policy
+          </button>
+          <button type="button" class="button" id="export-policy" disabled>
+            Export policy JSON
+          </button>
+          <button type="button" class="button" id="export-decision-report" disabled>
+            Export printable decision report
+          </button>
+        </div>
+        <p id="policy-message" class="form-message" role="status" aria-live="polite"></p>
+        <section
+          id="policy-preview"
+          class="policy-preview"
+          aria-labelledby="policy-preview-heading"
+          hidden
+        >
+          <h3 id="policy-preview-heading">Policy decision</h3>
+          <div id="policy-summary" class="stats-grid"></div>
+          <pre id="policy-json" tabindex="0" aria-label="Generated policy JSON"></pre>
+        </section>
+      </div>
+    </details>
   </section>
 
   <section
@@ -96,8 +308,8 @@ const browsers = BROWSER_IDS;
   >
     <div class="section-heading">
       <div>
-        <span class="eyebrow">Policy movement</span>
-        <h2 id="profile-comparison-heading">Profile comparison</h2>
+        <span class="eyebrow">Changes</span>
+        <h2 id="profile-comparison-heading">What changed since the earlier result</h2>
       </div>
       <p id="comparison-source"></p>
     </div>
@@ -112,6 +324,10 @@ const browsers = BROWSER_IDS;
   import {
     profileEvaluationSchema,
     type BrowserId,
+    type Outcome,
+    type PolicyException,
+    type PolicyEvaluation,
+    type PolicyProfile,
     type ProfileComparison,
     type ProfileEvaluation
   } from "../contracts";
@@ -126,6 +342,16 @@ const browsers = BROWSER_IDS;
     importDeploymentProfile,
     MAX_PROFILE_IMPORT_BYTES
   } from "../profile-workflows";
+  import { importBrowserConfiguration, MAX_BROWSER_CONFIG_BYTES } from "../browser-config";
+  import {
+    clearEvaluation,
+    loadEvaluation,
+    saveEvaluation,
+    summariseEvaluationUpdate
+  } from "../evaluation-storage";
+  import { buildPolicyProfile, exportPolicyProfile } from "../policy-builder";
+  import { evaluatePolicyProfile } from "../policy";
+  import { exportDecisionReport } from "../decision-report";
 
   const browsers: readonly BrowserId[] = BROWSER_IDS;
   const form = document.querySelector<HTMLFormElement>("#profile-form");
@@ -137,13 +363,73 @@ const browsers = BROWSER_IDS;
   const reportButton = document.querySelector<HTMLButtonElement>("#export-engineering-report");
   const importInput = document.querySelector<HTMLInputElement>("#import-profile");
   const compareInput = document.querySelector<HTMLInputElement>("#compare-profile");
+  const browserConfigInput = document.querySelector<HTMLInputElement>("#import-browser-config");
+  const rememberResult = document.querySelector<HTMLInputElement>("#remember-result");
   const comparisonSection = document.querySelector<HTMLElement>("#profile-comparison");
   const comparisonSource = document.querySelector<HTMLElement>("#comparison-source");
   const comparisonSummary = document.querySelector<HTMLElement>("#comparison-summary");
   const comparisonEvents = document.querySelector<HTMLElement>("#comparison-events");
+  const updateNotice = document.querySelector<HTMLElement>("#profile-update");
+  const resultSearch = document.querySelector<HTMLInputElement>("#result-search");
+  const resultCategory = document.querySelector<HTMLSelectElement>("#result-category");
+  const resultOutcome = document.querySelector<HTMLSelectElement>("#result-outcome");
+  const resultBlockers = document.querySelector<HTMLInputElement>("#result-blockers");
+  const resultFilterStatus = document.querySelector<HTMLElement>("#result-filter-status");
+  const policyQualifications = document.querySelector<HTMLSelectElement>("#policy-qualifications");
+  const policyUnknown = document.querySelector<HTMLSelectElement>("#policy-unknown");
+  const policyUnsupported = document.querySelector<HTMLSelectElement>("#policy-unsupported");
+  const exceptionControl = document.querySelector<HTMLSelectElement>("#exception-control");
+  const exceptionBrowser = document.querySelector<HTMLSelectElement>("#exception-browser");
+  const exceptionOutcome = document.querySelector<HTMLSelectElement>("#exception-outcome");
+  const exceptionExpiry = document.querySelector<HTMLInputElement>("#exception-expiry");
+  const exceptionReason = document.querySelector<HTMLInputElement>("#exception-reason");
+  const exceptionList = document.querySelector<HTMLElement>("#policy-exceptions");
+  const exportPolicyButton = document.querySelector<HTMLButtonElement>("#export-policy");
+  const exportDecisionButton = document.querySelector<HTMLButtonElement>("#export-decision-report");
+  const policyMessage = document.querySelector<HTMLElement>("#policy-message");
+  const policyPreview = document.querySelector<HTMLElement>("#policy-preview");
+  const policySummary = document.querySelector<HTMLElement>("#policy-summary");
+  const policyJson = document.querySelector<HTMLElement>("#policy-json");
   let latestEvaluation: ProfileEvaluation | undefined;
   let comparisonBaseline: ProfileEvaluation | undefined;
   let latestComparison: ProfileComparison | undefined;
+  let rememberedEvaluation: ProfileEvaluation | undefined;
+  let policyExceptions: PolicyException[] = [];
+  let latestPolicy: PolicyProfile | undefined;
+  let latestPolicyEvaluation: PolicyEvaluation | undefined;
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/u, "");
+
+  type ResultGroupId = "ready" | "limited" | "unsupported" | "unknown";
+
+  const resultGroups: readonly {
+    id: ResultGroupId;
+    title: string;
+    description: string;
+  }[] = [
+    {
+      id: "ready",
+      title: "Ready to use",
+      description:
+        "Every selected browser has an unqualified support record. Configuration and testing are still required."
+    },
+    {
+      id: "limited",
+      title: "Works with known limitations",
+      description:
+        "The feature is available, but at least one selected browser has a qualification to review."
+    },
+    {
+      id: "unsupported",
+      title: "Not supported",
+      description: "At least one selected browser cannot provide a required part of this feature."
+    },
+    {
+      id: "unknown",
+      title: "Not enough information",
+      description:
+        "The published browser records do not support a dependable answer for this browser plan."
+    }
+  ];
 
   if (
     !form ||
@@ -155,10 +441,33 @@ const browsers = BROWSER_IDS;
     !reportButton ||
     !importInput ||
     !compareInput ||
+    !browserConfigInput ||
+    !rememberResult ||
     !comparisonSection ||
     !comparisonSource ||
     !comparisonSummary ||
-    !comparisonEvents
+    !comparisonEvents ||
+    !updateNotice ||
+    !resultSearch ||
+    !resultCategory ||
+    !resultOutcome ||
+    !resultBlockers ||
+    !resultFilterStatus ||
+    !policyQualifications ||
+    !policyUnknown ||
+    !policyUnsupported ||
+    !exceptionControl ||
+    !exceptionBrowser ||
+    !exceptionOutcome ||
+    !exceptionExpiry ||
+    !exceptionReason ||
+    !exceptionList ||
+    !exportPolicyButton ||
+    !exportDecisionButton ||
+    !policyMessage ||
+    !policyPreview ||
+    !policySummary ||
+    !policyJson
   ) {
     throw new Error("Planner controls are unavailable.");
   }
@@ -193,7 +502,25 @@ const browsers = BROWSER_IDS;
     };
   }
 
-  function applyProfile(profile: ReturnType<typeof readProfile>): void {
+  function applyProfile(
+    profile: ReturnType<typeof readProfile>,
+    requireAvailableVersions = false
+  ): void {
+    if (requireAvailableVersions) {
+      const unavailable = profile.baselines.filter(
+        (baseline) =>
+          ![...browserSelect(baseline.browser).options].some(
+            (option) => option.value === baseline.minimumVersion
+          )
+      );
+      if (unavailable.length > 0) {
+        throw new Error(
+          `This data snapshot cannot evaluate ${unavailable
+            .map((baseline) => `${browserNames[baseline.browser]} ${baseline.minimumVersion}`)
+            .join(", ")}. Choose a version shown in the planner.`
+        );
+      }
+    }
     profileName().value = profile.name;
     for (const browser of browsers) {
       const baseline = profile.baselines.find((item) => item.browser === browser);
@@ -210,8 +537,48 @@ const browsers = BROWSER_IDS;
     }
   }
 
+  function resetPolicy(): void {
+    latestPolicy = undefined;
+    latestPolicyEvaluation = undefined;
+    exportPolicyButton!.disabled = true;
+    exportDecisionButton!.disabled = true;
+    policyPreview!.hidden = true;
+    policySummary!.replaceChildren();
+    policyJson!.textContent = "";
+  }
+
   function resultClass(outcome: string): string {
     return `outcome outcome--${outcome}`;
+  }
+
+  function classifyResult(evaluations: ProfileEvaluation["results"][string]): ResultGroupId {
+    if (evaluations.some((item) => ["unavailable", "removed"].includes(item.outcome))) {
+      return "unsupported";
+    }
+    if (
+      evaluations.some((item) =>
+        ["unknown", "unsupported_mapping", "source_inconsistent"].includes(item.outcome)
+      )
+    ) {
+      return "unknown";
+    }
+    if (evaluations.some((item) => item.outcome === "available_with_qualification")) {
+      return "limited";
+    }
+    return "ready";
+  }
+
+  function nextStep(group: ResultGroupId, fallback: string): string {
+    if (group === "ready") {
+      return `Review the setup requirements, test the feature in your application, and keep the defence-in-depth fallback: ${fallback}`;
+    }
+    if (group === "limited") {
+      return `Review the browser-specific limitation before rollout and keep this fallback: ${fallback}`;
+    }
+    if (group === "unsupported") {
+      return `Keep the fallback or raise the oldest browser version before making this feature mandatory: ${fallback}`;
+    }
+    return `Treat support as unconfirmed, review the feature page and source links, and keep this fallback: ${fallback}`;
   }
 
   function download(contents: string, filename: string, type: string): void {
@@ -224,13 +591,17 @@ const browsers = BROWSER_IDS;
     URL.revokeObjectURL(url);
   }
 
-  async function readJsonFile(input: HTMLInputElement): Promise<string> {
+  async function readFile(input: HTMLInputElement, maximumBytes: number): Promise<string> {
     const file = input.files?.[0];
-    if (!file) throw new Error("Choose a JSON file first.");
-    if (file.size > MAX_PROFILE_IMPORT_BYTES) {
-      throw new Error(`Profile import exceeds the ${String(MAX_PROFILE_IMPORT_BYTES)}-byte limit.`);
+    if (!file) throw new Error("Choose a file first.");
+    if (file.size > maximumBytes) {
+      throw new Error(`The selected file exceeds the ${String(maximumBytes)}-byte limit.`);
     }
     return file.text();
+  }
+
+  async function readJsonFile(input: HTMLInputElement): Promise<string> {
+    return readFile(input, MAX_PROFILE_IMPORT_BYTES);
   }
 
   function stat(value: number, label: string): HTMLElement {
@@ -287,15 +658,86 @@ const browsers = BROWSER_IDS;
     renderComparison(compareProfileEvaluations(comparisonBaseline, latestEvaluation));
   }
 
+  function applyResultFilters(): void {
+    const query = resultSearch!.value.trim().toLocaleLowerCase("en-AU");
+    const category = resultCategory!.value;
+    const outcome = resultOutcome!.value;
+    const blockersOnly = resultBlockers!.checked;
+    const cards = [...resultsList!.querySelectorAll<HTMLElement>("[data-result-card]")];
+    let visible = 0;
+    for (const card of cards) {
+      const group = card.dataset.resultGroup ?? "";
+      const matches =
+        (query.length === 0 || (card.dataset.search ?? "").includes(query)) &&
+        (category.length === 0 || card.dataset.category === category) &&
+        (outcome.length === 0 || group === outcome) &&
+        (!blockersOnly || group !== "ready");
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    }
+    for (const section of resultsList!.querySelectorAll<HTMLElement>("[data-result-section]")) {
+      const visibleCards = section.querySelectorAll<HTMLElement>(
+        "[data-result-card]:not([hidden])"
+      ).length;
+      section.hidden = visibleCards === 0;
+      const heading = section.querySelector<HTMLElement>("[data-result-heading]");
+      if (heading) {
+        heading.textContent = `${section.dataset.resultTitle ?? "Results"} (${String(
+          visibleCards
+        )})`;
+      }
+    }
+    resultFilterStatus!.textContent =
+      visible === cards.length
+        ? `Showing all ${String(cards.length)} security features.`
+        : visible === 0
+          ? "No security features match these filters."
+          : `Showing ${String(visible)} of ${String(cards.length)} security features.`;
+  }
+
+  function showRememberedUpdate(current: ProfileEvaluation): void {
+    if (!rememberResult!.checked) {
+      updateNotice!.hidden = true;
+      return;
+    }
+    if (rememberedEvaluation) {
+      const update = summariseEvaluationUpdate(rememberedEvaluation, current);
+      if (update.state === "source_updated") {
+        updateNotice!.textContent = `The bundled browser data changed from ${update.previousBcdVersion} to ${update.currentBcdVersion}. For this same plan, ${String(update.changed)} browser-feature results changed, ${String(update.added)} were added, and ${String(update.removed)} were removed. Review the affected features before changing a policy.`;
+        updateNotice!.hidden = false;
+      } else if (update.state === "different_profile") {
+        updateNotice!.textContent =
+          "The remembered result used a different browser plan, so it was not treated as a data-update comparison. This result is now the remembered baseline.";
+        updateNotice!.hidden = false;
+      } else {
+        updateNotice!.textContent = `The remembered result already uses browser data ${update.bcdVersion} and catalogue ${update.catalogueVersion}; there is no source update to compare.`;
+        updateNotice!.hidden = false;
+      }
+    } else {
+      updateNotice!.textContent =
+        "This result is now remembered on this device. A future version of the site can compare the same plan after its bundled browser data changes.";
+      updateNotice!.hidden = false;
+    }
+    saveEvaluation(window.localStorage, current);
+    rememberedEvaluation = current;
+  }
+
   function render(evaluation: ProfileEvaluation): void {
     resultsList!.replaceChildren();
+    const grouped = new Map<ResultGroupId, HTMLElement[]>(
+      resultGroups.map((group) => [group.id, []])
+    );
     for (const control of SECURITY_CONTROLS) {
       const article = document.createElement("article");
       article.className = "result-card";
+      article.dataset.resultCard = "";
       const header = document.createElement("div");
       header.className = "result-card__header";
       const heading = document.createElement("h3");
-      heading.textContent = control.name;
+      const link = document.createElement("a");
+      link.href = `${basePath}/controls/${control.id}/`;
+      link.textContent = control.name;
+      heading.append(link);
       const category = document.createElement("span");
       category.className = "category";
       category.textContent = control.category;
@@ -303,6 +745,17 @@ const browsers = BROWSER_IDS;
       article.append(header);
 
       const evaluations = evaluation.results[control.id] ?? [];
+      const group = classifyResult(evaluations);
+      article.dataset.resultGroup = group;
+      article.dataset.category = control.category;
+      article.dataset.search =
+        `${control.name} ${control.shortName} ${control.category} ${control.summary}`.toLocaleLowerCase(
+          "en-AU"
+        );
+      const why = document.createElement("details");
+      why.className = "result-card__why";
+      const whySummary = document.createElement("summary");
+      whySummary.textContent = "Why?";
       const list = document.createElement("ul");
       for (const item of evaluations) {
         const row = document.createElement("li");
@@ -318,14 +771,48 @@ const browsers = BROWSER_IDS;
         row.append(browser, badge, detail);
         list.append(row);
       }
-      article.append(list);
-      resultsList!.append(article);
+      why.append(whySummary, list);
+      const action = document.createElement("div");
+      action.className = "result-card__next";
+      const actionHeading = document.createElement("strong");
+      actionHeading.textContent = "What should I do next?";
+      const actionDetail = document.createElement("p");
+      actionDetail.textContent = nextStep(group, control.fallback);
+      action.append(actionHeading, actionDetail);
+      article.append(why, action);
+      grouped.get(group)?.push(article);
+    }
+    for (const group of resultGroups) {
+      const cards = grouped.get(group.id) ?? [];
+      if (cards.length === 0) continue;
+      const section = document.createElement("section");
+      section.className = `result-group result-group--${group.id}`;
+      section.dataset.resultSection = "";
+      section.dataset.resultTitle = group.title;
+      section.setAttribute("aria-labelledby", `result-group-${group.id}`);
+      const headingRow = document.createElement("div");
+      headingRow.className = "result-group__heading";
+      const heading = document.createElement("h3");
+      heading.dataset.resultHeading = "";
+      heading.id = `result-group-${group.id}`;
+      heading.textContent = `${group.title} (${String(cards.length)})`;
+      const description = document.createElement("p");
+      description.textContent = group.description;
+      headingRow.append(heading, description);
+      const grid = document.createElement("div");
+      grid.className = "results-list result-group__cards";
+      grid.append(...cards);
+      section.append(headingRow, grid);
+      resultsList!.append(section);
     }
     resultsSource!.textContent = `BCD ${evaluation.bcdVersion} · catalogue ${evaluation.catalogueVersion}`;
     results!.hidden = false;
     exportButton!.disabled = false;
     reportButton!.disabled = false;
     latestEvaluation = evaluation;
+    resetPolicy();
+    applyResultFilters();
+    showRememberedUpdate(evaluation);
     updateComparison();
   }
 
@@ -335,12 +822,225 @@ const browsers = BROWSER_IDS;
     });
   }
 
+  function invalidateEvaluation(): void {
+    results!.hidden = true;
+    comparisonSection!.hidden = true;
+    latestEvaluation = undefined;
+    latestComparison = undefined;
+    exportButton!.disabled = true;
+    reportButton!.disabled = true;
+    resetPolicy();
+  }
+
+  for (const input of [resultSearch, resultCategory, resultOutcome, resultBlockers]) {
+    input.addEventListener("input", applyResultFilters);
+    input.addEventListener("change", applyResultFilters);
+  }
+
+  document.querySelector("#clear-result-filters")?.addEventListener("click", () => {
+    resultSearch!.value = "";
+    resultCategory!.value = "";
+    resultOutcome!.value = "";
+    resultBlockers!.checked = false;
+    applyResultFilters();
+    resultSearch!.focus();
+  });
+
+  rememberResult.addEventListener("change", () => {
+    if (!rememberResult.checked) {
+      clearEvaluation(window.localStorage);
+      rememberedEvaluation = undefined;
+      updateNotice!.hidden = true;
+      message!.textContent = "Remembered support result cleared from this browser.";
+      return;
+    }
+    if (latestEvaluation) {
+      showRememberedUpdate(latestEvaluation);
+      message!.textContent = "The latest result is now remembered on this device.";
+    } else {
+      message!.textContent =
+        "Select Check support to create the first result remembered on this device.";
+    }
+  });
+
+  function policyRule(select: HTMLSelectElement): "review" | "fail" {
+    if (select.value === "review" || select.value === "fail") return select.value;
+    throw new Error("Choose a valid policy decision rule.");
+  }
+
+  function checkedPolicyControls(): string[] {
+    return [
+      ...document.querySelectorAll<HTMLInputElement>('input[name="required-control"]:checked')
+    ].map((input) => input.value);
+  }
+
+  function renderPolicyExceptions(): void {
+    exceptionList!.replaceChildren();
+    if (policyExceptions.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "form-message";
+      empty.textContent = "No temporary exceptions recorded.";
+      exceptionList!.append(empty);
+      return;
+    }
+    policyExceptions.forEach((exception, index) => {
+      const article = document.createElement("article");
+      article.className = "exception-card";
+      const detail = document.createElement("p");
+      const controlName =
+        SECURITY_CONTROLS.find((control) => control.id === exception.controlId)?.name ??
+        exception.controlId;
+      const browserScope = exception.browsers
+        ? exception.browsers.map((browser) => browserNames[browser]).join(", ")
+        : "all selected browsers";
+      detail.textContent = `${controlName} · ${browserScope} · ${outcomeLabels[exception.outcomes[0] ?? "unknown"]} · expires ${exception.expiresOn}. ${exception.reason}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "button";
+      remove.textContent = "Remove";
+      remove.setAttribute("aria-label", `Remove exception for ${controlName}`);
+      remove.addEventListener("click", () => {
+        policyExceptions = policyExceptions.filter(
+          (_candidate, candidateIndex) => candidateIndex !== index
+        );
+        renderPolicyExceptions();
+        resetPolicy();
+      });
+      article.append(detail, remove);
+      exceptionList!.append(article);
+    });
+  }
+
+  function createPolicy(): PolicyProfile {
+    if (!latestEvaluation) {
+      throw new Error("Check browser support before creating a policy.");
+    }
+    return buildPolicyProfile({
+      profile: latestEvaluation.profile,
+      requiredControls: checkedPolicyControls(),
+      rules: {
+        qualifications: policyRule(policyQualifications!),
+        unknown: policyRule(policyUnknown!),
+        unsupported: policyRule(policyUnsupported!)
+      },
+      exceptions: policyExceptions
+    });
+  }
+
+  function previewPolicy(): void {
+    const policy = createPolicy();
+    const decision = evaluatePolicyProfile(
+      selectedSnapshot,
+      policy,
+      new Date().toISOString().slice(0, 10)
+    );
+    latestPolicy = policy;
+    latestPolicyEvaluation = decision;
+    policySummary!.replaceChildren(
+      stat(decision.summary.pass, "pass"),
+      stat(decision.summary.review, "require review"),
+      stat(decision.summary.fail, "fail")
+    );
+    policyJson!.textContent = exportPolicyProfile(policy);
+    policyPreview!.hidden = false;
+    exportPolicyButton!.disabled = false;
+    exportDecisionButton!.disabled = false;
+    policyMessage!.textContent =
+      decision.summary.fail > 0
+        ? "The policy has failing browser-feature decisions. Review them before adoption."
+        : decision.summary.review > 0
+          ? "The policy has decisions that require a human review."
+          : "Every required browser-feature decision passes the selected rules.";
+  }
+
+  document.querySelector("#select-policy-controls")?.addEventListener("click", () => {
+    for (const input of document.querySelectorAll<HTMLInputElement>(
+      'input[name="required-control"]'
+    )) {
+      input.checked = true;
+    }
+    resetPolicy();
+  });
+
+  document.querySelector("#clear-policy-controls")?.addEventListener("click", () => {
+    for (const input of document.querySelectorAll<HTMLInputElement>(
+      'input[name="required-control"]'
+    )) {
+      input.checked = false;
+    }
+    resetPolicy();
+  });
+
+  for (const input of document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+    'input[name="required-control"], #policy-qualifications, #policy-unknown, #policy-unsupported'
+  )) {
+    input.addEventListener("change", resetPolicy);
+  }
+
+  document.querySelector("#add-policy-exception")?.addEventListener("click", () => {
+    try {
+      const selectedBrowser = exceptionBrowser!.value;
+      const outcome = exceptionOutcome!.value as Outcome;
+      const candidate: PolicyException = {
+        controlId: exceptionControl!.value,
+        ...(selectedBrowser ? { browsers: [selectedBrowser as BrowserId] } : {}),
+        outcomes: [outcome],
+        reason: exceptionReason!.value,
+        expiresOn: exceptionExpiry!.value
+      };
+      buildPolicyProfile({
+        profile: latestEvaluation?.profile ?? readProfile(),
+        requiredControls: checkedPolicyControls(),
+        rules: {
+          qualifications: policyRule(policyQualifications!),
+          unknown: policyRule(policyUnknown!),
+          unsupported: policyRule(policyUnsupported!)
+        },
+        exceptions: [...policyExceptions, candidate]
+      });
+      policyExceptions = [...policyExceptions, candidate];
+      exceptionReason!.value = "";
+      renderPolicyExceptions();
+      resetPolicy();
+      policyMessage!.textContent = "Temporary exception added locally.";
+    } catch (error) {
+      policyMessage!.textContent =
+        error instanceof Error ? error.message : "The exception could not be added.";
+    }
+  });
+
+  document.querySelector("#preview-policy")?.addEventListener("click", () => {
+    try {
+      previewPolicy();
+    } catch (error) {
+      resetPolicy();
+      policyMessage!.textContent =
+        error instanceof Error ? error.message : "The policy could not be evaluated.";
+    }
+  });
+
+  exportPolicyButton.addEventListener("click", () => {
+    if (!latestPolicy) return;
+    download(exportPolicyProfile(latestPolicy), "controlcurrent-policy.json", "application/json");
+    policyMessage!.textContent = "Policy JSON generated locally.";
+  });
+
+  exportDecisionButton.addEventListener("click", () => {
+    if (!latestEvaluation || !latestPolicyEvaluation) return;
+    download(
+      exportDecisionReport(latestEvaluation, latestPolicyEvaluation),
+      "controlcurrent-decision-report.html",
+      "text/html"
+    );
+    policyMessage!.textContent = "Printable decision report generated locally.";
+  });
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     try {
       const evaluation = evaluateProfile(selectedSnapshot, readProfile());
       render(evaluation);
-      message!.textContent = "Profile evaluated locally. No data was sent anywhere.";
+      message!.textContent = "Support checked on this device. No data was sent anywhere.";
     } catch (error) {
       message!.textContent =
         error instanceof Error ? error.message : "The profile could not be evaluated.";
@@ -353,12 +1053,11 @@ const browsers = BROWSER_IDS;
       name: "Example browser baseline",
       baselines: [
         { browser: "chrome", minimumVersion: "120" },
-        { browser: "edge", minimumVersion: "120" },
         { browser: "firefox", minimumVersion: "115" },
         { browser: "safari", minimumVersion: "17" }
       ]
     });
-    message!.textContent = "Example values loaded. Select Evaluate profile to calculate results.";
+    message!.textContent = "Example values loaded. Select Check support to see the results.";
   });
 
   document.querySelector("#save-profile")?.addEventListener("click", () => {
@@ -372,7 +1071,11 @@ const browsers = BROWSER_IDS;
 
   document.querySelector("#clear-profile")?.addEventListener("click", () => {
     clearProfile(window.localStorage);
-    message!.textContent = "Saved browser profile cleared.";
+    clearEvaluation(window.localStorage);
+    rememberedEvaluation = undefined;
+    rememberResult!.checked = false;
+    updateNotice!.hidden = true;
+    message!.textContent = "Saved browser plan and remembered result cleared.";
   });
 
   exportButton.addEventListener("click", () => {
@@ -398,19 +1101,35 @@ const browsers = BROWSER_IDS;
   importInput.addEventListener("change", async () => {
     try {
       applyProfile(importDeploymentProfile(await readJsonFile(importInput)));
-      results!.hidden = true;
-      comparisonSection!.hidden = true;
-      latestEvaluation = undefined;
-      latestComparison = undefined;
-      exportButton!.disabled = true;
-      reportButton!.disabled = true;
+      invalidateEvaluation();
       message!.textContent =
-        "Profile imported locally. Select Evaluate profile to calculate current results.";
+        "Plan imported on this device. Select Check support to see the current results.";
     } catch (error) {
       message!.textContent =
         error instanceof Error ? error.message : "The profile could not be imported.";
     } finally {
       importInput.value = "";
+    }
+  });
+
+  browserConfigInput.addEventListener("change", async () => {
+    try {
+      const file = browserConfigInput.files?.[0];
+      if (!file) throw new Error("Choose a .browserslistrc or package.json file first.");
+      const imported = importBrowserConfiguration(
+        await readFile(browserConfigInput, MAX_BROWSER_CONFIG_BYTES),
+        file.name === "package.json"
+          ? "Imported package browser minimums"
+          : "Imported browser minimums"
+      );
+      applyProfile(imported, true);
+      invalidateEvaluation();
+      message!.textContent = `${String(imported.baselines.length)} explicit browser minimums imported locally. Select Check support to review them.`;
+    } catch (error) {
+      message!.textContent =
+        error instanceof Error ? error.message : "The browser configuration could not be imported.";
+    } finally {
+      browserConfigInput.value = "";
     }
   });
 
@@ -444,4 +1163,22 @@ const browsers = BROWSER_IDS;
   } else if (stored.state === "invalid") {
     message.textContent = "The saved local profile is invalid and was not loaded.";
   }
+
+  const storedEvaluation = loadEvaluation(window.localStorage);
+  if (storedEvaluation.state === "loaded") {
+    rememberedEvaluation = storedEvaluation.evaluation;
+    rememberResult.checked = true;
+    message.textContent =
+      `${message.textContent} A previous support result is remembered for an update comparison.`.trim();
+  } else if (storedEvaluation.state === "future_version") {
+    message.textContent =
+      `${message.textContent} A result from a newer version was left untouched and will not be overwritten automatically.`.trim();
+  } else if (storedEvaluation.state === "invalid") {
+    message.textContent = `${message.textContent} An invalid remembered result was ignored.`.trim();
+  }
+
+  const defaultExceptionExpiry = new Date();
+  defaultExceptionExpiry.setUTCDate(defaultExceptionExpiry.getUTCDate() + 30);
+  exceptionExpiry.value = defaultExceptionExpiry.toISOString().slice(0, 10);
+  renderPolicyExceptions();
 </script>

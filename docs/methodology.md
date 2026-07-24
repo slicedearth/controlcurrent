@@ -96,6 +96,14 @@ Profile comparison requires the same BCD and catalogue versions. It distinguishe
 The comparison does not infer that a browser update caused a source-data
 change, and it does not compare incompatible source versions semantically.
 
+When the visitor separately opts in to remembering one result, a later
+ControlCurrent build can compare outcome records for the same browser plan
+across different bundled BCD or catalogue versions. That notice reports only
+which normalised browser-feature results differ. It does not infer that a
+browser implementation changed, that the previous source was wrong, or that a
+deployment policy should change. A different browser plan is not treated as a
+source update.
+
 ## Baseline context
 
 Web Platform Features is joined to the selected BCD subset only when a feature

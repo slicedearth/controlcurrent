@@ -11,11 +11,15 @@ test("renders real source provenance and makes no external request", async ({ pa
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Can your browser baseline carry the control?" })
+    page.getByRole("heading", {
+      name: "Choose security features your supported browsers can handle"
+    })
   ).toBeVisible();
-  await expect(page.getByText("BCD package").locator("..")).toContainText("8.0.7");
-  await expect(page.getByText("WebDX data").locator("..")).toContainText("3.34.1");
-  await expect(page.getByText("Runtime API").locator("..")).toContainText("none");
+  await expect(
+    page.getByText("MDN browser data", { exact: true }).first().locator("..")
+  ).toContainText("8.0.7");
+  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.34.1");
+  await expect(page.getByText("Server connection").locator("..")).toContainText("none");
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).analyze();
@@ -25,11 +29,31 @@ test("renders real source provenance and makes no external request", async ({ pa
 test("evaluates, stores, clears, and exports a profile locally", async ({ page }) => {
   await page.goto("/planner/");
   await page.getByRole("button", { name: "Load example" }).click();
-  await page.getByRole("button", { name: "Evaluate profile" }).click();
+  await page.getByRole("button", { name: "Check support" }).click();
 
-  await expect(page.getByRole("heading", { name: "Control availability" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What your browser choices can support" })
+  ).toBeVisible();
   await expect(page.locator(".result-card")).toHaveCount(30);
-  await expect(page.getByText("Profile evaluated locally")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Ready to use/u })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Works with known limitations/u })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Not enough information/u })).toBeVisible();
+  await expect(page.getByText("What should I do next?").first()).toBeVisible();
+  const firstExplanation = page.locator(".result-card__why").first();
+  await firstExplanation.locator("summary").click();
+  await expect(firstExplanation.locator("li").first()).toBeVisible();
+  await expect(page.getByText("Support checked on this device")).toBeVisible();
+
+  await page.getByLabel(/Remember the latest result/u).check();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("controlcurrent.evaluation.v1")))
+    .not.toBeNull();
+
+  await page.getByLabel("Show blockers only").check();
+  await expect(page.locator(".result-group--ready")).toBeHidden();
+  expect(await page.locator("[data-result-card]:visible").count()).toBeLessThan(30);
+  await page.getByRole("button", { name: "Clear filters" }).click();
+  await expect(page.locator("[data-result-card]:visible")).toHaveCount(30);
 
   await page.getByRole("button", { name: "Save locally" }).click();
   await expect
@@ -53,35 +77,91 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
   if (!changedValue) throw new Error("A second Chrome baseline is required for comparison.");
   await chromeMinimum.selectOption(changedValue);
   await page.getByLabel("Profile name").fill("Changed profile");
-  await page.getByRole("button", { name: "Evaluate profile" }).click();
+  await page.getByRole("button", { name: "Check support" }).click();
 
-  await page.getByLabel("Compare with an earlier exported evaluation").setInputFiles({
+  await page.getByLabel("Compare with an earlier result").setInputFiles({
     name: "earlier.json",
     mimeType: "application/json",
     buffer: exportedEvaluation
   });
-  await expect(page.getByRole("heading", { name: "Profile comparison" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What changed since the earlier result" })
+  ).toBeVisible();
   await expect(page.locator("#comparison-events .result-card")).toHaveCount(30);
 
   const reportPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export report" }).click();
+  await page.getByRole("button", { name: "Export readable report" }).click();
   const report = await reportPromise;
   expect(report.suggestedFilename()).toBe("controlcurrent-engineering-report.md");
 
-  await page.getByLabel("Import a profile or exported evaluation").setInputFiles({
+  await page.getByLabel("Import a saved plan or result").setInputFiles({
     name: "profile.json",
     mimeType: "application/json",
     buffer: exportedEvaluation
   });
-  await expect(page.getByText("Profile imported locally")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Control availability" })).toBeHidden();
-  await page.getByRole("button", { name: "Evaluate profile" }).click();
-  await expect(page.getByRole("heading", { name: "Control availability" })).toBeVisible();
+  await expect(page.getByText("Plan imported on this device")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What your browser choices can support" })
+  ).toBeHidden();
+  await page.getByRole("button", { name: "Check support" }).click();
+  await expect(
+    page.getByRole("heading", { name: "What your browser choices can support" })
+  ).toBeVisible();
 
-  await page.getByRole("button", { name: "Clear saved profile" }).click();
+  await page.getByRole("button", { name: "Delete saved plan" }).click();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem("controlcurrent.profile.v1")))
     .toBeNull();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("controlcurrent.evaluation.v1")))
+    .toBeNull();
+
+  const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
+  expect(violations.violations).toEqual([]);
+});
+
+test("imports explicit browser minimums and builds a local policy report", async ({ page }) => {
+  await page.goto("/planner/");
+  await page.locator("#import-browser-config").setInputFiles({
+    name: "package.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(
+      JSON.stringify({ browserslist: ["chrome >= 120", "firefox >= 115", "safari >= 17"] })
+    )
+  });
+  await expect(page.getByText("3 explicit browser minimums imported locally")).toBeVisible();
+  await expect(page.locator('input[name="include-chrome"]')).toBeChecked();
+  await expect(page.locator('select[name="version-chrome"]')).toHaveValue("120");
+
+  await page.getByRole("button", { name: "Check support" }).click();
+  await page
+    .getByText("Turn this result into a reviewable browser policy", { exact: true })
+    .click();
+  await page.getByRole("button", { name: "Check policy" }).click();
+  await expect(page.getByRole("heading", { name: "Policy decision" })).toBeVisible();
+  await expect(page.locator("#policy-json")).toContainText('"requiredControls"');
+
+  const policyPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export policy JSON" }).click();
+  expect((await policyPromise).suggestedFilename()).toBe("controlcurrent-policy.json");
+
+  const reportPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export printable decision report" }).click();
+  const report = await reportPromise;
+  expect(report.suggestedFilename()).toBe("controlcurrent-decision-report.html");
+  const reportPath = await report.path();
+  if (!reportPath) throw new Error("The printable report path is unavailable.");
+  const reportText = await readFile(reportPath, "utf8");
+  expect(reportText).toContain("ControlCurrent engineering decision record");
+  expect(reportText).toContain("connect-src 'none'");
+  expect(reportText).not.toContain("<script");
+
+  await page.locator("#import-browser-config").setInputFiles({
+    name: ".browserslistrc",
+    mimeType: "text/plain",
+    buffer: Buffer.from("last 2 versions")
+  });
+  await expect(page.getByText(/Unsupported browser query/u)).toBeVisible();
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
   expect(violations.violations).toEqual([]);
@@ -95,9 +175,9 @@ test("calculates minimum browser baselines without a network request", async ({ 
   });
 
   await page.goto("/planner/");
-  await page.getByRole("button", { name: "Calculate minimums" }).click();
+  await page.getByRole("button", { name: "Find oldest versions" }).click();
 
-  await expect(page.getByRole("heading", { name: "Calculated browser minimums" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Minimum browser versions" })).toBeVisible();
   await expect(page.locator("#minimum-result-list .result-card")).toHaveCount(4);
   await expect(page.getByText("Minimums calculated locally")).toBeVisible();
   expect(externalRequests).toEqual([]);
@@ -111,6 +191,7 @@ test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => 
   for (const path of [
     "/",
     "/controls/",
+    "/glossary/",
     "/matrix/",
     "/planner/",
     "/assess/",
@@ -208,13 +289,13 @@ test("shows pinned WPT mappings without fetching result data", async ({ page }) 
 
   await page.goto("/evidence/");
   await expect(
-    page.getByRole("heading", { name: "Where browser behaviour is tested" })
+    page.getByRole("heading", { name: "See the public tests behind browser behaviour" })
   ).toBeVisible();
   await expect(page.locator(".evidence-card")).toHaveCount(30);
   await expect(page.getByText("28")).toBeVisible();
   await expect(page.getByText("af38980d")).toBeVisible();
   await expect(
-    page.getByText("No nearby suite is substituted for the missing evidence.")
+    page.getByText("No similar test is substituted when an exact link is unavailable.")
   ).toHaveCount(2);
   expect(externalRequests).toEqual([]);
 
@@ -233,16 +314,16 @@ test("assesses and clears a redacted header snapshot without a network request",
 
   await page.goto("/assess/");
   await page.getByRole("button", { name: "Load redacted example" }).first().click();
-  await page.getByRole("button", { name: "Assess headers" }).click();
+  await page.getByRole("button", { name: "Review headers" }).click();
 
-  await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Security header results" })).toBeVisible();
   await expect(page.locator(".assurance-card")).toHaveCount(30);
-  await expect(page.getByText("Headers assessed locally")).toBeVisible();
+  await expect(page.getByText("Headers reviewed on this device")).toBeVisible();
   await expect(page.getByText("18")).toBeVisible();
   expect(externalRequests).toEqual([]);
 
   await page.getByRole("button", { name: "Clear" }).first().click();
-  await expect(page.getByRole("heading", { name: "Response-header assessment" })).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Security header results" })).toBeHidden();
   await expect(page.getByLabel("HTTP response headers")).toHaveValue("");
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
 });
@@ -255,21 +336,36 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
   });
 
   await page.goto("/assess/");
+  await page.locator(".advanced-assessment > summary").click();
   await page.getByRole("button", { name: "Load redacted example" }).last().click();
-  await page.getByRole("button", { name: "Assess bundle" }).click();
+  const localEvidence = await page.getByLabel("Evidence bundle JSON").inputValue();
+  await page.getByRole("button", { name: "Clear" }).last().click();
+  await page.locator("#bundle-file").setInputFiles({
+    name: "authorised-evidence.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(localEvidence)
+  });
+  await expect(page.getByText("Evidence file loaded on this device")).toBeVisible();
+  await page.getByRole("button", { name: "Review evidence file" }).click();
 
   const results = page.locator("#bundle-results");
-  await expect(page.getByRole("heading", { name: "Reduced evidence report" })).toBeVisible();
-  await expect(results.getByRole("heading", { name: "Strict CSP candidate" })).toBeVisible();
   await expect(
-    results.getByRole("heading", { name: "Cross-origin isolation header candidate" })
+    page.getByRole("heading", { name: "Privacy-reduced evidence report" })
   ).toBeVisible();
-  await expect(results.getByRole("heading", { name: "Cookie attribute coverage" })).toBeVisible();
-  await expect(results.getByRole("heading", { name: "Expected surface coverage" })).toBeVisible();
-  await expect(results.getByText("Complete: html, request, response, webauthn")).toBeVisible();
-  await expect(results.getByRole("heading", { name: "Surface policy · sign-in" })).toBeVisible();
   await expect(
-    results.getByText("19 of 19 required controls observed · 3 of 3 required composites satisfied")
+    results.getByRole("heading", { name: "Strong Content Security Policy" })
+  ).toBeVisible();
+  await expect(
+    results.getByRole("heading", { name: "Cross-origin isolation headers" })
+  ).toBeVisible();
+  await expect(results.getByRole("heading", { name: "Cookie protection settings" })).toBeVisible();
+  await expect(results.getByRole("heading", { name: "Expected page coverage" })).toBeVisible();
+  await expect(results.getByText("Complete: html, request, response, webauthn")).toBeVisible();
+  await expect(
+    results.getByRole("heading", { name: "Requirements for page · sign-in" })
+  ).toBeVisible();
+  await expect(
+    results.getByText("19 of 19 required features found · 3 of 3 combined checks met")
   ).toBeVisible();
   await expect(
     results.getByText("No declared surface requires this control.").first()
@@ -284,15 +380,17 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     "analyser 5.0.0 · catalogue 2.2.0 · BCD 8.0.7"
   );
   await expect(
-    results.getByText("Scope inventory · Reviewed application route manifest")
+    results.getByText("Supplied page list · Reviewed application route manifest")
   ).toBeVisible();
   await expect(results.getByText(/framework_manifest · complete/u)).toBeVisible();
-  await expect(page.getByText("Compare with a previous reduced report")).toBeVisible();
+  await expect(page.getByText("Compare with an earlier report")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Verify the exported report in CI" })
+    page.getByRole("heading", {
+      name: "Confirm who produced a report in continuous integration (CI)"
+    })
   ).toBeVisible();
   await expect(
-    page.getByText("A verified statement authenticates the configured signer")
+    page.getByText("A valid signature proves who signed that exact report")
   ).toBeVisible();
   const reportText = await results.textContent();
   expect(reportText).not.toContain("/assets/app.css");
@@ -307,17 +405,17 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
 
   await page.getByRole("button", { name: "Clear" }).last().click();
-  await expect(page.getByRole("heading", { name: "Reduced evidence report" })).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Privacy-reduced evidence report" })).toBeHidden();
   await expect(page.getByLabel("Evidence bundle JSON")).toHaveValue("");
 });
 
 test("shows the reviewed source manifest without inventing review timestamps", async ({ page }) => {
   await page.goto("/changes/");
-  await expect(page.getByRole("heading", { name: "Reviewed source states" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Reviewed source states" })).toContainText(
+  await expect(page.getByRole("heading", { name: "Reviewed source versions" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Reviewed source versions" })).toContainText(
     "3.34.1"
   );
-  await expect(page.getByText("It is not the time a reviewer ran ControlCurrent")).toBeVisible();
+  await expect(page.getByText("It is not the date a reviewer ran ControlCurrent")).toBeVisible();
 });
 
 test("publishes third-party licence notices with the static site", async ({ page, request }) => {
@@ -342,16 +440,79 @@ test("publishes third-party licence notices with the static site", async ({ page
 test("states capability maturity without numerical assurance scores", async ({ page }) => {
   await page.goto("/limitations/");
 
-  await expect(page.getByRole("heading", { name: "Capability maturity" })).toBeVisible();
-  const maturity = page.getByRole("region", { name: "ControlCurrent capability maturity" });
+  await expect(
+    page.getByRole("heading", { name: "How far each part of the tool can go" })
+  ).toBeVisible();
+  const maturity = page.getByRole("region", { name: "ControlCurrent usefulness by task" });
   await expect(maturity.getByRole("row")).toHaveCount(8);
-  await expect(maturity.getByText("Runtime enforcement")).toBeVisible();
-  await expect(maturity.getByText("Not assessed")).toBeVisible();
-  await expect(maturity.getByText("Production certification")).toBeVisible();
+  await expect(maturity.getByText("Test live browser and server behaviour")).toBeVisible();
+  await expect(maturity.getByText("Not provided").first()).toBeVisible();
+  await expect(maturity.getByText("Certify a production website")).toBeVisible();
   await expect(page.getByText(/\/10/u)).toHaveCount(0);
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
   expect(violations.violations).toEqual([]);
+});
+
+test("filters security features locally without hiding the full static catalogue", async ({
+  page
+}) => {
+  const externalRequests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.hostname !== "127.0.0.1") externalRequests.push(request.url());
+  });
+
+  await page.goto("/controls/");
+  await expect(page.locator("[data-control-card]")).toHaveCount(30);
+  await page.getByLabel("Search features").fill("clickjacking");
+  await expect(page.locator("[data-control-card]:visible")).toHaveCount(1);
+  await expect(page.getByText("Showing 1 of 30 features.")).toBeVisible();
+
+  await page.getByLabel("Security area").selectOption("Authentication");
+  await expect(page.locator("[data-control-card]:visible")).toHaveCount(0);
+  await expect(page.getByText("No features match those filters.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Clear filters" }).click();
+  await expect(page.locator("[data-control-card]:visible")).toHaveCount(30);
+  expect(externalRequests).toEqual([]);
+
+  const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
+  expect(violations.violations).toEqual([]);
+});
+
+test("publishes share metadata, a social card, robots guidance, and the glossary", async ({
+  page,
+  request
+}) => {
+  await page.goto("/");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    /ControlCurrent/u
+  );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    "https://slicedearth.github.io/controlcurrent/og.png"
+  );
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary_large_image"
+  );
+
+  const socialCard = await request.get("/og.png");
+  expect(socialCard.ok()).toBe(true);
+  expect([...(await socialCard.body()).subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+
+  const robots = await request.get("/robots.txt");
+  expect(robots.ok()).toBe(true);
+  expect(await robots.text()).toContain(
+    "Sitemap: https://slicedearth.github.io/controlcurrent/sitemap-index.xml"
+  );
+
+  await page.goto("/glossary/");
+  await expect(page.getByRole("heading", { name: "ControlCurrent glossary" })).toBeVisible();
+  await expect(page.getByText("Browser Compatibility Data (BCD)")).toBeVisible();
+  await expect(page.getByText("Subresource Integrity (SRI)")).toBeVisible();
 });
 
 test("does not detect the actual browser or expose a runtime connection surface", async ({

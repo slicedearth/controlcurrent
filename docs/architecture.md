@@ -117,20 +117,27 @@ The planner does not use:
 - server storage;
 - market share.
 
-Local persistence is opt-in and limited to one schema-versioned key.
-Profile and exported-evaluation imports are byte-bounded and schema-validated
-locally. Semantic comparison requires identical BCD and catalogue versions,
-keeps added or removed browser scope distinct from gained or lost support, and
-does not treat a baseline-only change as a compatibility change.
+Local persistence is opt-in and limited to one schema-versioned browser-plan
+key and one separately enabled latest-result key. Profile, exported-evaluation,
+`.browserslistrc`, and `package.json` imports are byte-bounded and
+schema-validated locally. Browser configuration import accepts only explicit
+minimums; changing relative queries are refused. Semantic result comparison
+requires identical BCD and catalogue versions, keeps added or removed browser
+scope distinct from gained or lost support, and does not treat a baseline-only
+change as a compatibility change. The separately remembered result supports a
+factual across-source-version update notice without claiming why an upstream
+record changed.
 
 The reverse planner searches only deployable releases retained in the selected
 BCD snapshot. It never invents an exact minimum from an imprecise source
 boundary and reports unsupported mappings or source inconsistencies as
 blockers.
 
-Engineering reports are deterministic Markdown generated in the browser. They
-contain the selected profile, source versions, aggregate outcomes, and bounded
-comparison counts; they are not uploaded or retained by the site.
+Engineering comparison reports are deterministic Markdown generated in the
+browser. The policy builder also emits canonical JSON and a self-contained,
+printable HTML decision record with selected rules, exceptions, fallbacks, and
+results. The HTML report escapes all supplied text and loads no remote
+resources. These exports are not uploaded or retained by the site.
 
 ## Offline assurance boundary
 
@@ -175,7 +182,9 @@ use an injected transport and never contact a target.
 
 The evidence-bundle path combines up to 16 response snapshots, 16 HTML
 documents, 32 bounded local resource bodies, 32 request snapshots, and 16
-reduced WebAuthn configurations. Its dependency direction is:
+reduced WebAuthn configurations. The website accepts a chosen, dropped, or
+pasted JSON file up to 2 MiB, holds it in page memory, and makes no upload or
+network request. Its dependency direction is:
 
 ```text
 bounded local inputs

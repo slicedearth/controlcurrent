@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://slicedearth.github.io/controlcurrent/"><strong>Open the live application</strong></a>
   ·
-  <a href="https://slicedearth.github.io/controlcurrent/methodology/">Methodology</a>
+  <a href="https://slicedearth.github.io/controlcurrent/methodology/">How it works</a>
   ·
   <a href="https://slicedearth.github.io/controlcurrent/limitations/">Limitations</a>
 </p>
@@ -16,352 +16,210 @@
   <a href="https://github.com/slicedearth/controlcurrent/actions/workflows/pages.yml"><img src="https://github.com/slicedearth/controlcurrent/actions/workflows/pages.yml/badge.svg?branch=main" alt="GitHub Pages deployment status"></a>
 </p>
 
-<p align="center"><strong>Which browser security controls can you safely deploy today?</strong></p>
+# ControlCurrent
 
-ControlCurrent is a security-specific browser compatibility and deployment
-planning application. It maps a curated catalogue of defensive browser controls
-to exact paths in MDN Browser Compatibility Data (BCD), preserves support
-qualifications, and evaluates explicit browser minimums entirely in the browser.
+ControlCurrent helps web teams decide which browser security features they can
+use without breaking the oldest browsers they still support.
 
-It is not a general compatibility index. The static website does not scan
-targets; an optional CLI collector is available only for explicit,
-manifest-bound authorised collection into private local storage.
+Choose browser minimums such as Chrome 120, Firefox 115 and Safari 17. The site
+then shows which security features:
 
-## Public deployment
+- should work across that browser plan;
+- work with a known limitation;
+- are not supported; or
+- do not have enough dependable browser data for a firm answer.
 
-[ControlCurrent is available on GitHub Pages](https://slicedearth.github.io/controlcurrent/).
-The deployment is static and requires no account. Browser-policy selections,
-header evidence, scope inventories, and exported reports remain on the
-visitor's device.
+The result is planning evidence, not a security grade. ControlCurrent does not
+claim that a website is secure just because a browser supports a feature.
 
-Changes pushed or merged to `main` deploy automatically only after the complete
-CI workflow succeeds. The Pages workflow publishes the exact commit verified
-by CI. Source-review and Dependabot workflows can identify or propose updates,
-but they cannot merge or publish changes by themselves.
+## Who it is for
 
-The generated artifact includes a portable `_headers` policy for a
-header-capable static host. GitHub Pages does not apply that file, so the live
-site currently relies on its restrictive meta CSP and framing guard. See
-[deployment security](docs/deployment-security.md) before handling
-organisation-specific evidence or changing hosts.
+ControlCurrent is most useful for:
 
-## What it provides
+- web developers choosing security headers and browser APIs;
+- security engineers reviewing browser-support policy;
+- architects documenting why a fallback is still required;
+- delivery teams preparing a browser-support change; and
+- students learning how browser compatibility affects security controls.
 
-- A versioned catalogue of 30 browser security and privacy controls
-- Exact BCD path mappings and explicit unsupported mappings
-- Nine desktop and mobile browser families normalised explicitly
-- Exact WebDX feature associations and Baseline adoptability context
-- Exact Web Platform Tests suite mappings pinned to a reviewed source revision
-- Preservation of partial support, flags, prefixes, alternative names, notes,
-  removals, and unknown source values
-- A local deployment-profile planner with no browser detection or telemetry
-- A reverse minimum-baseline calculator for selected controls and browsers
-- Local profile import, semantic comparison, and deterministic engineering reports
-- Version-controlled policy profiles with expiring, visible exceptions
-- A local CLI for policy checks, explanations, and minimum-baseline calculation
-- An explicit-authorisation CLI collector for bounded public, unauthenticated
-  same-origin evidence capture into private local storage
-- An offline response-header inspector with redacted evidence and no URL fetch
-- A bounded evidence bundle for route variation, CSP-to-markup correlation,
-  local SRI byte verification, Fetch Metadata request context, and reduced
-  WebAuthn configuration
-- Bounded response-variant, status, redirect, content, cache, authentication,
-  and transport-error context without retained URLs
-- An optional privacy-minimised scope inventory that reduces up to 256 opaque
-  entries to a semantic fingerprint, counts, provenance, and completeness state
-- An expected-surface manifest bound exactly to the inventory's included
-  entries, distinguishing missing evidence from explicitly excluded scope and
-  declaring which controls and composites apply to each assessed surface
-- Subject-identified reduced reports with application, environment, revision,
-  build, producer, and capture-window context inside deterministic SHA-256
-  fingerprints
-- Detail-aware reduced-report comparison with explicit model compatibility,
-  regressions, resolutions, other changes, and incomparable evidence
-- An independent evidence-policy profile and CI exit code with identity,
-  scope-inventory fingerprint, completeness, producer, capture-duration,
-  freshness, and expiring-exception requirements
-- Optional CLI-only Sigstore attestation verification that binds an exact
-  certificate identity to the reduced report fingerprint and deployment
-  identity
-- Project-authored composite checks that keep candidate deployment recipes
-  separate from browser support and production assurance
-- Current-channel compatibility matrix and browser release views
-- Deterministic selected-source snapshots, change events, and source history
-- A public static GitHub Pages deployment gated by the complete CI workflow
-- Original deployment guidance, fallbacks, and limitations
+The public website is not a live scanner, penetration-testing tool, compliance
+checker or certification service.
 
-Compatibility is not configuration assurance. A supported feature can still be
-configured incorrectly, implemented with defects, or insufficient for an
-application's threat model. The optional offline assessment can establish that
-recognised policy syntax or reduced configuration evidence was present in
-supplied snapshots, but it does not certify effectiveness across an
-application.
+## What you can do on the website
 
-## Data source
+### Plan browser support
 
-The current release uses `@mdn/browser-compat-data` 8.0.7 and `web-features`
-3.34.1. The selected snapshot contains only the 36 BCD paths required by the
-current catalogue, bounded release metadata for nine browser families, and
-exact Baseline associations declared for those paths.
+- Choose minimum versions for nine desktop and mobile browser families.
+- Import explicit minimums from a local `.browserslistrc` or `package.json`.
+- Search and filter the result, including a blockers-only view.
+- Save a browser plan locally or export it as JSON.
+- Opt in to remembering one result so a later data update can be compared.
+- Compare an exported result with a newer result from the same source version.
 
-The conformance-evidence registry maps 28 controls to exact Web Platform Tests
-suite paths at revision `af38980d2fcd74af19a226f5f651051cc15940ed`.
-HSTS and HttpOnly remain explicitly unmapped. ControlCurrent links to current
-wpt.fyi results but does not ingest or simplify pass rates.
+### Record an engineering decision
 
-MDN Browser Compatibility Data is published under
-[CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Web
-Platform Features is published under
-[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0). ControlCurrent source
-code is licensed separately under MIT. See [NOTICE](NOTICE) and
-[legal and licensing](docs/legal-and-licensing.md).
-The deployed site includes a plain-text third-party notice containing the
-Apache License 2.0 terms and notices for the browser-bundled dependencies.
+- Choose the security features your project requires.
+- Decide whether known limitations, unknown data and unmapped features require
+  review or fail the policy.
+- Add visible, expiring exceptions with a reason.
+- Export the policy as deterministic JSON.
+- Export a self-contained, printable HTML decision report.
 
-## Privacy boundary
+### Explore the source data
 
-The deployed site has:
+- Read plain-language pages for 30 browser security and privacy features.
+- Compare current browser support in a matrix.
+- See exact source mappings, qualifications and known data gaps.
+- Review source changes and pinned Web Platform Tests links.
+- Find the oldest browser versions that support a selected group of features.
 
-- no account or authentication;
-- no analytics, advertising, or tracking;
-- no browser fingerprinting or user-agent detection;
-- no runtime API or application database;
-- no website scanning;
-- no URL fetch in the offline header inspector;
-- no HTML execution or resource loading in evidence-bundle analysis;
-- no automatic profile persistence.
+### Review evidence locally
 
-Sigstore verification is CLI-only. It loads the reviewed `trusted_root.json`
-target bundled with the lockfile-pinned `@sigstore/tuf` package, verifies its
-project-pinned SHA-256 digest, and performs no TUF or network refresh. The
-static website never receives an attestation bundle.
+- Paste a redacted HTTP response-header snapshot.
+- Choose or drop a bounded JSON evidence file from an authorised collection.
+- Review page, header, request, passkey and local resource evidence without
+  executing supplied markup or loading its resources.
+- Export a privacy-reduced result that omits the raw evidence.
 
-A supplied scope inventory is reduced in memory. The public report retains its
-kind, completeness, generation time, counts, and semantic fingerprint, but not
-the opaque inventory entries or exclusion reasons.
+The advanced command-line workflow can collect bounded, unauthenticated
+same-origin evidence from a website you are authorised to assess. It cannot be
+started from the public website.
 
-A profile is saved to one bounded, versioned `localStorage` key only after the
-visitor selects **Save locally**. JSON exports are generated in the browser.
+## What ControlCurrent cannot prove
 
-## Local development
+Browser support does not establish that:
+
+- a feature is configured correctly;
+- the whole application uses it consistently;
+- the browser has no implementation defect;
+- the selected control fits the application’s threat model;
+- every important page was included in supplied evidence; or
+- a production website is secure or compliant.
+
+Evidence review can show that recognised settings were present in a supplied
+snapshot. It cannot prove complete runtime enforcement. The
+[limitations page](https://slicedearth.github.io/controlcurrent/limitations/)
+states how far each part of the tool can go.
+
+## Privacy
+
+The deployed site is static. It has no account system, analytics, advertising,
+application database or public scanning endpoint.
+
+Browser plans, imported configuration, evidence files, policy drafts and
+exports are processed on the visitor’s device. A plan is saved only after
+selecting **Save locally**. Remembering the latest result is a separate opt-in
+choice. Both can be deleted from the planner.
+
+The website does not detect the visitor’s browser version. It uses the browser
+minimums the visitor enters. See [PRIVACY.md](PRIVACY.md) for the complete
+boundary.
+
+## Data and licensing
+
+The current selected dataset is generated from:
+
+- `@mdn/browser-compat-data` 8.0.7;
+- `web-features` 3.34.1; and
+- exact Web Platform Tests suite paths pinned to revision
+  `af38980d2fcd74af19a226f5f651051cc15940ed`.
+
+Only the bounded fields needed by the catalogue are included in the static
+site. Compatibility data is a build input; the deployed planner makes no
+runtime request for it.
+
+Source qualifications are kept rather than simplified into a misleading
+supported/not-supported flag. An absent or unsuitable mapping remains explicit.
+See [legal and licensing](docs/legal-and-licensing.md) and the deployed
+third-party notices for attribution and licence details.
+
+## Run locally
 
 Requirements:
 
-- Node.js 24.15 or later supported releases
-- npm 11.17 or 12
+- Node.js 24.15 or a compatible later supported release;
+- npm 11.17–12; and
+- dependencies installed from the committed lockfile.
 
-Install and verify:
-
-```sh
+```bash
 npm ci
-npm run verify
-```
-
-Start the local site:
-
-```sh
 npm run dev
 ```
 
-The ordinary test and build paths do not access live services.
+The local development server prints its URL. The static production build is:
 
-## Updating source data
-
-Source updates are deliberate:
-
-1. Review the new BCD or Web Platform Features release, schema changes,
-   licences, and selected mappings.
-2. Update the exact package version in `package.json`.
-3. Run `npm install` with the repository's npm version.
-4. Run `npm run generate`.
-5. Inspect `data/selected-bcd.json` and `data/change-events.json`.
-6. Inspect the appended `data/source-history.json` entry.
-7. Run the complete verification suite.
-
-The weekly source-review workflow is read-only. It reports when either locked
-source package is behind npm registry metadata and does not edit files, open
-issues, commit, push, or deploy.
-
-Reviewed changes merged or pushed to `main` deploy automatically only after CI
-succeeds, using the exact commit SHA checked by that CI run. Dependabot and
-source-review results do not merge or publish changes on their own.
-
-`npm run generate:check` fails when the locked package and committed selected
-snapshot differ. A missing configured path fails generation rather than
-silently becoming supported.
-
-## Commands
-
-| Command                    | Purpose                                                             |
-| -------------------------- | ------------------------------------------------------------------- |
-| `npm run generate`         | Regenerate the selected BCD subset and append deterministic changes |
-| `npm run generate:check`   | Verify the selected subset matches the locked package               |
-| `npm run lint`             | Run strict ESLint checks                                            |
-| `npm run format:check`     | Verify repository formatting                                        |
-| `npm run typecheck`        | Type-check source, tools, and tests                                 |
-| `npm run check`            | Run Astro diagnostics                                               |
-| `npm run cli -- ...`       | Evaluate policies, inspect evidence, and compare reduced reports    |
-| `npm test`                 | Run fixture-driven unit tests with coverage                         |
-| `npm run build`            | Verify the source snapshot and build the static site                |
-| `npm run audit:repository` | Refuse unexpected public data and local evidence exports            |
-| `npm run audit:public`     | Inspect the public build for bounds and prohibited content          |
-| `npm run audit:language`   | Enforce ControlCurrent naming and Australian-English terminology    |
-| `npm run test:e2e`         | Run local browser and accessibility tests                           |
-| `npm run verify`           | Run the non-browser verification suite                              |
-
-The verification pipeline audits both tracked publication paths and the
-generated Pages artifact. It also confirms that deployed third-party notices
-remain present.
-
-Inspect a redacted local header snapshot:
-
-```sh
-npm run cli -- inspect-headers examples/headers.example.json --json
+```bash
+npm run build
+npm run preview
 ```
 
-The command exits non-zero for invalid or ambiguous header evidence. Add
-`--fail-missing` when a policy gate should also fail for controls not observed
-in that one response.
+## Verification
 
-Inspect a bounded multi-surface evidence bundle:
+The main local verification command runs linting, formatting checks, strict
+type checks, Astro checks, unit tests, repository and public-output audits,
+the production build, and Australian-English checks:
 
-```sh
-npm run cli -- inspect-bundle examples/evidence-bundle.example.json --json
+```bash
+npm run verify
 ```
 
-Collect an authorised public target into ignored private storage:
+Browser tests run separately:
 
-```sh
-npm run cli -- collect-evidence private-data/collector/manifest.json \
-  --output private-data/collector/evidence.json \
-  --confirm-authorised-target
+```bash
+npm run test:e2e
 ```
 
-The collector is fixed-origin, HTTPS-only outside explicit loopback testing,
-does not execute JavaScript or carry authentication, and never writes target
-paths or origins as dedicated bundle metadata. Captured headers and HTML can
-still contain locations and must remain private. See
-[`docs/authorised-collection.md`](docs/authorised-collection.md).
+Ordinary tests use local fixtures and do not scan websites or depend on live
+services.
 
-Reduce an independently produced opaque scope inventory and obtain the exact
-fingerprint for evidence policy:
+## Advanced command-line use
 
-```sh
-npm run cli -- reduce-scope-inventory examples/scope-inventory.json --json
+The command-line tool supports policy checks, minimum-browser calculations,
+private evidence reduction, bounded authorised collection and optional
+signature verification. Start with:
+
+```bash
+npm run cli -- --help
 ```
 
-Compare two exported reduced reports and fail only for classified regressions:
+Live collection requires an explicit confirmation flag and a fixed authorised
+manifest. Raw collections can contain sensitive application details and must
+remain outside the public repository. Read
+[authorised collection](docs/authorised-collection.md) and
+[deployment security](docs/deployment-security.md) first.
 
-```sh
-npm run cli -- compare-reports before.json after.json --fail-regression --json
-```
+## Hosting
 
-Evaluate an exported report against an independently maintained evidence
-policy:
+The public site is suitable for static GitHub Pages hosting. It needs no
+runtime secret, server or database. Changes to `main` deploy only after the
+complete CI workflow succeeds.
 
-```sh
-npm run cli -- check-evidence examples/evidence-policy.json report.json \
-  --as-of 2026-07-23 --strict-review
-```
-
-Create the canonical in-toto statement for external signing:
-
-```sh
-npm --silent run cli -- create-attestation-statement report.json > statement.json
-```
-
-Verify an externally signed Sigstore DSSE bundle and then apply evidence policy:
-
-```sh
-npm run cli -- verify-evidence examples/evidence-policy.json report.json \
-  report.sigstore.json --as-of 2026-07-23 --strict-review
-```
-
-The bundle command exits non-zero for invalid or inconsistent evidence. Add
-`--fail-missing` to include absent controls, or `--strict-composites` to require
-each applicable project-authored composite candidate to avoid a review or gap
-state. Controls outside every declared surface policy are `not_applicable`, not
-failures. Evidence policy requirements come from a separate file, so weakening
-the submitted bundle cannot weaken the CI gate. The example gate also requires
-the expected inventory fingerprint, complete scope, application, environment,
-revision, CI producer, build ID, capture duration, and maximum inventory and
-evidence age. These are fingerprinted producer claims, not authenticated
-provenance unless the separate attestation verifier accepts the signed
-statement and exact policy-selected signer. A signed complete inventory still
-does not prove that its source discovered every production route or state.
-
-## Architecture
-
-```text
-Locked BCD and Web Platform Features packages
-                    |
-                    v
-        exact selected-path resolver
-                    |
-                    v
- validated compatibility and Baseline subset
-          |                         |                 pinned WPT revision
-          v                         v                         |
-  versioned catalogue          change events                 v
-          |                                          evidence registry
-          +----------------------------+---------------------+
-          |
-          v
- browser-policy evaluation
-          |
-          v
-       static Astro site
-
-opaque scope inventory plus local response, HTML,
-request, resource, and WebAuthn inputs
-          |
-          v
- non-executing bounded evidence reduction
-          |
-          v
-inventory fingerprint plus surface-scoped findings
-          and composite candidates
-          |
-          v
-subject-identified, provenance-stamped reduced report
-          |
-          +--> compatible detail-aware comparison
-          |
-          +--> independent evidence-policy gate
-          |
-          +--> canonical in-toto statement
-                         |
-                         v
-                external DSSE signing
-                         |
-                         v
-             CLI-only Sigstore verification
-```
-
-The selected data is a build input. The deployed site makes no runtime request
-for compatibility data.
+GitHub Pages does not apply the generated `_headers` file, so the current public
+site relies on its restrictive meta Content Security Policy and framing guard.
+A dedicated header-capable origin is recommended before using the interface
+with organisation-specific evidence.
 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)
+- [Methodology](docs/methodology.md)
 - [Policy as code](docs/policy-as-code.md)
 - [Scope inventory](docs/scope-inventory.md)
 - [Attested evidence](docs/attested-evidence.md)
 - [Conformance evidence](docs/conformance-evidence.md)
-- [Methodology](docs/methodology.md)
+- [Authorised collection](docs/authorised-collection.md)
 - [Threat model](docs/threat-model.md)
 - [Deployment security](docs/deployment-security.md)
 - [Dependency policy](docs/dependency-policy.md)
 - [Legal and licensing](docs/legal-and-licensing.md)
 - [Engineering case study](docs/engineering-case-study.md)
 - [Security policy](SECURITY.md)
-- [Privacy policy](PRIVACY.md)
 
 ## Corrections
 
-Catalogue mappings, calculations, accessibility issues, and source
-interpretations can be reported through the repository issue tracker. Reports
-should identify the control, browser baseline, BCD version and path, expected
-result, and supporting primary source. Source-data problems should also follow
-the MDN BCD contribution process.
+Report catalogue mappings, calculation problems, accessibility issues or source
+interpretations through the repository issue tracker. Include the security
+feature, browser minimum, source version, expected result and supporting primary
+source. Upstream data problems should also follow the relevant source project’s
+correction process.

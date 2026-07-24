@@ -12,39 +12,45 @@ import { selectedSnapshot } from "../data";
   data-selected-schema-fingerprint={selectedSnapshot.schemaFingerprint}
 >
   <div class="planner-intro">
-    <span class="eyebrow">Multi-surface, local evidence</span>
-    <h2 id="bundle-heading">Assess a bounded evidence bundle</h2>
+    <span class="eyebrow">Advanced check</span>
+    <h2 id="bundle-heading">Review evidence from several pages</h2>
     <p>
-      Bind up to 256 opaque scope entries to 32 assessed surfaces, then combine up to 16 response
-      snapshots with optional status, content, redirect, cache, and authentication context; 16 HTML
-      documents; 32 bounded local resource bodies; 32 request snapshots; and 16 reduced WebAuthn
-      configurations. Markup is parsed without execution or resource loading. Supplied inventory
-      entries and resource bytes are reduced locally and omitted from the report.
+      Load a structured JSON file when you need to compare headers, page markup, local resource
+      checks, request information, or passkey settings across several parts of an application.
+      ControlCurrent analyses the file on this device without running the markup or loading its
+      resources. The exported report leaves out the original page content and resource bytes.
     </p>
   </div>
 
   <form id="bundle-form" class="header-form">
-    <label for="bundle-block">Evidence bundle JSON</label>
-    <textarea
-      id="bundle-block"
-      name="bundle-block"
-      maxlength="2097152"
-      rows="24"
-      spellcheck="false"
-      aria-describedby="bundle-guidance"
-      placeholder='{"schemaVersion":4,"name":"Release candidate","identity":{"subject":{},"capture":{}},"scopeInventory":{"schemaVersion":1,"entries":[]},"surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
-    ></textarea>
+    <label class="evidence-file-drop" id="bundle-drop">
+      <strong>Choose or drop a JSON evidence file</strong>
+      <span>The file is read on this device, is never uploaded, and may be at most 2 MiB.</span>
+      <input id="bundle-file" type="file" accept="application/json,.json" />
+    </label>
+    <details class="bundle-paste">
+      <summary>Or paste and edit JSON</summary>
+      <label for="bundle-block">Evidence bundle JSON</label>
+      <textarea
+        id="bundle-block"
+        name="bundle-block"
+        maxlength="2097152"
+        rows="24"
+        spellcheck="false"
+        aria-describedby="bundle-guidance"
+        placeholder='{"schemaVersion":4,"name":"Release candidate","identity":{"subject":{},"capture":{}},"scopeInventory":{"schemaVersion":1,"entries":[]},"surfaces":[],"responses":[],"htmlDocuments":[],"resourceBytes":[],"requests":[],"webauthn":[]}'
+      ></textarea>
+    </details>
     <p id="bundle-guidance" class="form-message">
-      Use opaque application, environment, revision, build, inventory, surface, and producer
-      identifiers rather than URLs or personal data. Remove secrets, route locations, page content
-      that is not needed for resource analysis, raw WebAuthn challenges, user IDs, and relying-party
-      IDs.
+      Use non-identifying labels instead of URLs or personal data. Remove secrets, route locations,
+      unnecessary page content, passkey challenges, user IDs, and relying-party IDs before loading
+      the file.
     </p>
     <div class="button-row">
-      <button type="submit" class="button button--primary">Assess bundle</button>
+      <button type="submit" class="button button--primary">Review evidence file</button>
       <button type="button" class="button" id="load-bundle-example">Load redacted example</button>
       <button type="button" class="button" id="export-bundle" disabled>
-        Export reduced report
+        Export privacy-reduced report
       </button>
       <button type="button" class="button" id="clear-bundle">Clear</button>
     </div>
@@ -59,30 +65,30 @@ import { selectedSnapshot } from "../data";
   >
     <div class="section-heading">
       <div>
-        <span class="eyebrow">Cross-snapshot assessment</span>
-        <h2 id="bundle-results-heading">Reduced evidence report</h2>
+        <span class="eyebrow">What the supplied file shows</span>
+        <h2 id="bundle-results-heading">Privacy-reduced evidence report</h2>
       </div>
       <p id="bundle-source"></p>
     </div>
     <div id="bundle-coverage" class="stats-grid"></div>
-    <h3>Composite deployment checks</h3>
+    <h3>Checks that combine several settings</h3>
     <div id="bundle-composites" class="results-list bundle-composites"></div>
-    <h3>Control findings</h3>
+    <h3>Security feature results</h3>
     <div id="bundle-summary" class="stats-grid"></div>
     <div id="bundle-findings" class="results-list assurance-findings"></div>
-    <h3>Evidence inventory</h3>
+    <h3>Evidence included in the file</h3>
     <div id="bundle-inventory" class="results-list bundle-inventory"></div>
     <details class="content-card comparison-panel header-form">
-      <summary>Compare with a previous reduced report</summary>
+      <summary>Compare with an earlier report</summary>
       <p>
-        Paste an earlier exported report. Comparison requires the same scope-inventory fingerprint,
-        application, environment, analyser, and catalogue before comparing normalised findings,
-        composites, and declared surface coverage.
+        Paste an earlier exported report. Both reports must describe the same application,
+        environment, included-page list, analysis version, and security-feature catalogue before
+        ControlCurrent can compare them safely.
       </p>
-      <label for="previous-report">Previous reduced report JSON</label>
+      <label for="previous-report">Earlier privacy-reduced report JSON</label>
       <textarea id="previous-report" maxlength="1048576" rows="10" spellcheck="false"></textarea>
       <div class="button-row">
-        <button type="button" class="button" id="compare-report">Compare reports</button>
+        <button type="button" class="button" id="compare-report">Show changes</button>
         <button type="button" class="button" id="export-comparison" disabled>
           Export comparison
         </button>
@@ -252,6 +258,9 @@ import { selectedSnapshot } from "../data";
   const form = document.querySelector<HTMLFormElement>("#bundle-form");
   const panel = document.querySelector<HTMLElement>("#evidence-bundle-panel");
   const input = document.querySelector<HTMLTextAreaElement>("#bundle-block");
+  const fileInput = document.querySelector<HTMLInputElement>("#bundle-file");
+  const dropTarget = document.querySelector<HTMLElement>("#bundle-drop");
+  const pasteDetails = document.querySelector<HTMLDetailsElement>(".bundle-paste");
   const message = document.querySelector<HTMLElement>("#bundle-message");
   const results = document.querySelector<HTMLElement>("#bundle-results");
   const source = document.querySelector<HTMLElement>("#bundle-source");
@@ -273,6 +282,9 @@ import { selectedSnapshot } from "../data";
     !panel ||
     !form ||
     !input ||
+    !fileInput ||
+    !dropTarget ||
+    !pasteDetails ||
     !message ||
     !results ||
     !source ||
@@ -297,21 +309,27 @@ import { selectedSnapshot } from "../data";
     SECURITY_CONTROLS.map((control) => [control.id, control.name] as const)
   );
   const stateLabels: Record<AssuranceState, string> = {
-    observed: "Observed",
-    missing: "Not observed",
-    invalid: "Invalid or ambiguous",
-    not_evaluated: "Not evaluated",
-    not_applicable: "Not applicable",
-    report_only: "Report only",
+    observed: "Found",
+    missing: "Not found",
+    invalid: "Invalid or unclear",
+    not_evaluated: "Not checked",
+    not_applicable: "Not relevant",
+    report_only: "Reporting only",
     inconclusive: "Needs review"
   };
   const compositeLabels: Record<CompositeAssessment["state"], string> = {
-    satisfied: "Candidate satisfied",
+    satisfied: "Requirements found",
     review: "Needs review",
-    gap: "Gap observed",
-    not_evaluated: "Not evaluated",
-    not_applicable: "Not applicable"
+    gap: "Missing requirement",
+    not_evaluated: "Not checked",
+    not_applicable: "Not relevant"
   };
+  const compositeNames = new Map<string, string>([
+    ["Strict CSP candidate", "Strong Content Security Policy"],
+    ["Cross-origin isolation header candidate", "Cross-origin isolation headers"],
+    ["Cookie attribute coverage", "Cookie protection settings"],
+    ["Expected surface coverage", "Expected page coverage"]
+  ]);
   const sourceContext = {
     bcdVersion: panel.dataset.bcdVersion ?? "",
     bcdTimestamp: panel.dataset.bcdTimestamp ?? "",
@@ -320,6 +338,36 @@ import { selectedSnapshot } from "../data";
   };
   let latestReport: EvidenceBundleReport | undefined;
   let latestComparison: EvidenceReportComparison | undefined;
+  const MAX_BUNDLE_BYTES = 2_097_152;
+
+  function friendlyError(error: unknown): string {
+    if (error instanceof SyntaxError) {
+      return "The evidence file is not valid JSON.";
+    }
+    if (typeof error === "object" && error !== null && "issues" in error) {
+      const issues = (error as { issues?: { path?: PropertyKey[]; message?: string }[] }).issues;
+      const first = issues?.[0];
+      if (first?.message) {
+        const path = first.path?.map(String).join(".");
+        return path
+          ? `Evidence file problem at ${path}: ${first.message}`
+          : `Evidence file problem: ${first.message}`;
+      }
+    }
+    return error instanceof Error ? error.message : "The evidence bundle could not be assessed.";
+  }
+
+  async function loadEvidenceFile(file: File): Promise<void> {
+    if (file.size > MAX_BUNDLE_BYTES) {
+      throw new Error("The evidence file exceeds the 2 MiB limit.");
+    }
+    if (!file.name.toLocaleLowerCase("en-AU").endsWith(".json")) {
+      throw new Error("Choose a JSON evidence file.");
+    }
+    input!.value = await file.text();
+    message!.textContent =
+      "Evidence file loaded on this device. Select Review evidence file to analyse it.";
+  }
 
   function stat(value: number, label: string): HTMLElement {
     const card = document.createElement("div");
@@ -366,7 +414,7 @@ import { selectedSnapshot } from "../data";
     const header = document.createElement("div");
     header.className = "result-card__header";
     const heading = document.createElement("h3");
-    heading.textContent = composite.name;
+    heading.textContent = compositeNames.get(composite.name) ?? composite.name;
     const badge = document.createElement("span");
     badge.className = `composite composite--${composite.state}`;
     badge.textContent = compositeLabels[composite.state];
@@ -400,7 +448,7 @@ import { selectedSnapshot } from "../data";
   function responseInventory(report: AssuranceReport): HTMLElement {
     return inventoryCard(
       report.name,
-      "Reduced response-header report",
+      "Response headers included in the supplied file",
       `${String(report.recognisedHeaderCount)} recognised of ${String(report.inputHeaderCount)} header names`
     );
   }
@@ -409,31 +457,31 @@ import { selectedSnapshot } from "../data";
     report: EvidenceBundleReport["responseContexts"][number]
   ): HTMLElement {
     return inventoryCard(
-      `Response context · ${report.surfaceId}`,
-      `${report.variantId} · ${report.authentication} · ${report.contentType}`,
-      `${report.outcome} · ${report.statusClass}${report.status ? ` ${String(report.status)}` : ""} · cache ${report.cache}${report.redirectTarget ? ` · redirect ${report.redirectTarget}` : ""}${report.errorKind ? ` · ${report.errorKind}` : ""}`
+      `Response check · ${report.surfaceId}`,
+      `Variation ${report.variantId} · access ${report.authentication} · content ${report.contentType}`,
+      `Result ${report.outcome} · status ${report.statusClass}${report.status ? ` ${String(report.status)}` : ""} · cache ${report.cache}${report.redirectTarget ? ` · redirect ${report.redirectTarget}` : ""}${report.errorKind ? ` · ${report.errorKind}` : ""}`
     );
   }
 
   function htmlInventory(report: HtmlResourceReport): HTMLElement {
     return inventoryCard(
       report.name,
-      "Non-executing HTML resource inventory",
+      "Page resources found in supplied HTML without running the page",
       `${String(report.protectedResourceCount)} protected of ${String(report.eligibleResourceCount)} eligible resources · algorithms ${report.algorithms.join(", ") || "none"} · ${String(report.parseErrorCount)} parse errors`
     );
   }
 
   function resourceVerificationInventory(report: ResourceVerificationReport): HTMLElement {
     return inventoryCard(
-      "Local resource verification",
-      "Resource bodies are hashed in memory and excluded from this reduced report",
+      "Local resource hash check",
+      "Supplied resource files are hashed in memory and left out of this reduced report",
       `${String(report.verifiedResourceCount)} verified · ${String(report.mismatchedResourceCount)} mismatched · ${String(report.invalidMetadataCount)} invalid metadata · ${String(report.unmatchedResourceCount)} unmatched`
     );
   }
 
   function cspMarkupInventory(report: CspMarkupReport): HTMLElement {
     return inventoryCard(
-      `CSP and markup · ${report.surfaceId}`,
+      `Content Security Policy and page markup · ${report.surfaceId}`,
       "Inline content is matched without retaining nonces, hashes, or source text",
       `${String(report.matchedNonceCount)} nonce · ${String(report.matchedHashCount)} hash · ${String(report.matchedMixedCount)} mixed · ${String(report.unmatchedInlineCount)} unmatched · ${String(report.broadSourceExpressionCount)} broad sources`
     );
@@ -441,8 +489,8 @@ import { selectedSnapshot } from "../data";
 
   function surfaceInventory(report: EvidenceBundleReport["surfaceCoverage"][number]): HTMLElement {
     return inventoryCard(
-      `Expected surface · ${report.surfaceId}`,
-      `${report.role} · ${report.state}`,
+      `Expected page · ${report.surfaceId}`,
+      `Role ${report.role} · evidence ${report.state}`,
       report.missingEvidence.length === 0
         ? `Complete: ${report.observedEvidence.join(", ")}`
         : `Missing: ${report.missingEvidence.join(", ")}`
@@ -452,14 +500,14 @@ import { selectedSnapshot } from "../data";
   function scopeInventoryCard(report: EvidenceBundleReport["scopeInventory"]): HTMLElement {
     if (report.state === "absent") {
       return inventoryCard(
-        "Scope inventory",
-        "No independently produced opaque inventory was supplied",
-        "Declared evidence surfaces remain operator-selected and cannot establish route completeness"
+        "Supplied page list",
+        "No independently produced page-list fingerprint was supplied",
+        "The pages in the evidence file were chosen by its operator, so missing routes cannot be discovered"
       );
     }
     return inventoryCard(
-      `Scope inventory · ${report.name}`,
-      `${report.kind} · ${report.completeness} · generated ${report.generatedAt}`,
+      `Supplied page list · ${report.name}`,
+      `Source ${report.kind} · ${report.completeness} · created ${report.generatedAt}`,
       `${String(report.includedEntries)} included · ${String(report.excludedEntries)} excluded · ${String(report.totalEntries)} total · fingerprint ${report.fingerprint}`
     );
   }
@@ -472,9 +520,9 @@ import { selectedSnapshot } from "../data";
       (composite) => composite.state === "satisfied"
     ).length;
     return inventoryCard(
-      `Surface policy · ${report.surfaceId}`,
-      `${report.role} · explicit applicability`,
-      `${String(observed)} of ${String(report.requiredControls.length)} required controls observed · ${String(satisfied)} of ${String(report.requiredComposites.length)} required composites satisfied`
+      `Requirements for page · ${report.surfaceId}`,
+      `Role ${report.role} · requirements set explicitly`,
+      `${String(observed)} of ${String(report.requiredControls.length)} required features found · ${String(satisfied)} of ${String(report.requiredComposites.length)} combined checks met`
     );
   }
 
@@ -489,7 +537,7 @@ import { selectedSnapshot } from "../data";
   function requestInventory(report: FetchMetadataReport): HTMLElement {
     return inventoryCard(
       report.name,
-      "Reduced Fetch Metadata request report",
+      "Request-origin check using Fetch Metadata headers",
       `${String(report.recognisedHeaderCount)} recognised request-context headers · ${stateLabels[report.finding.state]}`
     );
   }
@@ -497,35 +545,35 @@ import { selectedSnapshot } from "../data";
   function webauthnInventory(report: WebauthnReport): HTMLElement {
     return inventoryCard(
       report.name,
-      `Reduced WebAuthn ${report.operation} configuration`,
-      `attachment ${report.configuration.authenticatorAttachment} · user verification ${report.configuration.userVerification} · resident key ${report.configuration.residentKey} · mediation ${report.configuration.mediation} · attestation ${report.configuration.attestation}`
+      `Passkey settings for ${report.operation}`,
+      `Device type ${report.configuration.authenticatorAttachment} · user verification ${report.configuration.userVerification} · discoverable credential ${report.configuration.residentKey} · browser mediation ${report.configuration.mediation} · attestation ${report.configuration.attestation}`
     );
   }
 
   function render(report: EvidenceBundleReport): void {
     latestReport = report;
     coverage!.replaceChildren(
-      stat(report.coverage.responses, "response snapshots"),
-      stat(report.coverage.contextualisedResponses, "contextualised responses"),
-      stat(report.coverage.responseVariants, "response variants"),
+      stat(report.coverage.responses, "supplied responses"),
+      stat(report.coverage.contextualisedResponses, "responses linked to a page"),
+      stat(report.coverage.responseVariants, "response variations"),
       stat(report.coverage.redirectResponses, "redirect responses"),
       stat(report.coverage.errorResponses, "error responses"),
       stat(report.coverage.authenticatedResponses, "authenticated responses"),
-      stat(report.coverage.htmlDocuments, "HTML documents"),
-      stat(report.coverage.resourceBytes, "local resource bodies"),
-      stat(report.coverage.requests, "request snapshots"),
-      stat(report.coverage.webauthn, "WebAuthn configurations"),
-      stat(report.coverage.completeSurfaces, "complete expected surfaces"),
-      stat(report.coverage.surfaceGaps, "expected surface gaps")
+      stat(report.coverage.htmlDocuments, "supplied HTML pages"),
+      stat(report.coverage.resourceBytes, "local resource files"),
+      stat(report.coverage.requests, "supplied requests"),
+      stat(report.coverage.webauthn, "passkey settings"),
+      stat(report.coverage.completeSurfaces, "expected pages with complete evidence"),
+      stat(report.coverage.surfaceGaps, "expected pages with missing evidence")
     );
     summary!.replaceChildren(
-      stat(report.summary.observed, "controls with consistent observed evidence"),
-      stat(report.summary.missing, "controls not observed"),
-      stat(report.summary.invalid, "invalid observations"),
-      stat(report.summary.reportOnly, "controls present only in report-only policy"),
-      stat(report.summary.inconclusive, "controls needing contextual review"),
-      stat(report.summary.notEvaluated, "required controls without applicable evidence"),
-      stat(report.summary.notApplicable, "controls outside declared surface policy")
+      stat(report.summary.observed, "features found consistently"),
+      stat(report.summary.missing, "features not found"),
+      stat(report.summary.invalid, "invalid or unclear settings"),
+      stat(report.summary.reportOnly, "features that only report problems"),
+      stat(report.summary.inconclusive, "features that need human review"),
+      stat(report.summary.notEvaluated, "required features not checked"),
+      stat(report.summary.notApplicable, "features not required for these pages")
     );
     composites!.replaceChildren(...report.composites.map(compositeCard));
     findings!.replaceChildren(
@@ -556,24 +604,66 @@ import { selectedSnapshot } from "../data";
     results!.hidden = false;
   }
 
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    try {
+      await loadEvidenceFile(file);
+    } catch (error) {
+      input!.value = "";
+      message!.textContent = friendlyError(error);
+    } finally {
+      fileInput.value = "";
+    }
+  });
+
+  for (const eventName of ["dragenter", "dragover"]) {
+    dropTarget.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropTarget.dataset.active = "true";
+    });
+  }
+
+  dropTarget.addEventListener("dragleave", (event) => {
+    if (!dropTarget.contains(event.relatedTarget as Node | null)) {
+      delete dropTarget.dataset.active;
+    }
+  });
+
+  dropTarget.addEventListener("drop", async (event) => {
+    event.preventDefault();
+    delete dropTarget.dataset.active;
+    const file = event.dataTransfer?.files[0];
+    if (!file) {
+      message!.textContent = "Drop one JSON evidence file.";
+      return;
+    }
+    try {
+      await loadEvidenceFile(file);
+    } catch (error) {
+      input!.value = "";
+      message!.textContent = friendlyError(error);
+    }
+  });
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
       render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown, sourceContext));
       message!.textContent =
-        "Bundle assessed locally. Scope entries, raw HTML, resource locations and bytes, cookies, credentials, and raw WebAuthn identifiers are not present in the report.";
+        "Evidence reviewed on this device. The report excludes the page list, raw HTML, resource locations and bytes, cookies, credentials, and passkey identifiers.";
     } catch (error) {
       latestReport = undefined;
       exportButton!.disabled = true;
       results!.hidden = true;
-      message!.textContent =
-        error instanceof Error ? error.message : "The evidence bundle could not be assessed.";
+      message!.textContent = friendlyError(error);
     }
   });
 
   document.querySelector("#load-bundle-example")?.addEventListener("click", () => {
     input!.value = JSON.stringify(example, null, 2);
-    message!.textContent = "Redacted example loaded. Select Assess bundle to evaluate it.";
+    pasteDetails!.open = true;
+    message!.textContent = "Redacted example loaded. Select Review evidence file to check it.";
   });
 
   exportButton.addEventListener("click", () => {
@@ -587,7 +677,7 @@ import { selectedSnapshot } from "../data";
     link.download = "controlcurrent-evidence-report.json";
     link.click();
     URL.revokeObjectURL(url);
-    message!.textContent = "Reduced evidence report generated locally.";
+    message!.textContent = "Privacy-reduced evidence report created on this device.";
   });
 
   compareButton.addEventListener("click", async () => {
@@ -610,8 +700,8 @@ import { selectedSnapshot } from "../data";
       comparisonMessage!.textContent = !latestComparison.compatible
         ? latestComparison.compatibilityReasons.join(" ")
         : latestComparison.events.length === 0
-          ? "No normalised evidence changes were detected."
-          : `${String(latestComparison.summary.totalEvents)} normalised evidence changes detected${latestComparison.summary.truncated ? `; showing the first ${String(latestComparison.summary.emittedEvents)}` : ""}.`;
+          ? "No evidence changes were detected."
+          : `${String(latestComparison.summary.totalEvents)} evidence changes detected${latestComparison.summary.truncated ? `; showing the first ${String(latestComparison.summary.emittedEvents)}` : ""}.`;
     } catch (error) {
       latestComparison = undefined;
       comparisonExportButton!.disabled = true;
@@ -632,11 +722,13 @@ import { selectedSnapshot } from "../data";
     link.download = "controlcurrent-evidence-comparison.json";
     link.click();
     URL.revokeObjectURL(url);
-    comparisonMessage!.textContent = "Reduced evidence comparison generated locally.";
+    comparisonMessage!.textContent = "Report comparison created on this device.";
   });
 
   document.querySelector("#clear-bundle")?.addEventListener("click", () => {
     input!.value = "";
+    fileInput!.value = "";
+    delete dropTarget!.dataset.active;
     latestReport = undefined;
     latestComparison = undefined;
     exportButton!.disabled = true;
@@ -652,7 +744,7 @@ import { selectedSnapshot } from "../data";
     comparisonSummary!.replaceChildren();
     comparisonEvents!.replaceChildren();
     comparisonMessage!.textContent = "";
-    message!.textContent = "Bundle input and reduced report cleared.";
-    input!.focus();
+    message!.textContent = "Evidence input and report cleared.";
+    fileInput!.focus();
   });
 </script>

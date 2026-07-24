@@ -4,70 +4,74 @@ import Layout from "../components/Layout.astro";
 
 <Layout
   title="Privacy"
-  description="ControlCurrent has no accounts, analytics, browser fingerprinting, or server-side profile storage."
+  description="ControlCurrent does not track visitors or upload browser plans and supplied evidence."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Privacy by static architecture</span>
-    <h1>Your browser baseline stays in your browser</h1>
+    <span class="eyebrow">Your information stays on your device</span>
+    <h1>No account, tracking, or evidence upload</h1>
     <p>
-      The deployed application has no account, analytics, advertising, telemetry, production API, or
-      application database.
+      The public website has no accounts, analytics, advertising, visitor tracking, application
+      server, or database.
     </p>
   </header>
   <article class="shell prose">
-    <h2>Profile handling</h2>
+    <h2>Browser plans</h2>
     <p>
-      A deployment profile is held in memory while the planner is open. It is written to one
-      bounded, versioned <code>localStorage</code> key only when you choose “Save locally”. You can clear
-      that value from the planner. Exported JSON is generated in the browser.
+      Your browser plan stays in memory while the planner is open. It is saved to this browser only
+      when you choose “Save locally”, and you can delete it from the planner. Export files are
+      created on your device.
+    </p>
+    <p>
+      You can separately choose to remember the latest support result so the site can compare it
+      after its bundled browser data changes. This is opt-in browser storage, is not synchronised,
+      and can be cleared with “Delete saved plan”. Imported <code>.browserslistrc</code>,
+      <code>package.json</code>, policy, and result files are read locally and are not uploaded.
     </p>
 
-    <h2>No browser detection</h2>
+    <h2>Your browser is not detected</h2>
     <p>
-      ControlCurrent does not read or retain the user-agent string, infer installed browser
-      versions, enumerate browser capabilities, or fingerprint the visitor. Browser minimums are
-      explicit inputs.
+      ControlCurrent does not detect your installed browser or its capabilities, and it does not
+      fingerprint visitors. You choose the browser versions to check.
     </p>
 
-    <h2>Offline evidence input</h2>
+    <h2>Evidence you paste or load</h2>
     <p>
-      The offline inspector keeps pasted response headers in page memory only. It does not fetch a
-      URL, persist the input, or include raw header values, cookie names, or cookie values in its
-      report. Request credentials are refused. Redact secrets before pasting and use “Clear” when
-      finished.
+      Pasted response headers stay in page memory. The site does not visit a URL, save your input,
+      or include complete header values, cookie names, or cookie values in the result. Login
+      credentials are refused. Remove secrets before pasting and use “Clear” when finished.
     </p>
     <p>
-      Evidence bundles can also contain an opaque scope inventory, HTML, bounded local resource
-      bytes, selected request headers, reduced WebAuthn configuration, and an expected-surface
-      manifest. Markup is parsed without execution or resource loading. Inventory entries and
-      resource bytes are reduced locally and omitted from reports. Reduced reports also omit
-      exclusion reasons, HTML, resource locations, inline content, CSP nonces and hashes, request
-      targets, credentials, cookie data, WebAuthn challenges, relying-party identifiers, user
-      identifiers, and credential identifiers. Labels and opaque surface IDs remain in an export, as
-      do reduced inventory kind, completeness, time, counts and fingerprint, surface requirements,
-      application and environment IDs, revision, optional build ID, producer ID, capture timestamps,
-      model provenance, and a SHA-256 fingerprint of the reduced report. The fingerprints do not
-      authenticate the producer or prove inventory completeness by themselves. An optional CLI-only
-      Sigstore verifier retains only its state and the bounded certificate issuer and URI identity
-      after successful verification; it does not retain the complete bundle, certificate,
-      transparency entry, or trust metadata. Keep every label, identifier, surface ID, and
-      evidence-policy exception reason non-identifying.
+      Advanced evidence files may contain a page list, HTML, local resource bytes, selected request
+      headers, reduced passkey settings, and expected evidence for each page. Markup is read without
+      being run and resources are not loaded. Files chosen or dropped into the website are held in
+      page memory only. Exported reports omit the original page list, excluded page reasons, HTML,
+      resource locations and bytes, inline content, CSP nonces and hashes, request targets,
+      credentials, cookies, passkey challenges, and user or credential IDs.
+    </p>
+    <p>
+      Exports still contain the non-identifying labels you provide, application and environment IDs,
+      revision and build IDs, producer ID, capture times, page requirements, reduced counts, and
+      fingerprints. Use neutral identifiers rather than names, URLs, or other sensitive details. A
+      fingerprint can reveal later changes but does not prove who produced the original evidence.
+    </p>
+    <p>
+      The optional command-line signature check keeps only its result and the approved signer
+      identity. It does not retain the full signature bundle, certificate, or transparency-log
+      record.
     </p>
 
-    <h2>Network boundary</h2>
+    <h2>Network connections</h2>
     <p>
-      Compatibility data ships with the static site. The Content Security Policy denies runtime
-      connections, and the planner makes no fetch request. External documentation links use a
-      no-referrer policy. Sigstore verification does not run in the browser and uses a hash-pinned
-      packaged trust target without a network refresh.
+      Browser compatibility data is included with the static site. The planner and evidence tools
+      make no background request. External documentation links do not receive the page you came
+      from. Optional signature verification is available only in the command-line tool.
     </p>
     <p>
-      A separate opt-in CLI collector can make bounded requests to an exact authorised origin. It
-      requires a private manifest, explicit confirmation, and private output path; follows only
-      same-origin redirects; and sends no cookies or credentials. Target origins and paths remain in
-      the private manifest rather than dedicated bundle fields, but captured headers and HTML can
-      still contain locations. The raw bundle therefore remains private. The collector is not
-      reachable from this website.
+      A separate command-line collector can gather evidence from a website you are authorised to
+      assess. It requires explicit confirmation, visits only the exact approved origin, follows only
+      redirects on that origin, and sends no cookies or login credentials. Raw collections can still
+      contain sensitive locations or page information, so they must remain private. The collector
+      cannot be started from this website.
     </p>
     <p>
       ControlCurrent refuses interactive use when it detects an embedded frame. On a shared hosting
@@ -77,8 +81,8 @@ import Layout from "../components/Layout.astro";
 
     <h2>Deletion</h2>
     <p>
-      Use “Clear saved profile” in the planner or clear site storage in your browser. There is no
-      server copy to request or delete.
+      Use “Delete saved plan” in the planner to remove the saved plan and remembered result, or
+      clear site storage in your browser. There is no server copy to request or delete.
     </p>
   </article>
 </Layout>
