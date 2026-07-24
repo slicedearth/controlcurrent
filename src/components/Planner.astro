@@ -60,6 +60,19 @@ const browsers = BROWSER_IDS;
       <button type="button" class="button" id="save-profile">Save locally</button>
       <button type="button" class="button" id="clear-profile">Clear saved profile</button>
       <button type="button" class="button" id="export-profile" disabled>Export JSON</button>
+      <button type="button" class="button" id="export-engineering-report" disabled>
+        Export report
+      </button>
+    </div>
+    <div class="profile-file-grid">
+      <label>
+        <span>Import a profile or exported evaluation</span>
+        <input id="import-profile" type="file" accept="application/json,.json" />
+      </label>
+      <label>
+        <span>Compare with an earlier exported evaluation</span>
+        <input id="compare-profile" type="file" accept="application/json,.json" />
+      </label>
     </div>
     <p id="profile-message" class="form-message" role="status" aria-live="polite"></p>
   </form>
@@ -74,17 +87,45 @@ const browsers = BROWSER_IDS;
     </div>
     <div id="results-list" class="results-list"></div>
   </section>
+
+  <section
+    id="profile-comparison"
+    class="profile-results"
+    aria-labelledby="profile-comparison-heading"
+    hidden
+  >
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Policy movement</span>
+        <h2 id="profile-comparison-heading">Profile comparison</h2>
+      </div>
+      <p id="comparison-source"></p>
+    </div>
+    <div id="comparison-summary" class="stats-grid"></div>
+    <div id="comparison-events" class="results-list"></div>
+  </section>
 </section>
 
 <script>
   import { SECURITY_CONTROLS } from "../catalogue";
   import { selectedSnapshot } from "../data";
-  import type { BrowserId, ProfileEvaluation } from "../contracts";
+  import {
+    profileEvaluationSchema,
+    type BrowserId,
+    type ProfileComparison,
+    type ProfileEvaluation
+  } from "../contracts";
   import { BROWSER_IDS } from "../browsers";
   import { evaluateProfile } from "../evaluate";
   import { exportProfileEvaluation } from "../export";
   import { clearProfile, loadProfile, saveProfile } from "../profile-storage";
   import { browserNames, outcomeLabels } from "../format";
+  import {
+    compareProfileEvaluations,
+    exportEngineeringReport,
+    importDeploymentProfile,
+    MAX_PROFILE_IMPORT_BYTES
+  } from "../profile-workflows";
 
   const browsers: readonly BrowserId[] = BROWSER_IDS;
   const form = document.querySelector<HTMLFormElement>("#profile-form");
@@ -93,9 +134,32 @@ const browsers = BROWSER_IDS;
   const resultsList = document.querySelector<HTMLElement>("#results-list");
   const resultsSource = document.querySelector<HTMLElement>("#results-source");
   const exportButton = document.querySelector<HTMLButtonElement>("#export-profile");
+  const reportButton = document.querySelector<HTMLButtonElement>("#export-engineering-report");
+  const importInput = document.querySelector<HTMLInputElement>("#import-profile");
+  const compareInput = document.querySelector<HTMLInputElement>("#compare-profile");
+  const comparisonSection = document.querySelector<HTMLElement>("#profile-comparison");
+  const comparisonSource = document.querySelector<HTMLElement>("#comparison-source");
+  const comparisonSummary = document.querySelector<HTMLElement>("#comparison-summary");
+  const comparisonEvents = document.querySelector<HTMLElement>("#comparison-events");
   let latestEvaluation: ProfileEvaluation | undefined;
+  let comparisonBaseline: ProfileEvaluation | undefined;
+  let latestComparison: ProfileComparison | undefined;
 
-  if (!form || !message || !results || !resultsList || !resultsSource || !exportButton) {
+  if (
+    !form ||
+    !message ||
+    !results ||
+    !resultsList ||
+    !resultsSource ||
+    !exportButton ||
+    !reportButton ||
+    !importInput ||
+    !compareInput ||
+    !comparisonSection ||
+    !comparisonSource ||
+    !comparisonSummary ||
+    !comparisonEvents
+  ) {
     throw new Error("Planner controls are unavailable.");
   }
 
@@ -150,6 +214,79 @@ const browsers = BROWSER_IDS;
     return `outcome outcome--${outcome}`;
   }
 
+  function download(contents: string, filename: string, type: string): void {
+    const blob = new Blob([contents], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function readJsonFile(input: HTMLInputElement): Promise<string> {
+    const file = input.files?.[0];
+    if (!file) throw new Error("Choose a JSON file first.");
+    if (file.size > MAX_PROFILE_IMPORT_BYTES) {
+      throw new Error(`Profile import exceeds the ${String(MAX_PROFILE_IMPORT_BYTES)}-byte limit.`);
+    }
+    return file.text();
+  }
+
+  function stat(value: number, label: string): HTMLElement {
+    const card = document.createElement("div");
+    card.className = "stat-card";
+    const count = document.createElement("strong");
+    count.textContent = String(value);
+    const description = document.createElement("span");
+    description.textContent = label;
+    card.append(count, description);
+    return card;
+  }
+
+  function renderComparison(comparison: ProfileComparison): void {
+    comparisonSummary!.replaceChildren(
+      stat(comparison.summary.gained, "gained outcomes"),
+      stat(comparison.summary.lost, "lost outcomes"),
+      stat(comparison.summary.newlyQualified, "newly qualified outcomes"),
+      stat(comparison.summary.qualificationRemoved, "qualifications removed")
+    );
+    comparisonEvents!.replaceChildren();
+    for (const event of comparison.events) {
+      const article = document.createElement("article");
+      article.className = "result-card";
+      const header = document.createElement("div");
+      header.className = "result-card__header";
+      const heading = document.createElement("h3");
+      heading.textContent =
+        SECURITY_CONTROLS.find((control) => control.id === event.controlId)?.name ??
+        event.controlId;
+      const category = document.createElement("span");
+      category.className = "category";
+      category.textContent = event.type.replaceAll("_", " ");
+      header.append(heading, category);
+      const context = document.createElement("p");
+      context.textContent = `${browserNames[event.browser]} · ${event.beforeVersion ?? "not included"} to ${event.afterVersion ?? "not included"}`;
+      const detail = document.createElement("p");
+      detail.className = "assurance-evidence";
+      detail.textContent = event.summary;
+      article.append(header, context, detail);
+      comparisonEvents!.append(article);
+    }
+    comparisonSource!.textContent = `${comparison.beforeProfile.name} to ${comparison.afterProfile.name} · BCD ${comparison.bcdVersion}`;
+    comparisonSection!.hidden = false;
+    latestComparison = comparison;
+  }
+
+  function updateComparison(): void {
+    if (!comparisonBaseline || !latestEvaluation) {
+      comparisonSection!.hidden = true;
+      latestComparison = undefined;
+      return;
+    }
+    renderComparison(compareProfileEvaluations(comparisonBaseline, latestEvaluation));
+  }
+
   function render(evaluation: ProfileEvaluation): void {
     resultsList!.replaceChildren();
     for (const control of SECURITY_CONTROLS) {
@@ -187,7 +324,9 @@ const browsers = BROWSER_IDS;
     resultsSource!.textContent = `BCD ${evaluation.bcdVersion} · catalogue ${evaluation.catalogueVersion}`;
     results!.hidden = false;
     exportButton!.disabled = false;
+    reportButton!.disabled = false;
     latestEvaluation = evaluation;
+    updateComparison();
   }
 
   for (const browser of browsers) {
@@ -238,16 +377,61 @@ const browsers = BROWSER_IDS;
 
   exportButton.addEventListener("click", () => {
     if (!latestEvaluation) return;
-    const blob = new Blob([exportProfileEvaluation(latestEvaluation)], {
-      type: "application/json"
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "controlcurrent-profile.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    download(
+      exportProfileEvaluation(latestEvaluation),
+      "controlcurrent-profile.json",
+      "application/json"
+    );
     message!.textContent = "Profile JSON generated locally.";
+  });
+
+  reportButton.addEventListener("click", () => {
+    if (!latestEvaluation) return;
+    download(
+      exportEngineeringReport(latestEvaluation, latestComparison),
+      "controlcurrent-engineering-report.md",
+      "text/markdown"
+    );
+    message!.textContent = "Engineering report generated locally.";
+  });
+
+  importInput.addEventListener("change", async () => {
+    try {
+      applyProfile(importDeploymentProfile(await readJsonFile(importInput)));
+      results!.hidden = true;
+      comparisonSection!.hidden = true;
+      latestEvaluation = undefined;
+      latestComparison = undefined;
+      exportButton!.disabled = true;
+      reportButton!.disabled = true;
+      message!.textContent =
+        "Profile imported locally. Select Evaluate profile to calculate current results.";
+    } catch (error) {
+      message!.textContent =
+        error instanceof Error ? error.message : "The profile could not be imported.";
+    } finally {
+      importInput.value = "";
+    }
+  });
+
+  compareInput.addEventListener("change", async () => {
+    try {
+      comparisonBaseline = profileEvaluationSchema.parse(
+        JSON.parse(await readJsonFile(compareInput)) as unknown
+      );
+      updateComparison();
+      message!.textContent = latestEvaluation
+        ? "Earlier evaluation compared locally."
+        : "Earlier evaluation loaded. Evaluate the current profile to compare it.";
+    } catch (error) {
+      comparisonBaseline = undefined;
+      comparisonSection!.hidden = true;
+      latestComparison = undefined;
+      message!.textContent =
+        error instanceof Error ? error.message : "The comparison could not be loaded.";
+    } finally {
+      compareInput.value = "";
+    }
   });
 
   const stored = loadProfile(window.localStorage);

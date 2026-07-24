@@ -47,6 +47,8 @@ but they cannot merge or publish changes by themselves.
 - Preservation of partial support, flags, prefixes, alternative names, notes,
   removals, and unknown source values
 - A local deployment-profile planner with no browser detection or telemetry
+- A reverse minimum-baseline calculator for selected controls and browsers
+- Local profile import, semantic comparison, and deterministic engineering reports
 - Version-controlled policy profiles with expiring, visible exceptions
 - A local CLI for policy checks, explanations, and minimum-baseline calculation
 - An offline response-header inspector with redacted evidence and no URL fetch

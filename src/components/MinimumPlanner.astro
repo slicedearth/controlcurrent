@@ -1,0 +1,198 @@
+---
+import { BROWSER_IDS } from "../browsers";
+import { SECURITY_CONTROLS } from "../catalogue";
+import { browserNames } from "../format";
+
+const defaultControls = new Set([
+  "content-security-policy",
+  "strict-transport-security",
+  "x-content-type-options",
+  "referrer-policy",
+  "samesite-cookies"
+]);
+const defaultBrowsers = new Set(["chrome", "edge", "firefox", "safari"]);
+const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.category))];
+---
+
+<section class="planner-workflow" aria-labelledby="minimum-heading">
+  <div class="planner-intro">
+    <span class="eyebrow">Reverse the planning question</span>
+    <h2 id="minimum-heading">Find the minimum browser baseline</h2>
+    <p>
+      Choose the controls a deployment requires. ControlCurrent searches only the reviewed release
+      history retained in the selected BCD snapshot and reports explicit blockers when it cannot
+      calculate a baseline.
+    </p>
+  </div>
+
+  <form id="minimum-form" class="minimum-form">
+    <details open>
+      <summary>Required controls</summary>
+      <div class="control-choice-groups">
+        {
+          categories.map((category) => (
+            <fieldset class="choice-group">
+              <legend>{category}</legend>
+              {SECURITY_CONTROLS.filter((control) => control.category === category).map(
+                (control) => (
+                  <label class="choice-row">
+                    <input
+                      type="checkbox"
+                      name="minimum-control"
+                      value={control.id}
+                      checked={defaultControls.has(control.id)}
+                    />
+                    <span>{control.shortName}</span>
+                  </label>
+                )
+              )}
+            </fieldset>
+          ))
+        }
+      </div>
+    </details>
+
+    <fieldset class="choice-group choice-group--browsers">
+      <legend>Browser families</legend>
+      <div class="choice-grid">
+        {
+          BROWSER_IDS.map((browser) => (
+            <label class="choice-row">
+              <input
+                type="checkbox"
+                name="minimum-browser"
+                value={browser}
+                checked={defaultBrowsers.has(browser)}
+              />
+              <span>{browserNames[browser]}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <label class="choice-row minimum-qualified">
+      <input type="checkbox" id="allow-qualified" />
+      <span>Accept source-qualified support when calculating minimums</span>
+    </label>
+
+    <div class="button-row">
+      <button type="submit" class="button button--primary">Calculate minimums</button>
+    </div>
+    <p id="minimum-message" class="form-message" role="status" aria-live="polite"></p>
+  </form>
+
+  <section
+    id="minimum-results"
+    class="profile-results"
+    aria-labelledby="minimum-results-heading"
+    hidden
+  >
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Earliest retained release</span>
+        <h2 id="minimum-results-heading">Calculated browser minimums</h2>
+      </div>
+      <p id="minimum-source"></p>
+    </div>
+    <div id="minimum-result-list" class="results-list"></div>
+  </section>
+</section>
+
+<script>
+  import { BROWSER_IDS } from "../browsers";
+  import { SECURITY_CONTROLS } from "../catalogue";
+  import type { BrowserId, MinimumBaselineResult } from "../contracts";
+  import { selectedSnapshot } from "../data";
+  import { browserNames } from "../format";
+  import { findMinimumBaselines } from "../minimums";
+
+  const form = document.querySelector<HTMLFormElement>("#minimum-form");
+  const message = document.querySelector<HTMLElement>("#minimum-message");
+  const results = document.querySelector<HTMLElement>("#minimum-results");
+  const source = document.querySelector<HTMLElement>("#minimum-source");
+  const list = document.querySelector<HTMLElement>("#minimum-result-list");
+
+  if (!form || !message || !results || !source || !list) {
+    throw new Error("Minimum-baseline controls are unavailable.");
+  }
+
+  const controlNames = new Map<string, string>(
+    SECURITY_CONTROLS.map((control) => [control.id, control.shortName] as const)
+  );
+  const browserIds = new Set<string>(BROWSER_IDS);
+
+  function checkedValues(name: string): string[] {
+    return [...form!.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)].map(
+      (input) => input.value
+    );
+  }
+
+  function statusLabel(result: MinimumBaselineResult): string {
+    switch (result.status) {
+      case "found":
+        return "Minimum found";
+      case "unavailable":
+        return "Not available";
+      case "unsupported_mapping":
+        return "No BCD mapping";
+      case "source_inconsistent":
+        return "Source issue";
+    }
+  }
+
+  function render(calculated: MinimumBaselineResult[]): void {
+    list!.replaceChildren();
+    for (const result of calculated) {
+      const article = document.createElement("article");
+      article.className = "result-card";
+      const header = document.createElement("div");
+      header.className = "result-card__header";
+      const heading = document.createElement("h3");
+      heading.textContent = browserNames[result.browser];
+      const state = document.createElement("span");
+      state.className = "category";
+      state.textContent = statusLabel(result);
+      header.append(heading, state);
+
+      const summary = document.createElement("p");
+      summary.textContent =
+        result.status === "found"
+          ? `Version ${result.minimumVersion ?? "unknown"} · released ${result.releaseDate ?? "date unavailable"}`
+          : result.blockers.length === 0
+            ? "No comparable retained release was available."
+            : `Blocked by ${result.blockers.map((id) => controlNames.get(id) ?? id).join(", ")}.`;
+      article.append(header, summary);
+      list!.append(article);
+    }
+    source!.textContent = `BCD ${selectedSnapshot.bcdVersion} · catalogue ${selectedSnapshot.catalogueVersion}`;
+    results!.hidden = false;
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    try {
+      const controlIds = checkedValues("minimum-control");
+      const browserValues = checkedValues("minimum-browser");
+      if (controlIds.length === 0) throw new Error("Select at least one required control.");
+      if (browserValues.length === 0) throw new Error("Select at least one browser family.");
+      const browsers = browserValues.map((value) => {
+        if (!browserIds.has(value)) throw new Error(`Unknown browser: ${value}`);
+        return value as BrowserId;
+      });
+      render(
+        findMinimumBaselines(selectedSnapshot, {
+          controlIds,
+          browsers,
+          allowQualified:
+            document.querySelector<HTMLInputElement>("#allow-qualified")?.checked ?? false
+        })
+      );
+      message!.textContent = "Minimums calculated locally from the reviewed source snapshot.";
+    } catch (error) {
+      results!.hidden = true;
+      message!.textContent =
+        error instanceof Error ? error.message : "Minimums could not be calculated.";
+    }
+  });
+</script>

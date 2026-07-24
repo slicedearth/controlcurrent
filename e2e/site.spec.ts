@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 test("renders real source provenance and makes no external request", async ({ page }) => {
   const externalRequests: string[] = [];
@@ -39,6 +40,43 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
   await page.getByRole("button", { name: "Export JSON" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("controlcurrent-profile.json");
+  const downloadPath = await download.path();
+  if (!downloadPath) throw new Error("The exported profile path is unavailable.");
+  const exportedEvaluation = await readFile(downloadPath);
+
+  const chromeMinimum = page.locator('select[name="version-chrome"]');
+  const options = await chromeMinimum
+    .locator("option")
+    .evaluateAll((items) => items.map((item) => (item as HTMLOptionElement).value));
+  const currentValue = await chromeMinimum.inputValue();
+  const changedValue = options.find((value) => value !== currentValue);
+  if (!changedValue) throw new Error("A second Chrome baseline is required for comparison.");
+  await chromeMinimum.selectOption(changedValue);
+  await page.getByLabel("Profile name").fill("Changed profile");
+  await page.getByRole("button", { name: "Evaluate profile" }).click();
+
+  await page.getByLabel("Compare with an earlier exported evaluation").setInputFiles({
+    name: "earlier.json",
+    mimeType: "application/json",
+    buffer: exportedEvaluation
+  });
+  await expect(page.getByRole("heading", { name: "Profile comparison" })).toBeVisible();
+  await expect(page.locator("#comparison-events .result-card")).toHaveCount(30);
+
+  const reportPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export report" }).click();
+  const report = await reportPromise;
+  expect(report.suggestedFilename()).toBe("controlcurrent-engineering-report.md");
+
+  await page.getByLabel("Import a profile or exported evaluation").setInputFiles({
+    name: "profile.json",
+    mimeType: "application/json",
+    buffer: exportedEvaluation
+  });
+  await expect(page.getByText("Profile imported locally")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Control availability" })).toBeHidden();
+  await page.getByRole("button", { name: "Evaluate profile" }).click();
+  await expect(page.getByRole("heading", { name: "Control availability" })).toBeVisible();
 
   await page.getByRole("button", { name: "Clear saved profile" }).click();
   await expect
@@ -46,6 +84,25 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
     .toBeNull();
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
+  expect(violations.violations).toEqual([]);
+});
+
+test("calculates minimum browser baselines without a network request", async ({ page }) => {
+  const externalRequests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.hostname !== "127.0.0.1") externalRequests.push(request.url());
+  });
+
+  await page.goto("/planner/");
+  await page.getByRole("button", { name: "Calculate minimums" }).click();
+
+  await expect(page.getByRole("heading", { name: "Calculated browser minimums" })).toBeVisible();
+  await expect(page.locator("#minimum-result-list .result-card")).toHaveCount(4);
+  await expect(page.getByText("Minimums calculated locally")).toBeVisible();
+  expect(externalRequests).toEqual([]);
+
+  const violations = await new AxeBuilder({ page }).include("#minimum-form").analyze();
   expect(violations.violations).toEqual([]);
 });
 

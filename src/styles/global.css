@@ -1027,6 +1027,89 @@ thead tr > :first-child {
   margin-top: 2rem;
 }
 
+.profile-file-grid {
+  display: grid;
+  max-width: 64rem;
+  margin-top: 1.25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.profile-file-grid label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.planner-workflow {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+  border-top: 1px solid var(--line);
+}
+
+.minimum-form {
+  display: grid;
+  margin-top: 2rem;
+  gap: 1.25rem;
+}
+
+.minimum-form details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgb(9 25 27 / 72%);
+}
+
+.minimum-form summary {
+  padding: 1rem 1.15rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.control-choice-groups {
+  display: grid;
+  padding: 0 1rem 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.choice-group {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+}
+
+.choice-group legend {
+  padding-inline: 0.35rem;
+  font-weight: 700;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.choice-row {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.choice-row + .choice-row {
+  margin-top: 0.55rem;
+}
+
+.choice-row input {
+  width: 1.1rem;
+  min-height: 1.1rem;
+  flex: 0 0 auto;
+}
+
+.minimum-qualified {
+  width: fit-content;
+}
+
 .header-form {
   display: grid;
   margin-top: 2rem;
@@ -1507,6 +1590,7 @@ footer {
   }
 
   .baseline-grid,
+  .control-choice-groups,
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1598,6 +1682,9 @@ footer {
   .results-list,
   .evidence-list,
   .baseline-grid,
+  .choice-grid,
+  .control-choice-groups,
+  .profile-file-grid,
   .stats-grid,
   .footer-grid {
     grid-template-columns: 1fr;

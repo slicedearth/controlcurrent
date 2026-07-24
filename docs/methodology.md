@@ -73,6 +73,29 @@ The static matrix uses the release entries marked `current` in the selected BCD
 package. It is an informational view, not a recommended organisational browser
 policy. The planner accepts explicit minimum versions.
 
+## Minimum-baseline and profile comparison
+
+The reverse planner searches release entries marked `retired`, `current`, or
+`esr` that carry a release date in the selected snapshot. For every requested
+browser, it returns the earliest retained release at which all selected
+controls have the required outcome. Source-qualified support is accepted only
+when the visitor selects that option.
+
+An unsupported mapping blocks the complete calculation rather than inheriting
+a related control. If no retained release satisfies every control, the result
+identifies the blockers at the most recent comparable release.
+
+Profile comparison requires the same BCD and catalogue versions. It distinguishes:
+
+- support gained or lost;
+- a newly qualified result or a removed qualification;
+- another outcome change;
+- a browser added to or removed from scope;
+- a changed browser minimum with the same compatibility outcome.
+
+The comparison does not infer that a browser update caused a source-data
+change, and it does not compare incompatible source versions semantically.
+
 ## Baseline context
 
 Web Platform Features is joined to the selected BCD subset only when a feature

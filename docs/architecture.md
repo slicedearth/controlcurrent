@@ -118,6 +118,19 @@ The planner does not use:
 - market share.
 
 Local persistence is opt-in and limited to one schema-versioned key.
+Profile and exported-evaluation imports are byte-bounded and schema-validated
+locally. Semantic comparison requires identical BCD and catalogue versions,
+keeps added or removed browser scope distinct from gained or lost support, and
+does not treat a baseline-only change as a compatibility change.
+
+The reverse planner searches only deployable releases retained in the selected
+BCD snapshot. It never invents an exact minimum from an imprecise source
+boundary and reports unsupported mappings or source inconsistencies as
+blockers.
+
+Engineering reports are deterministic Markdown generated in the browser. They
+contain the selected profile, source versions, aggregate outcomes, and bounded
+comparison counts; they are not uploaded or retained by the site.
 
 ## Offline assurance boundary
 

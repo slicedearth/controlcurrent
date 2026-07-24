@@ -214,6 +214,55 @@ export const profileEvaluationSchema = z
   .strict();
 export type ProfileEvaluation = z.infer<typeof profileEvaluationSchema>;
 
+export const profileComparisonEventTypeSchema = z.enum([
+  "gained",
+  "lost",
+  "newly_qualified",
+  "qualification_removed",
+  "changed",
+  "baseline_changed",
+  "scope_added",
+  "scope_removed"
+]);
+
+export const profileComparisonEventSchema = z
+  .object({
+    type: profileComparisonEventTypeSchema,
+    controlId: z.string().min(1).max(80),
+    browser: browserIdSchema,
+    beforeVersion: z.string().min(1).max(64).optional(),
+    afterVersion: z.string().min(1).max(64).optional(),
+    beforeOutcome: outcomeSchema.optional(),
+    afterOutcome: outcomeSchema.optional(),
+    summary: z.string().min(1).max(512)
+  })
+  .strict();
+
+export const profileComparisonSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    bcdVersion: z.string().min(1).max(64),
+    catalogueVersion: z.string().min(1).max(64),
+    beforeProfile: deploymentProfileSchema,
+    afterProfile: deploymentProfileSchema,
+    summary: z
+      .object({
+        gained: z.number().int().min(0).max(1_024),
+        lost: z.number().int().min(0).max(1_024),
+        newlyQualified: z.number().int().min(0).max(1_024),
+        qualificationRemoved: z.number().int().min(0).max(1_024),
+        changed: z.number().int().min(0).max(1_024),
+        baselineChanged: z.number().int().min(0).max(1_024),
+        scopeAdded: z.number().int().min(0).max(1_024),
+        scopeRemoved: z.number().int().min(0).max(1_024),
+        unchanged: z.number().int().min(0).max(1_024)
+      })
+      .strict(),
+    events: z.array(profileComparisonEventSchema).max(1_024)
+  })
+  .strict();
+export type ProfileComparison = z.infer<typeof profileComparisonSchema>;
+
 export const policyDecisionSchema = z.enum(["pass", "review", "fail"]);
 export type PolicyDecision = z.infer<typeof policyDecisionSchema>;
 
