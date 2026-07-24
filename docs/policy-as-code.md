@@ -104,7 +104,7 @@ inventory before placing it in policy:
 npm run cli -- reduce-scope-inventory examples/scope-inventory.json --json
 ```
 
-The profile is evaluated against an exported schema 6 reduced report, not
+The profile is evaluated against an exported schema 7 reduced report, not
 against raw evidence:
 
 ```sh

@@ -16,9 +16,10 @@ import { selectedSnapshot } from "../data";
     <h2 id="bundle-heading">Assess a bounded evidence bundle</h2>
     <p>
       Bind up to 256 opaque scope entries to 32 assessed surfaces, then combine up to 16 response
-      snapshots, 16 HTML documents, 32 bounded local resource bodies, 32 request snapshots, and 16
-      reduced WebAuthn configurations. Markup is parsed without execution or resource loading.
-      Supplied inventory entries and resource bytes are reduced locally and omitted from the report.
+      snapshots with optional status, content, redirect, cache, and authentication context; 16 HTML
+      documents; 32 bounded local resource bodies; 32 request snapshots; and 16 reduced WebAuthn
+      configurations. Markup is parsed without execution or resource loading. Supplied inventory
+      entries and resource bytes are reduced locally and omitted from the report.
     </p>
   </div>
 
@@ -181,9 +182,19 @@ import { selectedSnapshot } from "../data";
     ],
     responses: [
       {
-        schemaVersion: 1,
+        schemaVersion: 2,
         name: "Document response",
         surfaceId: "sign-in",
+        context: {
+          schemaVersion: 1,
+          variantId: "anonymous-html",
+          sequence: 0,
+          outcome: "final",
+          status: 200,
+          contentType: "html",
+          authentication: "anonymous",
+          cache: "miss"
+        },
         headers: {
           "Content-Security-Policy":
             "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
@@ -394,6 +405,16 @@ import { selectedSnapshot } from "../data";
     );
   }
 
+  function responseContextInventory(
+    report: EvidenceBundleReport["responseContexts"][number]
+  ): HTMLElement {
+    return inventoryCard(
+      `Response context · ${report.surfaceId}`,
+      `${report.variantId} · ${report.authentication} · ${report.contentType}`,
+      `${report.outcome} · ${report.statusClass}${report.status ? ` ${String(report.status)}` : ""} · cache ${report.cache}${report.redirectTarget ? ` · redirect ${report.redirectTarget}` : ""}${report.errorKind ? ` · ${report.errorKind}` : ""}`
+    );
+  }
+
   function htmlInventory(report: HtmlResourceReport): HTMLElement {
     return inventoryCard(
       report.name,
@@ -485,6 +506,11 @@ import { selectedSnapshot } from "../data";
     latestReport = report;
     coverage!.replaceChildren(
       stat(report.coverage.responses, "response snapshots"),
+      stat(report.coverage.contextualisedResponses, "contextualised responses"),
+      stat(report.coverage.responseVariants, "response variants"),
+      stat(report.coverage.redirectResponses, "redirect responses"),
+      stat(report.coverage.errorResponses, "error responses"),
+      stat(report.coverage.authenticatedResponses, "authenticated responses"),
       stat(report.coverage.htmlDocuments, "HTML documents"),
       stat(report.coverage.resourceBytes, "local resource bodies"),
       stat(report.coverage.requests, "request snapshots"),
@@ -510,6 +536,7 @@ import { selectedSnapshot } from "../data";
     inventory!.replaceChildren(
       scopeInventoryCard(report.scopeInventory),
       ...report.responseReports.map(responseInventory),
+      ...report.responseContexts.map(responseContextInventory),
       ...report.htmlReports.map(htmlInventory),
       resourceVerificationInventory(report.resourceVerificationReport),
       ...report.cspMarkupReports.map(cspMarkupInventory),

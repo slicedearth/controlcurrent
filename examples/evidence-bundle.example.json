@@ -66,9 +66,19 @@
   ],
   "responses": [
     {
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "name": "Document response",
       "surfaceId": "document",
+      "context": {
+        "schemaVersion": 1,
+        "variantId": "anonymous-html",
+        "sequence": 0,
+        "outcome": "final",
+        "status": 200,
+        "contentType": "html",
+        "authentication": "anonymous",
+        "cache": "miss"
+      },
       "headers": {
         "Content-Security-Policy": "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
         "Integrity-Policy": "blocked-destinations=(script style), endpoints=(integrity-endpoint)",

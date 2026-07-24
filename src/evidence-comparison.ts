@@ -4,6 +4,7 @@ import {
   type CompositeAssessment,
   type EvidenceComparisonEvent,
   type EvidenceReportComparison,
+  type ResponseContextReport,
   evidenceComparisonEventSchema,
   evidenceReportComparisonSchema
 } from "./contracts";
@@ -149,6 +150,43 @@ function compositeEvents(
   return payloads;
 }
 
+function responseContextKey(context: ResponseContextReport): string {
+  return `${context.surfaceId}:${context.variantId}:${String(context.sequence)}`;
+}
+
+function responseContextEvents(
+  beforeItems: readonly ResponseContextReport[],
+  afterItems: readonly ResponseContextReport[]
+): EventPayload[] {
+  const payloads: EventPayload[] = [];
+  const before = new Map(beforeItems.map((context) => [responseContextKey(context), context]));
+  const after = new Map(afterItems.map((context) => [responseContextKey(context), context]));
+  for (const key of [...new Set([...before.keys(), ...after.keys()])].sort()) {
+    const previous = before.get(key);
+    const current = after.get(key);
+    if (!previous || !current) {
+      payloads.push({
+        type: current ? "response_context_added" : "response_context_removed",
+        key: `response:${key}`,
+        beforeState: previous?.outcome ?? "absent",
+        afterState: current?.outcome ?? "absent",
+        summary: `Response context ${key} is not present in both reports.`
+      });
+      continue;
+    }
+    if (canonicalJson(previous, 0) !== canonicalJson(current, 0)) {
+      payloads.push({
+        type: "response_context_changed",
+        key: `response:${key}`,
+        beforeState: previous.outcome,
+        afterState: current.outcome,
+        summary: `Response context ${key} changed its bounded status, content, cache, authentication, redirect, or error evidence.`
+      });
+    }
+  }
+  return payloads;
+}
+
 export async function compareEvidenceReports(
   beforeInput: unknown,
   afterInput: unknown
@@ -224,6 +262,7 @@ export async function compareEvidenceReports(
 
   const compatible = compatibilityReasons.length === 0;
   if (compatible) {
+    payloads.push(...responseContextEvents(before.responseContexts, after.responseContexts));
     payloads.push(...findingEvents(before.findings, after.findings, ""));
     payloads.push(...compositeEvents(before.composites, after.composites, ""));
 
@@ -347,7 +386,7 @@ export async function compareEvidenceReports(
   const events = await Promise.all(emittedPayloads.map((payload) => event(payload)));
 
   return evidenceReportComparisonSchema.parse({
-    schemaVersion: 3,
+    schemaVersion: 4,
     beforeName: before.name,
     afterName: after.name,
     compatible,

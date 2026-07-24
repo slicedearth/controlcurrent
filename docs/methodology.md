@@ -190,11 +190,20 @@ satisfied result never claims that the inventory source discovered every
 production route or user state.
 
 Every schema 4 bundle also identifies an opaque application, environment,
-revision, optional build, producer, and bounded capture window. Schema 6 reports
+revision, optional build, producer, and bounded capture window. Schema 7 reports
 retain that identity and the reduced scope inventory inside their canonical
 fingerprint. The fingerprint makes later modification detectable but does not
 prove that the named producer created the evidence, that its timestamps are
 trustworthy, or that its inventory is exhaustive.
+
+Response snapshot schema 2 adds bounded observation context without retaining a
+URL. It distinguishes opaque response variants and sequence, final responses,
+redirects, HTTP errors and transport errors, status class, content class,
+anonymous or authenticated state, and cache state. Redirects retain only an
+opaque chain ID and same-origin, cross-origin or unknown target relation.
+Transport failures retain only a bounded error kind. These facts remain
+observation context; they do not establish user identity, cache correctness or
+the exact time an external configuration changed.
 
 An independent schema 4 evidence policy can require the intended application,
 allowed environments and producer kinds, exact release revision, build-ID

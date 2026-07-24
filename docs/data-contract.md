@@ -186,7 +186,11 @@ but does not authenticate their origin.
 - expected surfaces with an opaque ID, semantic role, unique required evidence
   kinds, explicit required control IDs, and explicit required composite IDs;
 
-- response header snapshots using the established header schema;
+- response header snapshots using either legacy header schema 1 or contextual
+  response schema 2;
+- schema 2 response context retains one opaque variant ID, bounded sequence,
+  outcome, status when HTTP exists, content class, authentication and cache
+  state, and opaque redirect-chain or reduced transport-error detail;
 - HTML document inputs capped at 128 KiB each;
 - up to 32 local resource bodies, each linked by an opaque resource ID, surface
   ID, and exact in-document reference;
@@ -205,7 +209,7 @@ Fetch Metadata reports retain one reduced finding and counts. Credential
 headers are refused. WebAuthn reports retain only the explicit reduced
 configuration and three catalogue-aligned findings.
 
-Bundle report schema 6 evaluates each surface against its declared control and
+Bundle report schema 7 evaluates each surface against its declared control and
 composite applicability before producing a bounded cross-surface merge.
 Conflicting applicable states become `inconclusive`; invalid evidence cannot be
 overridden by a favourable snapshot. Controls and composites required by no
@@ -217,6 +221,8 @@ The report contains:
 - an absent state or a reduced scope inventory containing only its name, kind,
   generation time, completeness, semantic fingerprint, and counts;
 - surface coverage and surface-scoped policy assessments;
+- reduced response contexts for status, content class, authentication, cache,
+  redirects, transport errors, and opaque response variants;
 - bounded reduced subreports;
 - the application, environment, revision, optional build, producer, and
   capture-window identity supplied with the bundle;
@@ -239,7 +245,7 @@ and WebAuthn identifiers do not enter the report fingerprint.
 Comparison and evidence-policy evaluation recompute this fingerprint and refuse
 modified report content.
 
-Evidence comparison schema 3 accepts two validated schema 6 reports and emits at
+Evidence comparison schema 4 accepts two validated schema 7 reports and emits at
 most 512 deterministic events while retaining bounded total counts. Analyser or
 catalogue model mismatches make the reports semantically incomparable. Reports
 for different application IDs, environments, inventory presence, or semantic
@@ -247,9 +253,10 @@ inventory fingerprints are also incomparable; revision, build, producer,
 inventory generation time, and capture differences remain visible context
 rather than false configuration changes.
 Compatible comparisons detect state changes, surface-policy and coverage
-changes, and changes in retained reduced detail even when a state remains the
-same. Events contain stable keys and before/after states, not original headers,
-HTML, resource data, or private identifiers.
+changes, response-context additions, removals and changes, and changes in
+retained reduced detail even when a state remains the same. Events contain
+stable keys and before/after states, not original headers, URLs, HTML, resource
+data, or private identifiers.
 
 Evidence policy schema 4 is independent of the submitted evidence bundle. It
 pins expected analyser, catalogue, and optionally BCD versions; requires an
@@ -268,7 +275,7 @@ pass. Expired exceptions remain visible and no longer affect the decision.
 
 ## Evidence attestation
 
-Attestation statement schema 2 is an in-toto Statement v1 with exactly one
+Attestation statement schema 3 is an in-toto Statement v1 with exactly one
 `controlcurrent-evidence-report` subject. Its SHA-256 subject digest must equal
 the validated report fingerprint. Its bounded predicate repeats the report
 schema, name, application, environment, revision, optional build, producer, and

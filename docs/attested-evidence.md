@@ -8,7 +8,7 @@ verifies bundles.
 ## Trust chain
 
 ```text
-schema 6 reduced evidence report
+schema 7 reduced evidence report
           |
           v
 canonical SHA-256 report fingerprint
@@ -38,7 +38,7 @@ The statement uses:
 - subject name: `controlcurrent-evidence-report`;
 - subject digest: the report's canonical SHA-256 fingerprint;
 - predicate type:
-  `https://github.com/slicedearth/controlcurrent/attestations/evidence-report/v2`;
+  `https://github.com/slicedearth/controlcurrent/attestations/evidence-report/v3`;
 - predicate: the report name, schema version, application, environment,
   revision, optional build, producer, capture window, and reduced scope
   inventory.
@@ -49,7 +49,7 @@ identifiers, or source diagnostics.
 
 ## Create the statement
 
-First export a schema 6 reduced report. Then create its canonical statement:
+First export a schema 7 reduced report. Then create its canonical statement:
 
 ```sh
 npm --silent run cli -- create-attestation-statement report.json > statement.json

@@ -100,7 +100,7 @@ export async function createEvidenceAttestationStatement(
     ],
     predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
     predicate: {
-      schemaVersion: 2,
+      schemaVersion: 3,
       reportSchemaVersion: report.schemaVersion,
       reportName: report.name,
       identity: report.identity,

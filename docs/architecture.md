@@ -167,6 +167,8 @@ bounded local inputs
       +--> bounded application, environment, revision, producer,
       |    and capture-window identity
       +--> response-header assurance
+      +--> bounded response variant, status, redirect, cache,
+      |    authentication, content, and error context
       +--> parse5 HTML tree without execution or fetch
       +--> in-memory CSP and SRI digest correlation
       +--> selected Sec-Fetch-* request reduction
@@ -209,6 +211,12 @@ report never serialises resource locations, content, nonces, or digests.
 Request inspection refuses credential fields and emits only selected Fetch
 Metadata values. WebAuthn input accepts no challenge, relying-party identifier,
 user identifier, or credential identifier.
+
+Contextual response snapshots retain no URL or redirect location. Opaque
+variant and chain IDs make repeated status, authentication, cache and redirect
+observations comparable without binding the public report to private route
+locations. Legacy schema 1 header snapshots remain accepted and are explicitly
+counted as responses without context.
 
 Composite candidates are deterministic derived guidance. They do not change
 BCD compatibility outcomes and do not claim browser execution, remote resource

@@ -121,7 +121,7 @@ describe("profile exports", () => {
     const exported = exportEvidenceReportComparison(comparison);
 
     expect(JSON.parse(exported)).toMatchObject({
-      schemaVersion: 3,
+      schemaVersion: 4,
       beforeIdentity: evidenceIdentity,
       afterIdentity: evidenceIdentity
     });

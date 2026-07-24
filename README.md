@@ -55,6 +55,8 @@ but they cannot merge or publish changes by themselves.
 - A bounded evidence bundle for route variation, CSP-to-markup correlation,
   local SRI byte verification, Fetch Metadata request context, and reduced
   WebAuthn configuration
+- Bounded response-variant, status, redirect, content, cache, authentication,
+  and transport-error context without retained URLs
 - An optional privacy-minimised scope inventory that reduces up to 256 opaque
   entries to a semantic fingerprint, counts, provenance, and completeness state
 - An expected-surface manifest bound exactly to the inventory's included

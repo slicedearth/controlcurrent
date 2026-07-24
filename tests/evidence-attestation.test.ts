@@ -100,8 +100,8 @@ describe("evidence attestation", () => {
       ],
       predicateType: EVIDENCE_ATTESTATION_PREDICATE_TYPE,
       predicate: {
-        schemaVersion: 2,
-        reportSchemaVersion: 6,
+        schemaVersion: 3,
+        reportSchemaVersion: 7,
         reportName: evidenceReport.name,
         identity: evidenceReport.identity,
         scopeInventory: {

@@ -442,6 +442,26 @@ const headerValueSchema = z.union([
   z.array(z.string().max(8_192)).min(1).max(8)
 ]);
 
+const headersSchema = z
+  .record(z.string().min(1).max(128), headerValueSchema)
+  .superRefine((headers, context) => {
+    if (Object.keys(headers).length > 64) {
+      context.addIssue({
+        code: "custom",
+        message: "A header snapshot may contain at most 64 header names."
+      });
+    }
+    for (const name of Object.keys(headers)) {
+      if (!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/u.test(name)) {
+        context.addIssue({
+          code: "custom",
+          message: `Invalid HTTP header name: ${name}`,
+          path: [name]
+        });
+      }
+    }
+  });
+
 export const headerSnapshotSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -450,28 +470,114 @@ export const headerSnapshotSchema = z
       .string()
       .regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u)
       .optional(),
-    headers: z.record(z.string().min(1).max(128), headerValueSchema)
+    headers: headersSchema
+  })
+  .strict();
+export type HeaderSnapshot = z.infer<typeof headerSnapshotSchema>;
+
+const responseContextIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u);
+
+export const responseContextSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    variantId: responseContextIdSchema,
+    sequence: z.number().int().min(0).max(16),
+    outcome: z.enum(["final", "redirect", "http_error", "transport_error"]),
+    status: z.number().int().min(100).max(599).optional(),
+    contentType: z.enum([
+      "html",
+      "json",
+      "javascript",
+      "css",
+      "font",
+      "image",
+      "text",
+      "other",
+      "unknown"
+    ]),
+    authentication: z.enum(["anonymous", "authenticated", "unknown"]),
+    cache: z.enum(["hit", "miss", "revalidated", "bypass", "unknown"]),
+    redirectChainId: responseContextIdSchema.optional(),
+    redirectTarget: z.enum(["same_origin", "cross_origin", "unknown"]).optional(),
+    errorKind: z.enum(["timeout", "dns", "tls", "connection", "other"]).optional()
   })
   .strict()
-  .superRefine((snapshot, context) => {
-    if (Object.keys(snapshot.headers).length > 64) {
-      context.addIssue({
-        code: "custom",
-        message: "A header snapshot may contain at most 64 header names.",
-        path: ["headers"]
-      });
-    }
-    for (const name of Object.keys(snapshot.headers)) {
-      if (!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/u.test(name)) {
+  .superRefine((contextValue, context) => {
+    if (contextValue.outcome === "transport_error") {
+      if (contextValue.status !== undefined) {
         context.addIssue({
           code: "custom",
-          message: `Invalid HTTP header name: ${name}`,
-          path: ["headers", name]
+          message: "A transport error cannot contain an HTTP status.",
+          path: ["status"]
         });
       }
+      if (!contextValue.errorKind) {
+        context.addIssue({
+          code: "custom",
+          message: "A transport error must declare a bounded error kind.",
+          path: ["errorKind"]
+        });
+      }
+    } else if (contextValue.status === undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "A response outcome must contain an HTTP status.",
+        path: ["status"]
+      });
+    } else if (
+      (contextValue.outcome === "final" &&
+        (contextValue.status < 200 || contextValue.status > 299)) ||
+      (contextValue.outcome === "redirect" &&
+        (contextValue.status < 300 || contextValue.status > 399)) ||
+      (contextValue.outcome === "http_error" && contextValue.status < 400)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "The HTTP status is inconsistent with the declared response outcome.",
+        path: ["status"]
+      });
+    }
+    if (contextValue.outcome === "redirect") {
+      if (!contextValue.redirectChainId || !contextValue.redirectTarget) {
+        context.addIssue({
+          code: "custom",
+          message: "A redirect must declare its opaque chain and target relation."
+        });
+      }
+    } else if (contextValue.redirectChainId || contextValue.redirectTarget) {
+      context.addIssue({
+        code: "custom",
+        message: "Only redirect responses may contain redirect context."
+      });
+    }
+    if (contextValue.outcome !== "transport_error" && contextValue.errorKind) {
+      context.addIssue({
+        code: "custom",
+        message: "Only transport errors may contain a transport error kind.",
+        path: ["errorKind"]
+      });
     }
   });
-export type HeaderSnapshot = z.infer<typeof headerSnapshotSchema>;
+export type ResponseContext = z.infer<typeof responseContextSchema>;
+
+export const contextualResponseSnapshotSchema = z
+  .object({
+    schemaVersion: z.literal(2),
+    name: z.string().trim().min(1).max(80),
+    surfaceId: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u)
+      .optional(),
+    context: responseContextSchema,
+    headers: headersSchema
+  })
+  .strict();
+
+export const responseSnapshotSchema = z.union([
+  headerSnapshotSchema,
+  contextualResponseSnapshotSchema
+]);
+export type ResponseSnapshot = z.infer<typeof responseSnapshotSchema>;
 
 export const assuranceStateSchema = z.enum([
   "observed",
@@ -860,8 +966,8 @@ export const evidenceAttestationStatementSchema = z
     predicateType: z.literal(EVIDENCE_ATTESTATION_PREDICATE_TYPE),
     predicate: z
       .object({
-        schemaVersion: z.literal(2),
-        reportSchemaVersion: z.literal(6),
+        schemaVersion: z.literal(3),
+        reportSchemaVersion: z.literal(7),
         reportName: z.string().trim().min(1).max(80),
         identity: evidenceIdentitySchema,
         scopeInventory: evidenceScopeInventoryReportSchema
@@ -1028,7 +1134,7 @@ export const evidenceBundleInputSchema = z
     identity: evidenceIdentitySchema,
     scopeInventory: evidenceScopeInventoryInputSchema.optional(),
     surfaces: z.array(expectedSurfaceSchema).min(1).max(32),
-    responses: z.array(headerSnapshotSchema).max(16).default([]),
+    responses: z.array(responseSnapshotSchema).max(16).default([]),
     htmlDocuments: z.array(htmlDocumentInputSchema).max(16).default([]),
     resourceBytes: z.array(resourceBytesInputSchema).max(32).default([]),
     requests: z.array(headerSnapshotSchema).max(32).default([]),
@@ -1139,12 +1245,38 @@ export const evidenceProvenanceSchema = evidenceSourceContextSchema
   .strict();
 export type EvidenceProvenance = z.infer<typeof evidenceProvenanceSchema>;
 
+export const responseContextReportSchema = z
+  .object({
+    surfaceId: evidenceSurfaceIdSchema,
+    variantId: responseContextIdSchema,
+    sequence: z.number().int().min(0).max(16),
+    outcome: z.enum(["final", "redirect", "http_error", "transport_error"]),
+    status: z.number().int().min(100).max(599).optional(),
+    statusClass: z.enum([
+      "informational",
+      "success",
+      "redirect",
+      "client_error",
+      "server_error",
+      "not_available"
+    ]),
+    contentType: responseContextSchema.shape.contentType,
+    authentication: responseContextSchema.shape.authentication,
+    cache: responseContextSchema.shape.cache,
+    redirectChainId: responseContextIdSchema.optional(),
+    redirectTarget: responseContextSchema.shape.redirectTarget,
+    errorKind: responseContextSchema.shape.errorKind
+  })
+  .strict();
+export type ResponseContextReport = z.infer<typeof responseContextReportSchema>;
+
 export const surfaceAssessmentSchema = z
   .object({
     surfaceId: evidenceSurfaceIdSchema,
     role: z.enum(["document", "api", "authentication", "logout", "embedded", "other"]),
     requiredControls: z.array(evidenceControlIdSchema).max(64),
     requiredComposites: z.array(evidenceCompositeIdSchema).max(EVIDENCE_COMPOSITE_IDS.length),
+    responseContexts: z.array(responseContextReportSchema).max(16),
     findings: z.array(assuranceFindingSchema).max(64),
     composites: z.array(compositeAssessmentSchema).max(EVIDENCE_COMPOSITE_IDS.length)
   })
@@ -1153,7 +1285,7 @@ export type SurfaceAssessment = z.infer<typeof surfaceAssessmentSchema>;
 
 export const evidenceBundleReportSchema = z
   .object({
-    schemaVersion: z.literal(6),
+    schemaVersion: z.literal(7),
     name: z.string().min(1).max(80),
     identity: evidenceIdentitySchema,
     scopeInventory: evidenceScopeInventoryReportSchema,
@@ -1162,6 +1294,11 @@ export const evidenceBundleReportSchema = z
     coverage: z
       .object({
         responses: z.number().int().min(0).max(16),
+        contextualisedResponses: z.number().int().min(0).max(16),
+        responseVariants: z.number().int().min(0).max(16),
+        redirectResponses: z.number().int().min(0).max(16),
+        errorResponses: z.number().int().min(0).max(16),
+        authenticatedResponses: z.number().int().min(0).max(16),
         htmlDocuments: z.number().int().min(0).max(16),
         resourceBytes: z.number().int().min(0).max(32),
         requests: z.number().int().min(0).max(32),
@@ -1186,6 +1323,7 @@ export const evidenceBundleReportSchema = z
       .strict(),
     findings: z.array(assuranceFindingSchema).max(64),
     composites: z.array(compositeAssessmentSchema).max(8),
+    responseContexts: z.array(responseContextReportSchema).max(16),
     responseReports: z.array(assuranceReportSchema).max(16),
     htmlReports: z.array(htmlResourceReportSchema).max(16),
     resourceVerificationReport: resourceVerificationReportSchema,
@@ -1210,6 +1348,9 @@ export const evidenceComparisonEventSchema = z
       "surface_gap_resolved",
       "surface_changed",
       "coverage_changed",
+      "response_context_added",
+      "response_context_removed",
+      "response_context_changed",
       "evidence_became_incomparable"
     ]),
     key: z.string().min(1).max(256),
@@ -1222,7 +1363,7 @@ export type EvidenceComparisonEvent = z.infer<typeof evidenceComparisonEventSche
 
 export const evidenceReportComparisonSchema = z
   .object({
-    schemaVersion: z.literal(3),
+    schemaVersion: z.literal(4),
     beforeName: z.string().min(1).max(80),
     afterName: z.string().min(1).max(80),
     summary: z

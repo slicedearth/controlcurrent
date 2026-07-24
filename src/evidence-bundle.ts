@@ -5,11 +5,14 @@ import {
   type AssuranceReport,
   type CompositeAssessment,
   type CspMarkupReport,
+  type EvidenceBundleInput,
   type EvidenceBundleReport,
   type FetchMetadataReport,
   type HeaderSnapshot,
   type HtmlResourceReport,
   type ResourceVerificationReport,
+  type ResponseContextReport,
+  type ResponseSnapshot,
   type SurfaceCoverage,
   type SurfaceAssessment,
   type WebauthnReport,
@@ -23,6 +26,7 @@ import {
   htmlDocumentInputSchema,
   htmlResourceReportSchema,
   resourceVerificationReportSchema,
+  responseContextReportSchema,
   surfaceAssessmentSchema,
   webauthnConfigurationSchema,
   webauthnReportSchema
@@ -77,6 +81,35 @@ type HtmlAnalysis = {
 
 function byteLength(value: string): number {
   return new TextEncoder().encode(value).byteLength;
+}
+
+function statusClass(status: number | undefined): ResponseContextReport["statusClass"] {
+  if (status === undefined) return "not_available";
+  if (status < 200) return "informational";
+  if (status < 300) return "success";
+  if (status < 400) return "redirect";
+  if (status < 500) return "client_error";
+  return "server_error";
+}
+
+function reduceResponseContext(
+  response: EvidenceBundleInput["responses"][number]
+): ResponseContextReport | undefined {
+  if (response.schemaVersion !== 2 || !response.surfaceId) return undefined;
+  return responseContextReportSchema.parse({
+    surfaceId: response.surfaceId,
+    variantId: response.context.variantId,
+    sequence: response.context.sequence,
+    outcome: response.context.outcome,
+    status: response.context.status,
+    statusClass: statusClass(response.context.status),
+    contentType: response.context.contentType,
+    authentication: response.context.authentication,
+    cache: response.context.cache,
+    redirectChainId: response.context.redirectChainId,
+    redirectTarget: response.context.redirectTarget,
+    errorKind: response.context.errorKind
+  });
 }
 
 function finding(
@@ -472,7 +505,7 @@ function broadSourceCount(policy: CspPolicy, kinds: ReadonlySet<"script" | "styl
 }
 
 async function inspectCspMarkup(
-  response: HeaderSnapshot,
+  response: ResponseSnapshot,
   analysis: HtmlAnalysis,
   surfaceId: string,
   reusedNonces: ReadonlySet<string>
@@ -1208,6 +1241,15 @@ export async function inspectEvidenceBundle(
   }
 
   const responseReports = bundle.responses.map((response) => inspectHeaders(response));
+  const responseContexts = bundle.responses
+    .map((response) => reduceResponseContext(response))
+    .filter((context): context is ResponseContextReport => context !== undefined)
+    .sort(
+      (left, right) =>
+        left.surfaceId.localeCompare(right.surfaceId) ||
+        left.variantId.localeCompare(right.variantId) ||
+        left.sequence - right.sequence
+    );
   const htmlAnalyses = bundle.htmlDocuments.map((document) => analyzeHtmlDocument(document));
   const htmlReports = htmlAnalyses.map((analysis) => analysis.report);
   const resourceVerificationReport = await verifyResourceBytes(bundle, htmlAnalyses);
@@ -1285,6 +1327,7 @@ export async function inspectEvidenceBundle(
       role: surface.role,
       requiredControls: [...surface.requiredControls].sort(),
       requiredComposites: [...surface.requiredComposites].sort(),
+      responseContexts: responseContexts.filter((context) => context.surfaceId === surface.id),
       findings,
       composites
     });
@@ -1314,7 +1357,7 @@ export async function inspectEvidenceBundle(
     surfaceCoverageComposite(surfaceCoverage)
   ];
   const reportWithoutFingerprint = {
-    schemaVersion: 6 as const,
+    schemaVersion: 7 as const,
     name: bundle.name,
     identity: bundle.identity,
     scopeInventory,
@@ -1325,6 +1368,18 @@ export async function inspectEvidenceBundle(
     },
     coverage: {
       responses: responseReports.length,
+      contextualisedResponses: responseContexts.length,
+      responseVariants: new Set(
+        responseContexts.map((context) => `${context.surfaceId}\u0000${context.variantId}`)
+      ).size,
+      redirectResponses: responseContexts.filter((context) => context.outcome === "redirect")
+        .length,
+      errorResponses: responseContexts.filter(
+        (context) => context.outcome === "http_error" || context.outcome === "transport_error"
+      ).length,
+      authenticatedResponses: responseContexts.filter(
+        (context) => context.authentication === "authenticated"
+      ).length,
       htmlDocuments: htmlReports.length,
       resourceBytes: bundle.resourceBytes.length,
       requests: requestReports.length,
@@ -1346,6 +1401,7 @@ export async function inspectEvidenceBundle(
     },
     findings,
     composites,
+    responseContexts,
     responseReports,
     htmlReports,
     resourceVerificationReport,

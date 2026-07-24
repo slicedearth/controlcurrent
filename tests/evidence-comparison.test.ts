@@ -91,6 +91,55 @@ async function hstsReport(
   );
 }
 
+async function contextualReport(
+  name: string,
+  context: {
+    outcome: "final" | "redirect";
+    status: number;
+    authentication: "anonymous" | "authenticated";
+    cache: "hit" | "miss";
+  }
+) {
+  return inspectEvidenceBundle(
+    {
+      schemaVersion: 4,
+      name,
+      identity: evidenceIdentity,
+      surfaces: [
+        {
+          id: "document",
+          role: "document",
+          requiredEvidence: ["response"],
+          requiredControls: [],
+          requiredComposites: []
+        }
+      ],
+      responses: [
+        {
+          schemaVersion: 2,
+          name: "Document response",
+          surfaceId: "document",
+          context: {
+            schemaVersion: 1,
+            variantId: "primary",
+            sequence: 0,
+            ...context,
+            contentType: "html",
+            ...(context.outcome === "redirect"
+              ? {
+                  redirectChainId: "primary-chain",
+                  redirectTarget: "same_origin"
+                }
+              : {})
+          },
+          headers: {}
+        }
+      ]
+    },
+    evidenceSourceContext
+  );
+}
+
 describe("reduced evidence report comparison", () => {
   it("records deterministic finding and expected-surface regressions", async () => {
     const before = await report("Before", { csp: true, includeHtml: true });
@@ -132,6 +181,35 @@ describe("reduced evidence report comparison", () => {
           event.afterState === "observed"
       )
     ).toBe(true);
+  });
+
+  it("records bounded response-context changes without inferring a regression", async () => {
+    const before = await contextualReport("Before", {
+      outcome: "redirect",
+      status: 302,
+      authentication: "anonymous",
+      cache: "miss"
+    });
+    const after = await contextualReport("After", {
+      outcome: "final",
+      status: 200,
+      authentication: "authenticated",
+      cache: "hit"
+    });
+    const comparison = await compareEvidenceReports(before, after);
+
+    expect(comparison.compatible).toBe(true);
+    expect(
+      comparison.events.some(
+        (event) =>
+          event.type === "response_context_changed" &&
+          event.key === "response:document:primary:0" &&
+          event.beforeState === "redirect" &&
+          event.afterState === "final"
+      )
+    ).toBe(true);
+    expect(comparison.summary.regressions).toBe(0);
+    expect(comparison.schemaVersion).toBe(4);
   });
 
   it("refuses semantic comparison across analyser versions", async () => {

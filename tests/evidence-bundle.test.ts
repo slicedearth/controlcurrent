@@ -155,9 +155,19 @@ describe("bounded evidence bundles", () => {
         ],
         responses: [
           {
-            schemaVersion: 1,
+            schemaVersion: 2,
             name: "Document response",
             surfaceId: "document",
+            context: {
+              schemaVersion: 1,
+              variantId: "anonymous-html",
+              sequence: 0,
+              outcome: "final",
+              status: 200,
+              contentType: "html",
+              authentication: "anonymous",
+              cache: "miss"
+            },
             headers: {
               "Content-Security-Policy":
                 "default-src 'self'; script-src 'nonce-AAAAAAAAAAAAAAAAAAAAAA=='; base-uri 'none'",
@@ -207,6 +217,11 @@ describe("bounded evidence bundles", () => {
 
     expect(report.coverage).toEqual({
       responses: 1,
+      contextualisedResponses: 1,
+      responseVariants: 1,
+      redirectResponses: 0,
+      errorResponses: 0,
+      authenticatedResponses: 0,
       htmlDocuments: 1,
       resourceBytes: 0,
       requests: 1,
@@ -220,10 +235,10 @@ describe("bounded evidence bundles", () => {
     expect(finding(report, "fetch-metadata").state).toBe("observed");
     expect(finding(report, "webauthn-conditional-mediation").state).toBe("observed");
     expect(finding(report, "csp-hashes").state).toBe("not_applicable");
-    expect(report.schemaVersion).toBe(6);
+    expect(report.schemaVersion).toBe(7);
     expect(report.identity).toEqual(evidenceIdentity);
     expect(report.provenance).toMatchObject({
-      analyserVersion: "4.0.0",
+      analyserVersion: "5.0.0",
       catalogueVersion: "2.2.0",
       ...evidenceSourceContext
     });
@@ -243,6 +258,134 @@ describe("bounded evidence bundles", () => {
     expect(serialised).not.toContain("secret");
     expect(serialised).not.toContain("/app.js");
     expect(serialised).not.toContain("nonce-AAAAAAAAAAAAAAAAAAAAAA==");
+  });
+
+  it("preserves bounded response variants, redirects, authentication, and errors", async () => {
+    const report = await inspectEvidenceBundle(
+      {
+        schemaVersion: 4,
+        identity: evidenceIdentity,
+        name: "Context variants",
+        surfaces: [
+          {
+            id: "sign-in",
+            role: "authentication",
+            requiredEvidence: ["response"],
+            requiredControls: [],
+            requiredComposites: []
+          }
+        ],
+        responses: [
+          {
+            schemaVersion: 2,
+            name: "Redirect",
+            surfaceId: "sign-in",
+            context: {
+              schemaVersion: 1,
+              variantId: "sign-in-flow",
+              sequence: 0,
+              outcome: "redirect",
+              status: 302,
+              contentType: "html",
+              authentication: "anonymous",
+              cache: "bypass",
+              redirectChainId: "chain-a",
+              redirectTarget: "same_origin"
+            },
+            headers: { Location: "REDACTED" }
+          },
+          {
+            schemaVersion: 2,
+            name: "Authenticated document",
+            surfaceId: "sign-in",
+            context: {
+              schemaVersion: 1,
+              variantId: "sign-in-flow",
+              sequence: 1,
+              outcome: "final",
+              status: 200,
+              contentType: "html",
+              authentication: "authenticated",
+              cache: "miss"
+            },
+            headers: { "Cache-Control": "private, no-store" }
+          },
+          {
+            schemaVersion: 2,
+            name: "Timed out variant",
+            surfaceId: "sign-in",
+            context: {
+              schemaVersion: 1,
+              variantId: "slow-network",
+              sequence: 0,
+              outcome: "transport_error",
+              contentType: "unknown",
+              authentication: "unknown",
+              cache: "unknown",
+              errorKind: "timeout"
+            },
+            headers: {}
+          }
+        ]
+      },
+      evidenceSourceContext
+    );
+
+    expect(report.coverage).toMatchObject({
+      responses: 3,
+      contextualisedResponses: 3,
+      responseVariants: 2,
+      redirectResponses: 1,
+      errorResponses: 1,
+      authenticatedResponses: 1
+    });
+    expect(report.responseContexts.map((context) => context.outcome)).toEqual([
+      "redirect",
+      "final",
+      "transport_error"
+    ]);
+    expect(report.surfaceAssessments[0]?.responseContexts).toEqual(report.responseContexts);
+    expect(JSON.stringify(report)).not.toContain("Location");
+  });
+
+  it("rejects incomplete or contradictory response context", async () => {
+    await expect(
+      inspectEvidenceBundle(
+        {
+          schemaVersion: 4,
+          identity: evidenceIdentity,
+          name: "Invalid redirect context",
+          surfaces: [
+            {
+              id: "document",
+              role: "document",
+              requiredEvidence: ["response"],
+              requiredControls: [],
+              requiredComposites: []
+            }
+          ],
+          responses: [
+            {
+              schemaVersion: 2,
+              name: "Redirect",
+              surfaceId: "document",
+              context: {
+                schemaVersion: 1,
+                variantId: "redirect",
+                sequence: 0,
+                outcome: "redirect",
+                status: 302,
+                contentType: "html",
+                authentication: "anonymous",
+                cache: "miss"
+              },
+              headers: {}
+            }
+          ]
+        },
+        evidenceSourceContext
+      )
+    ).rejects.toThrow();
   });
 
   it("rejects supported integrity metadata with the wrong decoded digest length", () => {

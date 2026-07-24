@@ -3,8 +3,10 @@ import {
   type AssuranceFinding,
   type AssuranceReport,
   type HeaderSnapshot,
+  type ResponseSnapshot,
   assuranceReportSchema,
-  headerSnapshotSchema
+  headerSnapshotSchema,
+  responseSnapshotSchema
 } from "./contracts";
 import { parseCspHashSource, parseCspNonceSource } from "./integrity";
 
@@ -109,10 +111,10 @@ export function parseHeaderBlock(input: string, name = "Pasted response headers"
 }
 
 function normalisedHeaders(snapshotInput: unknown): {
-  snapshot: HeaderSnapshot;
+  snapshot: ResponseSnapshot;
   headers: NormalisedHeaders;
 } {
-  const snapshot = headerSnapshotSchema.parse(snapshotInput);
+  const snapshot = responseSnapshotSchema.parse(snapshotInput);
   const headers: NormalisedHeaders = new Map();
   for (const [rawName, rawValues] of Object.entries(snapshot.headers)) {
     const name = rawName.toLowerCase();
