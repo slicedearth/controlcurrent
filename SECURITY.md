@@ -35,6 +35,7 @@ The deployed ControlCurrent website is a static application:
 - no analytics or third-party script;
 - no remote font or script CDN;
 - restrictive static Content Security Policy;
+- portable response-header policy for a separately verified supporting host;
 - `connect-src 'none'` for the deployed application;
 - bounded, deliberate local profile storage;
 - escaped text rendering for source-derived values;
@@ -76,7 +77,13 @@ schema stops publication.
   self-hosted runners, and deployment credentials in the build job.
 - The public-tree audit checks size, secrets, executable URL schemes, inline
   scripts and event handlers, runtime network APIs, restrictive CSP markers,
-  source maps, unsafe source links, and local development URLs.
+  the portable response-header policy, source maps, unsafe source links, and
+  local development URLs.
+
+GitHub Pages does not apply the committed `_headers` file. The current public
+site therefore relies on its restrictive meta CSP and client-side framing guard
+until a deliberate move to a header-capable host is completed and its actual
+responses are verified.
 
 ## Not a security assessment
 

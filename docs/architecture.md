@@ -312,6 +312,12 @@ Pages does not expose project-controlled headers, a client-side guard refuses
 framed interaction. The guard is not a substitute for origin isolation; use a
 dedicated reviewed origin before processing organisation-specific evidence.
 
+The static artifact includes a portable `_headers` policy for a deliberately
+selected header-capable host. The build audit verifies the response-level CSP
+and related restrictions, but GitHub Pages ignores the file. Repository
+presence therefore represents deployment preparation rather than current
+enforcement; actual delivery must be verified after any hosting change.
+
 A weekly read-only source review compares the locked BCD and Web Platform
 Features packages with npm registry metadata. It fails visibly when a newer
 version needs review, but cannot edit packages or data, open issues, commit,

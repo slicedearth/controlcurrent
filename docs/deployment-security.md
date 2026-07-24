@@ -51,6 +51,21 @@ response headers. ControlCurrent therefore detects framing and refuses
 interactive use as defence in depth. That client check is not a replacement for
 a response-header policy or a dedicated origin.
 
+The repository also ships `public/_headers`, a portable response-header policy
+understood by hosts such as
+[Netlify](https://docs.netlify.com/manage/routing/headers/) and
+[Cloudflare Pages](https://developers.cloudflare.com/pages/configuration/headers/).
+It carries the full production CSP at response level, including
+`frame-ancestors 'none'`, plus no-referrer, MIME-sniffing, legacy anti-framing,
+capability restriction, and same-origin resource controls. The generated-site
+audit requires that file and fails if its critical directives disappear or
+become permissive.
+
+GitHub Pages ignores `_headers`. Its presence in the Pages artifact is
+preparation for a deliberate hosting change, not evidence that the current live
+origin serves those headers. Do not describe the portable policy as enforced
+until the deployed response has been inspected.
+
 The generated-site audit fails on:
 
 - production source maps;
@@ -82,7 +97,8 @@ evidence and attestation verification.
 
 ## Repository settings required before publication
 
-Review these settings in GitHub before the first deployment:
+Review these remote settings in GitHub before treating a deployment as
+production-governed:
 
 - keep the repository public only if the selected data and source are intended
   for public release;
@@ -99,15 +115,20 @@ Review these settings in GitHub before the first deployment:
 
 For organisation-specific evidence, configure a dedicated custom domain or
 another host that provides a distinct origin and supports response headers.
-Serve at least:
+Use the committed `_headers` policy where the host supports that format, or
+translate it exactly into the host's response-header configuration. At minimum,
+confirm delivery of:
 
 ```text
-Content-Security-Policy: frame-ancestors 'none'
+Content-Security-Policy: default-src 'self'; ...; frame-ancestors 'none'
 X-Content-Type-Options: nosniff
 Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()
 ```
 
-The existing meta policy remains useful defence in depth on that host.
+The existing meta policy remains useful defence in depth on that host. Do not
+add HSTS mechanically: its host and subdomain effects require a separate
+domain-level decision.
 
 ## Release verification
 
@@ -129,7 +150,16 @@ After deployment:
 
 1. compare the deployed commit with the reviewed local commit;
 2. confirm the canonical URL and `/controlcurrent/` base path;
-3. inspect delivery headers and TLS;
+3. inspect delivery headers and TLS, for example:
+
+   ```sh
+   curl --fail --silent --show-error --dump-header - --output /dev/null \
+     https://example.invalid/
+   ```
+
+   Verify the actual response rather than the presence of `_headers` in the
+   repository;
+
 4. confirm the browser console contains no CSP violation on normal navigation;
 5. confirm the Network panel contains no third-party request;
 6. repeat the keyboard, narrow-viewport, accessibility, profile, assessment,
@@ -140,3 +170,7 @@ Merging or pushing a reviewed change to `main` authorises publication only
 after that exact commit passes CI. A successful local audit, pull-request check,
 or read-only source review does not publish anything. Manual workflow dispatch
 remains an explicit remote deployment action.
+
+Local source changes and commits cannot configure branch protection, private
+vulnerability reporting, the Pages source, environment approval, Dependabot,
+or repository token defaults. Those remain separately reviewed remote actions.

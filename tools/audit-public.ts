@@ -24,18 +24,31 @@ const requiredNoticeMarkers = [
   "Web Platform Features"
 ];
 const requiredPolicyMarkers = [
+  "default-src 'self'",
   "script-src 'self'",
   "script-src-attr 'none'",
   "style-src 'self'",
   "style-src-attr 'none'",
+  "img-src 'self' data:",
   "connect-src 'none'",
+  "font-src 'self'",
   "media-src 'none'",
   "object-src 'none'",
   "frame-src 'none'",
   "worker-src 'none'",
   "manifest-src 'none'",
   "base-uri 'self'",
-  "form-action 'none'"
+  "form-action 'none'",
+  "upgrade-insecure-requests"
+];
+const requiredResponseHeaderMarkers = [
+  "Content-Security-Policy:",
+  "frame-ancestors 'none'",
+  "Referrer-Policy: no-referrer",
+  "X-Content-Type-Options: nosniff",
+  "X-Frame-Options: DENY",
+  "Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+  "Cross-Origin-Resource-Policy: same-origin"
 ];
 
 async function listFiles(directory: string): Promise<string[]> {
@@ -147,6 +160,20 @@ for (const marker of requiredNoticeMarkers) {
     throw new Error(`dist/third-party-notices.txt is missing the ${marker} notice.`);
   }
 }
+const responseHeadersPath = resolve(publicRoot, "_headers");
+const responseHeaders = await readFile(responseHeadersPath, "utf8");
+for (const marker of [...requiredPolicyMarkers, ...requiredResponseHeaderMarkers]) {
+  if (!responseHeaders.includes(marker)) {
+    throw new Error(`dist/_headers is missing the ${marker} response-header policy.`);
+  }
+}
+if (
+  responseHeaders.includes("'unsafe-inline'") ||
+  responseHeaders.includes("'unsafe-eval'") ||
+  responseHeaders.includes("Access-Control-Allow-Origin: *")
+) {
+  throw new Error("dist/_headers weakens the portable response-header policy.");
+}
 if (deployingToPages) {
   const index = await readFile(resolve(publicRoot, "index.html"), "utf8");
   if (
@@ -159,5 +186,5 @@ if (deployingToPages) {
   }
 }
 console.log(
-  `Audited ${String(files.length)} public files (${String(total)} bytes); no prohibited content found, third-party notices are present${deployingToPages ? ", and Pages URLs use /controlcurrent/" : ""}.`
+  `Audited ${String(files.length)} public files (${String(total)} bytes); no prohibited content found, third-party notices and the portable response-header policy are present${deployingToPages ? ", and Pages URLs use /controlcurrent/" : ""}.`
 );

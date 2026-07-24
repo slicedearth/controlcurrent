@@ -39,6 +39,12 @@ CI workflow succeeds. The Pages workflow publishes the exact commit verified
 by CI. Source-review and Dependabot workflows can identify or propose updates,
 but they cannot merge or publish changes by themselves.
 
+The generated artifact includes a portable `_headers` policy for a
+header-capable static host. GitHub Pages does not apply that file, so the live
+site currently relies on its restrictive meta CSP and framing guard. See
+[deployment security](docs/deployment-security.md) before handling
+organisation-specific evidence or changing hosts.
+
 ## What it provides
 
 - A versioned catalogue of 30 browser security and privacy controls

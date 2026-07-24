@@ -202,6 +202,12 @@ origin. Organisation-specific evidence belongs on a dedicated reviewed origin;
 the shared Pages origin is limited to public data and deliberately redacted
 examples.
 
+The generated artifact contains a restrictive `_headers` policy for a
+header-capable static host. GitHub Pages ignores it, so it does not change this
+threat assessment. A future host migration must verify the delivered CSP,
+anti-framing, referrer, MIME-sniffing, permissions, and resource-policy headers
+before relying on them.
+
 ## Out of scope
 
 - Browser implementation testing
