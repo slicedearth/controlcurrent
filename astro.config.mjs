@@ -1,7 +1,7 @@
 import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 
-const deployingToPages = process.env.GITHUB_ACTIONS === "true";
+const deployingToPages = process.env.CONTROLCURRENT_DEPLOY_TARGET === "github-pages";
 
 export default defineConfig({
   site: "https://slicedearth.github.io",

@@ -101,6 +101,8 @@ jobs:
     const safe = `
 jobs:
   build:
+    env:
+      CONTROLCURRENT_DEPLOY_TARGET: github-pages
     permissions:
       contents: read
       pages: read
@@ -128,6 +130,8 @@ on:
 jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+    env:
+      CONTROLCURRENT_DEPLOY_TARGET: github-pages
     permissions:
       contents: read
       pages: read
@@ -146,7 +150,11 @@ jobs:
       safe.replace("conclusion == 'success'", "conclusion == 'failure'"),
       safe.replace("workflow_run.event == 'push'", "workflow_run.event == 'pull_request'"),
       safe.replace("workflow_run.head_branch == 'main'", "workflow_run.head_branch == 'release'"),
-      safe.replace("workflow_run.head_sha || github.sha", "github.sha")
+      safe.replace("workflow_run.head_sha || github.sha", "github.sha"),
+      safe.replace(
+        "CONTROLCURRENT_DEPLOY_TARGET: github-pages",
+        "CONTROLCURRENT_DEPLOY_TARGET: preview"
+      )
     ]) {
       expect(() => auditPagesWorkflow(unsafe)).toThrow(/Pages/u);
     }

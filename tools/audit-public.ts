@@ -7,7 +7,7 @@ const MAX_FILE_BYTES = 2 * 1_024 * 1_024;
 const MAX_TOTAL_BYTES = 25 * 1_024 * 1_024;
 const textExtensions = new Set([".css", ".csv", ".html", ".js", ".json", ".svg", ".txt", ".xml"]);
 const linkBearingExtensions = new Set([".csv", ".html", ".json", ".txt"]);
-const deployingToPages = process.env.GITHUB_ACTIONS === "true";
+const deployingToPages = process.env.CONTROLCURRENT_DEPLOY_TARGET === "github-pages";
 const projectBase = "/controlcurrent/";
 const prohibitedPatterns = [
   /(?:api|access|auth|secret)[_-]?key["']?\s*[:=]\s*["'][^"']{8,}/iu,

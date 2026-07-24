@@ -141,8 +141,8 @@ npm audit --omit=dev --audit-level=low
 npm audit --audit-level=low
 npm audit signatures
 npm run test:e2e
-GITHUB_ACTIONS=true npm run build
-GITHUB_ACTIONS=true npm run audit:public
+CONTROLCURRENT_DEPLOY_TARGET=github-pages npm run build
+CONTROLCURRENT_DEPLOY_TARGET=github-pages npm run audit:public
 git diff --check
 ```
 

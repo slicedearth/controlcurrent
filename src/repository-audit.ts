@@ -119,6 +119,9 @@ export function auditPagesWorkflow(contents: string): void {
   const build = workflowJob(contents, "build");
   const deploy = workflowJob(contents, "deploy");
 
+  if (!/^\s{6}CONTROLCURRENT_DEPLOY_TARGET:\s*github-pages\s*$/mu.test(build)) {
+    throw new Error("The Pages build must select the explicit github-pages deployment target.");
+  }
   if (!/^\s{6}contents:\s*read\s*$/mu.test(build)) {
     throw new Error("The Pages build job must retain read-only repository access.");
   }
