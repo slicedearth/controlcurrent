@@ -128,6 +128,24 @@ The initial selected snapshot establishes a baseline rather than pretending to
 know historical BCD changes. Later reviewed updates compare retained snapshots
 and append deterministic change events.
 
+## Adoption without a service
+
+The same bounded contracts now support editor and CI workflows without adding a
+hosted API. Draft 2020-12 JSON Schemas are generated from the runtime contracts,
+while the command line emits deterministic JSON, Markdown and JUnit. Runtime
+parsing remains authoritative because cross-field invariants cannot all be
+represented in JSON Schema.
+
+Policy drift records browser scope, required features, rule strength,
+exceptions and resulting decisions separately. Decision packet comparison
+revalidates fingerprints before comparing browser-policy and evidence lanes.
+This makes review automation practical without turning a collection of
+different signals into an unsupported security score.
+
+The read-only source preview uses candidate packages as data, disables lifecycle
+scripts, rebuilds only the selected subset in temporary storage, and reports
+semantic changes without opening a pull request or modifying the repository.
+
 ## Verification strategy
 
 The verification design separates:
@@ -136,8 +154,9 @@ The verification design separates:
   source drift, storage, exports, and change events;
 - static type and Astro checks;
 - deterministic source regeneration;
+- generated-contract drift checks and CI report formats;
 - dependency and public-tree audits;
-- browser behaviour, accessibility, external-request, and narrow-viewport tests.
+- browser behaviour, accessibility, external-request, and narrow-viewport tests;
 - complete catalogue-to-WPT registry coverage and pinned-link generation.
 
 Ordinary checks do not call live services.

@@ -139,18 +139,32 @@ test("imports explicit browser minimums and builds a local policy report", async
   await page
     .getByText("Turn this result into a reviewable browser policy", { exact: true })
     .click();
+  const expiry = new Date();
+  expiry.setUTCDate(expiry.getUTCDate() + 14);
+  await page.locator('input[name="required-control"][value="csp-nonces"]').check();
+  await page.locator("#exception-control").selectOption("csp-nonces");
+  await page.locator("#exception-browser").selectOption("chrome");
+  await page.locator("#exception-outcome").selectOption("unsupported_mapping");
+  await page.locator("#exception-expiry").fill(expiry.toISOString().slice(0, 10));
+  await page
+    .locator("#exception-reason")
+    .fill("A reviewed fallback remains active during the migration.");
+  await page.getByRole("button", { name: "Add exception" }).click();
   await page.getByRole("button", { name: "Check policy" }).click();
   await expect(page.getByRole("heading", { name: "Policy decision" })).toBeVisible();
   await expect(page.locator("#policy-json")).toContainText('"requiredControls"');
-  await expect(page.locator("[data-policy-finding]")).toHaveCount(15);
+  await expect(page.locator("[data-policy-finding]")).toHaveCount(18);
   await expect(page.locator("#policy-ci-command")).toContainText(
     "npm run cli -- check path/to/controlcurrent-policy.json"
   );
+  await expect(page.locator("#policy-ci-command")).toContainText("compare-policies");
+  await expect(page.getByText(/Expires in 14 days until/u)).toBeVisible();
+  await expect(page.locator("#policy-message")).toContainText("expire within 30 days");
   await page.locator("#policy-decision").selectOption("review");
   expect(await page.locator("[data-policy-finding]:visible").count()).toBeGreaterThan(0);
-  expect(await page.locator("[data-policy-finding]:visible").count()).toBeLessThan(15);
+  expect(await page.locator("[data-policy-finding]:visible").count()).toBeLessThan(18);
   await page.getByRole("button", { name: "Clear filters" }).last().click();
-  await expect(page.locator("[data-policy-finding]:visible")).toHaveCount(15);
+  await expect(page.locator("[data-policy-finding]:visible")).toHaveCount(18);
 
   const policyPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export policy JSON" }).click();
@@ -224,7 +238,7 @@ test("imports explicit browser minimums and builds a local policy report", async
     buffer: policyText
   });
   await expect(page.getByText(/Policy imported and checked locally/u)).toBeVisible();
-  await expect(page.locator("[data-policy-finding]")).toHaveCount(15);
+  await expect(page.locator("[data-policy-finding]")).toHaveCount(18);
 
   await page.locator("#import-browser-config").setInputFiles({
     name: ".browserslistrc",
@@ -544,6 +558,15 @@ test("publishes third-party licence notices with the static site", async ({ page
   expect(notices).toContain("Zod");
   expect(notices).toContain("parse5");
   expect(notices).toContain("entities");
+
+  const schemaLink = page.getByRole("link", { name: "Decision packet JSON Schema" });
+  await expect(schemaLink).toBeVisible();
+  const schemaResponse = await request.get((await schemaLink.getAttribute("href")) ?? "");
+  expect(schemaResponse.ok()).toBe(true);
+  expect(await schemaResponse.json()).toMatchObject({
+    $schema: "https://json-schema.org/draft/2020-12/schema",
+    title: "ControlCurrent two-part decision packet"
+  });
 });
 
 test("states capability maturity without numerical assurance scores", async ({ page }) => {

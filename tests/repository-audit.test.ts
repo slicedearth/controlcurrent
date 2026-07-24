@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ALLOWED_PUBLIC_SCHEMA_FILES,
   MAX_PUBLIC_JSON_FILE_BYTES,
   MAX_PUBLIC_JSON_TOTAL_BYTES,
   auditCiWorkflow,
@@ -7,6 +8,7 @@ import {
   auditPublicJson,
   auditPublicJsonTotal,
   auditRepositoryPaths,
+  auditSourceUpdateWorkflow,
   auditWorkflow
 } from "../src/repository-audit";
 
@@ -18,6 +20,7 @@ describe("repository publication audit", () => {
         "data/change-events.json",
         "data/source-history.json",
         "examples/headers.example.json",
+        ...ALLOWED_PUBLIC_SCHEMA_FILES,
         "src/catalogue.ts"
       ])
     ).not.toThrow();
@@ -26,6 +29,9 @@ describe("repository publication audit", () => {
     );
     expect(() => auditRepositoryPaths(["examples/production.json"])).toThrow(
       /not an approved synthetic example file/u
+    );
+    expect(() => auditRepositoryPaths(["public/schemas/unreviewed.schema.json"])).toThrow(
+      /not an approved public JSON Schema file/u
     );
   });
 
@@ -187,5 +193,34 @@ jobs:
     ]) {
       expect(() => auditCiWorkflow(unsafe)).toThrow(/CI|browser|dependencies/u);
     }
+  });
+});
+
+describe("source update workflow audit", () => {
+  const safe = `name: Source update dry run
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm install --prefix "$RUNNER_TEMP/controlcurrent-source-preview" --package-lock=false --ignore-scripts --no-audit --no-fund packages
+          npm run source-update:preview -- fixed-options >> "$GITHUB_STEP_SUMMARY"
+`;
+
+  it("requires temporary script-disabled candidate handling", () => {
+    expect(() => auditSourceUpdateWorkflow(safe)).not.toThrow();
+    expect(() =>
+      auditSourceUpdateWorkflow(safe.replace("--ignore-scripts", "--foreground-scripts"))
+    ).toThrow(/script-disabled/u);
+  });
+
+  it("rejects remote mutation", () => {
+    expect(() => auditSourceUpdateWorkflow(`${safe}\n      - run: git push\n`)).toThrow(
+      /must not mutate/u
+    );
   });
 });

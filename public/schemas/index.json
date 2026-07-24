@@ -1,0 +1,42 @@
+{
+  "dialect": "https://json-schema.org/draft/2020-12/schema",
+  "schemas": [
+    {
+      "contractVersion": 1,
+      "id": "browser-policy-profile",
+      "path": "browser-policy-profile.schema.json",
+      "title": "ControlCurrent browser policy profile"
+    },
+    {
+      "contractVersion": 1,
+      "id": "browser-policy-evaluation",
+      "path": "browser-policy-evaluation.schema.json",
+      "title": "ControlCurrent browser policy evaluation"
+    },
+    {
+      "contractVersion": 4,
+      "id": "evidence-policy-profile",
+      "path": "evidence-policy-profile.schema.json",
+      "title": "ControlCurrent evidence policy profile"
+    },
+    {
+      "contractVersion": 7,
+      "id": "reduced-evidence-report",
+      "path": "reduced-evidence-report.schema.json",
+      "title": "ControlCurrent reduced evidence report"
+    },
+    {
+      "contractVersion": 4,
+      "id": "evidence-policy-evaluation",
+      "path": "evidence-policy-evaluation.schema.json",
+      "title": "ControlCurrent evidence policy evaluation"
+    },
+    {
+      "contractVersion": 1,
+      "id": "decision-packet",
+      "path": "decision-packet.schema.json",
+      "title": "ControlCurrent two-part decision packet"
+    }
+  ],
+  "schemaVersion": 1
+}

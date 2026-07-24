@@ -1016,6 +1016,11 @@ const defaultRequiredControls = new Set([
     return decision === "pass" ? "Pass" : "Fail";
   }
 
+  function daysUntil(date: string, from = new Date()): number {
+    const today = Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate());
+    return Math.floor((Date.parse(`${date}T00:00:00Z`) - today) / (24 * 60 * 60 * 1_000));
+  }
+
   function policyFindingCard(finding: PolicyFinding): HTMLElement {
     const article = document.createElement("article");
     article.className = "result-card policy-finding";
@@ -1060,9 +1065,17 @@ const defaultRequiredControls = new Set([
     if (finding.exceptionState) {
       const exception = document.createElement("p");
       exception.className = `policy-exception-state policy-exception-state--${finding.exceptionState}`;
+      const remaining =
+        finding.exceptionState === "active" && finding.exceptionExpiresOn
+          ? daysUntil(finding.exceptionExpiresOn)
+          : undefined;
+      if (remaining !== undefined && remaining >= 0 && remaining <= 30) {
+        exception.classList.add("policy-exception-state--expiring");
+        article.dataset.expiringException = "";
+      }
       exception.textContent =
         finding.exceptionState === "active"
-          ? `Active exception until ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`
+          ? `${remaining !== undefined && remaining >= 0 && remaining <= 30 ? `Expires in ${String(remaining)} day${remaining === 1 ? "" : "s"}` : "Active exception"} until ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`
           : `Expired exception from ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`;
       article.append(exception);
     }
@@ -1129,17 +1142,28 @@ const defaultRequiredControls = new Set([
     renderPolicyFindings(decision);
     policyJson!.textContent = exportPolicyProfile(policy);
     policyCiContext!.textContent = `Run this check from a reviewed ControlCurrent checkout that bundles MDN browser data ${decision.bcdVersion} and catalogue ${decision.catalogueVersion}. A later source snapshot may produce a different result and should be reviewed.`;
-    policyCiCommand!.textContent = `npm run cli -- check path/to/controlcurrent-policy.json --as-of ${decision.evaluatedAsOf} --strict-review`;
+    policyCiCommand!.textContent = `npm run cli -- check path/to/controlcurrent-policy.json --as-of ${decision.evaluatedAsOf} --strict-review --format junit\nnpm run cli -- compare-policies path/to/previous-policy.json path/to/controlcurrent-policy.json --as-of ${decision.evaluatedAsOf} --warn-expiring-days 30 --fail-regression --format markdown`;
     policyPreview!.hidden = false;
     exportPolicyButton!.disabled = false;
     exportDecisionButton!.disabled = false;
     exportDecisionPacketButton!.disabled = !decisionEvidence;
-    policyMessage!.textContent =
+    const expiringExceptions = decision.findings.filter(
+      (finding) =>
+        finding.exceptionState === "active" &&
+        finding.exceptionExpiresOn &&
+        daysUntil(finding.exceptionExpiresOn) >= 0 &&
+        daysUntil(finding.exceptionExpiresOn) <= 30
+    ).length;
+    const baseMessage =
       decision.summary.fail > 0
         ? "The policy has failing browser-feature decisions. Review them before adoption."
         : decision.summary.review > 0
           ? "The policy has decisions that require a human review."
           : "Every required browser-feature decision passes the selected rules.";
+    policyMessage!.textContent =
+      expiringExceptions > 0
+        ? `${baseMessage} ${String(expiringExceptions)} exception finding${expiringExceptions === 1 ? "" : "s"} expire within 30 days.`
+        : baseMessage;
   }
 
   for (const input of [policySearch, policyDecision, policyExceptionsOnly]) {

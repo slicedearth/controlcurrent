@@ -107,6 +107,36 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       <li>Market-share data or project-authored browser policy defaults.</li>
     </ul>
 
+    <h2>Machine-readable contracts</h2>
+    <p>
+      Draft 2020-12 JSON Schemas are generated from the same runtime contracts used by the website
+      and command-line checks. They support editor validation and continuous-integration tooling.
+      Runtime validation still applies cross-field rules that JSON Schema cannot fully express.
+    </p>
+    <ul>
+      <li>
+        <a href={`${base}/schemas/browser-policy-profile.schema.json`}>
+          Browser policy profile JSON Schema
+        </a>
+      </li>
+      <li>
+        <a href={`${base}/schemas/evidence-policy-profile.schema.json`}>
+          Evidence policy profile JSON Schema
+        </a>
+      </li>
+      <li>
+        <a href={`${base}/schemas/reduced-evidence-report.schema.json`}>
+          Reduced evidence report JSON Schema
+        </a>
+      </li>
+      <li>
+        <a href={`${base}/schemas/decision-packet.schema.json`}> Decision packet JSON Schema </a>
+      </li>
+      <li>
+        <a href={`${base}/schemas/index.json`}>Schema manifest</a>
+      </li>
+    </ul>
+
     <h2>How the licences apply</h2>
     <p>
       ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains

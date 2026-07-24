@@ -17,6 +17,16 @@ export const ALLOWED_SYNTHETIC_EXAMPLE_FILES = new Set([
   "examples/scope-inventory.json"
 ]);
 
+export const ALLOWED_PUBLIC_SCHEMA_FILES = new Set([
+  "public/schemas/browser-policy-evaluation.schema.json",
+  "public/schemas/browser-policy-profile.schema.json",
+  "public/schemas/decision-packet.schema.json",
+  "public/schemas/evidence-policy-evaluation.schema.json",
+  "public/schemas/evidence-policy-profile.schema.json",
+  "public/schemas/index.json",
+  "public/schemas/reduced-evidence-report.schema.json"
+]);
+
 const prohibitedBasenames = new Set([
   "controlcurrent-collected-evidence.json",
   "controlcurrent-profile.json",
@@ -58,6 +68,9 @@ export function auditRepositoryPaths(files: readonly string[]): void {
     }
     if (file.startsWith("examples/") && !ALLOWED_SYNTHETIC_EXAMPLE_FILES.has(file)) {
       throw new Error(`${file} is not an approved synthetic example file.`);
+    }
+    if (file.startsWith("public/schemas/") && !ALLOWED_PUBLIC_SCHEMA_FILES.has(file)) {
+      throw new Error(`${file} is not an approved public JSON Schema file.`);
     }
   }
 }
@@ -187,5 +200,27 @@ export function auditCiWorkflow(contents: string): void {
   }
   if (!/^\s*(?:-\s*)?run:\s*npm run test:e2e\s*$/mu.test(browser)) {
     throw new Error("The browser job must run the browser and accessibility test suite.");
+  }
+}
+
+export function auditSourceUpdateWorkflow(contents: string): void {
+  const inspect = workflowJob(contents, "inspect");
+  const required = [
+    "permissions:\n  contents: read",
+    '--prefix "$RUNNER_TEMP/controlcurrent-source-preview"',
+    "--package-lock=false",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "npm run source-update:preview --",
+    '>> "$GITHUB_STEP_SUMMARY"'
+  ];
+  if (required.some((fragment) => !contents.includes(fragment))) {
+    throw new Error(
+      "The source update preview must remain read-only, temporary, script-disabled, and summary-only."
+    );
+  }
+  if (/\b(?:git\s+(?:add|commit|push)|gh\s+(?:pr|issue|release)|npm\s+publish)\b/u.test(inspect)) {
+    throw new Error("The source update preview must not mutate a remote or publish a package.");
   }
 }

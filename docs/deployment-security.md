@@ -35,6 +35,12 @@ The workflow does not commit, push, create issues, publish packages, or expose a
 runtime secret. Pull-request, failed, cancelled, manually dispatched CI, and
 non-`main` runs cannot start automatic publication.
 
+The manual source-update preview installs candidate browser-data packages only
+under temporary runner storage with npm lifecycle scripts disabled. It reads
+fixed package and data paths through explicit byte limits, rebuilds only the
+selected public subset in memory, and writes a bounded semantic summary. It
+does not alter the checked-out repository or trigger deployment.
+
 ## Browser boundary
 
 Every generated HTML page carries a restrictive meta Content Security Policy:

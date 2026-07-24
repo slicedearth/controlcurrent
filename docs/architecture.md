@@ -141,6 +141,11 @@ schema rejects overlapping exception scopes so array order cannot change which
 exception applies. The on-page result exposes filterable findings and a
 command-line hand-off.
 
+Policy drift is a separate pure derivation over two validated policy
+evaluations. It records browser scope, requirements, rules, exceptions and
+decision changes with deterministic IDs. Markdown and JUnit renderers consume
+the derived contract; they do not change the decision.
+
 The HTML report escapes all supplied text, loads no remote resources, and
 includes SHA-256 identifiers for the policy, browser result, and evaluated
 decision. An optional canonical JSON packet can combine that decision with a
@@ -148,6 +153,11 @@ validated privacy-reduced evidence report or evidence-policy evaluation. Its
 two evidence lanes remain distinct and its contract explicitly refuses a
 combined score or assurance implication. These exports are not uploaded or
 retained by the site.
+
+The command line can build, validate and compare the same packet. Packet
+comparison first revalidates all three fingerprints, then compares the browser
+policy and evidence lanes independently. Different evidence kinds or
+incompatible evidence contexts remain explicit.
 
 ## Offline assurance boundary
 
@@ -341,4 +351,13 @@ A weekly read-only source review compares the locked BCD and Web Platform
 Features packages with npm registry metadata and writes a bounded package-version
 table to the workflow summary. It fails visibly when a newer version needs
 review, but cannot edit packages or data, open issues, commit, push, or deploy.
-The manual dry run has the same no-write boundary.
+The manual dry run has the same no-write boundary. It installs candidate source
+packages beneath temporary runner storage with lifecycle scripts disabled. A
+bounded adapter reads only the package identity and data files, rebuilds the
+selected subset in memory, and writes semantic change counts and events to the
+workflow summary. The candidate state cannot replace the committed snapshot,
+source history or lockfile.
+
+Draft 2020-12 JSON Schemas are deterministically generated from selected runtime
+contracts into `public/schemas/`. The build checks byte-for-byte drift, and the
+repository audit allowlists each public schema path.

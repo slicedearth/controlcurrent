@@ -106,7 +106,7 @@ type WebFeatureEntry =
       kind: "moved" | "split";
     };
 
-type WebFeatures = Record<string, WebFeatureEntry>;
+export type WebFeatures = Record<string, WebFeatureEntry>;
 const defaultWebFeatures = importedWebFeatures as unknown as WebFeatures;
 
 function baselineForPath(path: string, webFeatures: WebFeatures) {

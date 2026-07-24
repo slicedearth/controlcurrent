@@ -104,6 +104,23 @@ browser implementation changed, that the previous source was wrong, or that a
 deployment policy should change. A different browser plan is not treated as a
 source update.
 
+## Policy drift
+
+Policy drift compares two validated policy evaluations on an explicit date. It
+separates:
+
+- browser minimums entering, leaving, broadening or narrowing scope;
+- required security features being added or removed;
+- result rules becoming stricter or weaker;
+- exceptions being added, removed, changed, expired or nearing expiry; and
+- compatible findings moving among pass, review and fail.
+
+Raising a browser minimum narrows the population the policy claims to support;
+lowering it broadens that population. Neither is automatically labelled a
+security improvement. Removing a required security feature, weakening a rule,
+adding an exception or moving a finding towards failure is a regression for the
+purposes of the optional CI gate.
+
 ## Baseline context
 
 Web Platform Features is joined to the selected BCD subset only when a feature

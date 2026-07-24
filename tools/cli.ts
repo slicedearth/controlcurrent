@@ -4,6 +4,17 @@ import { inspectHeaders } from "../src/assurance";
 import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
 import {
+  type CliOutputFormat,
+  renderDecisionPacketComparisonJunit,
+  renderDecisionPacketComparisonMarkdown,
+  renderEvidenceEvaluationJunit,
+  renderEvidenceEvaluationMarkdown,
+  renderPolicyDriftJunit,
+  renderPolicyDriftMarkdown,
+  renderPolicyEvaluationJunit,
+  renderPolicyEvaluationMarkdown
+} from "../src/ci-output";
+import {
   MAX_COLLECTOR_MANIFEST_BYTES,
   collectEvidenceBundle,
   collectorManifestSchema
@@ -16,6 +27,11 @@ import {
   policyProfileSchema
 } from "../src/contracts";
 import {
+  buildDecisionPacket,
+  compareDecisionPackets,
+  exportDecisionPacket
+} from "../src/decision-packet";
+import {
   createEvidenceAttestationStatement,
   verifyEvidenceAttestation
 } from "../src/evidence-attestation";
@@ -24,6 +40,7 @@ import { compareEvidenceReports } from "../src/evidence-comparison";
 import { evaluateEvidencePolicy } from "../src/evidence-policy";
 import { findMinimumBaselines } from "../src/minimums";
 import { evaluatePolicyProfile } from "../src/policy";
+import { comparePolicyEvaluations } from "../src/policy-comparison";
 import { reduceScopeInventory } from "../src/scope-inventory";
 import { FixedOriginCollectorTransport } from "./collector-network";
 
@@ -32,6 +49,7 @@ const MAX_INPUT_BYTES = 64 * 1_024;
 function usage(): never {
   console.error(`Usage:
   npm run cli -- check <profile.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
+  npm run cli -- compare-policies <before.json> <after.json> [--as-of YYYY-MM-DD] [--warn-expiring-days N] [--fail-regression] [--format text|json|markdown|junit]
   npm run cli -- minimum <control-id,...> [--browsers chrome,edge,...] [--allow-qualified] [--json]
   npm run cli -- explain <control-id> [--json]
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
@@ -41,7 +59,13 @@ function usage(): never {
   npm run cli -- collect-evidence <manifest.json> --output <private-path.json> --confirm-authorised-target [--allow-loopback]
   npm run cli -- create-attestation-statement <report.json>
   npm run cli -- check-evidence <policy.json> <report.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
-  npm run cli -- verify-evidence <policy.json> <report.json> <sigstore-bundle.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]`);
+  npm run cli -- verify-evidence <policy.json> <report.json> <sigstore-bundle.json> [--as-of YYYY-MM-DD] [--strict-review] [--json]
+  npm run cli -- build-packet <policy-evaluation.json> <evidence.json> [--as-of YYYY-MM-DD]
+  npm run cli -- validate-packet <packet.json> [--json]
+  npm run cli -- compare-packets <before.json> <after.json> [--as-of YYYY-MM-DD] [--warn-expiring-days N] [--fail-regression] [--format text|json|markdown|junit]
+
+The check and check-evidence commands also accept --format text|json|markdown|junit.
+--json remains a compatibility alias for --format json.`);
   process.exitCode = 2;
   throw new Error("Invalid command.");
 }
@@ -49,6 +73,27 @@ function usage(): never {
 function optionValue(name: string): string | undefined {
   const index = process.argv.indexOf(name);
   return index === -1 ? undefined : process.argv[index + 1];
+}
+
+function outputFormat(): CliOutputFormat {
+  if (process.argv.includes("--json")) return "json";
+  const value = optionValue("--format") ?? "text";
+  if (!["text", "json", "markdown", "junit"].includes(value)) {
+    throw new Error(`Unsupported output format: ${value}`);
+  }
+  return value as CliOutputFormat;
+}
+
+function expiryWarningDays(): number {
+  const raw = optionValue("--warn-expiring-days") ?? "30";
+  if (!/^\d{1,3}$/u.test(raw)) {
+    throw new Error("Exception expiry warning must be an integer between 0 and 365.");
+  }
+  const value = Number.parseInt(raw, 10);
+  if (value > 365) {
+    throw new Error("Exception expiry warning must be an integer between 0 and 365.");
+  }
+  return value;
 }
 
 function utcDate(): string {
@@ -109,9 +154,11 @@ async function check(): Promise<void> {
   const strictReview = process.argv.includes("--strict-review");
   const failed = result.summary.fail > 0 || (strictReview && result.summary.review > 0);
 
-  if (process.argv.includes("--json")) {
-    process.stdout.write(canonicalJson(result));
-  } else {
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(result));
+  else if (format === "markdown") process.stdout.write(renderPolicyEvaluationMarkdown(result));
+  else if (format === "junit") process.stdout.write(renderPolicyEvaluationJunit(result));
+  else {
     console.log(`${profile.name}: ${failed ? "policy failed" : "policy satisfied"}`);
     console.log(
       `${String(result.summary.pass)} pass, ${String(result.summary.review)} review, ${String(result.summary.fail)} fail`
@@ -120,6 +167,34 @@ async function check(): Promise<void> {
       console.log(
         `- ${finding.decision.toUpperCase()} ${finding.controlId} ${finding.browser} ${finding.minimumVersion}: ${finding.outcome}`
       );
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
+async function comparePolicies(): Promise<void> {
+  const beforePath = process.argv[3] ?? usage();
+  const afterPath = process.argv[4] ?? usage();
+  const asOf = optionValue("--as-of") ?? utcDate();
+  const beforeProfile = policyProfileSchema.parse(await readBoundedJson(beforePath));
+  const afterProfile = policyProfileSchema.parse(await readBoundedJson(afterPath));
+  const comparison = comparePolicyEvaluations(
+    evaluatePolicyProfile(selectedSnapshot, beforeProfile, asOf),
+    evaluatePolicyProfile(selectedSnapshot, afterProfile, asOf),
+    asOf,
+    expiryWarningDays()
+  );
+  const failed = process.argv.includes("--fail-regression") && comparison.summary.regressions > 0;
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(comparison));
+  else if (format === "markdown") process.stdout.write(renderPolicyDriftMarkdown(comparison));
+  else if (format === "junit") process.stdout.write(renderPolicyDriftJunit(comparison));
+  else {
+    console.log(
+      `${comparison.beforeProfileName} to ${comparison.afterProfileName}: ${String(comparison.summary.regressions)} regressions, ${String(comparison.summary.resolutions)} resolutions, ${String(comparison.summary.review)} review, ${String(comparison.summary.information)} information`
+    );
+    for (const item of comparison.events) {
+      console.log(`- ${item.severity.toUpperCase()} ${item.type}: ${item.summary}`);
     }
   }
   process.exitCode = failed ? 1 : 0;
@@ -268,9 +343,12 @@ async function checkEvidence(): Promise<void> {
   );
   const strictReview = process.argv.includes("--strict-review");
   const failed = evaluation.summary.fail > 0 || (strictReview && evaluation.summary.review > 0);
-  if (process.argv.includes("--json")) {
-    process.stdout.write(canonicalJson(evaluation));
-  } else {
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(evaluation));
+  else if (format === "markdown")
+    process.stdout.write(renderEvidenceEvaluationMarkdown(evaluation));
+  else if (format === "junit") process.stdout.write(renderEvidenceEvaluationJunit(evaluation));
+  else {
     console.log(
       `${profile.name}: ${failed ? "evidence policy failed" : "evidence policy satisfied"}`
     );
@@ -357,8 +435,12 @@ async function verifyEvidence(): Promise<void> {
   const strictReview = process.argv.includes("--strict-review");
   const failed =
     result.evidence.summary.fail > 0 || (strictReview && result.evidence.summary.review > 0);
-  if (process.argv.includes("--json")) {
-    process.stdout.write(canonicalJson(result));
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(result));
+  else if (format === "markdown") {
+    process.stdout.write(renderEvidenceEvaluationMarkdown(result.evidence));
+  } else if (format === "junit") {
+    process.stdout.write(renderEvidenceEvaluationJunit(result.evidence));
   } else {
     console.log(
       `${profile.name}: ${failed ? "attested evidence policy failed" : "attested evidence policy satisfied"}`
@@ -379,10 +461,74 @@ async function verifyEvidence(): Promise<void> {
   process.exitCode = failed ? 1 : 0;
 }
 
+async function buildPacket(): Promise<void> {
+  const policyPath = process.argv[3] ?? usage();
+  const evidencePath = process.argv[4] ?? usage();
+  const packet = await buildDecisionPacket(
+    await readBoundedJson(policyPath, 1_024 * 1_024),
+    await readBoundedJson(evidencePath, 2 * 1_024 * 1_024),
+    optionValue("--as-of") ?? utcDate()
+  );
+  process.stdout.write(await exportDecisionPacket(packet));
+  process.exitCode = 0;
+}
+
+async function validatePacket(): Promise<void> {
+  const path = process.argv[3] ?? usage();
+  const packetInput = await readBoundedJson(path, 4 * 1_024 * 1_024);
+  const serialised = await exportDecisionPacket(packetInput);
+  const packet = JSON.parse(serialised) as {
+    packetFingerprint: string;
+    generatedOn: string;
+    evidence: { kind: string };
+  };
+  if (outputFormat() === "json") process.stdout.write(serialised);
+  else {
+    console.log(`Decision packet ${packet.packetFingerprint} is valid.`);
+    console.log(`Generated ${packet.generatedOn}; evidence lane ${packet.evidence.kind}.`);
+  }
+  process.exitCode = 0;
+}
+
+async function comparePackets(): Promise<void> {
+  const beforePath = process.argv[3] ?? usage();
+  const afterPath = process.argv[4] ?? usage();
+  const comparison = await compareDecisionPackets(
+    await readBoundedJson(beforePath, 4 * 1_024 * 1_024),
+    await readBoundedJson(afterPath, 4 * 1_024 * 1_024),
+    optionValue("--as-of") ?? utcDate(),
+    expiryWarningDays()
+  );
+  const failed =
+    process.argv.includes("--fail-regression") &&
+    (comparison.summary.regressions > 0 || comparison.summary.incomparable > 0);
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(comparison));
+  else if (format === "markdown") {
+    process.stdout.write(renderDecisionPacketComparisonMarkdown(comparison));
+  } else if (format === "junit") {
+    process.stdout.write(renderDecisionPacketComparisonJunit(comparison));
+  } else {
+    console.log(
+      `Decision packets: ${String(comparison.summary.regressions)} regressions, ${String(comparison.summary.resolutions)} resolutions, ${String(comparison.summary.review)} review, ${String(comparison.summary.changed)} other changes, ${String(comparison.summary.incomparable)} incomparable`
+    );
+    for (const item of comparison.browserPolicy.events) {
+      console.log(`- POLICY ${item.severity.toUpperCase()} ${item.type}: ${item.summary}`);
+    }
+    for (const item of comparison.evidence.events) {
+      console.log(`- EVIDENCE ${item.type.toUpperCase()}: ${item.summary}`);
+    }
+  }
+  process.exitCode = failed ? 1 : 0;
+}
+
 try {
   switch (process.argv[2]) {
     case "check":
       await check();
+      break;
+    case "compare-policies":
+      await comparePolicies();
       break;
     case "minimum":
       minimum();
@@ -413,6 +559,15 @@ try {
       break;
     case "verify-evidence":
       await verifyEvidence();
+      break;
+    case "build-packet":
+      await buildPacket();
+      break;
+    case "validate-packet":
+      await validatePacket();
+      break;
+    case "compare-packets":
+      await comparePackets();
       break;
     default:
       usage();

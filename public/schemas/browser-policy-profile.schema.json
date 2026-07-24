@@ -1,0 +1,143 @@
+{
+  "$comment": "The runtime validator also enforces bounded cross-field invariants that JSON Schema cannot fully express. Passing this schema is necessary but not sufficient for acceptance by ControlCurrent.",
+  "$id": "https://slicedearth.github.io/controlcurrent/schemas/browser-policy-profile.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "baselines": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "browser": {
+            "enum": [
+              "chrome",
+              "edge",
+              "firefox",
+              "safari",
+              "chrome_android",
+              "firefox_android",
+              "safari_ios",
+              "webview_android",
+              "samsunginternet_android"
+            ],
+            "type": "string"
+          },
+          "minimumVersion": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": ["browser", "minimumVersion"],
+        "type": "object"
+      },
+      "maxItems": 9,
+      "minItems": 1,
+      "type": "array"
+    },
+    "exceptions": {
+      "default": [],
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "browsers": {
+            "items": {
+              "enum": [
+                "chrome",
+                "edge",
+                "firefox",
+                "safari",
+                "chrome_android",
+                "firefox_android",
+                "safari_ios",
+                "webview_android",
+                "samsunginternet_android"
+              ],
+              "type": "string"
+            },
+            "maxItems": 9,
+            "minItems": 1,
+            "type": "array"
+          },
+          "controlId": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "expiresOn": {
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+            "type": "string"
+          },
+          "outcomes": {
+            "items": {
+              "enum": [
+                "available_unqualified",
+                "available_with_qualification",
+                "unavailable",
+                "removed",
+                "unknown",
+                "unsupported_mapping",
+                "source_inconsistent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 7,
+            "minItems": 1,
+            "type": "array"
+          },
+          "reason": {
+            "maxLength": 512,
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": ["controlId", "outcomes", "reason", "expiresOn"],
+        "type": "object"
+      },
+      "maxItems": 64,
+      "type": "array"
+    },
+    "name": {
+      "maxLength": 80,
+      "minLength": 1,
+      "type": "string"
+    },
+    "requiredControls": {
+      "items": {
+        "maxLength": 80,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "rules": {
+      "additionalProperties": false,
+      "properties": {
+        "qualifications": {
+          "enum": ["review", "fail"],
+          "type": "string"
+        },
+        "unknown": {
+          "enum": ["review", "fail"],
+          "type": "string"
+        },
+        "unsupported": {
+          "enum": ["review", "fail"],
+          "type": "string"
+        }
+      },
+      "required": ["qualifications", "unknown", "unsupported"],
+      "type": "object"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "type": "number"
+    }
+  },
+  "required": ["schemaVersion", "name", "baselines", "requiredControls", "rules", "exceptions"],
+  "title": "ControlCurrent browser policy profile",
+  "type": "object"
+}

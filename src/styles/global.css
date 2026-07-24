@@ -1363,6 +1363,12 @@ thead tr > :first-child {
   border-left-color: var(--red);
 }
 
+.policy-exception-state--expiring {
+  border-left-width: 5px;
+  background: rgb(251 191 36 / 12%);
+  color: var(--text);
+}
+
 .policy-output,
 .policy-handoff {
   margin-top: 1.25rem;

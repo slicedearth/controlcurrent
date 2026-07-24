@@ -100,6 +100,7 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Browser-policy findings                 |            1,024 |
 | Browser-policy import/export            |          128 KiB |
 | Two-part decision packet                |            4 MiB |
+| Public JSON Schema file                 |            2 MiB |
 | Sigstore bundle input                   |          512 KiB |
 | Encoded DSSE statement                  |           64 KiB |
 | Decoded attestation statement           |           48 KiB |
@@ -141,8 +142,30 @@ packet has a fingerprint over its canonical body. The packet contains explicit
 false values for combined scoring, runtime-assurance equivalence, and
 independent-collection proof.
 
+Policy drift schema 1 compares two validated policy evaluations. It records
+browser scope changes, required-feature changes, rule strengthening or
+weakening, exception lifecycle changes, and result regressions or resolutions.
+The comparison uses an explicit date and a 0–365 day exception-warning window.
+It does not collapse these event types into a security score.
+
+Decision packet comparison schema 1 validates every canonical fingerprint
+before comparing browser-policy and evidence lanes. Evidence of different kinds
+or incompatible application, environment, analyser or catalogue contexts
+becomes `incomparable`; it cannot become a false resolution.
+
 Missing or incompatible source data never becomes `unavailable` or
 `available_unqualified`.
+
+## Public JSON Schemas
+
+Six draft 2020-12 schemas and one bounded manifest are generated into
+`public/schemas/` from the runtime contracts. Build verification fails when a
+committed schema no longer matches its owning contract.
+
+The schemas support external editors and CI validators but are not a substitute
+for runtime parsing. Cross-field invariants such as unique browser baselines,
+non-overlapping exceptions, matching scope inventories and canonical
+fingerprints remain enforced by the application.
 
 ## Versioning
 

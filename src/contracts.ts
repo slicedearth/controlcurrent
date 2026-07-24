@@ -415,6 +415,60 @@ export const policyEvaluationSchema = z
   .strict();
 export type PolicyEvaluation = z.infer<typeof policyEvaluationSchema>;
 
+export const policyDriftEventSchema = z
+  .object({
+    id: z.string().regex(/^[a-f0-9]{24}$/u),
+    type: z.enum([
+      "browser_added",
+      "browser_removed",
+      "browser_scope_broadened",
+      "browser_scope_narrowed",
+      "browser_minimum_changed",
+      "requirement_added",
+      "requirement_removed",
+      "rule_strengthened",
+      "rule_weakened",
+      "exception_added",
+      "exception_removed",
+      "exception_changed",
+      "exception_expiring",
+      "exception_expired",
+      "decision_regressed",
+      "decision_resolved",
+      "decision_context_changed"
+    ]),
+    severity: z.enum(["information", "review", "regression", "resolution"]),
+    key: z.string().min(1).max(256),
+    before: z.string().max(1_024).optional(),
+    after: z.string().max(1_024).optional(),
+    summary: z.string().min(1).max(1_024)
+  })
+  .strict();
+export type PolicyDriftEvent = z.infer<typeof policyDriftEventSchema>;
+
+export const policyDriftComparisonSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    comparedAsOf: z.iso.date(),
+    expiryWarningDays: z.number().int().min(0).max(365),
+    sourceChanged: z.boolean(),
+    beforeProfileName: z.string().min(1).max(80),
+    afterProfileName: z.string().min(1).max(80),
+    summary: z
+      .object({
+        regressions: z.number().int().min(0).max(4_096),
+        resolutions: z.number().int().min(0).max(4_096),
+        review: z.number().int().min(0).max(4_096),
+        information: z.number().int().min(0).max(4_096),
+        expiringExceptions: z.number().int().min(0).max(64),
+        totalEvents: z.number().int().min(0).max(512)
+      })
+      .strict(),
+    events: z.array(policyDriftEventSchema).max(512)
+  })
+  .strict();
+export type PolicyDriftComparison = z.infer<typeof policyDriftComparisonSchema>;
+
 export const minimumBaselineRequestSchema = z
   .object({
     controlIds: z.array(z.string().min(1).max(80)).min(1).max(64),
@@ -1647,6 +1701,50 @@ export const decisionPacketSchema = z
   })
   .strict();
 export type DecisionPacket = z.infer<typeof decisionPacketSchema>;
+
+export const decisionPacketEvidenceChangeSchema = z
+  .object({
+    type: z.enum(["regression", "resolution", "changed", "incomparable"]),
+    key: z.string().min(1).max(256),
+    summary: z.string().min(1).max(1_024)
+  })
+  .strict();
+
+export const decisionPacketComparisonSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    comparedAsOf: z.iso.date(),
+    beforeFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    afterFingerprint: z.string().regex(/^[a-f0-9]{64}$/u),
+    browserPolicy: policyDriftComparisonSchema,
+    evidence: z
+      .object({
+        compatible: z.boolean(),
+        beforeKind: z.enum(["reduced_evidence_report", "evidence_policy_evaluation"]),
+        afterKind: z.enum(["reduced_evidence_report", "evidence_policy_evaluation"]),
+        summary: z
+          .object({
+            regressions: z.number().int().min(0).max(4_096),
+            resolutions: z.number().int().min(0).max(4_096),
+            changed: z.number().int().min(0).max(4_096),
+            incomparable: z.number().int().min(0).max(4_096)
+          })
+          .strict(),
+        events: z.array(decisionPacketEvidenceChangeSchema).max(512)
+      })
+      .strict(),
+    summary: z
+      .object({
+        regressions: z.number().int().min(0).max(8_192),
+        resolutions: z.number().int().min(0).max(8_192),
+        review: z.number().int().min(0).max(8_192),
+        changed: z.number().int().min(0).max(8_192),
+        incomparable: z.number().int().min(0).max(8_192)
+      })
+      .strict()
+  })
+  .strict();
+export type DecisionPacketComparison = z.infer<typeof decisionPacketComparisonSchema>;
 
 export const attestedEvidenceEvaluationSchema = z
   .object({

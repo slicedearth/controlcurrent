@@ -59,6 +59,12 @@ browser minimums, required controls, exception reasons, and exception expiry
 dates. The planner stores none of these values automatically. Import, evaluation,
 fingerprinting, and export happen locally.
 
+Command-line Markdown and JUnit reports repeat bounded policy names, controls,
+browser minimums, evidence labels, opaque identifiers and result explanations.
+They are not uploaded by ControlCurrent. Treat CI artifacts and workflow
+summaries according to the receiving repository's visibility and retention
+settings.
+
 A two-part decision packet deliberately copies the complete browser-policy
 evaluation and either a privacy-reduced evidence report or an evidence-policy
 evaluation into one local JSON export. That evidence can contain the opaque
@@ -146,6 +152,9 @@ evidence.
 
 The compatibility dataset contains public technical facts from MDN BCD and Web
 Platform Features and no visitor or target information.
+
+The public JSON Schemas contain only contract structure and bounds. They contain
+no imported policy, decision, evidence or visitor values.
 
 ## Deletion
 

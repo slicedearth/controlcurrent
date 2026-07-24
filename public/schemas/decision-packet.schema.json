@@ -1,0 +1,2656 @@
+{
+  "$comment": "The runtime validator also enforces bounded cross-field invariants that JSON Schema cannot fully express. Passing this schema is necessary but not sufficient for acceptance by ControlCurrent.",
+  "$id": "https://slicedearth.github.io/controlcurrent/schemas/decision-packet.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "browserPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation": {
+          "additionalProperties": false,
+          "properties": {
+            "bcdTimestamp": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "bcdVersion": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "catalogueVersion": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "evaluatedAsOf": {
+              "format": "date",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+              "type": "string"
+            },
+            "findings": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "browser": {
+                    "enum": [
+                      "chrome",
+                      "edge",
+                      "firefox",
+                      "safari",
+                      "chrome_android",
+                      "firefox_android",
+                      "safari_ios",
+                      "webview_android",
+                      "samsunginternet_android"
+                    ],
+                    "type": "string"
+                  },
+                  "controlId": {
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "decision": {
+                    "enum": ["pass", "review", "fail"],
+                    "type": "string"
+                  },
+                  "exceptionExpiresOn": {
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                    "type": "string"
+                  },
+                  "exceptionReason": {
+                    "maxLength": 512,
+                    "type": "string"
+                  },
+                  "exceptionState": {
+                    "enum": ["active", "expired"],
+                    "type": "string"
+                  },
+                  "explanation": {
+                    "maxLength": 1024,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "minimumVersion": {
+                    "maxLength": 64,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "outcome": {
+                    "enum": [
+                      "available_unqualified",
+                      "available_with_qualification",
+                      "unavailable",
+                      "removed",
+                      "unknown",
+                      "unsupported_mapping",
+                      "source_inconsistent"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "controlId",
+                  "browser",
+                  "minimumVersion",
+                  "outcome",
+                  "decision",
+                  "explanation"
+                ],
+                "type": "object"
+              },
+              "maxItems": 1024,
+              "type": "array"
+            },
+            "profile": {
+              "additionalProperties": false,
+              "properties": {
+                "baselines": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "browser": {
+                        "enum": [
+                          "chrome",
+                          "edge",
+                          "firefox",
+                          "safari",
+                          "chrome_android",
+                          "firefox_android",
+                          "safari_ios",
+                          "webview_android",
+                          "samsunginternet_android"
+                        ],
+                        "type": "string"
+                      },
+                      "minimumVersion": {
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": ["browser", "minimumVersion"],
+                    "type": "object"
+                  },
+                  "maxItems": 9,
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "exceptions": {
+                  "default": [],
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "browsers": {
+                        "items": {
+                          "enum": [
+                            "chrome",
+                            "edge",
+                            "firefox",
+                            "safari",
+                            "chrome_android",
+                            "firefox_android",
+                            "safari_ios",
+                            "webview_android",
+                            "samsunginternet_android"
+                          ],
+                          "type": "string"
+                        },
+                        "maxItems": 9,
+                        "minItems": 1,
+                        "type": "array"
+                      },
+                      "controlId": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "expiresOn": {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      "outcomes": {
+                        "items": {
+                          "enum": [
+                            "available_unqualified",
+                            "available_with_qualification",
+                            "unavailable",
+                            "removed",
+                            "unknown",
+                            "unsupported_mapping",
+                            "source_inconsistent"
+                          ],
+                          "type": "string"
+                        },
+                        "maxItems": 7,
+                        "minItems": 1,
+                        "type": "array"
+                      },
+                      "reason": {
+                        "maxLength": 512,
+                        "minLength": 8,
+                        "type": "string"
+                      }
+                    },
+                    "required": ["controlId", "outcomes", "reason", "expiresOn"],
+                    "type": "object"
+                  },
+                  "maxItems": 64,
+                  "type": "array"
+                },
+                "name": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "requiredControls": {
+                  "items": {
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "maxItems": 64,
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "rules": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "qualifications": {
+                      "enum": ["review", "fail"],
+                      "type": "string"
+                    },
+                    "unknown": {
+                      "enum": ["review", "fail"],
+                      "type": "string"
+                    },
+                    "unsupported": {
+                      "enum": ["review", "fail"],
+                      "type": "string"
+                    }
+                  },
+                  "required": ["qualifications", "unknown", "unsupported"],
+                  "type": "object"
+                },
+                "schemaVersion": {
+                  "const": 1,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "schemaVersion",
+                "name",
+                "baselines",
+                "requiredControls",
+                "rules",
+                "exceptions"
+              ],
+              "type": "object"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "summary": {
+              "additionalProperties": false,
+              "properties": {
+                "fail": {
+                  "maximum": 1024,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "pass": {
+                  "maximum": 1024,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "review": {
+                  "maximum": 1024,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": ["pass", "review", "fail"],
+              "type": "object"
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "evaluatedAsOf",
+            "bcdVersion",
+            "bcdTimestamp",
+            "catalogueVersion",
+            "profile",
+            "summary",
+            "findings"
+          ],
+          "type": "object"
+        },
+        "fingerprint": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        }
+      },
+      "required": ["fingerprint", "evaluation"],
+      "type": "object"
+    },
+    "evidence": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "fingerprint": {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "kind": {
+              "const": "reduced_evidence_report",
+              "type": "string"
+            },
+            "report": {
+              "additionalProperties": false,
+              "properties": {
+                "composites": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "name": {
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "requirements": {
+                        "items": {
+                          "maxLength": 256,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "maxItems": 8,
+                        "type": "array"
+                      },
+                      "state": {
+                        "enum": ["satisfied", "review", "gap", "not_evaluated", "not_applicable"],
+                        "type": "string"
+                      },
+                      "summary": {
+                        "maxLength": 1024,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id", "name", "state", "summary", "requirements"],
+                    "type": "object"
+                  },
+                  "maxItems": 8,
+                  "type": "array"
+                },
+                "coverage": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "authenticatedResponses": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "completeSurfaces": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "contextualisedResponses": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "errorResponses": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "expectedSurfaces": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "htmlDocuments": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "redirectResponses": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "requests": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "resourceBytes": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "responses": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "responseVariants": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "surfaceGaps": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "webauthn": {
+                      "maximum": 16,
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "responses",
+                    "contextualisedResponses",
+                    "responseVariants",
+                    "redirectResponses",
+                    "errorResponses",
+                    "authenticatedResponses",
+                    "htmlDocuments",
+                    "resourceBytes",
+                    "requests",
+                    "webauthn",
+                    "expectedSurfaces",
+                    "completeSurfaces",
+                    "surfaceGaps"
+                  ],
+                  "type": "object"
+                },
+                "cspMarkupReports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "broadSourceExpressionCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "crossDocumentNonceReuseCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "finding": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "controlId": {
+                            "maxLength": 80,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "evidence": {
+                            "maxLength": 512,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "sourceHeaders": {
+                            "items": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "maxItems": 4,
+                            "type": "array"
+                          },
+                          "state": {
+                            "enum": [
+                              "observed",
+                              "missing",
+                              "invalid",
+                              "not_evaluated",
+                              "not_applicable",
+                              "report_only",
+                              "inconclusive"
+                            ],
+                            "type": "string"
+                          },
+                          "summary": {
+                            "maxLength": 1024,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": ["controlId", "state", "sourceHeaders", "summary"],
+                        "type": "object"
+                      },
+                      "inlineElementCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "matchedHashCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "matchedMixedCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "matchedNonceCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "schemaVersion": {
+                        "const": 1,
+                        "type": "number"
+                      },
+                      "surfaceId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      },
+                      "unmatchedInlineCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "schemaVersion",
+                      "surfaceId",
+                      "inlineElementCount",
+                      "matchedNonceCount",
+                      "matchedHashCount",
+                      "matchedMixedCount",
+                      "unmatchedInlineCount",
+                      "broadSourceExpressionCount",
+                      "crossDocumentNonceReuseCount",
+                      "finding"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "type": "array"
+                },
+                "findings": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "controlId": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "evidence": {
+                        "maxLength": 512,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "sourceHeaders": {
+                        "items": {
+                          "maxLength": 128,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "maxItems": 4,
+                        "type": "array"
+                      },
+                      "state": {
+                        "enum": [
+                          "observed",
+                          "missing",
+                          "invalid",
+                          "not_evaluated",
+                          "not_applicable",
+                          "report_only",
+                          "inconclusive"
+                        ],
+                        "type": "string"
+                      },
+                      "summary": {
+                        "maxLength": 1024,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": ["controlId", "state", "sourceHeaders", "summary"],
+                    "type": "object"
+                  },
+                  "maxItems": 64,
+                  "type": "array"
+                },
+                "htmlReports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "absoluteReferenceCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "algorithms": {
+                        "items": {
+                          "enum": ["sha256", "sha384", "sha512"],
+                          "type": "string"
+                        },
+                        "maxItems": 3,
+                        "type": "array"
+                      },
+                      "elementCount": {
+                        "maximum": 8192,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "eligibleResourceCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "finding": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "controlId": {
+                            "maxLength": 80,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "evidence": {
+                            "maxLength": 512,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "sourceHeaders": {
+                            "items": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "maxItems": 4,
+                            "type": "array"
+                          },
+                          "state": {
+                            "enum": [
+                              "observed",
+                              "missing",
+                              "invalid",
+                              "not_evaluated",
+                              "not_applicable",
+                              "report_only",
+                              "inconclusive"
+                            ],
+                            "type": "string"
+                          },
+                          "summary": {
+                            "maxLength": 1024,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": ["controlId", "state", "sourceHeaders", "summary"],
+                        "type": "object"
+                      },
+                      "inputBytes": {
+                        "maximum": 131072,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "invalidIntegrityCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "name": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "otherReferenceCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "parseErrorCount": {
+                        "maximum": 64,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "preloadCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "protectedResourceCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "relativeReferenceCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "schemaVersion": {
+                        "const": 1,
+                        "type": "number"
+                      },
+                      "scriptCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "styleCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "unprotectedResourceCount": {
+                        "maximum": 512,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "schemaVersion",
+                      "name",
+                      "inputBytes",
+                      "elementCount",
+                      "parseErrorCount",
+                      "eligibleResourceCount",
+                      "protectedResourceCount",
+                      "unprotectedResourceCount",
+                      "invalidIntegrityCount",
+                      "scriptCount",
+                      "styleCount",
+                      "preloadCount",
+                      "relativeReferenceCount",
+                      "absoluteReferenceCount",
+                      "otherReferenceCount",
+                      "algorithms",
+                      "finding"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "type": "array"
+                },
+                "identity": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "capture": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "completedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        },
+                        "producer": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": ["application_ci", "manual", "other"],
+                              "type": "string"
+                            },
+                            "version": {
+                              "maxLength": 64,
+                              "minLength": 1,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$",
+                              "type": "string"
+                            }
+                          },
+                          "required": ["kind", "id"],
+                          "type": "object"
+                        },
+                        "startedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["startedAt", "completedAt", "producer"],
+                      "type": "object"
+                    },
+                    "subject": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "applicationId": {
+                          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                          "type": "string"
+                        },
+                        "buildId": {
+                          "maxLength": 128,
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$",
+                          "type": "string"
+                        },
+                        "environment": {
+                          "pattern": "^[a-z0-9][a-z0-9._-]{0,39}$",
+                          "type": "string"
+                        },
+                        "revision": {
+                          "maxLength": 128,
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["applicationId", "environment", "revision"],
+                      "type": "object"
+                    }
+                  },
+                  "required": ["subject", "capture"],
+                  "type": "object"
+                },
+                "name": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "provenance": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "analyserVersion": {
+                      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                      "type": "string"
+                    },
+                    "bcdTimestamp": {
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                      "type": "string"
+                    },
+                    "bcdVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "catalogueVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "selectedSchemaFingerprint": {
+                      "pattern": "^[a-f0-9]{64}$",
+                      "type": "string"
+                    },
+                    "webFeaturesVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "bcdVersion",
+                    "bcdTimestamp",
+                    "webFeaturesVersion",
+                    "selectedSchemaFingerprint",
+                    "analyserVersion",
+                    "catalogueVersion"
+                  ],
+                  "type": "object"
+                },
+                "reportFingerprint": {
+                  "pattern": "^[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "requestReports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "finding": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "controlId": {
+                            "maxLength": 80,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "evidence": {
+                            "maxLength": 512,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "sourceHeaders": {
+                            "items": {
+                              "maxLength": 128,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "maxItems": 4,
+                            "type": "array"
+                          },
+                          "state": {
+                            "enum": [
+                              "observed",
+                              "missing",
+                              "invalid",
+                              "not_evaluated",
+                              "not_applicable",
+                              "report_only",
+                              "inconclusive"
+                            ],
+                            "type": "string"
+                          },
+                          "summary": {
+                            "maxLength": 1024,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": ["controlId", "state", "sourceHeaders", "summary"],
+                        "type": "object"
+                      },
+                      "inputHeaderCount": {
+                        "maximum": 64,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "name": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "recognisedHeaderCount": {
+                        "maximum": 4,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "schemaVersion": {
+                        "const": 1,
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "schemaVersion",
+                      "name",
+                      "inputHeaderCount",
+                      "recognisedHeaderCount",
+                      "finding"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 32,
+                  "type": "array"
+                },
+                "resourceVerificationReport": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "finding": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "controlId": {
+                          "maxLength": 80,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "evidence": {
+                          "maxLength": 512,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "sourceHeaders": {
+                          "items": {
+                            "maxLength": 128,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "maxItems": 4,
+                          "type": "array"
+                        },
+                        "state": {
+                          "enum": [
+                            "observed",
+                            "missing",
+                            "invalid",
+                            "not_evaluated",
+                            "not_applicable",
+                            "report_only",
+                            "inconclusive"
+                          ],
+                          "type": "string"
+                        },
+                        "summary": {
+                          "maxLength": 1024,
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": ["controlId", "state", "sourceHeaders", "summary"],
+                      "type": "object"
+                    },
+                    "invalidMetadataCount": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "matchedResourceCount": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "mismatchedResourceCount": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "schemaVersion": {
+                      "const": 1,
+                      "type": "number"
+                    },
+                    "suppliedBytes": {
+                      "maximum": 1048576,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "suppliedResourceCount": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "unmatchedResourceCount": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "verifiedResourceCount": {
+                      "maximum": 32,
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "schemaVersion",
+                    "suppliedResourceCount",
+                    "suppliedBytes",
+                    "matchedResourceCount",
+                    "verifiedResourceCount",
+                    "mismatchedResourceCount",
+                    "invalidMetadataCount",
+                    "unmatchedResourceCount",
+                    "finding"
+                  ],
+                  "type": "object"
+                },
+                "responseContexts": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "authentication": {
+                        "enum": ["anonymous", "authenticated", "unknown"],
+                        "type": "string"
+                      },
+                      "cache": {
+                        "enum": ["hit", "miss", "revalidated", "bypass", "unknown"],
+                        "type": "string"
+                      },
+                      "contentType": {
+                        "enum": [
+                          "html",
+                          "json",
+                          "javascript",
+                          "css",
+                          "font",
+                          "image",
+                          "text",
+                          "other",
+                          "unknown"
+                        ],
+                        "type": "string"
+                      },
+                      "errorKind": {
+                        "enum": ["timeout", "dns", "tls", "connection", "other"],
+                        "type": "string"
+                      },
+                      "outcome": {
+                        "enum": ["final", "redirect", "http_error", "transport_error"],
+                        "type": "string"
+                      },
+                      "redirectChainId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      },
+                      "redirectTarget": {
+                        "enum": ["same_origin", "cross_origin", "unknown"],
+                        "type": "string"
+                      },
+                      "sequence": {
+                        "maximum": 16,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "status": {
+                        "maximum": 599,
+                        "minimum": 100,
+                        "type": "integer"
+                      },
+                      "statusClass": {
+                        "enum": [
+                          "informational",
+                          "success",
+                          "redirect",
+                          "client_error",
+                          "server_error",
+                          "not_available"
+                        ],
+                        "type": "string"
+                      },
+                      "surfaceId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      },
+                      "variantId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "surfaceId",
+                      "variantId",
+                      "sequence",
+                      "outcome",
+                      "statusClass",
+                      "contentType",
+                      "authentication",
+                      "cache"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "type": "array"
+                },
+                "responseReports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "findings": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "controlId": {
+                              "maxLength": 80,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "evidence": {
+                              "maxLength": 512,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "sourceHeaders": {
+                              "items": {
+                                "maxLength": 128,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "maxItems": 4,
+                              "type": "array"
+                            },
+                            "state": {
+                              "enum": [
+                                "observed",
+                                "missing",
+                                "invalid",
+                                "not_evaluated",
+                                "not_applicable",
+                                "report_only",
+                                "inconclusive"
+                              ],
+                              "type": "string"
+                            },
+                            "summary": {
+                              "maxLength": 1024,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["controlId", "state", "sourceHeaders", "summary"],
+                          "type": "object"
+                        },
+                        "maxItems": 64,
+                        "type": "array"
+                      },
+                      "inputHeaderCount": {
+                        "maximum": 64,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "name": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "recognisedHeaderCount": {
+                        "maximum": 64,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "schemaVersion": {
+                        "const": 2,
+                        "type": "number"
+                      },
+                      "summary": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "inconclusive": {
+                            "maximum": 64,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "invalid": {
+                            "maximum": 64,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "missing": {
+                            "maximum": 64,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "notEvaluated": {
+                            "maximum": 64,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "observed": {
+                            "maximum": 64,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "reportOnly": {
+                            "maximum": 64,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "observed",
+                          "missing",
+                          "invalid",
+                          "notEvaluated",
+                          "reportOnly",
+                          "inconclusive"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "schemaVersion",
+                      "name",
+                      "inputHeaderCount",
+                      "recognisedHeaderCount",
+                      "summary",
+                      "findings"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "type": "array"
+                },
+                "schemaVersion": {
+                  "const": 7,
+                  "type": "number"
+                },
+                "scopeInventory": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "schemaVersion": {
+                          "const": 1,
+                          "type": "number"
+                        },
+                        "state": {
+                          "const": "absent",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["schemaVersion", "state"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "completeness": {
+                          "enum": ["complete", "partial", "unknown"],
+                          "type": "string"
+                        },
+                        "excludedEntries": {
+                          "maximum": 255,
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "fingerprint": {
+                          "pattern": "^[a-f0-9]{64}$",
+                          "type": "string"
+                        },
+                        "generatedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        },
+                        "includedEntries": {
+                          "maximum": 32,
+                          "minimum": 1,
+                          "type": "integer"
+                        },
+                        "kind": {
+                          "enum": [
+                            "declared",
+                            "framework_manifest",
+                            "authorised_crawl",
+                            "test_suite"
+                          ],
+                          "type": "string"
+                        },
+                        "name": {
+                          "maxLength": 80,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "schemaVersion": {
+                          "const": 1,
+                          "type": "number"
+                        },
+                        "state": {
+                          "const": "present",
+                          "type": "string"
+                        },
+                        "totalEntries": {
+                          "maximum": 256,
+                          "minimum": 1,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "schemaVersion",
+                        "state",
+                        "name",
+                        "kind",
+                        "generatedAt",
+                        "completeness",
+                        "fingerprint",
+                        "totalEntries",
+                        "includedEntries",
+                        "excludedEntries"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                },
+                "summary": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "inconclusive": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "invalid": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "missing": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "notApplicable": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "notEvaluated": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "observed": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "reportOnly": {
+                      "maximum": 64,
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "observed",
+                    "missing",
+                    "invalid",
+                    "notEvaluated",
+                    "notApplicable",
+                    "reportOnly",
+                    "inconclusive"
+                  ],
+                  "type": "object"
+                },
+                "surfaceAssessments": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "composites": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "maxLength": 80,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "name": {
+                              "maxLength": 120,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "requirements": {
+                              "items": {
+                                "maxLength": 256,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "maxItems": 8,
+                              "type": "array"
+                            },
+                            "state": {
+                              "enum": [
+                                "satisfied",
+                                "review",
+                                "gap",
+                                "not_evaluated",
+                                "not_applicable"
+                              ],
+                              "type": "string"
+                            },
+                            "summary": {
+                              "maxLength": 1024,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["id", "name", "state", "summary", "requirements"],
+                          "type": "object"
+                        },
+                        "maxItems": 3,
+                        "type": "array"
+                      },
+                      "findings": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "controlId": {
+                              "maxLength": 80,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "evidence": {
+                              "maxLength": 512,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "sourceHeaders": {
+                              "items": {
+                                "maxLength": 128,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "maxItems": 4,
+                              "type": "array"
+                            },
+                            "state": {
+                              "enum": [
+                                "observed",
+                                "missing",
+                                "invalid",
+                                "not_evaluated",
+                                "not_applicable",
+                                "report_only",
+                                "inconclusive"
+                              ],
+                              "type": "string"
+                            },
+                            "summary": {
+                              "maxLength": 1024,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["controlId", "state", "sourceHeaders", "summary"],
+                          "type": "object"
+                        },
+                        "maxItems": 64,
+                        "type": "array"
+                      },
+                      "requiredComposites": {
+                        "items": {
+                          "enum": [
+                            "strict-csp-candidate",
+                            "cross-origin-isolation-candidate",
+                            "cookie-attribute-coverage"
+                          ],
+                          "type": "string"
+                        },
+                        "maxItems": 3,
+                        "type": "array"
+                      },
+                      "requiredControls": {
+                        "items": {
+                          "pattern": "^[a-z0-9][a-z0-9-]{0,79}$",
+                          "type": "string"
+                        },
+                        "maxItems": 64,
+                        "type": "array"
+                      },
+                      "responseContexts": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "authentication": {
+                              "enum": ["anonymous", "authenticated", "unknown"],
+                              "type": "string"
+                            },
+                            "cache": {
+                              "enum": ["hit", "miss", "revalidated", "bypass", "unknown"],
+                              "type": "string"
+                            },
+                            "contentType": {
+                              "enum": [
+                                "html",
+                                "json",
+                                "javascript",
+                                "css",
+                                "font",
+                                "image",
+                                "text",
+                                "other",
+                                "unknown"
+                              ],
+                              "type": "string"
+                            },
+                            "errorKind": {
+                              "enum": ["timeout", "dns", "tls", "connection", "other"],
+                              "type": "string"
+                            },
+                            "outcome": {
+                              "enum": ["final", "redirect", "http_error", "transport_error"],
+                              "type": "string"
+                            },
+                            "redirectChainId": {
+                              "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                              "type": "string"
+                            },
+                            "redirectTarget": {
+                              "enum": ["same_origin", "cross_origin", "unknown"],
+                              "type": "string"
+                            },
+                            "sequence": {
+                              "maximum": 16,
+                              "minimum": 0,
+                              "type": "integer"
+                            },
+                            "status": {
+                              "maximum": 599,
+                              "minimum": 100,
+                              "type": "integer"
+                            },
+                            "statusClass": {
+                              "enum": [
+                                "informational",
+                                "success",
+                                "redirect",
+                                "client_error",
+                                "server_error",
+                                "not_available"
+                              ],
+                              "type": "string"
+                            },
+                            "surfaceId": {
+                              "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                              "type": "string"
+                            },
+                            "variantId": {
+                              "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "surfaceId",
+                            "variantId",
+                            "sequence",
+                            "outcome",
+                            "statusClass",
+                            "contentType",
+                            "authentication",
+                            "cache"
+                          ],
+                          "type": "object"
+                        },
+                        "maxItems": 16,
+                        "type": "array"
+                      },
+                      "role": {
+                        "enum": [
+                          "document",
+                          "api",
+                          "authentication",
+                          "logout",
+                          "embedded",
+                          "other"
+                        ],
+                        "type": "string"
+                      },
+                      "surfaceId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "surfaceId",
+                      "role",
+                      "requiredControls",
+                      "requiredComposites",
+                      "responseContexts",
+                      "findings",
+                      "composites"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 32,
+                  "type": "array"
+                },
+                "surfaceCoverage": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "missingEvidence": {
+                        "items": {
+                          "enum": ["response", "html", "resource_bytes", "request", "webauthn"],
+                          "type": "string"
+                        },
+                        "maxItems": 5,
+                        "type": "array"
+                      },
+                      "observedEvidence": {
+                        "items": {
+                          "enum": ["response", "html", "resource_bytes", "request", "webauthn"],
+                          "type": "string"
+                        },
+                        "maxItems": 5,
+                        "type": "array"
+                      },
+                      "requiredEvidence": {
+                        "items": {
+                          "enum": ["response", "html", "resource_bytes", "request", "webauthn"],
+                          "type": "string"
+                        },
+                        "maxItems": 5,
+                        "minItems": 1,
+                        "type": "array"
+                      },
+                      "role": {
+                        "enum": [
+                          "document",
+                          "api",
+                          "authentication",
+                          "logout",
+                          "embedded",
+                          "other"
+                        ],
+                        "type": "string"
+                      },
+                      "state": {
+                        "enum": ["complete", "gap"],
+                        "type": "string"
+                      },
+                      "surfaceId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "surfaceId",
+                      "role",
+                      "state",
+                      "requiredEvidence",
+                      "observedEvidence",
+                      "missingEvidence"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 32,
+                  "type": "array"
+                },
+                "webauthnReports": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "configuration": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attestation": {
+                            "enum": ["none", "indirect", "direct", "enterprise", "unspecified"],
+                            "type": "string"
+                          },
+                          "authenticatorAttachment": {
+                            "enum": ["platform", "cross-platform", "unspecified"],
+                            "type": "string"
+                          },
+                          "mediation": {
+                            "enum": [
+                              "conditional",
+                              "optional",
+                              "required",
+                              "silent",
+                              "unspecified"
+                            ],
+                            "type": "string"
+                          },
+                          "prfRequested": {
+                            "type": "boolean"
+                          },
+                          "residentKey": {
+                            "enum": ["required", "preferred", "discouraged", "unspecified"],
+                            "type": "string"
+                          },
+                          "userVerification": {
+                            "enum": ["required", "preferred", "discouraged", "unspecified"],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "authenticatorAttachment",
+                          "userVerification",
+                          "residentKey",
+                          "attestation",
+                          "mediation"
+                        ],
+                        "type": "object"
+                      },
+                      "findings": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "controlId": {
+                              "maxLength": 80,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "evidence": {
+                              "maxLength": 512,
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "sourceHeaders": {
+                              "items": {
+                                "maxLength": 128,
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "maxItems": 4,
+                              "type": "array"
+                            },
+                            "state": {
+                              "enum": [
+                                "observed",
+                                "missing",
+                                "invalid",
+                                "not_evaluated",
+                                "not_applicable",
+                                "report_only",
+                                "inconclusive"
+                              ],
+                              "type": "string"
+                            },
+                            "summary": {
+                              "maxLength": 1024,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["controlId", "state", "sourceHeaders", "summary"],
+                          "type": "object"
+                        },
+                        "maxItems": 3,
+                        "minItems": 3,
+                        "type": "array"
+                      },
+                      "name": {
+                        "maxLength": 80,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "operation": {
+                        "enum": ["create", "get"],
+                        "type": "string"
+                      },
+                      "schemaVersion": {
+                        "const": 1,
+                        "type": "number"
+                      }
+                    },
+                    "required": ["schemaVersion", "name", "operation", "configuration", "findings"],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "schemaVersion",
+                "name",
+                "identity",
+                "scopeInventory",
+                "provenance",
+                "reportFingerprint",
+                "coverage",
+                "surfaceCoverage",
+                "surfaceAssessments",
+                "summary",
+                "findings",
+                "composites",
+                "responseContexts",
+                "responseReports",
+                "htmlReports",
+                "resourceVerificationReport",
+                "cspMarkupReports",
+                "requestReports",
+                "webauthnReports"
+              ],
+              "type": "object"
+            }
+          },
+          "required": ["kind", "fingerprint", "report"],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "evaluation": {
+              "additionalProperties": false,
+              "properties": {
+                "attestation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "explanation": {
+                      "maxLength": 1024,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "predicateType": {
+                      "const": "https://github.com/slicedearth/controlcurrent/attestations/evidence-report/v3",
+                      "type": "string"
+                    },
+                    "reportFingerprint": {
+                      "pattern": "^[a-f0-9]{64}$",
+                      "type": "string"
+                    },
+                    "schemaVersion": {
+                      "const": 1,
+                      "type": "number"
+                    },
+                    "signer": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "identity": {
+                          "maxLength": 1024,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "issuer": {
+                          "maxLength": 512,
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": ["issuer", "identity"],
+                      "type": "object"
+                    },
+                    "state": {
+                      "enum": [
+                        "absent",
+                        "verified",
+                        "invalid_bundle",
+                        "verification_failed",
+                        "signer_mismatch",
+                        "statement_invalid",
+                        "digest_mismatch",
+                        "identity_mismatch",
+                        "trust_unavailable",
+                        "unsupported"
+                      ],
+                      "type": "string"
+                    },
+                    "verifierVersion": {
+                      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "schemaVersion",
+                    "state",
+                    "reportFingerprint",
+                    "predicateType",
+                    "verifierVersion",
+                    "explanation"
+                  ],
+                  "type": "object"
+                },
+                "evaluatedAsOf": {
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                  "type": "string"
+                },
+                "findings": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "decision": {
+                        "enum": ["pass", "review", "fail"],
+                        "type": "string"
+                      },
+                      "exceptionExpiresOn": {
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                        "type": "string"
+                      },
+                      "exceptionReason": {
+                        "maxLength": 512,
+                        "type": "string"
+                      },
+                      "exceptionState": {
+                        "enum": ["active", "expired"],
+                        "type": "string"
+                      },
+                      "explanation": {
+                        "maxLength": 1024,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "outcome": {
+                        "enum": [
+                          "observed",
+                          "satisfied",
+                          "complete",
+                          "missing",
+                          "invalid",
+                          "not_evaluated",
+                          "not_applicable",
+                          "report_only",
+                          "inconclusive",
+                          "gap",
+                          "review",
+                          "absent",
+                          "role_mismatch",
+                          "model_mismatch",
+                          "identity_mismatch",
+                          "verified",
+                          "signer_mismatch",
+                          "digest_mismatch",
+                          "statement_invalid",
+                          "trust_unavailable",
+                          "unsupported",
+                          "stale",
+                          "future",
+                          "window_too_long",
+                          "scope_mismatch",
+                          "partial",
+                          "unknown",
+                          "too_many_exclusions"
+                        ],
+                        "type": "string"
+                      },
+                      "surfaceId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      },
+                      "targetId": {
+                        "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                        "type": "string"
+                      },
+                      "targetKind": {
+                        "enum": [
+                          "model",
+                          "attestation",
+                          "inventory",
+                          "identity",
+                          "freshness",
+                          "surface",
+                          "evidence",
+                          "control",
+                          "composite"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": ["targetKind", "targetId", "outcome", "decision", "explanation"],
+                    "type": "object"
+                  },
+                  "maxItems": 4096,
+                  "type": "array"
+                },
+                "profile": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "attestation": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "certificateIdentity": {
+                          "format": "uri",
+                          "maxLength": 1024,
+                          "type": "string"
+                        },
+                        "certificateIssuer": {
+                          "format": "uri",
+                          "maxLength": 1024,
+                          "type": "string"
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["required", "certificateIssuer", "certificateIdentity"],
+                      "type": "object"
+                    },
+                    "exceptions": {
+                      "default": [],
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "expiresOn": {
+                            "format": "date",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+                            "type": "string"
+                          },
+                          "outcomes": {
+                            "items": {
+                              "enum": [
+                                "observed",
+                                "satisfied",
+                                "complete",
+                                "missing",
+                                "invalid",
+                                "not_evaluated",
+                                "not_applicable",
+                                "report_only",
+                                "inconclusive",
+                                "gap",
+                                "review",
+                                "absent",
+                                "role_mismatch",
+                                "model_mismatch",
+                                "identity_mismatch",
+                                "verified",
+                                "signer_mismatch",
+                                "digest_mismatch",
+                                "statement_invalid",
+                                "trust_unavailable",
+                                "unsupported",
+                                "stale",
+                                "future",
+                                "window_too_long",
+                                "scope_mismatch",
+                                "partial",
+                                "unknown",
+                                "too_many_exclusions"
+                              ],
+                              "type": "string"
+                            },
+                            "maxItems": 16,
+                            "minItems": 1,
+                            "type": "array"
+                          },
+                          "reason": {
+                            "maxLength": 512,
+                            "minLength": 8,
+                            "type": "string"
+                          },
+                          "surfaceId": {
+                            "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                            "type": "string"
+                          },
+                          "targetId": {
+                            "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                            "type": "string"
+                          },
+                          "targetKind": {
+                            "enum": ["evidence", "control", "composite"],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "surfaceId",
+                          "targetKind",
+                          "targetId",
+                          "outcomes",
+                          "reason",
+                          "expiresOn"
+                        ],
+                        "type": "object"
+                      },
+                      "maxItems": 128,
+                      "type": "array"
+                    },
+                    "expectedAnalyserVersion": {
+                      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                      "type": "string"
+                    },
+                    "expectedBcdVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expectedCatalogueVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "identity": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "allowedEnvironments": {
+                          "items": {
+                            "pattern": "^[a-z0-9][a-z0-9._-]{0,39}$",
+                            "type": "string"
+                          },
+                          "maxItems": 8,
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "allowedProducerKinds": {
+                          "items": {
+                            "enum": ["application_ci", "manual", "other"],
+                            "type": "string"
+                          },
+                          "maxItems": 3,
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "applicationId": {
+                          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                          "type": "string"
+                        },
+                        "expectedRevision": {
+                          "maxLength": 128,
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$",
+                          "type": "string"
+                        },
+                        "maxAgeDays": {
+                          "maximum": 365,
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "maxCaptureDurationMinutes": {
+                          "maximum": 10080,
+                          "minimum": 1,
+                          "type": "integer"
+                        },
+                        "requireBuildId": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "applicationId",
+                        "allowedEnvironments",
+                        "allowedProducerKinds",
+                        "requireBuildId",
+                        "maxAgeDays",
+                        "maxCaptureDurationMinutes"
+                      ],
+                      "type": "object"
+                    },
+                    "name": {
+                      "maxLength": 80,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "rules": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "compositeReview": {
+                          "enum": ["review", "fail"],
+                          "type": "string"
+                        },
+                        "inconclusive": {
+                          "enum": ["review", "fail"],
+                          "type": "string"
+                        },
+                        "missing": {
+                          "enum": ["review", "fail"],
+                          "type": "string"
+                        },
+                        "notEvaluated": {
+                          "enum": ["review", "fail"],
+                          "type": "string"
+                        },
+                        "reportOnly": {
+                          "enum": ["review", "fail"],
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "missing",
+                        "reportOnly",
+                        "inconclusive",
+                        "notEvaluated",
+                        "compositeReview"
+                      ],
+                      "type": "object"
+                    },
+                    "schemaVersion": {
+                      "const": 4,
+                      "type": "number"
+                    },
+                    "scopeInventory": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "allowedKinds": {
+                          "items": {
+                            "enum": [
+                              "declared",
+                              "framework_manifest",
+                              "authorised_crawl",
+                              "test_suite"
+                            ],
+                            "type": "string"
+                          },
+                          "maxItems": 4,
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "expectedFingerprint": {
+                          "pattern": "^[a-f0-9]{64}$",
+                          "type": "string"
+                        },
+                        "maxAgeDays": {
+                          "maximum": 365,
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "maxExcludedEntries": {
+                          "maximum": 255,
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "requireComplete": {
+                          "type": "boolean"
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "required",
+                        "allowedKinds",
+                        "requireComplete",
+                        "maxAgeDays",
+                        "maxExcludedEntries"
+                      ],
+                      "type": "object"
+                    },
+                    "surfaces": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                            "type": "string"
+                          },
+                          "requiredComposites": {
+                            "items": {
+                              "enum": [
+                                "strict-csp-candidate",
+                                "cross-origin-isolation-candidate",
+                                "cookie-attribute-coverage"
+                              ],
+                              "type": "string"
+                            },
+                            "maxItems": 3,
+                            "type": "array"
+                          },
+                          "requiredControls": {
+                            "items": {
+                              "pattern": "^[a-z0-9][a-z0-9-]{0,79}$",
+                              "type": "string"
+                            },
+                            "maxItems": 64,
+                            "type": "array"
+                          },
+                          "requiredEvidence": {
+                            "items": {
+                              "enum": ["response", "html", "resource_bytes", "request", "webauthn"],
+                              "type": "string"
+                            },
+                            "maxItems": 5,
+                            "minItems": 1,
+                            "type": "array"
+                          },
+                          "role": {
+                            "enum": [
+                              "document",
+                              "api",
+                              "authentication",
+                              "logout",
+                              "embedded",
+                              "other"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "role",
+                          "requiredEvidence",
+                          "requiredControls",
+                          "requiredComposites"
+                        ],
+                        "type": "object"
+                      },
+                      "maxItems": 32,
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "schemaVersion",
+                    "name",
+                    "expectedAnalyserVersion",
+                    "expectedCatalogueVersion",
+                    "attestation",
+                    "scopeInventory",
+                    "identity",
+                    "surfaces",
+                    "rules",
+                    "exceptions"
+                  ],
+                  "type": "object"
+                },
+                "reportFingerprint": {
+                  "pattern": "^[a-f0-9]{64}$",
+                  "type": "string"
+                },
+                "reportIdentity": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "capture": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "completedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        },
+                        "producer": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": ["application_ci", "manual", "other"],
+                              "type": "string"
+                            },
+                            "version": {
+                              "maxLength": 64,
+                              "minLength": 1,
+                              "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$",
+                              "type": "string"
+                            }
+                          },
+                          "required": ["kind", "id"],
+                          "type": "object"
+                        },
+                        "startedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["startedAt", "completedAt", "producer"],
+                      "type": "object"
+                    },
+                    "subject": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "applicationId": {
+                          "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+                          "type": "string"
+                        },
+                        "buildId": {
+                          "maxLength": 128,
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$",
+                          "type": "string"
+                        },
+                        "environment": {
+                          "pattern": "^[a-z0-9][a-z0-9._-]{0,39}$",
+                          "type": "string"
+                        },
+                        "revision": {
+                          "maxLength": 128,
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["applicationId", "environment", "revision"],
+                      "type": "object"
+                    }
+                  },
+                  "required": ["subject", "capture"],
+                  "type": "object"
+                },
+                "reportProvenance": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "analyserVersion": {
+                      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                      "type": "string"
+                    },
+                    "bcdTimestamp": {
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                      "type": "string"
+                    },
+                    "bcdVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "catalogueVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "selectedSchemaFingerprint": {
+                      "pattern": "^[a-f0-9]{64}$",
+                      "type": "string"
+                    },
+                    "webFeaturesVersion": {
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "bcdVersion",
+                    "bcdTimestamp",
+                    "webFeaturesVersion",
+                    "selectedSchemaFingerprint",
+                    "analyserVersion",
+                    "catalogueVersion"
+                  ],
+                  "type": "object"
+                },
+                "reportScopeInventory": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "schemaVersion": {
+                          "const": 1,
+                          "type": "number"
+                        },
+                        "state": {
+                          "const": "absent",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["schemaVersion", "state"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "completeness": {
+                          "enum": ["complete", "partial", "unknown"],
+                          "type": "string"
+                        },
+                        "excludedEntries": {
+                          "maximum": 255,
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "fingerprint": {
+                          "pattern": "^[a-f0-9]{64}$",
+                          "type": "string"
+                        },
+                        "generatedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        },
+                        "includedEntries": {
+                          "maximum": 32,
+                          "minimum": 1,
+                          "type": "integer"
+                        },
+                        "kind": {
+                          "enum": [
+                            "declared",
+                            "framework_manifest",
+                            "authorised_crawl",
+                            "test_suite"
+                          ],
+                          "type": "string"
+                        },
+                        "name": {
+                          "maxLength": 80,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "schemaVersion": {
+                          "const": 1,
+                          "type": "number"
+                        },
+                        "state": {
+                          "const": "present",
+                          "type": "string"
+                        },
+                        "totalEntries": {
+                          "maximum": 256,
+                          "minimum": 1,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "schemaVersion",
+                        "state",
+                        "name",
+                        "kind",
+                        "generatedAt",
+                        "completeness",
+                        "fingerprint",
+                        "totalEntries",
+                        "includedEntries",
+                        "excludedEntries"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                },
+                "schemaVersion": {
+                  "const": 4,
+                  "type": "number"
+                },
+                "summary": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "fail": {
+                      "maximum": 4096,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "pass": {
+                      "maximum": 4096,
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "review": {
+                      "maximum": 4096,
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["pass", "review", "fail"],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "schemaVersion",
+                "evaluatedAsOf",
+                "reportFingerprint",
+                "reportIdentity",
+                "reportScopeInventory",
+                "reportProvenance",
+                "attestation",
+                "profile",
+                "summary",
+                "findings"
+              ],
+              "type": "object"
+            },
+            "fingerprint": {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            "kind": {
+              "const": "evidence_policy_evaluation",
+              "type": "string"
+            }
+          },
+          "required": ["kind", "fingerprint", "evaluation"],
+          "type": "object"
+        }
+      ]
+    },
+    "generatedOn": {
+      "format": "date",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$",
+      "type": "string"
+    },
+    "limitations": {
+      "additionalProperties": false,
+      "properties": {
+        "browserAvailabilityIsRuntimeAssurance": {
+          "const": false,
+          "type": "boolean"
+        },
+        "combinedScore": {
+          "const": false,
+          "type": "boolean"
+        },
+        "suppliedEvidenceIsIndependentCollectionProof": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "combinedScore",
+        "browserAvailabilityIsRuntimeAssurance",
+        "suppliedEvidenceIsIndependentCollectionProof"
+      ],
+      "type": "object"
+    },
+    "packetFingerprint": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "type": "number"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "generatedOn",
+    "packetFingerprint",
+    "browserPolicy",
+    "evidence",
+    "limitations"
+  ],
+  "title": "ControlCurrent two-part decision packet",
+  "type": "object"
+}

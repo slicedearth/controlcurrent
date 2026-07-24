@@ -37,6 +37,26 @@ jobs:
       - name: Report current Web Platform Features package version
         run: npm view web-features version --json
 
+      - name: Install candidate source packages without lifecycle scripts
+        run: |
+          npm install \
+            --prefix "$RUNNER_TEMP/controlcurrent-source-preview" \
+            --package-lock=false \
+            --ignore-scripts \
+            --no-audit \
+            --no-fund \
+            "@mdn/browser-compat-data@latest" \
+            "web-features@latest"
+
+      - name: Preview selected semantic changes
+        run: |
+          npm run source-update:preview -- \
+            --bcd-package "$RUNNER_TEMP/controlcurrent-source-preview/node_modules/@mdn/browser-compat-data/package.json" \
+            --bcd-data "$RUNNER_TEMP/controlcurrent-source-preview/node_modules/@mdn/browser-compat-data/data.json" \
+            --web-features-package "$RUNNER_TEMP/controlcurrent-source-preview/node_modules/web-features/package.json" \
+            --web-features-data "$RUNNER_TEMP/controlcurrent-source-preview/node_modules/web-features/data.json" \
+            >> "$GITHUB_STEP_SUMMARY"
+
       - name: State dry-run boundary
         run: |
           echo "No package, data, issue, commit, push, workflow, or deployment was changed."

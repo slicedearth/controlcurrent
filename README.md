@@ -67,9 +67,13 @@ checker or certification service.
 - Export the policy as deterministic JSON.
 - Export a self-contained, printable HTML decision report with canonical
   record fingerprints.
-- Generate a command-line hand-off for continuous-integration checks.
+- Generate command-line hand-offs for continuous-integration checks and policy
+  drift review.
+- Emit deterministic JSON, Markdown or JUnit results.
+- Warn when temporary exceptions are approaching expiry.
 - Attach a privacy-reduced evidence result as a separate lane in a fingerprinted
   two-part decision packet.
+- Build, validate and compare decision packets from the command line.
 
 ### Explore the source data
 
@@ -77,6 +81,7 @@ checker or certification service.
 - Compare current browser support in a matrix.
 - See exact source mappings, qualifications and known data gaps.
 - Review source changes and pinned Web Platform Tests links.
+- Validate exported contracts with public draft 2020-12 JSON Schemas.
 - Find the oldest browser versions that support a selected group of features.
 
 ### Review evidence locally
@@ -163,7 +168,8 @@ npm run preview
 
 The main local verification command runs linting, formatting checks, strict
 type checks, Astro checks, unit tests, repository and public-output audits,
-the production build, and Australian-English checks:
+generated-schema drift checks, the production build, and Australian-English
+checks:
 
 ```bash
 npm run verify
@@ -193,6 +199,11 @@ manifest. Raw collections can contain sensitive application details and must
 remain outside the public repository. Read
 [authorised collection](docs/authorised-collection.md) and
 [deployment security](docs/deployment-security.md) first.
+
+The manually triggered source-update dry run installs candidate browser-data
+packages only into temporary workflow storage with lifecycle scripts disabled.
+It publishes a bounded semantic preview to the workflow summary, but does not
+edit the lockfile, selected data, source history, repository or deployment.
 
 ## Hosting
 

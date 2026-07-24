@@ -65,7 +65,9 @@ An active exception converts a failure into a visible review result. It never
 creates an unqualified pass. Expired exceptions remain visible and stop
 affecting the policy decision. Two exceptions must not cover the same control,
 browser, and outcome because array order must never decide which expiry or
-reason applies.
+reason applies. The website and policy comparison warn when an active exception
+expires within 30 days by default. The command-line warning window is explicit
+and bounded from 0 to 365 days.
 
 ## Two-part decision packet
 
@@ -82,6 +84,10 @@ resulting JSON packet contains:
 Browser availability and supplied configuration evidence remain separate
 decision lanes. A packet does not prove independent collection, complete
 coverage, correct runtime enforcement, or production security.
+
+The command line can build, validate and compare packets. Comparison keeps the
+browser-policy and evidence lanes separate, refuses invalid fingerprints, and
+classifies incomparable evidence rather than manufacturing a resolution.
 
 ## Commands
 
@@ -103,6 +109,28 @@ Emit canonical JSON:
 npm run cli -- check examples/policy-profile.json --json
 ```
 
+Emit a JUnit result or a reviewable Markdown summary:
+
+```sh
+npm run cli -- check examples/policy-profile.json --strict-review --format junit
+npm run cli -- check examples/policy-profile.json --format markdown
+```
+
+Compare policy scope, requirements, rules, exceptions and resulting decisions:
+
+```sh
+npm run cli -- compare-policies previous-policy.json current-policy.json \
+  --as-of 2026-07-24 \
+  --warn-expiring-days 30 \
+  --fail-regression \
+  --format markdown
+```
+
+Removing a required security feature, weakening a review rule, adding an
+exception or producing a worse decision is classified as a regression. Browser
+minimum changes are reported as explicit scope changes rather than silently
+treated as better or worse.
+
 Calculate the earliest recorded releases satisfying selected controls:
 
 ```sh
@@ -112,6 +140,29 @@ npm run cli -- minimum content-security-policy,referrer-policy \
 
 Qualified support is excluded by default. Add `--allow-qualified` only when the
 consumer explicitly accepts source-recorded qualifications.
+
+Build, validate and compare two-part decision packets:
+
+```sh
+npm --silent run cli -- build-packet policy-evaluation.json evidence-result.json \
+  --as-of 2026-07-24 > decision-packet.json
+npm run cli -- validate-packet decision-packet.json
+npm run cli -- compare-packets previous-packet.json decision-packet.json \
+  --as-of 2026-07-24 \
+  --fail-regression \
+  --format junit
+```
+
+## JSON Schemas
+
+The static site publishes draft 2020-12 schemas for browser policy profiles and
+evaluations, evidence policy profiles and evaluations, reduced evidence reports
+and decision packets under `/schemas/`. They are generated from the runtime Zod
+contracts and verified during every build.
+
+JSON Schema cannot express every bounded cross-field invariant. A document that
+passes an external schema validator must still pass the ControlCurrent runtime
+parser before it is trusted or compared.
 
 ## Exit codes
 

@@ -191,6 +191,13 @@ and freshness cannot be exempted through surface exceptions.
 - No workflow commits, pushes, creates issues, or uses `pull_request_target`.
 - The scheduled source review is read-only and cannot modify repository or
   deployment state.
+- The manual semantic preview installs candidate data packages only in
+  temporary runner storage with lifecycle scripts disabled. Fixed byte limits,
+  selected-path parsing and schema validation treat those packages as hostile
+  data; the preview cannot write the lockfile, snapshot, history or deployment.
+- Generated public JSON Schemas are byte-for-byte checked against their runtime
+  owners and are allowlisted by path. They do not weaken runtime cross-field
+  validation.
 - A generated-site audit refuses source maps, inline executable content,
   executable URL schemes, runtime network APIs, external active resources, and
   missing restrictive meta-policy directives.
@@ -211,7 +218,8 @@ before relying on them.
 ## Out of scope
 
 - Browser implementation testing
-- Active website collection or runtime testing
+- Public, authenticated, or browser-executed website collection
+- Live browser or server-enforcement testing
 - Conformance certification
 - Compliance advice
 - Market-share analysis

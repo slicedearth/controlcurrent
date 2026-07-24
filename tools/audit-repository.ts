@@ -4,12 +4,14 @@ import { resolve } from "node:path";
 import { promisify } from "node:util";
 import {
   ALLOWED_PUBLIC_DATA_FILES,
+  ALLOWED_PUBLIC_SCHEMA_FILES,
   ALLOWED_SYNTHETIC_EXAMPLE_FILES,
   auditCiWorkflow,
   auditPagesWorkflow,
   auditPublicJson,
   auditPublicJsonTotal,
   auditRepositoryPaths,
+  auditSourceUpdateWorkflow,
   auditWorkflow
 } from "../src/repository-audit";
 
@@ -29,7 +31,10 @@ const files = stdout.split("\0").filter(Boolean);
 auditRepositoryPaths(files);
 
 const jsonFiles = files.filter(
-  (file) => ALLOWED_PUBLIC_DATA_FILES.has(file) || ALLOWED_SYNTHETIC_EXAMPLE_FILES.has(file)
+  (file) =>
+    ALLOWED_PUBLIC_DATA_FILES.has(file) ||
+    ALLOWED_PUBLIC_SCHEMA_FILES.has(file) ||
+    ALLOWED_SYNTHETIC_EXAMPLE_FILES.has(file)
 );
 let totalBytes = 0;
 for (const file of jsonFiles) {
@@ -51,6 +56,7 @@ for (const file of workflowFiles) {
   auditWorkflow(file, contents, metadata.size);
   if (file === ".github/workflows/ci.yml") auditCiWorkflow(contents);
   if (file === ".github/workflows/pages.yml") auditPagesWorkflow(contents);
+  if (file === ".github/workflows/update-dry-run.yml") auditSourceUpdateWorkflow(contents);
 }
 
 console.log(
