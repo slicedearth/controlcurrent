@@ -8,35 +8,35 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
 ---
 
 <Layout
-  title="Conformance evidence"
-  description="Exact Web Platform Tests suite mappings for the ControlCurrent browser security catalogue."
+  title="Public browser tests"
+  description="See which public Web Platform Tests exercise behaviour related to each security feature."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Conformance context, without false assurance</span>
-    <h1>Where browser behaviour is tested</h1>
+    <span class="eyebrow">Independent implementation context</span>
+    <h1>See the public tests behind browser behaviour</h1>
     <p>
-      ControlCurrent maps controls to exact Web Platform Tests suite paths at one reviewed revision.
-      The links add implementation evidence; they do not certify an application or replace its own
-      tests.
+      Where possible, ControlCurrent links each security feature to the relevant Web Platform Tests.
+      These public tests help show how browsers are checked against web standards. They do not test
+      or certify your website.
     </p>
   </header>
 
-  <section class="shell stats-grid evidence-stats" aria-label="WPT mapping summary">
+  <section class="shell stats-grid evidence-stats" aria-label="Web Platform Tests mapping summary">
     <div class="stat-card">
       <strong>{mappedCount}</strong>
-      <span>controls with an exact suite mapping</span>
+      <span>security features with a direct test link</span>
     </div>
     <div class="stat-card">
       <strong>{WPT_EVIDENCE.length - mappedCount}</strong>
-      <span>controls kept explicitly unmapped</span>
+      <span>features without a reliable direct test link</span>
     </div>
     <div class="stat-card">
       <strong>{WPT_EVIDENCE_REVIEW.revision.slice(0, 8)}</strong>
-      <span>reviewed WPT source revision</span>
+      <span>reviewed test-source revision</span>
     </div>
     <div class="stat-card">
       <strong>{WPT_EVIDENCE_REVIEW.reviewedOn}</strong>
-      <span>mapping review date</span>
+      <span>date the links were reviewed</span>
     </div>
   </section>
 
@@ -44,12 +44,12 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
     <div class="shell">
       <div class="section-heading">
         <div>
-          <span class="eyebrow">Exact source paths</span>
-          <h2>Control evidence registry</h2>
+          <span class="eyebrow">Feature-by-feature links</span>
+          <h2>Relevant browser tests</h2>
         </div>
         <p>
-          Repository links are pinned to the reviewed revision. Dashboard links show current public
-          results and can change independently of this registry.
+          “Reviewed test source” opens the exact version checked for this site. “Latest public
+          results” opens the live results, which can change over time.
         </p>
       </div>
 
@@ -63,7 +63,7 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
                 <div class="card-topline">
                   <span class="category">{control.category}</span>
                   <span class={`evidence-state evidence-state--${mapping.state}`}>
-                    {mapping.state === "mapped" ? "Mapped" : "Not mapped"}
+                    {mapping.state === "mapped" ? "Test link available" : "No exact test link"}
                   </span>
                 </div>
                 <h3>
@@ -78,17 +78,19 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
                         <code class="source-path">{suite.path}</code>
                         <span class="source-actions">
                           <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
-                            pinned source
+                            reviewed test source
                           </a>
                           <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
-                            current results
+                            latest public results
                           </a>
                         </span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p class="muted">No nearby suite is substituted for the missing evidence.</p>
+                  <p class="muted">
+                    No similar test is substituted when an exact link is unavailable.
+                  </p>
                 )}
                 <p class="evidence-limit">
                   <strong>Limit:</strong> {mapping.limitation}
@@ -104,24 +106,24 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
   <section class="section">
     <div class="shell detail-grid">
       <div>
-        <span class="eyebrow">How to use the links</span>
-        <h2>Three different evidence layers</h2>
+        <span class="eyebrow">How the information fits together</span>
+        <h2>Browser support, public tests, and your own evidence answer different questions</h2>
         <p>
-          BCD records compatibility statements. WPT exercises standardised browser behaviour.
-          ControlCurrent's offline assessment checks supplied response, resource, request-context,
-          and reduced WebAuthn evidence. None of these layers sees the full security design of a
-          production application.
+          MDN data records which browsers support a feature. Web Platform Tests exercise standard
+          browser behaviour. ControlCurrent can also check configuration information that you
+          supply. None of these can see the full security design of a production website.
         </p>
       </div>
       <div class="content-card">
-        <h3>Not ingested as pass rates</h3>
+        <h3>Why there is no simple test score</h3>
         <p>
-          ControlCurrent does not copy or summarise live wpt.fyi pass counts. Test selection,
-          browser channels, infrastructure, expectations, and incomplete runs require context that a
-          single percentage would conceal.
+          ControlCurrent does not turn live public test results into a percentage. The selected
+          tests, browser version, test infrastructure, expected failures, and incomplete runs all
+          need context that a single score would hide.
         </p>
         <p>
-          Some WPT tests also require automation and cannot be run in an ordinary browser session.
+          Some Web Platform Tests (WPT) also require automation and cannot be run in an ordinary
+          browser session.
         </p>
       </div>
     </div>

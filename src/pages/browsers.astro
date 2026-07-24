@@ -6,14 +6,15 @@ import { browserNames, formatDate } from "../format";
 
 <Layout
   title="Browser releases"
-  description="The browser release metadata retained from the selected MDN BCD package."
+  description="The recent browser versions recorded in the MDN data used by ControlCurrent."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Source release metadata</span>
-    <h1>Browser versions represented in this baseline</h1>
+    <span class="eyebrow">Versions in the current data</span>
+    <h1>Browser releases included in ControlCurrent</h1>
     <p>
-      Release labels and dates are source metadata. ControlCurrent does not infer installed browser
-      versions, adoption, market share, or an organisation’s support policy.
+      These versions and dates come from MDN browser data. ControlCurrent does not detect your
+      installed browser, estimate browser popularity, or decide which versions your organisation
+      should support.
     </p>
   </header>
   <section class="shell section">
@@ -27,7 +28,7 @@ import { browserNames, formatDate } from "../format";
               <span class="eyebrow">{browser.id}</span>
               <h2>{browserNames[baseline.browser]}</h2>
               <p>
-                Current release in this BCD package: <strong>{baseline.minimumVersion}</strong>
+                Current release in this MDN data: <strong>{baseline.minimumVersion}</strong>
               </p>
               <ul>
                 {recent.map((release) => (

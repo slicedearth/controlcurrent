@@ -16,12 +16,12 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
 
 <section class="planner-workflow" aria-labelledby="minimum-heading">
   <div class="planner-intro">
-    <span class="eyebrow">Reverse the planning question</span>
-    <h2 id="minimum-heading">Find the minimum browser baseline</h2>
+    <span class="eyebrow">Or start with the features you need</span>
+    <h2 id="minimum-heading">Find the oldest browser versions that will work</h2>
     <p>
-      Choose the controls a deployment requires. ControlCurrent searches only the reviewed release
-      history retained in the selected BCD snapshot and reports explicit blockers when it cannot
-      calculate a baseline.
+      Choose the security features and browsers you need. ControlCurrent searches its reviewed
+      browser history and shows the earliest versions that support that combination. If it cannot
+      give a reliable answer, it explains what blocked the calculation.
     </p>
   </div>
 
@@ -73,11 +73,11 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
 
     <label class="choice-row minimum-qualified">
       <input type="checkbox" id="allow-qualified" />
-      <span>Accept source-qualified support when calculating minimums</span>
+      <span>Include support that has a known browser limitation</span>
     </label>
 
     <div class="button-row">
-      <button type="submit" class="button button--primary">Calculate minimums</button>
+      <button type="submit" class="button button--primary">Find oldest versions</button>
     </div>
     <p id="minimum-message" class="form-message" role="status" aria-live="polite"></p>
   </form>
@@ -90,8 +90,8 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
   >
     <div class="section-heading">
       <div>
-        <span class="eyebrow">Earliest retained release</span>
-        <h2 id="minimum-results-heading">Calculated browser minimums</h2>
+        <span class="eyebrow">Oldest matching releases</span>
+        <h2 id="minimum-results-heading">Minimum browser versions</h2>
       </div>
       <p id="minimum-source"></p>
     </div>
@@ -131,13 +131,13 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
   function statusLabel(result: MinimumBaselineResult): string {
     switch (result.status) {
       case "found":
-        return "Minimum found";
+        return "Version found";
       case "unavailable":
-        return "Not available";
+        return "No matching version";
       case "unsupported_mapping":
-        return "No BCD mapping";
+        return "Not enough browser data";
       case "source_inconsistent":
-        return "Source issue";
+        return "Browser data problem";
     }
   }
 

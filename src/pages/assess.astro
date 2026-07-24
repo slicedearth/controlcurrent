@@ -5,45 +5,49 @@ import Layout from "../components/Layout.astro";
 ---
 
 <Layout
-  title="Offline deployment assessment"
-  description="Assess bounded, subject-identified response, HTML resource, request-context, and reduced WebAuthn evidence locally."
+  title="Check supplied security evidence"
+  description="Review security headers and other evidence you have already collected without sending it to ControlCurrent."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Configuration evidence without scanning</span>
-    <h1>Inspect deployment evidence offline</h1>
+    <span class="eyebrow">No website scan or upload</span>
+    <h1>Check security information you have already collected</h1>
     <p>
-      Move beyond feature availability by checking response policies, route variation, SRI
-      declarations, Fetch Metadata request context, and reduced WebAuthn configuration against
-      explicit per-surface requirements. Reduced reports bind an opaque application, environment,
-      revision, producer, capture window, and privacy-minimised scope inventory into their
-      fingerprint. An optional CLI gate can verify an externally signed Sigstore statement from one
-      exact policy-selected workflow identity. Neither path discovers routes, certifies a site, or
-      replaces runtime testing.
+      Paste a set of response headers, or load a structured evidence file covering several pages.
+      ControlCurrent checks whether expected browser protections appear and whether the supplied
+      pages disagree. Everything is analysed on this device. It does not visit your website or prove
+      that the protections work in production.
     </p>
   </header>
   <div class="shell">
     <HeaderInspector />
-    <EvidenceBundleInspector />
-    <aside class="content-card">
-      <span class="eyebrow">Optional authenticated provenance</span>
-      <h2>Verify the exported report in CI</h2>
-      <p>
-        The browser inspector deliberately remains unsigned and offline. After export, the CLI can
-        create one canonical in-toto statement over the report fingerprint, deployment identity, and
-        reduced scope inventory. A separately reviewed CI workflow can sign that statement as a
-        Sigstore DSSE bundle.
-      </p>
-      <p>
-        <code>verify-evidence</code> checks the signature, trusted certificate, transparency evidence,
-        exact issuer and workflow identity, report digest, and deployment predicate before applying the
-        independent evidence policy. Complete bundles and certificates are not retained in the reduced
-        result.
-      </p>
-      <p>
-        A verified statement authenticates the configured signer and matching report. It does not
-        prove that evidence collection was complete, truthful, or representative of runtime
-        enforcement.
-      </p>
-    </aside>
+    <details class="advanced-assessment">
+      <summary>
+        <span>Advanced: review evidence from several pages and signed reports</span>
+        <small>
+          Use this only when you already have a structured evidence file or an approved CI report.
+        </small>
+      </summary>
+      <div class="advanced-assessment__content">
+        <EvidenceBundleInspector />
+        <aside class="content-card">
+          <span class="eyebrow">Optional advanced check</span>
+          <h2>Confirm who produced a report in continuous integration (CI)</h2>
+          <p>
+            The command-line tool can check a digital signature added by an approved CI workflow.
+            This can confirm that a particular workflow signed an unchanged report for the stated
+            deployment.
+          </p>
+          <p>
+            The <code>verify-evidence</code> command checks the signature, signing certificate, workflow
+            identity, report fingerprint, and the rules chosen by your organisation. The smaller result
+            does not retain the full signed bundle or certificate.
+          </p>
+          <p>
+            A valid signature proves who signed that exact report. It does not prove that the
+            original information was complete, accurate, or representative of the live website.
+          </p>
+        </aside>
+      </div>
+    </details>
   </div>
 </Layout>

@@ -9,14 +9,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 
 <Layout
   title="Data and licensing"
-  description="ControlCurrent source provenance, selected data scope, and licensing."
+  description="Where ControlCurrent's browser data comes from, what the site keeps, and how it is licensed."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Source governance</span>
-    <h1>Attributed sources with bounded retained evidence</h1>
+    <span class="eyebrow">Where the information comes from</span>
+    <h1>Published browser data with clear source links</h1>
     <p>
-      The deployed application contains the security-control slice needed for its calculations. It
-      does not republish complete upstream datasets or conformance results.
+      The website includes only the records needed for its security-feature calculations. It does
+      not copy the complete source datasets or public browser-test results.
     </p>
   </header>
   <article class="shell prose">
@@ -41,7 +41,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       </a>
     </p>
 
-    <h2>Feature adoptability source</h2>
+    <h2>Cross-browser availability source</h2>
     <dl>
       <dt>Operator</dt>
       <dd>W3C WebDX Community Group</dd>
@@ -58,7 +58,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       </a>
     </p>
 
-    <h2>Conformance evidence source</h2>
+    <h2>Public browser-test source</h2>
     <dl>
       <dt>Operator</dt>
       <dd>Web Platform Tests contributors</dd>
@@ -80,7 +80,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       </a>
     </p>
 
-    <h2>Retained fields</h2>
+    <h2>Information kept in the public site</h2>
     <ul>
       <li>Selected feature paths, source files, MDN and specification URLs.</li>
       <li>
@@ -97,7 +97,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       </li>
     </ul>
 
-    <h2>Not retained</h2>
+    <h2>Information not copied into the public site</h2>
     <ul>
       <li>The complete BCD dataset.</li>
       <li>The complete Web Platform Features dataset.</li>
@@ -107,7 +107,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       <li>Market-share data or project-authored browser policy defaults.</li>
     </ul>
 
-    <h2>Licence boundary</h2>
+    <h2>How the licences apply</h2>
     <p>
       ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains
       available under CC0, and selected Web Platform Features metadata remains under Apache-2.0. The

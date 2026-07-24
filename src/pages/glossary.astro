@@ -1,0 +1,125 @@
+---
+import Layout from "../components/Layout.astro";
+
+const terms = [
+  {
+    term: "Browser baseline",
+    definition:
+      "The oldest version of each browser that a website promises to support. ControlCurrent checks features against these minimum versions, not the browser you happen to be using."
+  },
+  {
+    term: "Browserslist",
+    definition:
+      "A common project configuration for describing supported browsers. ControlCurrent accepts only explicit minimum versions from a local .browserslistrc or package.json because relative queries such as “last two versions” can change over time."
+  },
+  {
+    term: "Browser Compatibility Data (BCD)",
+    definition:
+      "The maintained MDN dataset that records when web features became available, were removed, or have known limitations in different browsers."
+  },
+  {
+    term: "Browser security feature",
+    definition:
+      "A browser-enforced capability that can support a security goal, such as restricting scripts or protecting cookies. Availability does not prove that a website configured it correctly."
+  },
+  {
+    term: "Content Security Policy (CSP)",
+    definition:
+      "Instructions sent by a website that restrict which content a browser may load or run. A strong policy can reduce content-injection risk, but it must be designed and tested for the application."
+  },
+  {
+    term: "Continuous integration (CI)",
+    definition:
+      "An automated workflow that checks code or a deployment. ControlCurrent can optionally confirm that an approved CI workflow signed an unchanged evidence report."
+  },
+  {
+    term: "Evidence",
+    definition:
+      "Information supplied for review, such as response headers, page markup, local resource files, request details, or reduced passkey settings. Evidence can support a conclusion only within its stated scope."
+  },
+  {
+    term: "Fallback",
+    definition:
+      "A protection or safer operating approach kept in place when a browser feature is unavailable, limited, or not configured everywhere."
+  },
+  {
+    term: "Fingerprint",
+    definition:
+      "A cryptographic summary used to tell whether a file, report, or page list has changed. It does not reveal the original contents or prove that those contents were complete."
+  },
+  {
+    term: "Origin",
+    definition:
+      "The combination of a URL's scheme, host, and port. Browsers use origins to separate content and decide which cross-site actions are allowed."
+  },
+  {
+    term: "Passkey and WebAuthn",
+    definition:
+      "WebAuthn is the browser standard used for passkeys and other public-key sign-in methods. ControlCurrent can review reduced settings, but it does not perform a sign-in ceremony or test an authenticator."
+  },
+  {
+    term: "Policy as code",
+    definition:
+      "A machine-readable record of required security features, browser minimums, decision rules, and expiring exceptions. It makes an engineering decision repeatable without turning it into a security certification."
+  },
+  {
+    term: "Response header",
+    definition:
+      "An instruction or piece of metadata that a web server sends with a response. Several browser security features are configured through response headers."
+  },
+  {
+    term: "Sigstore",
+    definition:
+      "A signing system used to check that a particular identity signed an unchanged digital statement. A valid signature proves the signer and content match; it does not prove the statement is true."
+  },
+  {
+    term: "Subresource Integrity (SRI)",
+    definition:
+      "A browser feature that checks a script or stylesheet against an expected cryptographic hash before using it. It is most useful for stable resources whose exact content is known."
+  },
+  {
+    term: "Web Platform Baseline and WebDX",
+    definition:
+      "A shared way to describe whether a web feature is broadly available across major browsers. ControlCurrent uses it as adoption context, not as proof of a secure deployment."
+  },
+  {
+    term: "Web Platform Tests (WPT)",
+    definition:
+      "Public conformance tests shared by browser projects. ControlCurrent links to reviewed tests as supporting evidence but does not turn their live results into a security score."
+  }
+] as const;
+---
+
+<Layout
+  title="Plain-English glossary"
+  description="Simple explanations of the browser, security, testing, and evidence terms used by ControlCurrent."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">Technical terms, plainly explained</span>
+    <h1>ControlCurrent glossary</h1>
+    <p>
+      These definitions explain the specialised terms that cannot be removed without losing
+      accuracy. They describe how ControlCurrent uses each term, not every meaning it may have.
+    </p>
+  </header>
+  <article class="shell prose glossary">
+    <p>
+      Looking for a particular term? Use your browser's find command. The glossary contains no
+      tracking, search service, or external request.
+    </p>
+    <dl class="glossary-list">
+      {
+        terms.map(({ term, definition }) => (
+          <div>
+            <dt>{term}</dt>
+            <dd>{definition}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <div class="callout">
+      A feature being available in a browser is only the first step. Correct configuration,
+      application testing, fallback protections, and ongoing review are still required.
+    </div>
+  </article>
+</Layout>

@@ -5,16 +5,16 @@ import { formatDate } from "../format";
 ---
 
 <Layout
-  title="Compatibility changes"
-  description="Observed changes in the selected compatibility sources and ControlCurrent catalogue."
+  title="Browser data updates"
+  description="See when the browser data or ControlCurrent feature definitions used by the site changed."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Versioned evidence</span>
-    <h1>Support data changes, without rewriting browser history</h1>
+    <span class="eyebrow">What changed in the data</span>
+    <h1>Track updates to browser support information</h1>
     <p>
-      Events separate upstream BCD revisions, WebDX Baseline metadata, control-catalogue changes,
-      browser release metadata, and calculated deployment results. A source-data correction is not
-      automatically a browser regression or fix.
+      This page separates changes to MDN data, Web Platform Baseline information, ControlCurrent's
+      feature definitions, and browser release records. A data correction does not necessarily mean
+      the browser itself changed on that date.
     </p>
   </header>
   <section class="shell section">
@@ -23,7 +23,7 @@ import { formatDate } from "../format";
         <span class="eyebrow"
           >{changeEvents.length} recorded event{changeEvents.length === 1 ? "" : "s"}</span
         >
-        <h2>Selected-subset timeline</h2>
+        <h2>Update timeline</h2>
       </div>
       <p>
         Current sources: MDN BCD {selectedSnapshot.bcdVersion} and WebDX {
@@ -46,22 +46,22 @@ import { formatDate } from "../format";
       }
     </ol>
     <div class="callout">
-      This first release establishes a real BCD baseline. It does not invent historical events from
-      versions that ControlCurrent did not retain and compare.
+      The timeline starts when ControlCurrent began retaining this data. It does not invent earlier
+      changes from source versions the project never stored and compared.
     </div>
   </section>
   <section class="shell section">
     <div class="section-heading">
       <div>
-        <span class="eyebrow">Append-only source manifest</span>
-        <h2>Reviewed source states</h2>
+        <span class="eyebrow">Data versions used by the site</span>
+        <h2>Reviewed source versions</h2>
       </div>
       <p>
-        Each entry records the exact package pair, catalogue, structural fingerprint, and selected
-        counts that produced a committed snapshot.
+        Each row records the exact browser-data version, feature-data version, catalogue version,
+        and item counts used to build the site.
       </p>
     </div>
-    <div class="table-wrap" role="region" aria-label="Reviewed source states" tabindex="0">
+    <div class="table-wrap" role="region" aria-label="Reviewed source versions" tabindex="0">
       <table>
         <thead>
           <tr>
@@ -94,8 +94,8 @@ import { formatDate } from "../format";
       </table>
     </div>
     <p>
-      The BCD package timestamp is an upstream source timestamp. It is not the time a reviewer ran
-      ControlCurrent, and it does not reconstruct versions that were never retained.
+      The MDN data date comes from the source package. It is not the date a reviewer ran
+      ControlCurrent, and it cannot recreate versions the project never stored.
     </p>
   </section>
 </Layout>

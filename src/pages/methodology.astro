@@ -1,131 +1,138 @@
 ---
 import Layout from "../components/Layout.astro";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 ---
 
 <Layout
-  title="Methodology"
-  description="How ControlCurrent maps, normalises, and evaluates browser compatibility evidence."
+  title="How it works"
+  description="How ControlCurrent turns published browser data and supplied evidence into careful, repeatable results."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Methodology</span>
-    <h1>A qualified answer is more useful than a confident guess</h1>
+    <span class="eyebrow">How the results are produced</span>
+    <h1>ControlCurrent shows uncertainty instead of guessing</h1>
     <p>
-      ControlCurrent selects a bounded security-specific subset of MDN BCD, validates every
-      configured path, and preserves the conditions attached to support statements.
+      The site uses a small, reviewed part of MDN browser data. It checks that every source record
+      still exists and keeps the notes and limitations attached to browser support.
     </p>
   </header>
   <article class="shell prose">
-    <h2>Evidence layers</h2>
-    <p>The application keeps seven statements separate:</p>
+    <h2>Seven kinds of information stay separate</h2>
+    <p>
+      This prevents a browser-support fact from being mistaken for proof that a website is secure:
+    </p>
     <ol>
-      <li><strong>Source data:</strong> BCD paths, browser statements, versions, and notes.</li>
-      <li><strong>Catalogue mapping:</strong> which source paths represent a security control.</li>
-      <li><strong>Calculation:</strong> whether a selected baseline meets every required path.</li>
+      <li><strong>Browser data:</strong> support records, browser versions, and source notes.</li>
+      <li><strong>Feature mapping:</strong> which source records represent a security feature.</li>
       <li>
-        <strong>Guidance:</strong> project-authored prerequisites, fallbacks, and limitations.
+        <strong>Calculation:</strong> whether your chosen browser versions meet the requirements.
       </li>
       <li>
-        <strong>Observed configuration:</strong> optional local evidence from supplied response, HTML
-        resource, request-context, and reduced WebAuthn observations.
+        <strong>Guidance:</strong> setup needs, fallbacks, and limitations written for this project.
       </li>
       <li>
-        <strong>Conformance context:</strong> exact reviewed WPT suite paths and explicit limits.
+        <strong>Supplied configuration:</strong> optional headers, page information, local resource checks,
+        request information, and reduced passkey settings.
       </li>
       <li>
-        <strong>Authenticated provenance:</strong> optional CLI verification that one exact policy-selected
-        Sigstore identity signed the matching reduced report statement.
+        <strong>Public browser tests:</strong> direct links to reviewed Web Platform Tests and their limits.
+      </li>
+      <li>
+        <strong>Report signer:</strong> an optional command-line check that an approved continuous integration
+        (CI) workflow signed the matching report.
       </li>
     </ol>
 
-    <h2>Mapping rule</h2>
+    <h2>How a security feature is linked to browser data</h2>
     <p>
-      A control may require one path or several. An <code>all</code> mapping is available only when every
-      path is available. A control remains <code>without a standalone BCD mapping</code> when BCD cannot
-      support the intended claim. CSP nonces and CSP hashes are intentionally in that state in the current
-      catalogue, while the local evidence inspector can still identify their deployment syntax in an applicable
-      enforced CSP source list.
+      A security feature may rely on one browser-data record or several. When every part is
+      required, ControlCurrent reports that the feature works only if every record shows support. If
+      MDN data does not describe the exact feature separately enough, the result is “Not enough
+      browser data” instead of a guess. Content Security Policy (CSP) nonces and hashes currently
+      have this result, although the local header check can still recognise their syntax in a
+      supplied policy.
     </p>
 
-    <h2>Support normalisation</h2>
+    <h2>How browser versions are compared</h2>
     <p>
-      Support versions are compared as browser release version components, not floating-point
-      numbers. Exact support, removal, last-supported versions, imprecise upper-bound records, and
-      multiple statements are handled separately. Flags, partial implementations, prefixes,
-      alternative names, and notes produce a qualified result rather than disappearing into a
-      boolean.
+      Browser versions are compared as version numbers rather than decimals, so version 100.10 is
+      not confused with 100.1. Support, removal, last-supported versions, and uncertain source
+      records are handled separately. Experimental flags, partial support, old names, and source
+      notes produce “Works with limits” rather than disappearing into a simple yes.
     </p>
 
-    <h2>Outcome meanings</h2>
+    <h2>What the result labels mean</h2>
     <ul>
       <li>
-        <strong>Available:</strong> every required path is available without a recorded qualification.
+        <strong>Works:</strong> every required browser-data record shows support without a known limitation.
       </li>
-      <li><strong>Qualified:</strong> available, with at least one source qualification.</li>
+      <li><strong>Works with limits:</strong> supported, but the source records a limitation.</li>
       <li>
-        <strong>Unavailable:</strong> a required path is not supported at the selected minimum.
+        <strong>Not supported:</strong> at least one required part is unavailable in the selected browser
+        version.
       </li>
-      <li><strong>Removed:</strong> a required path was removed by the selected minimum.</li>
+      <li>
+        <strong>No longer supported:</strong> the browser removed a required part by the selected version.
+      </li>
       <li><strong>Unknown:</strong> the source cannot support a comparable conclusion.</li>
       <li>
-        <strong>No standalone BCD mapping:</strong> the catalogue deliberately refuses a compatibility
-        claim that BCD cannot express at the required granularity.
+        <strong>Not enough browser data:</strong> MDN data does not describe the exact feature separately
+        enough for a reliable answer.
       </li>
       <li>
-        <strong>Source issue:</strong> the selected source subset and catalogue are inconsistent.
+        <strong>Browser data problem:</strong> the reviewed source records and ControlCurrent's feature
+        catalogue do not match.
       </li>
     </ul>
 
-    <h2>Time semantics</h2>
+    <h2>What a change date means</h2>
     <p>
-      The change feed records the BCD package timestamp and the version in which ControlCurrent
-      first observed a selected-subset change. It does not claim that a browser implementation
-      changed at that exact time.
+      The update page records the date attached to the source data and the ControlCurrent version
+      that first noticed a difference. It does not claim that browser code changed on that exact
+      date.
     </p>
 
-    <h2>Offline deployment assessment</h2>
+    <h2>How the local evidence check works</h2>
     <p>
-      The inspector parses one bounded, user-supplied final response. It makes no URL request and
-      reports only redacted evidence. “Observed” means recognizable syntax was present in an
-      applicable enforced policy or header in that response; it does not prove browser enforcement,
-      coverage across routes, rollout safety, or runtime behaviour. Report-only policy, incompatible
-      multiple-policy evidence, and controls requiring another evidence surface remain explicitly
-      separate. A bounded bundle can add CSP-to-markup correlation, local SRI byte verification,
-      Fetch Metadata, reduced WebAuthn evidence, a privacy-minimised opaque scope inventory,
-      declared surface coverage, and deterministic reduced-report comparison while preserving those
-      limits. Included inventory IDs must match assessed surfaces exactly, but ControlCurrent does
-      not discover or validate the external inventory’s exhaustiveness.
+      The simple inspector reads one final set of response headers that you paste. It makes no web
+      request and reports only reduced information. “Found” means recognisable syntax appeared in
+      the supplied enforced policy or header. It does not prove browser enforcement, coverage across
+      every page, safe rollout, or live behaviour. An advanced evidence file can compare several
+      supplied pages, relate CSP to supplied markup, verify local resource bytes against Subresource
+      Integrity (SRI), examine selected request and passkey settings, and compare reports. You must
+      still provide a complete page list; ControlCurrent cannot discover missing pages itself.
     </p>
 
-    <h2>Attested evidence</h2>
+    <h2>How optional report signatures work</h2>
     <p>
-      The CLI can create one canonical in-toto statement over a validated reduced-report fingerprint
-      its deployment identity, and its reduced scope inventory. It verifies an externally signed
-      Sigstore DSSE bundle using packaged trust material, an exact certificate issuer, and an exact
-      URI identity selected by independent policy. This authenticates the matching signed statement,
-      not the completeness or truth of the inventory or evidence collection, runtime enforcement, or
-      signer integrity.
+      The command-line tool can prepare a standard statement containing the report fingerprint,
+      deployment identity, and reduced page-list fingerprint. It can then check a Sigstore digital
+      signature from the exact certificate issuer and workflow identity allowed by your policy. This
+      confirms the signer and unchanged report; it does not prove that the evidence was complete or
+      true.
     </p>
 
-    <h2>Conformance evidence</h2>
+    <h2>How public browser tests are used</h2>
     <p>
-      Each control has one mapped or explicitly unmapped WPT evidence record. Repository links are
-      pinned to the reviewed source revision. Current wpt.fyi links are investigation aids;
-      ControlCurrent does not ingest pass rates or use them to change compatibility outcomes.
-      Conformance coverage does not prove correct application configuration.
+      Each security feature either has a direct Web Platform Tests link or is clearly marked as
+      having no exact link. Source links point to the reviewed test version, while live result links
+      are provided for further investigation. ControlCurrent does not turn those results into scores
+      or use them to change its browser-support answer.
     </p>
 
-    <h2>Determinism and bounds</h2>
+    <h2>Repeatable results and safety limits</h2>
     <p>
-      The locked package produces a canonical selected snapshot, schema fingerprint, sorted release
-      list, versioned catalogue mapping, and deterministic event identifiers. The importer caps
-      paths, statements, releases, strings, events, stored profiles, and exports. A missing
-      configured path fails generation instead of silently becoming available.
+      The same reviewed inputs produce the same ordered data, results, and update identifiers.
+      ControlCurrent limits input sizes, record counts, saved plans, and exports. If a required
+      source record disappears, the data update fails instead of silently reporting support.
     </p>
 
     <div class="callout">
-      Browser compatibility cannot establish correct application configuration, complete
-      specification conformance, freedom from browser defects, or the adequacy of an organisation’s
-      security policy.
+      Browser support cannot prove that a website is configured correctly, follows every part of a
+      standard, has no browser defects, or uses the right security policy for an organisation.
+      Technical terms used here are explained in the <a href={`${base}/glossary/`}>
+        plain-English glossary
+      </a>.
     </div>
   </article>
 </Layout>

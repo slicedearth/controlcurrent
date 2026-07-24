@@ -1,11 +1,12 @@
 <section class="inspector-panel" aria-labelledby="inspector-heading">
   <div class="planner-intro">
-    <span class="eyebrow">Local, bounded, and non-persistent</span>
-    <h2 id="inspector-heading">Paste one response-header block</h2>
+    <span class="eyebrow">Simple check</span>
+    <h2 id="inspector-heading">Review one set of website response headers</h2>
     <p>
-      ControlCurrent parses recognised security headers in this browser. It does not fetch the URL,
-      retain the text, or send it anywhere. Replace cookie values and other secrets with
-      <code>REDACTED</code> before pasting.
+      Response headers are instructions a website sends to the browser. Paste a set below and
+      ControlCurrent will look for recognised security settings. It does not visit the URL, save the
+      text, or send it anywhere. Replace cookie values and other secrets with{" "}
+      <code>REDACTED</code> first.
     </p>
   </div>
 
@@ -23,11 +24,11 @@ Strict-Transport-Security: max-age=31536000
 X-Content-Type-Options: nosniff"
     ></textarea>
     <p id="header-guidance" class="form-message">
-      Paste response headers only. Request credentials such as Authorization and Cookie are refused.
-      Multiple HTTP status blocks are allowed; only the final response block is evaluated.
+      Paste response headers only. Login credentials such as Authorization and Cookie are refused.
+      If redirects produced several blocks, only the final response is checked.
     </p>
     <div class="button-row">
-      <button type="submit" class="button button--primary">Assess headers</button>
+      <button type="submit" class="button button--primary">Review headers</button>
       <button type="button" class="button" id="load-header-example">Load redacted example</button>
       <button type="button" class="button" id="clear-headers">Clear</button>
     </div>
@@ -42,8 +43,8 @@ X-Content-Type-Options: nosniff"
   >
     <div class="section-heading">
       <div>
-        <span class="eyebrow">Observed configuration evidence</span>
-        <h2 id="header-results-heading">Response-header assessment</h2>
+        <span class="eyebrow">What the supplied headers show</span>
+        <h2 id="header-results-heading">Security header results</h2>
       </div>
       <p id="header-source"></p>
     </div>
@@ -85,12 +86,12 @@ X-Content-Type-Options: nosniff`;
     SECURITY_CONTROLS.map((control) => [control.id, control.name] as const)
   );
   const stateLabels = {
-    observed: "Observed",
-    missing: "Not observed",
-    invalid: "Invalid or ambiguous",
-    not_evaluated: "Not evaluated",
-    not_applicable: "Not applicable",
-    report_only: "Report only",
+    observed: "Found",
+    missing: "Not found",
+    invalid: "Invalid or unclear",
+    not_evaluated: "Cannot confirm from headers",
+    not_applicable: "Not relevant",
+    report_only: "Reporting only",
     inconclusive: "Needs review"
   } as const;
 
@@ -107,12 +108,12 @@ X-Content-Type-Options: nosniff`;
 
   function render(report: AssuranceReport): void {
     summary!.replaceChildren(
-      stat(report.summary.observed, "controls with observed evidence"),
-      stat(report.summary.missing, "controls not observed"),
-      stat(report.summary.invalid, "invalid or ambiguous observations"),
-      stat(report.summary.reportOnly, "controls present only in report-only policy"),
-      stat(report.summary.inconclusive, "controls needing contextual review"),
-      stat(report.summary.notEvaluated, "controls outside header evidence")
+      stat(report.summary.observed, "security features found"),
+      stat(report.summary.missing, "security features not found"),
+      stat(report.summary.invalid, "settings that are invalid or unclear"),
+      stat(report.summary.reportOnly, "features that only report problems"),
+      stat(report.summary.inconclusive, "features that need human review"),
+      stat(report.summary.notEvaluated, "features headers cannot confirm")
     );
     findings!.replaceChildren();
     for (const finding of report.findings) {
@@ -147,7 +148,7 @@ X-Content-Type-Options: nosniff`;
       const report = inspectHeaders(parseHeaderBlock(input!.value));
       render(report);
       message!.textContent =
-        "Headers assessed locally. The report contains no cookie names, cookie values, or raw header values.";
+        "Headers reviewed on this device. The result contains no cookie names, cookie values, or complete header values.";
     } catch (error) {
       results!.hidden = true;
       message!.textContent =
@@ -157,7 +158,7 @@ X-Content-Type-Options: nosniff`;
 
   document.querySelector("#load-header-example")?.addEventListener("click", () => {
     input!.value = example;
-    message!.textContent = "Redacted example loaded. Select Assess headers to evaluate it.";
+    message!.textContent = "Redacted example loaded. Select Review headers to check it.";
   });
 
   document.querySelector("#clear-headers")?.addEventListener("click", () => {
@@ -165,7 +166,7 @@ X-Content-Type-Options: nosniff`;
     results!.hidden = true;
     summary!.replaceChildren();
     findings!.replaceChildren();
-    message!.textContent = "Header input and calculated report cleared.";
+    message!.textContent = "Header input and results cleared.";
     input!.focus();
   });
 </script>

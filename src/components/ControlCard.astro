@@ -11,16 +11,41 @@ interface Props {
 
 const { control, evaluations } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+const outcomes = evaluations.map((evaluation) => evaluation.outcome);
+const supportGroup = outcomes.some((outcome) => ["unavailable", "removed"].includes(outcome))
+  ? "unsupported"
+  : outcomes.some((outcome) =>
+        ["unknown", "unsupported_mapping", "source_inconsistent"].includes(outcome)
+      )
+    ? "unknown"
+    : outcomes.some((outcome) => outcome === "available_with_qualification")
+      ? "limited"
+      : "ready";
+const searchText = [
+  control.name,
+  control.shortName,
+  control.summary,
+  control.category,
+  ...control.threatClasses
+]
+  .join(" ")
+  .toLocaleLowerCase("en-AU");
 ---
 
-<article class="control-card" data-category={control.category}>
+<article
+  class="control-card"
+  data-control-card
+  data-category={control.category}
+  data-search={searchText}
+  data-support-group={supportGroup}
+>
   <div class="card-topline">
     <span class="category">{control.category}</span>
     <span class="mapping-count">
       {
         control.mappingState === "active"
-          ? `${control.bcdPaths.length} BCD path${control.bcdPaths.length === 1 ? "" : "s"}`
-          : "Mapping unavailable"
+          ? `${control.bcdPaths.length} browser data record${control.bcdPaths.length === 1 ? "" : "s"}`
+          : "Browser data unavailable"
       }
     </span>
   </div>

@@ -2,7 +2,7 @@
 import Layout from "../../components/Layout.astro";
 import OutcomeBadge from "../../components/OutcomeBadge.astro";
 import { SECURITY_CONTROLS, type SecurityControl } from "../../catalogue";
-import { currentEvaluation, currentProfile, selectedSnapshot } from "../../data";
+import { currentEvaluation, selectedSnapshot } from "../../data";
 import { browserNames } from "../../format";
 import { getWptEvidence, wptResultsUrl, wptSourceUrl } from "../../wpt-evidence";
 
@@ -37,9 +37,9 @@ const wptEvidence = getWptEvidence(control.id);
   <div class="shell detail-grid">
     <div>
       <section class="content-card">
-        <h2>Current release channels</h2>
+        <h2>Support in current browsers</h2>
         <p>
-          Evaluated against {currentProfile.name.toLowerCase()} in BCD {
+          Checked against the current browser versions recorded in MDN browser data {
             selectedSnapshot.bcdVersion
           }.
         </p>
@@ -72,23 +72,27 @@ const wptEvidence = getWptEvidence(control.id);
       </section>
 
       <section class="content-card">
-        <h2>Defence boundary</h2>
-        <h3>Helps mitigate</h3>
+        <h2>What this feature can and cannot do</h2>
+        <h3>Helps protect against</h3>
         <ul>{control.threatClasses.map((item) => <li>{item}</li>)}</ul>
-        <h3>Does not establish</h3>
+        <h3>Does not guarantee</h3>
         <ul>{control.doesNotAddress.map((item) => <li>{item}</li>)}</ul>
-        <h3>Deployment prerequisites</h3>
+        <h3>What you need before using it</h3>
         <ul>{control.prerequisites.map((item) => <li>{item}</li>)}</ul>
-        <h3>Fallback posture</h3>
+        <h3>Fallback to keep in place</h3>
         <p>{control.fallback}</p>
       </section>
     </div>
 
     <aside>
       <section class="content-card">
-        <span class="eyebrow">BCD mapping</span>
+        <span class="eyebrow">Browser data used</span>
         <h2>
-          {control.mappingState === "active" ? "Mapped" : "No standalone BCD mapping"}
+          {
+            control.mappingState === "active"
+              ? "Support can be calculated"
+              : "Not enough specific data"
+          }
         </h2>
         {control.mappingNote && <p>{control.mappingNote}</p>}
         {
@@ -109,7 +113,10 @@ const wptEvidence = getWptEvidence(control.id);
               );
             })
           ) : (
-            <p>No standalone BCD path supports a responsible calculation.</p>
+            <p>
+              MDN browser data does not describe this exact feature separately enough for a reliable
+              browser-support calculation.
+            </p>
           )
         }
       </section>
@@ -128,14 +135,14 @@ const wptEvidence = getWptEvidence(control.id);
         </ul>
       </section>
       <section class="content-card">
-        <span class="eyebrow">WebDX Baseline</span>
-        <h2>{baselineEvidence.length > 0 ? "Mapped evidence" : "No exact mapping"}</h2>
+        <span class="eyebrow">Support across major browsers</span>
+        <h2>{baselineEvidence.length > 0 ? "Adoption information available" : "No exact match"}</h2>
         {
           baselineEvidence.length > 0 ? (
             <>
               <p>
-                Baseline adds cross-browser adoptability context. It does not inspect a deployment
-                or replace the browser-specific BCD results.
+                Web Platform Baseline indicates when a feature became available across major
+                browsers. It does not inspect your website or replace the browser-by-browser result.
               </p>
               {baselineEvidence.map((evidence) => (
                 <div>
@@ -158,15 +165,15 @@ const wptEvidence = getWptEvidence(control.id);
             </>
           ) : (
             <p>
-              No Web Platform Features entry declares this exact BCD path. ControlCurrent does not
-              infer a mapping from a nearby feature.
+              Web Platform Baseline has no exact entry for this browser-data record. ControlCurrent
+              does not substitute a similar feature.
             </p>
           )
         }
       </section>
       <section class="content-card">
-        <span class="eyebrow">Web Platform Tests</span>
-        <h2>{wptEvidence.state === "mapped" ? "Exact suite mapping" : "Not mapped"}</h2>
+        <span class="eyebrow">Public browser tests</span>
+        <h2>{wptEvidence.state === "mapped" ? "Relevant tests found" : "No exact test link"}</h2>
         <p>{wptEvidence.scope}</p>
         {
           wptEvidence.suites.length > 0 ? (
@@ -177,17 +184,17 @@ const wptEvidence = getWptEvidence(control.id);
                   <code class="source-path">{suite.path}</code>
                   <span class="source-actions">
                     <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
-                      pinned source
+                      reviewed test source
                     </a>
                     <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
-                      current results
+                      latest public results
                     </a>
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No nearby WPT suite is substituted for the missing evidence.</p>
+            <p>No similar test is substituted when an exact link is unavailable.</p>
           )
         }
         <p class="evidence-limit">

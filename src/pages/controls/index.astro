@@ -3,22 +3,66 @@ import Layout from "../../components/Layout.astro";
 import ControlCard from "../../components/ControlCard.astro";
 import { SECURITY_CONTROLS } from "../../catalogue";
 import { currentEvaluation } from "../../data";
+
+const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.category))];
 ---
 
 <Layout
-  title="Security controls"
-  description="A curated catalogue of browser-enforced security and privacy controls mapped to MDN compatibility data."
+  title="Browser security features"
+  description="Plain explanations of browser security features, their support, setup needs, limits, and fallbacks."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Curated and versioned</span>
-    <h1>Security controls, not a general feature index</h1>
+    <span class="eyebrow">What each feature does</span>
+    <h1>Explore browser security features</h1>
     <p>
-      Each entry explains the threat classes it can help mitigate, what it cannot establish, its
-      deployment prerequisites, fallback posture, and the exact BCD paths used for calculation.
+      Each page explains what the feature helps protect, which browsers support it, what you need
+      before using it, what it cannot guarantee, and what fallback to keep in place.
     </p>
   </header>
-  <section class="shell section">
-    <div class="control-grid">
+  <section class="shell section" data-control-explorer>
+    <div class="control-explorer" aria-labelledby="control-filter-heading">
+      <div>
+        <span class="eyebrow">Find the right feature</span>
+        <h2 id="control-filter-heading">Search and filter {SECURITY_CONTROLS.length} features</h2>
+        <p>
+          Search by a feature name, security goal, or the problem it helps address. Filtering
+          happens on this device and does not make a network request.
+        </p>
+      </div>
+      <form class="control-filters" id="control-filters">
+        <label>
+          <span>Search features</span>
+          <input
+            id="control-search"
+            type="search"
+            autocomplete="off"
+            placeholder="For example: clickjacking, cookies, passkeys"
+          />
+        </label>
+        <label>
+          <span>Security area</span>
+          <select id="control-category">
+            <option value="">All areas</option>
+            {categories.map((category) => <option value={category}>{category}</option>)}
+          </select>
+        </label>
+        <label>
+          <span>Current browser support</span>
+          <select id="control-support">
+            <option value="">All results</option>
+            <option value="ready">Works in all current browsers</option>
+            <option value="limited">Works with known limits</option>
+            <option value="unsupported">Not supported in at least one browser</option>
+            <option value="unknown">Not enough information</option>
+          </select>
+        </label>
+        <button class="button" type="reset">Clear filters</button>
+      </form>
+      <p id="control-filter-status" class="form-message" role="status" aria-live="polite">
+        Showing all {SECURITY_CONTROLS.length} features.
+      </p>
+    </div>
+    <div class="control-grid" id="control-list">
       {
         SECURITY_CONTROLS.map((control) => (
           <ControlCard
@@ -28,5 +72,47 @@ import { currentEvaluation } from "../../data";
         ))
       }
     </div>
+    <p id="control-filter-empty" class="content-card control-filter-empty" hidden>
+      No features match those filters. Try a broader search or clear one of the filters.
+    </p>
   </section>
 </Layout>
+
+<script>
+  const explorer = document.querySelector<HTMLElement>("[data-control-explorer]");
+  const form = document.querySelector<HTMLFormElement>("#control-filters");
+  const search = document.querySelector<HTMLInputElement>("#control-search");
+  const category = document.querySelector<HTMLSelectElement>("#control-category");
+  const support = document.querySelector<HTMLSelectElement>("#control-support");
+  const status = document.querySelector<HTMLElement>("#control-filter-status");
+  const empty = document.querySelector<HTMLElement>("#control-filter-empty");
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-control-card]")];
+
+  if (!explorer || !form || !search || !category || !support || !status || !empty) {
+    throw new Error("Security feature filters are unavailable.");
+  }
+
+  function applyFilters(): void {
+    const query = search!.value.trim().toLocaleLowerCase("en-AU");
+    let visible = 0;
+    for (const card of cards) {
+      const matchesSearch = query.length === 0 || (card.dataset.search ?? "").includes(query);
+      const matchesCategory =
+        category!.value.length === 0 || card.dataset.category === category!.value;
+      const matchesSupport =
+        support!.value.length === 0 || card.dataset.supportGroup === support!.value;
+      card.hidden = !(matchesSearch && matchesCategory && matchesSupport);
+      if (!card.hidden) visible += 1;
+    }
+    status!.textContent =
+      visible === cards.length
+        ? `Showing all ${String(cards.length)} features.`
+        : `Showing ${String(visible)} of ${String(cards.length)} features.`;
+    empty!.hidden = visible !== 0;
+  }
+
+  form.addEventListener("input", applyFilters);
+  form.addEventListener("reset", () => {
+    window.setTimeout(applyFilters, 0);
+  });
+</script>

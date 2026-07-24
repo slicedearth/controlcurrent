@@ -4,13 +4,13 @@ import { BROWSER_NAMES } from "./browsers";
 export const browserNames: Record<BrowserId, string> = BROWSER_NAMES;
 
 export const outcomeLabels: Record<Outcome, string> = {
-  available_unqualified: "Available",
-  available_with_qualification: "Qualified",
-  unavailable: "Unavailable",
-  removed: "Removed",
+  available_unqualified: "Works",
+  available_with_qualification: "Works with limits",
+  unavailable: "Not supported",
+  removed: "No longer supported",
   unknown: "Unknown",
-  unsupported_mapping: "No BCD mapping",
-  source_inconsistent: "Source issue"
+  unsupported_mapping: "Not enough browser data",
+  source_inconsistent: "Browser data problem"
 };
 
 export function formatDate(input: string): string {

@@ -4,21 +4,22 @@ import Layout from "../components/Layout.astro";
 
 <Layout
   title="Limitations"
-  description="The explicit limits of browser compatibility evidence and ControlCurrent calculations."
+  description="What ControlCurrent can and cannot tell you about browser support and website security."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Use the result as one input</span>
-    <h1>Compatibility is not a security verdict</h1>
+    <span class="eyebrow">What this tool cannot prove</span>
+    <h1>Browser support is not proof that a website is secure</h1>
     <p>
-      ControlCurrent evaluates documented feature availability. It cannot inspect, test, approve, or
-      certify an application deployment.
+      ControlCurrent helps with browser planning and checks information you supply. It does not test
+      a live website, approve a deployment, or provide security certification.
     </p>
   </header>
   <article class="shell prose">
-    <h2>Source limitations</h2>
+    <h2>Limits of the browser data</h2>
     <ul>
       <li>
-        BCD is maintained compatibility data and can contain corrections or incomplete statements.
+        MDN Browser Compatibility Data (BCD) is maintained compatibility data and can contain
+        corrections or incomplete statements.
       </li>
       <li>
         A support statement does not prove complete specification conformance or absence of defects.
@@ -31,10 +32,13 @@ import Layout from "../components/Layout.astro";
         Mobile-family data may be mirrored from a related engine upstream and does not prove
         identical behaviour on every device.
       </li>
-      <li>WebDX Baseline is adoptability context, not deployment or configuration assurance.</li>
       <li>
-        WPT suite mappings identify relevant conformance tests, but the registry does not ingest or
-        simplify live pass rates.
+        Web Platform Baseline from the WebDX community is adoption context, not deployment or
+        configuration assurance.
+      </li>
+      <li>
+        Web Platform Tests (WPT) mappings identify relevant conformance tests, but the registry does
+        not ingest or simplify live pass rates.
       </li>
       <li>
         A passing conformance test does not establish correct application configuration, complete
@@ -43,7 +47,7 @@ import Layout from "../components/Layout.astro";
       <li>Lower-level BCD paths can change and require deliberate catalogue review.</li>
     </ul>
 
-    <h2>Calculation limitations</h2>
+    <h2>Limits of the calculations</h2>
     <ul>
       <li>
         Version comparison covers the numeric browser release forms used by the selected paths.
@@ -55,7 +59,7 @@ import Layout from "../components/Layout.astro";
       <li>Unsupported mappings are shown rather than approximated from a related feature.</li>
     </ul>
 
-    <h2>Security limitations</h2>
+    <h2>Limits of the security checks</h2>
     <ul>
       <li>No website is scanned and no runtime behaviour is observed.</li>
       <li>
@@ -67,98 +71,100 @@ import Layout from "../components/Layout.astro";
         environments.
       </li>
       <li>
-        CSP can be correlated with supplied inline markup and bounded local resource bytes can be
-        checked against SRI metadata. Nothing is fetched, and no result establishes remote resource
-        identity, complete correctness, rollout safety, or effective browser enforcement.
+        Content Security Policy (CSP) can be correlated with supplied inline markup and bounded
+        local resource bytes can be checked against Subresource Integrity (SRI) metadata. Nothing is
+        fetched, and no result establishes remote resource identity, complete correctness, rollout
+        safety, or effective browser enforcement.
       </li>
       <li>
-        Fetch Metadata and WebAuthn inputs describe reduced configuration evidence; the tool does
-        not test server enforcement, authenticator behaviour, or ceremony outcomes.
+        Fetch Metadata and Web Authentication (WebAuthn) inputs describe reduced configuration
+        evidence; the tool does not test server enforcement, authenticator behaviour, or ceremony
+        outcomes.
       </li>
       <li>
         Application, environment, revision, build, producer, and capture-time fields are
-        fingerprinted assertions. An optional CLI gate can authenticate a matching signed statement
-        from one exact Sigstore certificate identity, but it cannot prove that the producer's
-        collection was complete or truthful.
+        fingerprinted assertions. An optional command-line gate can authenticate a matching signed
+        statement from one exact Sigstore certificate identity, but it cannot prove that the
+        producer's collection was complete or truthful.
       </li>
       <li>Fallback controls remain necessary for unsupported browsers and defence in depth.</li>
       <li>No result should be treated as legal, compliance, or certification advice.</li>
     </ul>
 
-    <h2>Capability maturity</h2>
+    <h2>How far each part of the tool can go</h2>
     <p>
-      Maturity describes the evidence ControlCurrent can establish. It is not a product score,
-      certification level, or comparison with another security tool.
+      This table explains which jobs ControlCurrent handles well and where people or other security
+      tools are still needed. These labels are not security scores or certification levels.
     </p>
     <div
       class="table-wrap"
       role="region"
-      aria-label="ControlCurrent capability maturity"
+      aria-label="ControlCurrent usefulness by task"
       tabindex="0"
     >
       <table>
         <thead>
           <tr>
-            <th scope="col">Capability</th>
-            <th scope="col">Maturity</th>
-            <th scope="col">Evidence boundary</th>
+            <th scope="col">What you are trying to do</th>
+            <th scope="col">How useful it is</th>
+            <th scope="col">What the result means</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row">Browser compatibility planning</th>
-            <td><strong>Mature</strong></td>
+            <th scope="row">Plan browser support</th>
+            <td><strong>Strong</strong></td>
             <td>
-              Exact selected BCD paths, qualifications, WebDX context, and explicit browser
-              minimums.
+              Uses specific published browser records and keeps known limitations visible for the
+              versions you choose.
             </td>
           </tr>
           <tr>
-            <th scope="row">Engineering policy decisions</th>
-            <td><strong>Mature with limitations</strong></td>
+            <th scope="row">Set an engineering policy</th>
+            <td><strong>Strong, with limits</strong></td>
             <td>
-              Versioned policy, deterministic minimums, explicit exceptions, and source provenance;
-              organisational suitability remains a human decision.
+              Produces repeatable browser minimums, records exceptions, and shows its data sources.
+              People must still decide whether the policy suits the organisation.
             </td>
           </tr>
           <tr>
-            <th scope="row">Supplied configuration evidence</th>
-            <td><strong>Partial</strong></td>
+            <th scope="row">Check supplied configuration evidence</th>
+            <td><strong>Useful but incomplete</strong></td>
             <td>
-              Bounded headers, HTML, local resources, request context, and reduced WebAuthn
-              configuration are analysed without execution or fetching.
+              Checks a limited amount of supplied header, page, resource, request, and passkey
+              information without visiting or running the website.
             </td>
           </tr>
           <tr>
-            <th scope="row">Report integrity and signer identity</th>
-            <td><strong>Mature for retained claims</strong></td>
+            <th scope="row">Detect a changed report and confirm its signer</th>
+            <td><strong>Strong for that narrow job</strong></td>
             <td>
-              Canonical fingerprints and optional Sigstore verification detect report changes and
-              authenticate the configured signer, not the truth of collection claims.
+              Fingerprints detect report changes and an optional signature check can confirm the
+              approved signer. Neither proves that the original information was true.
             </td>
           </tr>
           <tr>
-            <th scope="row">Collection and route completeness</th>
-            <td><strong>Externally asserted</strong></td>
+            <th scope="row">Prove that every page was checked</th>
+            <td><strong>Depends on your input</strong></td>
             <td>
-              Inventories and expected surfaces are supplied by the operator. Omitted production
-              routes, states, and environments cannot currently be discovered independently.
+              You supply the list of pages and environments. ControlCurrent cannot independently
+              discover anything that was left out.
             </td>
           </tr>
           <tr>
-            <th scope="row">Runtime enforcement</th>
-            <td><strong>Not assessed</strong></td>
+            <th scope="row">Test live browser and server behaviour</th>
+            <td><strong>Not provided</strong></td>
             <td>
-              ControlCurrent does not exercise browser enforcement, server authorisation,
-              authenticators, or remote resources.
+              ControlCurrent does not exercise browser enforcement, server permissions, passkey
+              devices, or remote resources.
             </td>
           </tr>
           <tr>
-            <th scope="row">Production certification</th>
-            <td><strong>Out of scope</strong></td>
+            <th scope="row">Certify a production website</th>
+            <td><strong>Not provided</strong></td>
             <td>
               No result is a vulnerability assessment, compliance decision, penetration test, or
-              certification.
+              security certification.
             </td>
           </tr>
         </tbody>

@@ -9,15 +9,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 ---
 
 <Layout
-  title="Compatibility matrix"
-  description="A browser-by-browser matrix for the current ControlCurrent security control catalogue."
+  title="Browser support table"
+  description="Compare support for each security feature across current desktop and mobile browsers."
 >
   <header class="shell page-header">
-    <span class="eyebrow">BCD {selectedSnapshot.bcdVersion}</span>
-    <h1>Current-channel compatibility matrix</h1>
+    <span class="eyebrow">MDN browser data {selectedSnapshot.bcdVersion}</span>
+    <h1>Compare security-feature support across browsers</h1>
     <p>
-      This table evaluates the desktop and mobile release channels identified as current in the
-      selected BCD package. Use the planner for your own explicit minimum versions.
+      This table uses the current version of each browser recorded in the selected MDN data. To
+      check the older versions your own website supports, use the browser planner.
     </p>
   </header>
   <section class="shell section">
@@ -61,9 +61,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       </table>
     </div>
     <div class="callout">
-      <strong>Compatibility is not configuration assurance.</strong>
-      A green result means the mapped browser feature is available without a qualification recorded in
-      BCD at that minimum. It does not inspect an application or prove effective enforcement.
+      <strong>“Works” does not mean “securely configured”.</strong>
+      It means the browser feature is supported without a known limitation in the selected MDN data. ControlCurrent
+      has not inspected your website or tested whether the feature is enforced.
     </div>
   </section>
 </Layout>
