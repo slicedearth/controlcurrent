@@ -37,7 +37,7 @@
     "verify": "npm run lint && npm run format:check && npm run typecheck && npm run check && npm test && npm run audit:repository && npm run build && npm run audit:public && npm run audit:language"
   },
   "dependencies": {
-    "@mdn/browser-compat-data": "8.0.7",
+    "@mdn/browser-compat-data": "8.0.8",
     "@sigstore/bundle": "5.0.0",
     "@sigstore/protobuf-specs": "0.5.1",
     "@sigstore/tuf": "5.0.0",
