@@ -69,9 +69,10 @@ describe("opt-in evaluation storage", () => {
     if (!firstControl) throw new Error("Expected an evaluated security feature.");
     const firstResult = evaluation.results[firstControl]?.[0];
     if (!firstResult) throw new Error("Expected an evaluated browser result.");
+    const updatedBcdVersion = "99.0.0";
     const updated = {
       ...evaluation,
-      bcdVersion: "8.0.8",
+      bcdVersion: updatedBcdVersion,
       results: {
         ...evaluation.results,
         [firstControl]: [
@@ -88,8 +89,8 @@ describe("opt-in evaluation storage", () => {
     };
     expect(summariseEvaluationUpdate(evaluation, updated)).toMatchObject({
       state: "source_updated",
-      previousBcdVersion: "8.0.7",
-      currentBcdVersion: "8.0.8",
+      previousBcdVersion: selectedSnapshot.bcdVersion,
+      currentBcdVersion: updatedBcdVersion,
       changed: 1
     });
   });

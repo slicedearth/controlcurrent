@@ -14,9 +14,11 @@ const bcd = require("@mdn/browser-compat-data") as CompatData;
 
 describe("locked BCD source selection", () => {
   it("reproduces the committed selected subset exactly", () => {
-    expect(buildSelectedSnapshot(bcd, { webFeaturesVersion: "3.34.1" })).toEqual(selected);
+    expect(buildSelectedSnapshot(bcd, { webFeaturesVersion: selected.webFeaturesVersion })).toEqual(
+      selected
+    );
     expect(Object.keys(selected.features)).toHaveLength(36);
-    expect(selected.bcdVersion).toBe("8.0.7");
+    expect(selected.bcdVersion).toBe(bcd.__meta.version);
   });
 
   it("fails when a configured feature path disappears or is hostile", () => {

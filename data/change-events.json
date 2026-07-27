@@ -2508,5 +2508,35 @@
     "sourceTimestamp": "2026-07-17T18:04:31.500Z",
     "summary": "The selected BCD path http.headers.Clear-Site-Data was added.",
     "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-15",
+      "status": "planned",
+      "version": "156"
+    },
+    "browser": "firefox_android",
+    "id": "225d0a3961b32539a2fea4af",
+    "observedInBcdVersion": "8.0.8",
+    "observedInWebFeaturesVersion": "3.34.2",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-24T16:06:32.098Z",
+    "summary": "Firefox for Android 156 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-15",
+      "status": "planned",
+      "version": "156"
+    },
+    "browser": "firefox",
+    "id": "d0967f9a74d5d64fb93250f3",
+    "observedInBcdVersion": "8.0.8",
+    "observedInWebFeaturesVersion": "3.34.2",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-07-24T16:06:32.098Z",
+    "summary": "Firefox 156 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
   }
 ]

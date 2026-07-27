@@ -1,6 +1,6 @@
 {
-  "bcdTimestamp": "2026-07-17T18:04:31.500Z",
-  "bcdVersion": "8.0.7",
+  "bcdTimestamp": "2026-07-24T16:06:32.098Z",
+  "bcdVersion": "8.0.8",
   "browsers": {
     "chrome": {
       "id": "chrome",
@@ -2546,7 +2546,7 @@
         },
         {
           "releaseDate": "2025-06-24",
-          "status": "esr",
+          "status": "retired",
           "version": "140"
         },
         {
@@ -2606,23 +2606,28 @@
         },
         {
           "releaseDate": "2026-06-16",
-          "status": "current",
+          "status": "retired",
           "version": "152"
         },
         {
           "releaseDate": "2026-07-21",
-          "status": "beta",
+          "status": "current",
           "version": "153"
         },
         {
           "releaseDate": "2026-08-18",
-          "status": "nightly",
+          "status": "beta",
           "version": "154"
         },
         {
           "releaseDate": "2026-09-01",
-          "status": "planned",
+          "status": "nightly",
           "version": "155"
+        },
+        {
+          "releaseDate": "2026-09-15",
+          "status": "planned",
+          "version": "156"
         }
       ]
     },
@@ -3247,7 +3252,7 @@
         },
         {
           "releaseDate": "2025-06-24",
-          "status": "esr",
+          "status": "retired",
           "version": "140"
         },
         {
@@ -3307,23 +3312,28 @@
         },
         {
           "releaseDate": "2026-06-16",
-          "status": "current",
+          "status": "retired",
           "version": "152"
         },
         {
           "releaseDate": "2026-07-21",
-          "status": "beta",
+          "status": "current",
           "version": "153"
         },
         {
           "releaseDate": "2026-08-18",
-          "status": "nightly",
+          "status": "beta",
           "version": "154"
         },
         {
           "releaseDate": "2026-09-01",
-          "status": "planned",
+          "status": "nightly",
           "version": "155"
+        },
+        {
+          "releaseDate": "2026-09-15",
+          "status": "planned",
+          "version": "156"
         }
       ],
       "upstream": "firefox"
@@ -7539,5 +7549,5 @@
   },
   "schemaFingerprint": "ebad2f9787d9e115700d562ee122e62ba9116b04888263ebdaf922464b36b092",
   "schemaVersion": 2,
-  "webFeaturesVersion": "3.34.1"
+  "webFeaturesVersion": "3.34.2"
 }

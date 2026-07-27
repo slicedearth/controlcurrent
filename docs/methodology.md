@@ -35,7 +35,7 @@ control definition. Multi-path controls use:
 No current catalogue control uses `any`.
 
 Related data is not substituted for a missing feature. CSP nonce and hash
-sources remain unsupported mappings in BCD 8.0.7 because the package does not
+sources remain unsupported mappings in BCD 8.0.8 because the package does not
 publish standalone compatibility statements for those source expressions.
 
 ## Version comparison

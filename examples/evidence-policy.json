@@ -3,7 +3,7 @@
   "name": "Release evidence baseline",
   "expectedAnalyserVersion": "5.0.0",
   "expectedCatalogueVersion": "2.2.0",
-  "expectedBcdVersion": "8.0.7",
+  "expectedBcdVersion": "8.0.8",
   "attestation": {
     "required": false,
     "certificateIssuer": "https://token.actions.githubusercontent.com/",

@@ -130,8 +130,8 @@ boundary.
 
 The current selected dataset is generated from:
 
-- `@mdn/browser-compat-data` 8.0.7;
-- `web-features` 3.34.1; and
+- `@mdn/browser-compat-data` 8.0.8;
+- `web-features` 3.34.2; and
 - exact Web Platform Tests suite paths pinned to revision
   `af38980d2fcd74af19a226f5f651051cc15940ed`.
 

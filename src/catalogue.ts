@@ -64,7 +64,7 @@ export const SECURITY_CONTROLS = [
       "Use a carefully scoped CSP and avoid inline script where a nonce deployment cannot be validated.",
     mappingState: "unsupported",
     mappingNote:
-      "BCD 8.0.7 does not publish a standalone compatibility statement for CSP nonce source expressions.",
+      "BCD 8.0.8 does not publish a standalone compatibility statement for CSP nonce source expressions.",
     combination: "all",
     bcdPaths: [],
     specificationUrls: ["https://w3c.github.io/webappsec-csp/#grammardef-nonce-source"]
@@ -87,7 +87,7 @@ export const SECURITY_CONTROLS = [
       "Use nonces or external resources under a restrictive CSP when hash maintenance is unsuitable.",
     mappingState: "unsupported",
     mappingNote:
-      "BCD 8.0.7 does not publish a standalone compatibility statement for CSP hash source expressions.",
+      "BCD 8.0.8 does not publish a standalone compatibility statement for CSP hash source expressions.",
     combination: "all",
     bcdPaths: [],
     specificationUrls: ["https://w3c.github.io/webappsec-csp/#grammardef-hash-source"]

@@ -28,7 +28,7 @@ This creates a reviewable surface:
 
 ## Honest unsupported states
 
-The desired catalogue included CSP nonce and hash sources. BCD 8.0.7 has no
+The desired catalogue included CSP nonce and hash sources. BCD 8.0.8 has no
 standalone compatibility statement for either source expression. Mapping both
 to the broader `script-src` directive would overstate the evidence, so the
 catalogue exposes them with `unsupported_mapping`.
