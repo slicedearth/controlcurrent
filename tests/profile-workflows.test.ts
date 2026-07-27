@@ -62,4 +62,41 @@ describe("planner workflows", () => {
     expect(report).toContain("Compatibility evidence does not establish");
     expect(exportEngineeringReport(after, comparison)).toBe(report);
   });
+
+  it("escapes every Markdown metacharacter and control character in profile names", () => {
+    const markdownCharacters = [
+      "\\",
+      "\\",
+      "|",
+      "`",
+      "*",
+      "_",
+      "{",
+      "}",
+      "[",
+      "]",
+      "(",
+      ")",
+      "#",
+      "+",
+      ".",
+      "!",
+      "<",
+      ">",
+      "-"
+    ];
+    const hostile = {
+      ...after,
+      profile: {
+        ...after.profile,
+        name: `${markdownCharacters.join("")}\nnext`
+      }
+    };
+
+    const report = exportEngineeringReport(hostile);
+    expect(report).toContain(
+      `**${markdownCharacters.map((character) => `\\${character}`).join("")} next**`
+    );
+    expect(report).not.toContain("\nnext");
+  });
 });

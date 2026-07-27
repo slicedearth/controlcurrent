@@ -161,17 +161,38 @@ export function compareProfileEvaluations(
   });
 }
 
+const markdownEscapedCharacters = new Set([
+  "\\",
+  "|",
+  "`",
+  "*",
+  "_",
+  "{",
+  "}",
+  "[",
+  "]",
+  "(",
+  ")",
+  "#",
+  "+",
+  ".",
+  "!",
+  "<",
+  ">",
+  "-"
+]);
+
 function markdown(value: string): string {
-  return Array.from(value)
-    .map((character) => {
-      const codePoint = character.codePointAt(0);
-      return codePoint !== undefined && (codePoint < 32 || codePoint === 127) ? " " : character;
-    })
-    .join("")
-    .replaceAll("\\", "\\\\")
-    .replaceAll("|", "\\|")
-    .replaceAll(/([`*_{}[\]()#+.!<>-])/gu, "\\$1")
-    .trim();
+  let escaped = "";
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    if (codePoint !== undefined && (codePoint < 32 || codePoint === 127)) {
+      escaped += " ";
+      continue;
+    }
+    escaped += markdownEscapedCharacters.has(character) ? `\\${character}` : character;
+  }
+  return escaped.trim();
 }
 
 function outcomeCounts(evaluation: ProfileEvaluation): Map<Outcome, number> {
