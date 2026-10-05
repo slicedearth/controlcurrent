@@ -43,18 +43,26 @@ does not alter the checked-out repository or trigger deployment.
 
 ## Browser boundary
 
-### Manual-dispatch parity review
+### Manual-dispatch verification parity
 
-Manual Pages dispatch checks out its exact `github.sha` and runs `npm run verify`.
-It currently bypasses the separate dependency audit and locked browser job that
-automatic publication obtains from CI. This is not complete CI parity. Before
-using manual dispatch, require a successful CI run for that exact SHA or explicitly
-review the bypass. A proposed non-bypass path would make the manual build run
-`npm audit --audit-level=high`, install the locked Chromium build, and run
-`npm run test:e2e` before uploading. Workflow contract tests keep the exact-SHA
-binding and current boundary reviewable. Enabling those additional hosted steps
-or removing an intentional emergency override requires maintainer approval;
-this local repair does not dispatch or change deployment gates.
+Manual Pages dispatch checks out its exact `github.sha` and runs `npm run verify`,
+`npm audit --audit-level=high`, installs the locked Chromium build, and runs
+`npm run test:e2e` before uploading. There is no emergency verification bypass:
+a failed audit or browser check prevents artifact upload and deployment. The
+build job has a bounded 30-minute timeout to accommodate both verification
+stages. Automatic publication retains its successful exact-SHA CI prerequisite
+and does not repeat the additional manual-only checks.
+
+Browser tests deliberately clear the deployment target for their loopback root
+fixture. They rebuild `dist`, so the manual path then rebuilds and audits the
+publication target with the Pages base path restored before upload. A local
+fixture build can never be uploaded as the deployment artifact by this path.
+
+Workflow contract tests retain the event-SHA binding, ordered gates and
+read-only build boundary. The manual path has verification-command parity with
+the current CI workflow, not proof that hosted execution has succeeded. Local
+workflow edits do not change the deployed workflow until reviewed publication;
+no dispatch or deployment is required to test this contract locally.
 
 ### Organisation-specific origin review
 
@@ -66,6 +74,28 @@ integrity, zero telemetry and cross-origin request behaviour using synthetic
 fixtures before approval. Keep actual evidence on the device and out of build
 artifacts. A host/origin/DNS/account change and any evidence publication need
 separate explicit approval; no such change is performed by local tests.
+
+The migration plan is:
+
+1. Choose an organisation-controlled dedicated hostname and a static host that
+   serves response headers. Do not select an account or domain implicitly.
+2. Configure the canonical URL and root base path for that origin in a separate
+   reviewed change; the current production configuration remains the public
+   project site. Keep the existing public deployment available for public data.
+3. Build the same locked static application with no private evidence, accounts,
+   telemetry or runtime collection. Translate `_headers` only if required by the
+   selected host; preserve every restriction and review host-added scripts.
+4. Review host access, deployment permissions, logging and retention. Imported
+   evidence must never enter host logs, build artefacts or deployment storage;
+   ordinary navigation metadata may still be logged by the host.
+5. Before sensitive use, verify actual response headers on document, asset and
+   error routes, TLS, canonical URLs, frame rejection and absence of external
+   requests with synthetic fixtures. The presence of `_headers` alone is not a
+   delivery check. Review browser storage origin separation and provide a clear
+   local-data clearing path.
+6. Approve account, DNS and deployment changes explicitly, retain a rollback
+   route to the previous public site, and do not move organisation evidence into
+   either public repository or deployment artefact. Choose HSTS separately.
 
 Every generated HTML page carries a restrictive meta Content Security Policy:
 

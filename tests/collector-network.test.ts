@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { FixedOriginCollectorTransport } from "../tools/collector-network";
 
 describe("collector network transport", () => {
@@ -19,10 +19,10 @@ describe("collector network transport", () => {
     expect(result[0]).toMatchObject({ outcome: "transport_error", errorKind: "timeout" });
   });
 
-  it.each(["trickle", "headers", "redirect", "abort", "cookies"])(
+  it.each(["trickle", "headers", "abort", "cookies"])(
     "settles and closes the %s response lifecycle",
     async (kind) => {
-      const server = createServer((request, response) => {
+      const server = createServer((_request, response) => {
         if (kind === "headers") return;
         if (kind === "cookies") {
           response.writeHead(200, {
@@ -37,13 +37,6 @@ describe("collector network transport", () => {
           response.writeHead(200);
           response.write("a");
           response.destroy();
-          return;
-        }
-        if (kind === "redirect" && request.url === "/") {
-          setTimeout(() => {
-            response.writeHead(302, { Location: "/next" });
-            response.end();
-          }, 25);
           return;
         }
         response.writeHead(200, { "Content-Type": "text/html" });
@@ -62,9 +55,7 @@ describe("collector network transport", () => {
           timeoutMs: 70
         });
         expect(result.at(-1)).toMatchObject({ outcome: "transport_error" });
-        if (["trickle", "headers", "redirect"].includes(kind))
-          expect(result.at(-1)?.errorKind).toBe("timeout");
-        if (kind === "redirect") expect(result[0]?.outcome).toBe("redirect");
+        if (["trickle", "headers"].includes(kind)) expect(result.at(-1)?.errorKind).toBe("timeout");
       } finally {
         server.closeAllConnections();
         await new Promise<void>((resolve, reject) =>
@@ -73,6 +64,63 @@ describe("collector network transport", () => {
       }
     }
   );
+
+  it("shares one absolute deadline across redirect hops without relying on scheduling speed", async () => {
+    let releaseRedirect: () => void = () => {
+      throw new Error("The redirect request has not arrived.");
+    };
+    let firstRequest: () => void = () => undefined;
+    let secondRequest: () => void = () => undefined;
+    const firstArrived = new Promise<void>((resolve) => {
+      firstRequest = resolve;
+    });
+    const secondArrived = new Promise<void>((resolve) => {
+      secondRequest = resolve;
+    });
+    const server = createServer((request, response) => {
+      if (request.url === "/") {
+        releaseRedirect = () => {
+          response.writeHead(302, { Location: "/next" });
+          response.end();
+        };
+        firstRequest();
+        return;
+      }
+      response.writeHead(200, { "Content-Type": "text/html" });
+      response.write("<main>");
+      secondRequest();
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    // Fake only deadline timers; socket I/O and request-arrival barriers remain real.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      const address = server.address() as AddressInfo;
+      const collection = new FixedOriginCollectorTransport(true).collect({
+        baseOrigin: `http://127.0.0.1:${String(address.port)}`,
+        path: "/",
+        maximumBodyBytes: 4096,
+        maximumRedirects: 2,
+        timeoutMs: 70
+      });
+      await firstArrived;
+      await vi.advanceTimersByTimeAsync(40);
+      releaseRedirect();
+      await secondArrived;
+      // Only the original remaining 30 ms is available, not a new 70 ms per hop.
+      await vi.advanceTimersByTimeAsync(30);
+      expect(await collection).toMatchObject([
+        { outcome: "redirect", status: 302, redirectTarget: "same_origin" },
+        { outcome: "transport_error", errorKind: "timeout" }
+      ]);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+      server.closeAllConnections();
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve()))
+      );
+    }
+  });
   it("follows bounded loopback redirects without carrying cookies or credentials", async () => {
     const observedCredentials: string[] = [];
     const server = createServer((request, response) => {
