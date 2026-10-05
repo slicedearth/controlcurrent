@@ -12,6 +12,7 @@ export type EvaluationStorage = {
 
 export type StoredEvaluationResult =
   | { state: "absent" }
+  | { state: "unavailable" }
   | { state: "loaded"; evaluation: ProfileEvaluation }
   | { state: "invalid"; reason: string }
   | { state: "future_version"; version: number };
@@ -49,7 +50,12 @@ export function saveEvaluation(storage: EvaluationStorage, input: unknown): void
 }
 
 export function loadEvaluation(storage: EvaluationStorage): StoredEvaluationResult {
-  const serialised = storage.getItem(EVALUATION_STORAGE_KEY);
+  let serialised: string | null;
+  try {
+    serialised = storage.getItem(EVALUATION_STORAGE_KEY);
+  } catch {
+    return { state: "unavailable" };
+  }
   if (serialised === null) return { state: "absent" };
   if (new TextEncoder().encode(serialised).byteLength > MAX_EVALUATION_BYTES) {
     return { state: "invalid", reason: "Stored result exceeds the byte limit." };

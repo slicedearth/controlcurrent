@@ -43,6 +43,30 @@ does not alter the checked-out repository or trigger deployment.
 
 ## Browser boundary
 
+### Manual-dispatch parity review
+
+Manual Pages dispatch checks out its exact `github.sha` and runs `npm run verify`.
+It currently bypasses the separate dependency audit and locked browser job that
+automatic publication obtains from CI. This is not complete CI parity. Before
+using manual dispatch, require a successful CI run for that exact SHA or explicitly
+review the bypass. A proposed non-bypass path would make the manual build run
+`npm audit --audit-level=high`, install the locked Chromium build, and run
+`npm run test:e2e` before uploading. Workflow contract tests keep the exact-SHA
+binding and current boundary reviewable. Enabling those additional hosted steps
+or removing an intentional emergency override requires maintainer approval;
+this local repair does not dispatch or change deployment gates.
+
+### Organisation-specific origin review
+
+Use a separate dedicated origin, not a shared project-site path, for sensitive
+local assessment. A header-capable static host should serve the existing
+reviewed `_headers` policy, including response CSP and frame restrictions that
+cannot be supplied by a meta element. Review TLS, origin isolation, resource
+integrity, zero telemetry and cross-origin request behaviour using synthetic
+fixtures before approval. Keep actual evidence on the device and out of build
+artifacts. A host/origin/DNS/account change and any evidence publication need
+separate explicit approval; no such change is performed by local tests.
+
 Every generated HTML page carries a restrictive meta Content Security Policy:
 
 - scripts, styles, images, and fonts are limited to the static site's needs;
@@ -151,6 +175,30 @@ CONTROLCURRENT_DEPLOY_TARGET=github-pages npm run build
 CONTROLCURRENT_DEPLOY_TARGET=github-pages npm run audit:public
 git diff --check
 ```
+
+Optional local cross-engine smoke checks use the locked browser package without
+changing recurring hosted CI or uploading additional artefacts:
+
+```sh
+npx playwright install chromium firefox webkit
+CONTROLCURRENT_BROWSER_SMOKE=1 npx playwright test --grep @smoke
+```
+
+The smoke fixture uses HTTPS with a disposable, locally generated certificate
+because WebKit upgrades loopback subresources under the site's existing CSP.
+It requires local `openssl`; the certificate and key are deleted after reading
+them into the loopback server. Certificate-error checks are disabled in the
+smoke browser context and readiness probe, not pinned to a single certificate.
+This is a local test-only limitation, not production TLS verification; the built
+site's CSP is not weakened.
+
+The cross-engine smoke jobs run serially to avoid local browser resource
+contention. Shared schema validation disables dynamic compilation, including
+the schema library's caught capability probe, instead of allowing `unsafe-eval`.
+
+The smoke scenario checks keyboard use and enlarged text. The complete
+Chromium suite remains the default; a smoke pass is not equivalent to complete
+Firefox or WebKit coverage.
 
 After deployment:
 

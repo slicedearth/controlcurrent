@@ -43,4 +43,33 @@ describe("CI report formats", () => {
     expect(renderPolicyDriftJunit(comparison)).toContain('tests="0"');
     expect(renderPolicyDriftJunit(comparison)).toBe(renderPolicyDriftJunit(comparison));
   });
+
+  it("represents omitted adverse policy events without claiming an unreachable evaluator edge", () => {
+    // Public comparison contract fixture: the current catalogue does not generate this size.
+    const base = comparePolicyEvaluations(evaluation, evaluation, "2026-07-24");
+    const comparison = {
+      ...base,
+      summary: {
+        ...base.summary,
+        regressions: 1,
+        information: 512,
+        totalEvents: 513,
+        emittedEvents: 512,
+        truncated: true
+      },
+      events: Array.from({ length: 512 }, (_, i) => ({
+        id: i.toString(16).padStart(24, "0"),
+        type: "decision_context_changed" as const,
+        severity: "information" as const,
+        key: `fixture-${String(i)}`,
+        summary: "Synthetic context change"
+      }))
+    };
+    expect(renderPolicyDriftMarkdown(comparison)).toContain("512 of 513");
+    const junit = renderPolicyDriftJunit(comparison);
+    expect(junit).toContain('tests="513"');
+    expect(junit).toContain('failures="1"');
+    expect(junit).toContain("Omitted bounded events");
+    expect(junit).toContain("<failure");
+  });
 });

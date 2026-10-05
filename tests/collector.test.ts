@@ -39,6 +39,98 @@ const primarySurface = manifest.surfaces[0];
 if (!primarySurface) throw new Error("Collector fixture requires one surface.");
 
 describe("authorised evidence collector", () => {
+  it("preflights 16/17/32 surfaces and budgets redirects without discarded observations", async () => {
+    const surfaces = Array.from({ length: 32 }, (_, i) => ({
+      ...primarySurface,
+      id: `s${String(i)}`,
+      path: `/s${String(i)}`
+    }));
+    for (const count of [17, 32])
+      expect(
+        collectorManifestSchema.safeParse({ ...manifest, surfaces: surfaces.slice(0, count) })
+          .success
+      ).toBe(false);
+    const redirectBudgets: number[] = [];
+    const bundle = await collectEvidenceBundle(
+      { ...manifest, surfaces: surfaces.slice(0, 16) },
+      {
+        collect: (input) => {
+          redirectBudgets.push(input.maximumRedirects);
+          return Promise.resolve([
+            {
+              status: 200,
+              outcome: "final",
+              headers: {},
+              contentType: "html",
+              cache: "unknown",
+              body: "<main>Fixture</main>"
+            }
+          ]);
+        }
+      }
+    );
+    expect(bundle.responses).toHaveLength(16);
+    expect(bundle.htmlDocuments).toHaveLength(16);
+    expect(redirectBudgets).toEqual(Array<number>(16).fill(0));
+  });
+  it("reserves suffix space in all maximum-length derived labels", async () => {
+    const bundle = await collectEvidenceBundle(
+      { ...manifest, name: "N".repeat(80), surfaces: [{ ...primarySurface, id: "a".repeat(80) }] },
+      {
+        collect: () =>
+          Promise.resolve([
+            {
+              status: 302,
+              outcome: "redirect",
+              headers: {},
+              contentType: "html",
+              cache: "unknown",
+              redirectTarget: "same_origin"
+            },
+            {
+              status: 200,
+              outcome: "final",
+              headers: {},
+              contentType: "html",
+              cache: "unknown",
+              body: "<main>Fixture</main>"
+            }
+          ])
+      }
+    );
+    const inventory = bundle.scopeInventory;
+    if (!inventory) throw new Error("Collector fixture inventory is missing.");
+    expect(inventory.name.length).toBeLessThanOrEqual(80);
+    expect(bundle.responses.every((response) => response.name.length <= 80)).toBe(true);
+    expect(bundle.htmlDocuments[0]?.name.length).toBeLessThanOrEqual(80);
+  });
+  it("fails explicitly rather than publishing HTML beyond the aggregate budget", async () => {
+    await expect(
+      collectEvidenceBundle(
+        {
+          ...manifest,
+          surfaces: Array.from({ length: 5 }, (_, i) => ({
+            ...primarySurface,
+            id: `s${String(i)}`,
+            path: `/s${String(i)}`
+          }))
+        },
+        {
+          collect: () =>
+            Promise.resolve([
+              {
+                status: 200,
+                outcome: "final",
+                headers: {},
+                contentType: "html",
+                cache: "unknown",
+                body: "a".repeat(128 * 1024)
+              }
+            ])
+        }
+      )
+    ).rejects.toThrow(/HTML.*budget/u);
+  });
   it("generates a bounded scope inventory and contextual evidence bundle", async () => {
     const transport: CollectorTransport = {
       collect: () =>

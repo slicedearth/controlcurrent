@@ -20,8 +20,9 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
     <h2 id="minimum-heading">Find the oldest browser versions that will work</h2>
     <p>
       Choose the security features and browsers you need. ControlCurrent searches its reviewed
-      browser history and shows the earliest versions that support that combination. If it cannot
-      give a reliable answer, it explains what blocked the calculation.
+      browser history and shows the earliest minimum whose recorded later releases also support that
+      combination. This does not predict support in future releases. If it cannot give a reliable
+      answer, it explains what blocked the calculation.
     </p>
   </div>
 

@@ -216,7 +216,12 @@ function cspDirectiveFinding(
     );
   }
   const present =
-    enforced.state === "present" && enforced.policies.some((policy) => policy.has(directive));
+    enforced.state === "present" &&
+    enforced.policies.some((policy) =>
+      directive === "base-uri"
+        ? ["'none'", "'self'"].includes((policy.get(directive) ?? []).join(" "))
+        : policy.has(directive)
+    );
   const reported =
     reportOnly.state === "present" && reportOnly.policies.some((policy) => policy.has(directive));
   return finding(
@@ -262,6 +267,60 @@ export function cspElementTokens(policy: CspPolicy, kind: "script" | "style"): s
       : (["style-src-elem", "style-src", "default-src"] as const);
   const directive = chain.find((candidate) => policy.has(candidate));
   return directive ? (policy.get(directive) ?? []) : [];
+}
+
+/** Count effective broad allowances, respecting CSP3 ignored source expressions. */
+export function effectiveCspBroadSourceCount(
+  tokens: readonly string[],
+  kind: "script" | "style"
+): number {
+  const authorisation = tokens.some(
+    (token) =>
+      parseCspNonceSource(token).state === "valid" || parseCspHashSource(token).metadata.length > 0
+  );
+  const dynamic = kind === "script" && authorisation && tokens.includes("'strict-dynamic'");
+  return tokens.filter((token) => {
+    const lower = token.toLowerCase();
+    if (["'unsafe-eval'", "'wasm-unsafe-eval'"].includes(lower)) return true;
+    if (lower === "'unsafe-inline'") return !authorisation;
+    const location = lower === "*" || lower === "'self'" || !lower.startsWith("'");
+    return location && !dynamic;
+  }).length;
+}
+
+export function scriptCspCandidate(snapshotInput: unknown): "satisfied" | "gap" | "review" {
+  const { enforced } = extractCspEvidence(snapshotInput);
+  if (enforced.state === "invalid") return "review";
+  if (enforced.state !== "present") return "gap";
+  if (enforced.policies.length !== 1) return "review";
+  const policy = enforced.policies[0];
+  if (!policy || !["'none'", "'self'"].includes((policy.get("base-uri") ?? []).join(" ")))
+    return "gap";
+  // Both the element override and the general script list must meet this declaration recipe.
+  const lists = effectiveDirectiveTokens(policy, SCRIPT_SOURCE_CHAINS);
+  if (lists.length !== SCRIPT_SOURCE_CHAINS.length) return "gap";
+  for (const tokens of lists) {
+    if (
+      !tokens.some(
+        (token) =>
+          parseCspNonceSource(token).state === "valid" ||
+          parseCspHashSource(token).metadata.length > 0
+      )
+    )
+      return "gap";
+    if (
+      tokens.some(
+        (token) =>
+          ["invalid", "short"].includes(parseCspNonceSource(token).state) ||
+          parseCspHashSource(token).invalidSupportedTokenCount > 0
+      )
+    )
+      return "review";
+    if (effectiveCspBroadSourceCount(tokens, "script") > 0) return "gap";
+  }
+  const attributes = policy.get("script-src-attr");
+  if (attributes && effectiveCspBroadSourceCount(attributes, "script") > 0) return "gap";
+  return "satisfied";
 }
 
 function cspHasToken(

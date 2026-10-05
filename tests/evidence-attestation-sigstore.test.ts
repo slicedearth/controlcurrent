@@ -27,11 +27,7 @@ const sigstoreTrust = vi.hoisted(() => {
 const sigstoreVerify = vi.hoisted(() => {
   class PolicyError extends Error {}
   class VerificationError extends Error {}
-  const verify = vi.fn((entity: unknown, policy: unknown): unknown => {
-    void entity;
-    void policy;
-    return undefined;
-  });
+  const verify = vi.fn<(entity: unknown, policy: unknown) => unknown>(() => undefined);
   class Verifier {
     verify(entity: unknown, policy: unknown): unknown {
       return verify(entity, policy);

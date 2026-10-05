@@ -19,8 +19,8 @@ test("renders real source provenance and makes no external request", async ({ pa
   ).toBeVisible();
   await expect(
     page.getByText("MDN browser data", { exact: true }).first().locator("..")
-  ).toContainText("8.0.8");
-  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.34.2");
+  ).toContainText("8.1.4");
+  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.40.1");
   await expect(page.getByText("Server connection").locator("..")).toContainText("none");
   expect(externalRequests).toEqual([]);
 
@@ -476,7 +476,7 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     page.getByRole("heading", { name: "Privacy-reduced evidence report" })
   ).toBeVisible();
   await expect(
-    results.getByRole("heading", { name: "Strong Content Security Policy" })
+    results.getByRole("heading", { name: "Script CSP declaration candidate" })
   ).toBeVisible();
   await expect(
     results.getByRole("heading", { name: "Cross-origin isolation headers" })
@@ -488,7 +488,7 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     results.getByRole("heading", { name: "Requirements for page · sign-in" })
   ).toBeVisible();
   await expect(
-    results.getByText("19 of 19 required features found · 3 of 3 combined checks met")
+    results.getByText("18 of 19 required features found · 3 of 3 combined checks met")
   ).toBeVisible();
   await expect(
     results.getByText("No declared surface requires this control.").first()
@@ -500,7 +500,7 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs", asyn
     "captured 2026-07-20T09:05:00.000Z by example-ci (application_ci)"
   );
   await expect(results.locator("#bundle-source")).toContainText(
-    "analyser 5.0.0 · catalogue 2.2.0 · BCD 8.0.8"
+    "analyser 5.1.0 · catalogue 2.2.0 · BCD 8.1.4"
   );
   await expect(
     results.getByText("Supplied page list · Reviewed application route manifest")
@@ -685,13 +685,14 @@ test("publishes a restrictive meta policy and refuses embedded interaction", asy
   expect(policy).toContain("worker-src 'none'");
   expect(policy).not.toContain("frame-ancestors");
 
-  await page.route("http://127.0.0.1:4389/__frame-test.html", async (route) => {
+  const fixtureUrl = new URL("/__frame-test.html", page.url()).href;
+  await page.route(fixtureUrl, async (route) => {
     await route.fulfill({
       body: '<iframe title="Embedded ControlCurrent" src="/assess/"></iframe>',
       contentType: "text/html"
     });
   });
-  await page.goto("http://127.0.0.1:4389/__frame-test.html");
+  await page.goto(fixtureUrl);
   const embedded = page.frameLocator('iframe[title="Embedded ControlCurrent"]');
   await expect(embedded.getByRole("alert")).toContainText("Open ControlCurrent directly");
   await expect(embedded.getByLabel("HTTP response headers")).toBeHidden();

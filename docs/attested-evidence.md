@@ -123,6 +123,18 @@ messages do not enter the reduced policy result.
 
 ## Security meaning
 
+### Compose a verified result without changing its meaning
+
+`verify-evidence --json` produces an envelope with `attestation` and `evidence`.
+For `build-packet`, extract its exact `evidence` member unchanged into a private
+JSON file using a local JSON tool, then pass that file as the evidence input.
+The nested evaluation already carries the verification outcome bound to the
+report fingerprint; do not splice a verification result from another report or
+invent a `verified` value. Retain the original envelope, report and signature
+bundle privately for re-verification. Packet fingerprints prove content binding,
+not independent cryptographic authenticity of a manually edited input. No new
+wrapper or breaking artifact schema is introduced for this composition path.
+
 A verified result establishes that:
 
 - the Sigstore bundle passed the configured cryptographic and transparency

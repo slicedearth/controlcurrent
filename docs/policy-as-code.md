@@ -85,6 +85,14 @@ Browser availability and supplied configuration evidence remain separate
 decision lanes. A packet does not prove independent collection, complete
 coverage, correct runtime enforcement, or production security.
 
+Comparison decisions use complete event totals, not the bounded list displayed
+in a report. Truncated lists expose emitted and total counts. JUnit output adds
+an explicit omitted-events case when needed so an adverse event beyond the
+display limit cannot disappear from the CI result. Evidence-policy requirement
+removals and weakened rules are policy regressions, separate from factual
+evidence changes. Changes to pinned trust, identity, scope or freshness contracts
+also require review rather than implying that evidence improved.
+
 The command line can build, validate and compare packets. Comparison keeps the
 browser-policy and evidence lanes separate, refuses invalid fingerprints, and
 classifies incomparable evidence rather than manufacturing a resolution.
@@ -152,6 +160,21 @@ npm run cli -- compare-packets previous-packet.json decision-packet.json \
   --fail-regression \
   --format junit
 ```
+
+Compare reduced evidence reports with an optional incomparable-result gate:
+
+```sh
+npm run cli -- compare-reports previous-report.json report.json \
+  --fail-regression --fail-incomparable --format junit
+```
+
+`--fail-incomparable` returns exit code `1` when comparison cannot establish a
+like-for-like result. Without that flag, the existing exit-code behaviour is
+unchanged: incomparable results are reported but do not alone fail the command.
+Invalid input still returns `2`. Flags govern the process exit consistently
+across JSON, text, Markdown and JUnit output. Output documents still describe
+all regressions and incomparable results even when an optional exit gate is
+omitted; JUnit may therefore contain failure cases with a non-strict exit `0`.
 
 ## JSON Schemas
 

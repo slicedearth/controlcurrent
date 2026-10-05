@@ -53,11 +53,13 @@ function junitSuite(
   name: string,
   cases: readonly string[],
   failures: number,
-  skipped: number
+  skipped: number,
+  properties = ""
 ): string {
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     `<testsuite name="${xml(name)}" tests="${String(cases.length)}" failures="${String(failures)}" skipped="${String(skipped)}">`,
+    ...(properties ? [properties] : []),
     ...cases,
     "</testsuite>",
     ""
@@ -172,6 +174,11 @@ export function renderPolicyDriftMarkdown(input: unknown): string {
     `- Review: ${String(comparison.summary.review)}`,
     `- Information: ${String(comparison.summary.information)}`,
     `- Expiring exceptions: ${String(comparison.summary.expiringExceptions)}`,
+    ...(comparison.summary.truncated
+      ? [
+          `- Displayed events: ${String(comparison.summary.emittedEvents)} of ${String(comparison.summary.totalEvents)}; full totals determine the gate.`
+        ]
+      : []),
     "",
     ...(rows.length
       ? ["| Classification | Change | Summary |", "| --- | --- | --- |", ...rows]
@@ -190,11 +197,26 @@ export function renderPolicyDriftJunit(input: unknown): string {
       item.summary
     )
   );
+  const visibleFailures = comparison.events.filter((item) => item.severity === "regression").length;
+  const visibleReview = comparison.events.filter((item) => item.severity === "review").length;
+  const hiddenFailures = comparison.summary.regressions - visibleFailures;
+  const hiddenReview = comparison.summary.review - visibleReview;
+  const omitted = comparison.summary.truncated === true;
+  if (omitted)
+    cases.push(
+      junitCase(
+        "Omitted bounded events",
+        "browser policy",
+        hiddenFailures > 0 ? "fail" : hiddenReview > 0 ? "review" : "pass",
+        `${String(hiddenFailures)} adverse and ${String(hiddenReview)} review events were omitted; full totals still determine the gate.`
+      )
+    );
   return junitSuite(
     `${comparison.beforeProfileName} to ${comparison.afterProfileName}`,
     cases,
-    comparison.summary.regressions,
-    comparison.summary.review
+    visibleFailures + (omitted && hiddenFailures > 0 ? 1 : 0),
+    visibleReview + (omitted && hiddenFailures <= 0 && hiddenReview > 0 ? 1 : 0),
+    `<properties><property name="total-regressions" value="${String(comparison.summary.regressions)}"/></properties>`
   );
 }
 
@@ -217,6 +239,12 @@ export function renderDecisionPacketComparisonMarkdown(input: unknown): string {
     "",
     "## Evidence",
     "",
+    ...(comparison.evidence.summary.truncated
+      ? [
+          `Showing ${String(comparison.evidence.summary.emittedEvents)} of ${String(comparison.evidence.summary.totalEvents)} evidence events; the totals and gate include omitted events.`,
+          ""
+        ]
+      : []),
     ...(comparison.evidence.events.length
       ? comparison.evidence.events.map(
           (item) => `- **${markdown(item.type)}** ${markdown(item.summary)}`
@@ -250,10 +278,36 @@ export function renderDecisionPacketComparisonJunit(input: unknown): string {
       item.summary
     )
   );
+  const visibleFailures =
+    comparison.browserPolicy.events.filter((item) => item.severity === "regression").length +
+    comparison.evidence.events.filter((item) => ["regression", "incomparable"].includes(item.type))
+      .length;
+  const visibleReview =
+    comparison.browserPolicy.events.filter((item) => item.severity === "review").length +
+    comparison.evidence.events.filter((item) => item.type === "changed").length;
+  const hiddenFailures =
+    comparison.summary.regressions + comparison.summary.incomparable - visibleFailures;
+  const hiddenReview =
+    comparison.summary.review + comparison.evidence.summary.changed - visibleReview;
+  const omitted =
+    comparison.evidence.summary.truncated === true ||
+    comparison.browserPolicy.summary.truncated === true;
+  const summaryCases = omitted
+    ? [
+        junitCase(
+          "Omitted bounded events",
+          "decision packet",
+          hiddenFailures > 0 ? "fail" : hiddenReview > 0 ? "review" : "pass",
+          `${String(hiddenFailures)} adverse and ${String(hiddenReview)} review events were omitted from the display. Full totals still determine the gate.`
+        )
+      ]
+    : [];
+  const properties = `<properties><property name="total-regressions" value="${String(comparison.summary.regressions)}"/><property name="total-incomparable" value="${String(comparison.summary.incomparable)}"/></properties>`;
   return junitSuite(
     "decision packet comparison",
-    [...policyCases, ...evidenceCases],
-    comparison.summary.regressions + comparison.summary.incomparable,
-    comparison.summary.review + comparison.summary.changed
+    [...policyCases, ...evidenceCases, ...summaryCases],
+    visibleFailures + (omitted && hiddenFailures > 0 ? 1 : 0),
+    visibleReview + (omitted && hiddenFailures <= 0 && hiddenReview > 0 ? 1 : 0),
+    properties
   );
 }

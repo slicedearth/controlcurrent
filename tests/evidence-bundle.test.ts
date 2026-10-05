@@ -238,7 +238,7 @@ describe("bounded evidence bundles", () => {
     expect(report.schemaVersion).toBe(7);
     expect(report.identity).toEqual(evidenceIdentity);
     expect(report.provenance).toMatchObject({
-      analyserVersion: "5.0.0",
+      analyserVersion: "5.1.0",
       catalogueVersion: "2.2.0",
       ...evidenceSourceContext
     });

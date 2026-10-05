@@ -13,7 +13,7 @@ Collection requires all of the following:
 
 - an explicit manifest file;
 - one fixed HTTPS origin;
-- one to 32 exact same-origin paths without query strings or fragments;
+- one to 16 exact same-origin paths without query strings or fragments;
 - `--confirm-authorised-target`;
 - an output path outside the repository or under ignored `private-data/` or
   `.private-data/`;
@@ -31,7 +31,12 @@ The collector:
 - records a cross-origin redirect relationship but does not follow it;
 - performs bounded `GET` requests only;
 - caps each response body at 128 KiB;
-- uses a ten-second request timeout;
+- caps retained HTML at 512 KiB in total;
+- reserves one response slot per remaining surface, limiting redirect expansion
+  to the 16-response bundle budget; an exhausted chain remains an explicit
+  redirect observation rather than a successful final response;
+- uses one absolute ten-second deadline per surface, including DNS, headers,
+  response streaming and all redirect hops; trickled bytes do not restart it;
 - does not run JavaScript;
 - does not submit forms;
 - does not use cookies, credentials, browser profiles or authentication state;
@@ -39,6 +44,14 @@ The collector:
 - redacts redirect locations and cookie values before writing the private
   bundle;
 - discards non-HTML response bodies.
+
+Repeated response-header values are limited to eight. Overflow produces an
+explicit transport error, never a successful observation of a sliced subset.
+Cookie reduction preserves the most-specific `__Host-Http-`, `__Http-`,
+`__Host-` or `__Secure-` prefix class while removing the actual name and value.
+Derived labels reserve suffix space within 80 characters; the complete opaque
+surface ID remains the association key. Injected transports that exceed the
+body or aggregate budgets fail instead of producing a complete bundle.
 
 Loopback HTTP is available only for deliberate local fixture testing with
 `--allow-loopback`. It does not permit other private addresses.

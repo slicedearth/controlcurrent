@@ -1,6 +1,9 @@
 import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
+import { stat, mkdtemp, readFile, rm, chmod } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createServer as createSecureServer } from "node:https";
+import { tmpdir } from "node:os";
 import { extname, resolve, sep } from "node:path";
 
 const root = resolve(import.meta.dirname, "..", "dist");
@@ -57,15 +60,53 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   createReadStream(file).pipe(response);
 }
 
-const server = createServer((request, response) => {
+const listener = (request: IncomingMessage, response: ServerResponse) => {
   void handleRequest(request, response).catch(() => {
     if (!response.headersSent) {
       response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
     }
     response.end("Internal server error");
   });
-});
+};
+
+// Cross-engine fixtures need HTTPS: some engines honour upgrade-insecure-requests
+// on loopback. Generate a disposable local certificate; never read real credentials
+// or relax the built site's production Content Security Policy.
+const useHttps = process.argv.includes("--https-fixture");
+async function fixtureTls() {
+  const directory = await mkdtemp(resolve(tmpdir(), "controlcurrent-test-tls-"));
+  const key = resolve(directory, "key.pem");
+  const cert = resolve(directory, "cert.pem");
+  try {
+    execFileSync(
+      "openssl",
+      [
+        "req",
+        "-x509",
+        "-newkey",
+        "rsa:2048",
+        "-nodes",
+        "-days",
+        "1",
+        "-subj",
+        "/CN=localhost",
+        "-addext",
+        "subjectAltName=IP:127.0.0.1,DNS:localhost",
+        "-keyout",
+        key,
+        "-out",
+        cert
+      ],
+      { stdio: "ignore", timeout: 10_000 }
+    );
+    await chmod(key, 0o600);
+    return { key: await readFile(key), cert: await readFile(cert) };
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+const server = useHttps ? createSecureServer(await fixtureTls(), listener) : createServer(listener);
 
 server.listen(port, host, () => {
-  console.log(`Serving the built site at http://${host}:${String(port)}`);
+  console.log(`Serving the built site at ${useHttps ? "https" : "http"}://${host}:${String(port)}`);
 });

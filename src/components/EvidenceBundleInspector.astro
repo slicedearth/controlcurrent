@@ -103,6 +103,7 @@ import { selectedSnapshot } from "../data";
 </section>
 
 <script>
+  import { OperationGeneration } from "../local-state";
   import { SECURITY_CONTROLS } from "../catalogue";
   import type {
     AssuranceReport,
@@ -325,7 +326,7 @@ import { selectedSnapshot } from "../data";
     not_applicable: "Not relevant"
   };
   const compositeNames = new Map<string, string>([
-    ["Strict CSP candidate", "Strong Content Security Policy"],
+    ["Strict CSP candidate", "Script CSP declaration candidate"],
     ["Cross-origin isolation header candidate", "Cross-origin isolation headers"],
     ["Cookie attribute coverage", "Cookie protection settings"],
     ["Expected surface coverage", "Expected page coverage"]
@@ -338,6 +339,18 @@ import { selectedSnapshot } from "../data";
   };
   let latestReport: EvidenceBundleReport | undefined;
   let latestComparison: EvidenceReportComparison | undefined;
+  const operations = new OperationGeneration();
+  function supersede(): number {
+    const token = operations.begin();
+    latestReport = undefined;
+    latestComparison = undefined;
+    exportButton!.disabled = true;
+    comparisonExportButton!.disabled = true;
+    results!.hidden = true;
+    comparisonResults!.hidden = true;
+    form!.setAttribute("aria-busy", "false");
+    return token;
+  }
   const MAX_BUNDLE_BYTES = 2_097_152;
 
   function friendlyError(error: unknown): string {
@@ -358,13 +371,23 @@ import { selectedSnapshot } from "../data";
   }
 
   async function loadEvidenceFile(file: File): Promise<void> {
+    const token = supersede();
+    message!.textContent = "Reading evidence on this device…";
     if (file.size > MAX_BUNDLE_BYTES) {
       throw new Error("The evidence file exceeds the 2 MiB limit.");
     }
     if (!file.name.toLocaleLowerCase("en-AU").endsWith(".json")) {
       throw new Error("Choose a JSON evidence file.");
     }
-    input!.value = await file.text();
+    let text: string;
+    try {
+      text = await file.text();
+    } catch (error) {
+      if (operations.current(token)) message!.textContent = friendlyError(error);
+      return;
+    }
+    if (!operations.current(token)) return;
+    input!.value = text;
     message!.textContent =
       "Evidence file loaded on this device. Select Review evidence file to analyse it.";
   }
@@ -613,7 +636,7 @@ import { selectedSnapshot } from "../data";
       input!.value = "";
       message!.textContent = friendlyError(error);
     } finally {
-      fileInput.value = "";
+      if (fileInput.files?.[0] === file) fileInput.value = "";
     }
   });
 
@@ -648,19 +671,42 @@ import { selectedSnapshot } from "../data";
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const token = supersede();
+    const supplied = input!.value;
+    form!.setAttribute("aria-busy", "true");
+    message!.textContent = "Reviewing evidence on this device…";
     try {
-      render(await inspectEvidenceBundle(JSON.parse(input!.value) as unknown, sourceContext));
+      const report = await inspectEvidenceBundle(JSON.parse(supplied) as unknown, sourceContext);
+      if (!operations.current(token)) return;
+      render(report);
       message!.textContent =
         "Evidence reviewed on this device. The report excludes the page list, raw HTML, resource locations and bytes, cookies, credentials, and passkey identifiers.";
     } catch (error) {
+      if (!operations.current(token)) return;
       latestReport = undefined;
       exportButton!.disabled = true;
       results!.hidden = true;
       message!.textContent = friendlyError(error);
+    } finally {
+      if (operations.current(token)) form!.setAttribute("aria-busy", "false");
     }
   });
 
+  input.addEventListener("input", () => {
+    supersede();
+    message!.textContent = "Evidence changed. Review it again before exporting.";
+  });
+  previousReportInput.addEventListener("input", () => {
+    operations.cancel();
+    form!.setAttribute("aria-busy", "false");
+    latestComparison = undefined;
+    comparisonExportButton!.disabled = true;
+    comparisonResults!.hidden = true;
+    comparisonMessage!.textContent = "Previous report changed. Compare again.";
+  });
+
   document.querySelector("#load-bundle-example")?.addEventListener("click", () => {
+    supersede();
     input!.value = JSON.stringify(example, null, 2);
     pasteDetails!.open = true;
     message!.textContent = "Redacted example loaded. Select Review evidence file to check it.";
@@ -668,25 +714,36 @@ import { selectedSnapshot } from "../data";
 
   exportButton.addEventListener("click", () => {
     if (!latestReport) return;
-    const blob = new Blob([exportEvidenceBundleReport(latestReport)], {
-      type: "application/json"
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "controlcurrent-evidence-report.json";
-    link.click();
-    URL.revokeObjectURL(url);
-    message!.textContent = "Privacy-reduced evidence report created on this device.";
+    try {
+      const blob = new Blob([exportEvidenceBundleReport(latestReport)], {
+        type: "application/json"
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "controlcurrent-evidence-report.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      message!.textContent = "Privacy-reduced evidence report created on this device.";
+    } catch (error) {
+      message!.textContent = friendlyError(error);
+    }
   });
 
   compareButton.addEventListener("click", async () => {
     if (!latestReport) return;
+    const token = operations.begin();
+    const current = latestReport;
+    const previous = previousReportInput!.value;
+    latestComparison = undefined;
+    comparisonExportButton!.disabled = true;
+    comparisonResults!.hidden = true;
+    comparisonMessage!.textContent = "Comparing reports on this device…";
+    form!.setAttribute("aria-busy", "true");
     try {
-      latestComparison = await compareEvidenceReports(
-        JSON.parse(previousReportInput!.value) as unknown,
-        latestReport
-      );
+      const comparison = await compareEvidenceReports(JSON.parse(previous) as unknown, current);
+      if (!operations.current(token)) return;
+      latestComparison = comparison;
       comparisonSummary!.replaceChildren(
         stat(latestComparison.summary.regressions, "regressions"),
         stat(latestComparison.summary.resolutions, "resolutions"),
@@ -703,29 +760,37 @@ import { selectedSnapshot } from "../data";
           ? "No evidence changes were detected."
           : `${String(latestComparison.summary.totalEvents)} evidence changes detected${latestComparison.summary.truncated ? `; showing the first ${String(latestComparison.summary.emittedEvents)}` : ""}.`;
     } catch (error) {
+      if (!operations.current(token)) return;
       latestComparison = undefined;
       comparisonExportButton!.disabled = true;
       comparisonResults!.hidden = true;
       comparisonMessage!.textContent =
         error instanceof Error ? error.message : "The reports could not be compared.";
+    } finally {
+      if (operations.current(token)) form!.setAttribute("aria-busy", "false");
     }
   });
 
   comparisonExportButton.addEventListener("click", () => {
     if (!latestComparison) return;
-    const blob = new Blob([exportEvidenceReportComparison(latestComparison)], {
-      type: "application/json"
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "controlcurrent-evidence-comparison.json";
-    link.click();
-    URL.revokeObjectURL(url);
-    comparisonMessage!.textContent = "Report comparison created on this device.";
+    try {
+      const blob = new Blob([exportEvidenceReportComparison(latestComparison)], {
+        type: "application/json"
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "controlcurrent-evidence-comparison.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      comparisonMessage!.textContent = "Report comparison created on this device.";
+    } catch (error) {
+      comparisonMessage!.textContent = friendlyError(error);
+    }
   });
 
   document.querySelector("#clear-bundle")?.addEventListener("click", () => {
+    supersede();
     input!.value = "";
     fileInput!.value = "";
     delete dropTarget!.dataset.active;

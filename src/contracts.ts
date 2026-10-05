@@ -7,6 +7,10 @@ import {
   EVIDENCE_COMPOSITE_IDS
 } from "./evidence-model";
 
+// Strict CSP must not trigger even a caught dynamic-compilation probe. Parsing
+// remains non-evaluating in the browser and uses the same contracts in the CLI.
+z.config({ jitless: true });
+
 export const browserIdSchema = z.enum(BROWSER_IDS);
 export type BrowserId = z.infer<typeof browserIdSchema>;
 
@@ -461,7 +465,9 @@ export const policyDriftComparisonSchema = z
         review: z.number().int().min(0).max(4_096),
         information: z.number().int().min(0).max(4_096),
         expiringExceptions: z.number().int().min(0).max(64),
-        totalEvents: z.number().int().min(0).max(512)
+        totalEvents: z.number().int().min(0).max(4_096),
+        emittedEvents: z.number().int().min(0).max(512).optional(),
+        truncated: z.boolean().optional()
       })
       .strict(),
     events: z.array(policyDriftEventSchema).max(512)
@@ -1611,6 +1617,39 @@ export const evidencePolicyProfileSchema = z
       }
       surfaces.add(surface.id);
     }
+    const exceptionScopes = new Set<string>();
+    for (const [index, exception] of profile.exceptions.entries()) {
+      const surface = profile.surfaces.find((item) => item.id === exception.surfaceId);
+      const declared =
+        surface &&
+        (exception.targetKind === "evidence"
+          ? surface.requiredEvidence.includes(
+              exception.targetId as (typeof surface.requiredEvidence)[number]
+            )
+          : exception.targetKind === "control"
+            ? surface.requiredControls.includes(exception.targetId)
+            : surface.requiredComposites.includes(
+                exception.targetId as (typeof surface.requiredComposites)[number]
+              ));
+      if (!declared)
+        context.addIssue({
+          code: "custom",
+          message:
+            "Evidence exceptions must refer to a declared surface requirement of the matching kind.",
+          path: ["exceptions", index]
+        });
+      for (const outcome of exception.outcomes) {
+        const key = `${exception.surfaceId}\0${exception.targetKind}\0${exception.targetId}\0${outcome}`;
+        if (exceptionScopes.has(key))
+          context.addIssue({
+            code: "custom",
+            message:
+              "Evidence exception outcomes must be unique and their scopes must not overlap.",
+            path: ["exceptions", index, "outcomes"]
+          });
+        exceptionScopes.add(key);
+      }
+    }
   });
 export type EvidencePolicyProfile = z.infer<typeof evidencePolicyProfileSchema>;
 
@@ -1727,7 +1766,10 @@ export const decisionPacketComparisonSchema = z
             regressions: z.number().int().min(0).max(4_096),
             resolutions: z.number().int().min(0).max(4_096),
             changed: z.number().int().min(0).max(4_096),
-            incomparable: z.number().int().min(0).max(4_096)
+            incomparable: z.number().int().min(0).max(4_096),
+            totalEvents: z.number().int().min(0).max(16_384).optional(),
+            emittedEvents: z.number().int().min(0).max(512).optional(),
+            truncated: z.boolean().optional()
           })
           .strict(),
         events: z.array(decisionPacketEvidenceChangeSchema).max(512)

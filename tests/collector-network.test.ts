@@ -4,6 +4,75 @@ import { describe, expect, it } from "vitest";
 import { FixedOriginCollectorTransport } from "../tools/collector-network";
 
 describe("collector network transport", () => {
+  it("bounds stalled resolution with the same absolute deadline", async () => {
+    const transport = new FixedOriginCollectorTransport(
+      true,
+      () => new Promise<string>(() => undefined)
+    );
+    const result = await transport.collect({
+      baseOrigin: "http://127.0.0.1:1",
+      path: "/",
+      maximumBodyBytes: 4096,
+      maximumRedirects: 1,
+      timeoutMs: 30
+    });
+    expect(result[0]).toMatchObject({ outcome: "transport_error", errorKind: "timeout" });
+  });
+
+  it.each(["trickle", "headers", "redirect", "abort", "cookies"])(
+    "settles and closes the %s response lifecycle",
+    async (kind) => {
+      const server = createServer((request, response) => {
+        if (kind === "headers") return;
+        if (kind === "cookies") {
+          response.writeHead(200, {
+            "Set-Cookie": Array.from({ length: 9 }, (_, i) =>
+              i === 8 ? "adverse=secret" : "ok=secret; Secure"
+            )
+          });
+          response.end();
+          return;
+        }
+        if (kind === "abort") {
+          response.writeHead(200);
+          response.write("a");
+          response.destroy();
+          return;
+        }
+        if (kind === "redirect" && request.url === "/") {
+          setTimeout(() => {
+            response.writeHead(302, { Location: "/next" });
+            response.end();
+          }, 25);
+          return;
+        }
+        response.writeHead(200, { "Content-Type": "text/html" });
+        response.write("<main>");
+        const interval = setInterval(() => response.write("a"), 5);
+        response.on("close", () => clearInterval(interval));
+      });
+      await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+      try {
+        const address = server.address() as AddressInfo;
+        const result = await new FixedOriginCollectorTransport(true).collect({
+          baseOrigin: `http://127.0.0.1:${String(address.port)}`,
+          path: "/",
+          maximumBodyBytes: 4096,
+          maximumRedirects: 2,
+          timeoutMs: 70
+        });
+        expect(result.at(-1)).toMatchObject({ outcome: "transport_error" });
+        if (["trickle", "headers", "redirect"].includes(kind))
+          expect(result.at(-1)?.errorKind).toBe("timeout");
+        if (kind === "redirect") expect(result[0]?.outcome).toBe("redirect");
+      } finally {
+        server.closeAllConnections();
+        await new Promise<void>((resolve, reject) =>
+          server.close((error) => (error ? reject(error) : resolve()))
+        );
+      }
+    }
+  );
   it("follows bounded loopback redirects without carrying cookies or credentials", async () => {
     const observedCredentials: string[] = [];
     const server = createServer((request, response) => {

@@ -305,7 +305,7 @@ export function comparePolicyEvaluations(
     )
     .slice(0, 512);
   const count = (severity: PolicyDriftEvent["severity"]): number =>
-    sorted.filter((item) => item.severity === severity).length;
+    events.filter((item) => item.severity === severity).length;
 
   return policyDriftComparisonSchema.parse({
     schemaVersion: 1,
@@ -320,8 +320,10 @@ export function comparePolicyEvaluations(
       resolutions: count("resolution"),
       review: count("review"),
       information: count("information"),
-      expiringExceptions: sorted.filter((item) => item.type === "exception_expiring").length,
-      totalEvents: sorted.length
+      expiringExceptions: events.filter((item) => item.type === "exception_expiring").length,
+      totalEvents: events.length,
+      emittedEvents: sorted.length,
+      truncated: events.length > sorted.length
     },
     events: sorted
   });

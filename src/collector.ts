@@ -10,6 +10,12 @@ export const MAX_COLLECTOR_MANIFEST_BYTES = 64 * 1_024;
 export const MAX_COLLECTOR_BODY_BYTES = 128 * 1_024;
 export const MAX_COLLECTOR_REDIRECTS = 5;
 export const COLLECTOR_TIMEOUT_MS = 10_000;
+export const MAX_COLLECTOR_RESPONSES = 16;
+export const MAX_COLLECTOR_TOTAL_HTML_BYTES = 512 * 1_024;
+
+function labelledId(id: string, suffix: string): string {
+  return `${id.slice(0, 80 - suffix.length)}${suffix}`;
+}
 
 const opaqueIdSchema = z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/u);
 const pathSchema = z
@@ -100,7 +106,7 @@ export const collectorManifestSchema = z
       .optional(),
     producerId: opaqueIdSchema,
     completeness: z.enum(["complete", "unknown"]),
-    surfaces: z.array(collectorSurfaceSchema).min(1).max(32)
+    surfaces: z.array(collectorSurfaceSchema).min(1).max(MAX_COLLECTOR_RESPONSES)
   })
   .strict()
   .superRefine((manifest, context) => {
@@ -154,29 +160,35 @@ export async function collectEvidenceBundle(
   const startedAt = clock().toISOString();
   const responses: EvidenceBundleInput["responses"] = [];
   const htmlDocuments: EvidenceBundleInput["htmlDocuments"] = [];
+  let htmlBytes = 0;
 
-  for (const surface of manifest.surfaces) {
+  for (const [index, surface] of manifest.surfaces.entries()) {
+    // Reserve a response slot for each remaining surface before permitting redirects.
+    const slots =
+      MAX_COLLECTOR_RESPONSES - responses.length - (manifest.surfaces.length - index - 1);
     const hops = await transport.collect({
       baseOrigin: manifest.baseOrigin,
       path: surface.path,
-      maximumBodyBytes: MAX_COLLECTOR_BODY_BYTES,
-      maximumRedirects: MAX_COLLECTOR_REDIRECTS,
+      maximumBodyBytes: surface.requiredEvidence.includes("html")
+        ? Math.min(MAX_COLLECTOR_BODY_BYTES, MAX_COLLECTOR_TOTAL_HTML_BYTES - htmlBytes)
+        : MAX_COLLECTOR_BODY_BYTES,
+      maximumRedirects: Math.min(MAX_COLLECTOR_REDIRECTS, slots - 1),
       timeoutMs: COLLECTOR_TIMEOUT_MS
     });
-    if (hops.length === 0 || hops.length > MAX_COLLECTOR_REDIRECTS + 1) {
+    if (hops.length === 0 || hops.length > Math.min(MAX_COLLECTOR_REDIRECTS + 1, slots)) {
       throw new Error(`Collector returned an invalid hop count for ${surface.id}.`);
     }
     const redirectChainId = hops.some((hop) => hop.outcome === "redirect")
-      ? `${surface.id}-redirect`
+      ? labelledId(surface.id, "-redirect")
       : undefined;
     for (const [sequence, hop] of hops.entries()) {
       responses.push({
         schemaVersion: 2,
-        name: `${surface.id} response ${String(sequence + 1)}`,
+        name: labelledId(surface.id, ` response ${String(sequence + 1)}`),
         surfaceId: surface.id,
         context: {
           schemaVersion: 1,
-          variantId: `${surface.id}-${surface.authentication}`,
+          variantId: labelledId(surface.id, `-${surface.authentication}`),
           sequence,
           outcome: hop.outcome,
           status: hop.status,
@@ -195,9 +207,16 @@ export async function collectEvidenceBundle(
         hop.body !== undefined &&
         surface.requiredEvidence.includes("html")
       ) {
+        htmlBytes += new TextEncoder().encode(hop.body).byteLength;
+        if (
+          htmlBytes > MAX_COLLECTOR_TOTAL_HTML_BYTES ||
+          new TextEncoder().encode(hop.body).byteLength > MAX_COLLECTOR_BODY_BYTES
+        ) {
+          throw new Error("Collector HTML budget exhausted; no complete bundle was produced.");
+        }
         htmlDocuments.push({
           schemaVersion: 1,
-          name: `${surface.id} document`,
+          name: labelledId(surface.id, " document"),
           surfaceId: surface.id,
           html: hop.body
         });
@@ -228,7 +247,7 @@ export async function collectEvidenceBundle(
     },
     scopeInventory: {
       schemaVersion: 1,
-      name: `${manifest.name} collector scope`,
+      name: labelledId(manifest.name, " collector scope"),
       kind: "authorised_crawl",
       generatedAt: startedAt,
       completeness: manifest.completeness,

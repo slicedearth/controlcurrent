@@ -35,7 +35,7 @@ control definition. Multi-path controls use:
 No current catalogue control uses `any`.
 
 Related data is not substituted for a missing feature. CSP nonce and hash
-sources remain unsupported mappings in BCD 8.0.8 because the package does not
+sources remain unsupported mappings in BCD 8.1.4 because the package does not
 publish standalone compatibility statements for those source expressions.
 
 ## Version comparison
@@ -199,10 +199,30 @@ require that control. A control required nowhere is `not_applicable`; a required
 control with insufficient evidence remains missing, invalid, inconclusive,
 report-only, or not evaluated.
 
-Project-authored strict CSP, cross-origin isolation, and cookie attribute
+Project-authored script CSP declaration, cross-origin isolation, and cookie attribute
 composites are transparent candidate recipes rather than certification or
 policy scores. They are evaluated only for surfaces that explicitly require
 them.
+
+The script CSP declaration candidate (stable ID `strict-csp-candidate`) is not
+a claim about the whole policy being strong. Analysis version 5.1.0 requires
+one enforced policy, `base-uri 'none'` or `base-uri 'self'`, and valid script
+nonce/hash authorisation in both effective element and general script lists.
+A style-only nonce cannot satisfy it. It checks declarations without needing
+HTML; multiple policies remain review-only rather than being guessed equivalent.
+The CSP3 ignored-token rules allow backwards-compatible `unsafe-inline`, host
+and scheme tokens when nonce/hash and `strict-dynamic` make them ineffective.
+Effective broad script allowances and evaluation sources prevent satisfaction.
+Markup correlation and broader style warnings remain separate; unmatched inline
+content or nonce reuse still requires review. Runtime execution and nonce
+unpredictability are not established. See the [CSP3 processing rules](https://www.w3.org/TR/CSP3/#strict-dynamic-usage).
+
+Browser minimums describe the selected release and the later released versions
+recorded in the reviewed source snapshot, not an unlimited future promise.
+Every recorded point in that suffix must retain support. A removal followed by
+reintroduction does not make the earlier minimum valid; unknown or qualified
+points propagate conservatively. Point-release evaluation remains separate.
+This handles the Safari Partitioned-cookie gap without changing source facts.
 
 An optional scope inventory can be supplied before the surface manifest. It
 contains up to 256 opaque IDs from a declared list, framework manifest,

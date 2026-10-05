@@ -54,7 +54,7 @@ function usage(): never {
   npm run cli -- explain <control-id> [--json]
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
-  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]
+  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--fail-incomparable] [--json]
   npm run cli -- reduce-scope-inventory <inventory.json> [--json]
   npm run cli -- collect-evidence <manifest.json> --output <private-path.json> --confirm-authorised-target [--allow-loopback]
   npm run cli -- create-attestation-statement <report.json>
@@ -317,7 +317,9 @@ async function compareReports(): Promise<void> {
     await readBoundedJson(beforePath, 1_024 * 1_024),
     await readBoundedJson(afterPath, 1_024 * 1_024)
   );
-  const failed = process.argv.includes("--fail-regression") && comparison.summary.regressions > 0;
+  const failed =
+    (process.argv.includes("--fail-regression") && comparison.summary.regressions > 0) ||
+    (process.argv.includes("--fail-incomparable") && !comparison.compatible);
   if (process.argv.includes("--json")) {
     process.stdout.write(canonicalJson(comparison));
   } else {

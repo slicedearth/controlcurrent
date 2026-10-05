@@ -7,6 +7,7 @@ import {
   profileEvaluationSchema,
   type ProfileEvaluation,
   type SelectedFeature,
+  type SelectedSnapshot,
   selectedSnapshotSchema,
   type SupportStatement
 } from "./contracts";
@@ -165,6 +166,79 @@ export function evaluateFeature(
   };
 }
 
+/** Public snapshots need not arrive in release order. Refuse incomparable labels. */
+export function recordedReleasedVersions(
+  snapshot: SelectedSnapshot,
+  browser: BrowserBaseline["browser"]
+) {
+  const releases = snapshot.browsers[browser].releases.filter(
+    (release) => ["retired", "current", "esr"].includes(release.status) && release.releaseDate
+  );
+  if (
+    releases.some(
+      (release) => compareBrowserVersions(release.version, release.version) === "unknown"
+    )
+  )
+    return undefined;
+  return releases.sort((left, right) => {
+    const relation = compareBrowserVersions(left.version, right.version);
+    return relation === "before" ? -1 : relation === "after" ? 1 : 0;
+  });
+}
+
+/** A minimum covers the recorded released population, not only its first release. */
+export function evaluateFeaturePopulation(
+  feature: SelectedFeature,
+  baseline: BrowserBaseline,
+  snapshot: SelectedSnapshot
+): FeatureEvaluation {
+  const point = evaluateFeature(feature, baseline);
+  const releases = recordedReleasedVersions(snapshot, baseline.browser);
+  const latest = releases?.at(-1);
+  if (
+    !latest ||
+    ["after", "unknown"].includes(compareBrowserVersions(baseline.minimumVersion, latest.version))
+  ) {
+    return {
+      ...point,
+      outcome: "unknown",
+      qualifications: ["The selected minimum is beyond comparable reviewed release data."]
+    };
+  }
+  const population = [
+    point,
+    ...(releases ?? [])
+      .filter(
+        (release) => compareBrowserVersions(release.version, baseline.minimumVersion) === "after"
+      )
+      .map((release) => evaluateFeature(feature, { ...baseline, minimumVersion: release.version }))
+  ];
+  const worst: readonly Outcome[] = [
+    "source_inconsistent",
+    "unsupported_mapping",
+    "unknown",
+    "removed",
+    "unavailable",
+    "available_with_qualification",
+    "available_unqualified"
+  ];
+  const outcome =
+    worst.find((candidate) => population.some((item) => item.outcome === candidate)) ?? "unknown";
+  const affected = population.filter((item) => item.outcome === outcome);
+  return {
+    ...point,
+    outcome,
+    qualifications: [
+      ...new Set(affected.flatMap((item) => item.qualifications)),
+      ...(outcome !== point.outcome
+        ? [
+            `A later reviewed release (${affected[0]?.minimumVersion ?? "unknown"}) does not retain the minimum release's support.`
+          ]
+        : [])
+    ].slice(0, 64)
+  };
+}
+
 function combineFeatureOutcomes(
   control: SecurityControl,
   evaluations: readonly FeatureEvaluation[]
@@ -222,7 +296,7 @@ export function evaluateControl(
     control.mappingState === "active"
       ? control.bcdPaths.flatMap((path) => {
           const feature = snapshot.features[path];
-          return feature ? [evaluateFeature(feature, baseline)] : [];
+          return feature ? [evaluateFeaturePopulation(feature, baseline, snapshot)] : [];
         })
       : [];
   const outcome = combineFeatureOutcomes(control, featureEvaluations);
