@@ -21,6 +21,24 @@ updates:
       - dependency-name: "@types/node"
         update-types:
           - version-update:semver-major
+  - package-ecosystem: npm
+    directory: /tools/npm-toolchain
+    versioning-strategy: lockfile-only
+    schedule:
+      interval: weekly
+      day: monday
+      time: "20:00"
+      timezone: Australia/Melbourne
+    open-pull-requests-limit: 2
+    groups:
+      package-manager-runtime:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
   - package-ecosystem: github-actions
     directory: /
     schedule:

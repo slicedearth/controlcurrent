@@ -89,12 +89,14 @@ the current CI workflow, not proof that hosted execution has succeeded. Local
 workflow edits do not change the deployed workflow until reviewed publication;
 no dispatch or deployment is required to test this contract locally.
 
-Node 24 remains the hosted compatibility line. The guard-only deployment job
-needs Node but neither npm installation nor dependency caching. npm selection
-in dependency-installing jobs still follows the runner: bootstrap enforcement
-is unresolved because even the newer reviewed stable release has reported
-bundled-dependency vulnerabilities. See the dependency policy before accepting
-that build-tool risk; a clean application audit does not resolve it.
+Node 24 remains the hosted compatibility line. Every dependency-installing job
+first restores the reviewed CLI and separately locked runtime graph through
+`node tools/bootstrap-npm.ts`, without executing runner npm or bundled modules.
+It audits and verifies that graph before activating PATH. Pre-bootstrap npm
+caching is disabled and failed restoration cannot fall back to runner npm.
+The guard-only deployment job needs Node but neither npm installation nor
+dependency caching. See the dependency policy for bootstrap trust assumptions;
+a clean application audit alone does not audit the toolchain.
 
 ### Organisation-specific origin review
 
@@ -227,6 +229,8 @@ domain-level decision.
 Before a deployment commit:
 
 ```sh
+node tools/bootstrap-npm.ts
+# Apply the printed PATH export before the commands below.
 npm ci
 npm run verify
 npm audit --omit=dev --audit-level=low

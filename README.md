@@ -149,10 +149,12 @@ third-party notices for attribution and licence details.
 Requirements:
 
 - Node.js 24.15 or a compatible later supported release;
-- npm 11.17–12; and
+- the reviewed npm 12.2.0 runtime reconstructed from its separate lock; and
 - dependencies installed from the committed lockfile.
 
 ```bash
+node tools/bootstrap-npm.ts
+# Apply the PATH export printed after a successful bootstrap.
 npm ci
 npm run dev
 ```
@@ -163,6 +165,13 @@ The local development server prints its URL. The static production build is:
 npm run build
 npm run preview
 ```
+
+The bootstrap downloads only reviewed registry archives and checks integrity,
+the toolchain audit and registry signatures before activation. It does not
+modify global npm or execute the upstream bundled dependencies. Ordinary tests
+remain fixture-only; bootstrap and signature checks require registry access.
+See [dependency policy](docs/dependency-policy.md) for the separate runtime lock
+and host trust assumptions.
 
 ## Verification
 

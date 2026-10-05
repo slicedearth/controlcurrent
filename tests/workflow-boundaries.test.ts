@@ -2,16 +2,27 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("publication workflow hardening", () => {
-  it("does not silently bootstrap an unresolved package-manager bundle", () => {
+  it("restores a separately audited toolchain before any package-manager invocation", () => {
     for (const name of ["ci", "pages", "source-review", "update-dry-run"]) {
       const workflow = readFileSync(`.github/workflows/${name}.yml`, "utf8");
       expect(workflow).not.toContain("npm install --global");
+      expect(workflow).not.toContain("cache: npm");
+      expect(workflow).toContain("package-manager-cache: false");
+      expect(workflow.indexOf("run: node tools/bootstrap-npm.ts")).toBeLessThan(
+        workflow.indexOf("run: npm ci")
+      );
     }
     expect(readFileSync(".nvmrc", "utf8").trim()).toBe("24");
     const guidance = readFileSync("docs/dependency-policy.md", "utf8");
-    expect(guidance).toContain("outside the project");
-    expect(guidance).toContain("must not be described as vulnerability-free");
+    expect(guidance).toContain("outside the application");
+    expect(guidance).toContain("never executes the runner's npm");
     expect(guidance).toContain("not enforced by `packageManager` alone");
+    expect(
+      readFileSync(".github/workflows/ci.yml", "utf8").match(/run: node tools\/bootstrap-npm.ts/gu)
+    ).toHaveLength(2);
+    expect(readFileSync(".github/workflows/source-review.yml", "utf8")).toContain(
+      "if: always() && steps.toolchain.outcome == 'success'"
+    );
   });
 
   it("gates both publication paths and rechecks the exact build commit after environment approval", () => {

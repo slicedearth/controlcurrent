@@ -6,10 +6,10 @@
   "description": "Security-control compatibility planning from attributed browser support data",
   "license": "MIT",
   "author": "slicedearth",
-  "packageManager": "npm@12.0.1",
+  "packageManager": "npm@12.2.0",
   "engines": {
     "node": "^24.15.0 || >=26.0.0",
-    "npm": ">=11.17.0 <13"
+    "npm": "12.2.0"
   },
   "scripts": {
     "dev": "astro dev",

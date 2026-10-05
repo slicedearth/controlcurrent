@@ -54,22 +54,49 @@ Changes to lifecycle-script packages require explicit review.
 The publication guard runs with native Node.js TypeScript support and no project
 dependencies, including in the final deployment job.
 
-### Package-manager bootstrap limitation
+### Separately locked package-manager runtime
 
-The npm executable and its bundled dependencies are outside the project
-lockfile's audit. A clean project audit must not be described as an audit of the
-package manager itself. The reviewed npm 12.0.1 declaration, newer stable 12.2.0
-and maintained 11.21.0 release still have reported bundled-dependency issues;
-12.2.0 reports three high and one moderate issue. Bundled packages cannot be
-repaired by an ordinary `npm audit fix` without replacing upstream bundle
-contents. These versions must not be described as vulnerability-free.
+The npm executable and its dependencies are outside the application lockfile's
+audit. The official npm 12.2.0 archive still bundles reported vulnerable versions
+of brace-expansion, http-cache-semantics, ip-address and undici. An ordinary
+application audit or `npm audit fix` does not repair that bundle.
 
-No additional workflow bootstrap pin is installed while that review remains
-unresolved. A replacement needs its own isolated installation, bundled-tree
-audit, signature verification and clean-reinstall testing. Repacking or
-separately patching the executable is a distinct toolchain-maintenance change,
-not a silent override in the application lockfile. Workflow npm selection still
-comes from the Node runner and is not enforced by `packageManager` alone.
+`node tools/bootstrap-npm.ts` never executes the runner's npm. It uses the
+supported native Node runtime and the host's `tar` executable to download the
+fixed official CLI archive, check its pinned SHA-512 integrity, and restore only
+CLI code, documentation and licence files. The upstream `node_modules` bundle
+is excluded. Its runtime dependency declarations must exactly match the
+reviewed manifest in `tools/npm-toolchain/package.json`.
+
+A separate `tools/npm-toolchain/package-lock.json` fixes every runtime package
+to a registry URL and SHA-512 integrity. All packages remain within their owning
+dependency ranges; there are no cross-major overrides. The refreshed graph uses
+brace-expansion 5.0.12, http-cache-semantics 4.3.0, ip-address 10.7.3 and undici
+8.11.2. It is materialised directly without lifecycle scripts, npm installation,
+global changes, or copying bundled modules. The CLI's development, workspace and
+bundle declarations are omitted from the reconstructed runtime manifest.
+
+The bootstrap refuses redirects, non-registry URLs, path traversal, links,
+special archive entries, bundled modules and script-bearing runtime packages.
+It caps archives, metadata, members, graph size, total downloads, concurrency
+and duration. A fresh temporary directory is used for each invocation. The
+reconstructed CLI audits that graph at every severity and verifies registry
+signatures before its npm and npx executables are added to workflow PATH.
+This is a project-maintained runtime reconstruction, not an unmodified upstream
+distribution or an assurance that unknown vulnerabilities cannot exist.
+
+Every dependency-installing workflow performs this bootstrap before using npm;
+pre-bootstrap package-manager caching is disabled. A failure cannot fall back
+to the runner's npm. The deployment job remains Node-only. The Node runtime,
+system extraction tool, runner and registry signing roots remain trusted
+bootstrap components. Application lifecycle-script permissions are unchanged.
+Executable selection is not enforced by `packageManager` alone.
+
+Review a CLI version change together with its archive integrity, original
+runtime declarations and separate lock. Audit and verify both dependency graphs,
+test a fresh reconstruction and application reinstall, and run ordinary unit,
+build and browser checks. Dependabot may propose runtime graph updates, but
+manifest, lock and compatibility tests must remain consistent.
 
 ## Updates
 
