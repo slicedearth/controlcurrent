@@ -33,9 +33,15 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
         security features should work, which need extra care, and where you may need a fallback.
       </p>
       <div class="hero-actions">
-        <a class="button button--primary" href={`${base}/planner/`}>Check browser support</a>
-        <a class="button" href={`${base}/assess/`}>Review security headers</a>
-        <a class="button" href={`${base}/controls/`}>Explore security features</a>
+        <a class="button button--primary" href={`${base}/planner/`}>
+          Check browser support
+        </a>
+        <a class="button" href={`${base}/assess/`}>
+          Review security headers
+        </a>
+        <a class="button" href={`${base}/controls/`}>
+          Explore security features
+        </a>
       </div>
       <ul class="hero-principles" aria-label="Product principles">
         <li>Uses published browser data</li>
@@ -60,7 +66,9 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
           <dt>Security features</dt>
           <dd>{SECURITY_CONTROLS.length}</dd>
           <dt>Browser test links</dt>
-          <dd>{wptMappedCount} / {WPT_EVIDENCE.length}</dd>
+          <dd>
+            {wptMappedCount} / {WPT_EVIDENCE.length}
+          </dd>
           <dt>Test review</dt>
           <dd>{WPT_EVIDENCE_REVIEW.revision.slice(0, 8)}</dd>
           <dt>Source records used</dt>
@@ -159,14 +167,12 @@ const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mappe
         </p>
       </div>
       <div class="control-grid">
-        {
-          SECURITY_CONTROLS.map((control) => (
-            <ControlCard
-              control={control}
-              evaluations={currentEvaluation.results[control.id] ?? []}
-            />
-          ))
-        }
+        {SECURITY_CONTROLS.map((control) => (
+          <ControlCard
+            control={control}
+            evaluations={currentEvaluation.results[control.id] ?? []}
+          />
+        ))}
       </div>
     </div>
   </section>

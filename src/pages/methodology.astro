@@ -22,8 +22,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       This prevents a browser-support fact from being mistaken for proof that a website is secure:
     </p>
     <ol>
-      <li><strong>Browser data:</strong> support records, browser versions, and source notes.</li>
-      <li><strong>Feature mapping:</strong> which source records represent a security feature.</li>
+      <li>
+        <strong>Browser data:</strong> support records, browser versions, and source notes.
+      </li>
+      <li>
+        <strong>Feature mapping:</strong> which source records represent a security feature.
+      </li>
       <li>
         <strong>Calculation:</strong> whether your chosen browser versions meet the requirements.
       </li>
@@ -31,15 +35,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
         <strong>Guidance:</strong> setup needs, fallbacks, and limitations written for this project.
       </li>
       <li>
-        <strong>Supplied configuration:</strong> optional headers, page information, local resource checks,
-        request information, and reduced passkey settings.
+        <strong>Supplied configuration:</strong> optional headers, page information, local resource
+        checks, request information, and reduced passkey settings.
       </li>
       <li>
-        <strong>Public browser tests:</strong> direct links to reviewed Web Platform Tests and their limits.
+        <strong>Public browser tests:</strong> direct links to reviewed Web Platform Tests and their
+        limits.
       </li>
       <li>
-        <strong>Report signer:</strong> an optional command-line check that an approved continuous integration
-        (CI) workflow signed the matching report.
+        <strong>Report signer:</strong> an optional command-line check that an approved continuous
+        integration (CI) workflow signed the matching report.
       </li>
     </ol>
 
@@ -64,24 +69,30 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
     <h2>What the result labels mean</h2>
     <ul>
       <li>
-        <strong>Works:</strong> every required browser-data record shows support without a known limitation.
+        <strong>Works:</strong> every required browser-data record shows support without a known
+        limitation.
       </li>
-      <li><strong>Works with limits:</strong> supported, but the source records a limitation.</li>
       <li>
-        <strong>Not supported:</strong> at least one required part is unavailable in the selected browser
+        <strong>Works with limits:</strong> supported, but the source records a limitation.
+      </li>
+      <li>
+        <strong>Not supported:</strong> at least one required part is unavailable in the selected
+        browser version.
+      </li>
+      <li>
+        <strong>No longer supported:</strong> the browser removed a required part by the selected
         version.
       </li>
       <li>
-        <strong>No longer supported:</strong> the browser removed a required part by the selected version.
-      </li>
-      <li><strong>Unknown:</strong> the source cannot support a comparable conclusion.</li>
-      <li>
-        <strong>Not enough browser data:</strong> MDN data does not describe the exact feature separately
-        enough for a reliable answer.
+        <strong>Unknown:</strong> the source cannot support a comparable conclusion.
       </li>
       <li>
-        <strong>Browser data problem:</strong> the reviewed source records and ControlCurrent's feature
-        catalogue do not match.
+        <strong>Not enough browser data:</strong> MDN data does not describe the exact feature
+        separately enough for a reliable answer.
+      </li>
+      <li>
+        <strong>Browser data problem:</strong> the reviewed source records and ControlCurrent's
+        feature catalogue do not match.
       </li>
     </ul>
 
@@ -130,9 +141,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
     <div class="callout">
       Browser support cannot prove that a website is configured correctly, follows every part of a
       standard, has no browser defects, or uses the right security policy for an organisation.
-      Technical terms used here are explained in the <a href={`${base}/glossary/`}>
-        plain-English glossary
-      </a>.
+      Technical terms used here are explained in the{" "}
+      <a href={`${base}/glossary/`}>plain-English glossary</a>.
     </div>
   </article>
 </Layout>

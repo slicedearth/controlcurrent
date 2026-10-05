@@ -42,11 +42,9 @@ const searchText = [
   <div class="card-topline">
     <span class="category">{control.category}</span>
     <span class="mapping-count">
-      {
-        control.mappingState === "active"
-          ? `${control.bcdPaths.length} browser data record${control.bcdPaths.length === 1 ? "" : "s"}`
-          : "Browser data unavailable"
-      }
+      {control.mappingState === "active"
+        ? `${control.bcdPaths.length} browser data record${control.bcdPaths.length === 1 ? "" : "s"}`
+        : "Browser data unavailable"}
     </span>
   </div>
   <h3>
@@ -57,13 +55,11 @@ const searchText = [
   </h3>
   <p>{control.summary}</p>
   <div class="mini-results" aria-label={`Current support summary for ${control.name}`}>
-    {
-      evaluations.map((evaluation) => (
-        <span>
-          <small>{browserNames[evaluation.browser]}</small>
-          <OutcomeBadge outcome={evaluation.outcome} />
-        </span>
-      ))
-    }
+    {evaluations.map((evaluation) => (
+      <span>
+        <small>{browserNames[evaluation.browser]}</small>
+        <OutcomeBadge outcome={evaluation.outcome} />
+      </span>
+    ))}
   </div>
 </article>

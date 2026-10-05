@@ -25,7 +25,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       <dt>Operator</dt>
       <dd>MDN Web Docs Open Web Docs community project</dd>
       <dt>Package</dt>
-      <dd><code>@mdn/browser-compat-data</code> {selectedSnapshot.bcdVersion}</dd>
+      <dd>
+        <code>@mdn/browser-compat-data</code> {selectedSnapshot.bcdVersion}
+      </dd>
       <dt>Package timestamp</dt>
       <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
       <dt>Licence</dt>
@@ -33,7 +35,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       <dt>Selected paths</dt>
       <dd>{Object.keys(selectedSnapshot.features).length}</dd>
       <dt>Schema fingerprint</dt>
-      <dd><code>{selectedSnapshot.schemaFingerprint}</code></dd>
+      <dd>
+        <code>{selectedSnapshot.schemaFingerprint}</code>
+      </dd>
     </dl>
     <p>
       <a href="https://github.com/mdn/browser-compat-data" rel="noopener noreferrer">
@@ -46,7 +50,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       <dt>Operator</dt>
       <dd>W3C WebDX Community Group</dd>
       <dt>Package</dt>
-      <dd><code>web-features</code> {selectedSnapshot.webFeaturesVersion}</dd>
+      <dd>
+        <code>web-features</code> {selectedSnapshot.webFeaturesVersion}
+      </dd>
       <dt>Licence</dt>
       <dd>Apache License 2.0</dd>
       <dt>Use</dt>
@@ -63,9 +69,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
       <dt>Operator</dt>
       <dd>Web Platform Tests contributors</dd>
       <dt>Repository</dt>
-      <dd><code>{WPT_EVIDENCE_REVIEW.repository}</code></dd>
+      <dd>
+        <code>{WPT_EVIDENCE_REVIEW.repository}</code>
+      </dd>
       <dt>Reviewed revision</dt>
-      <dd><code>{WPT_EVIDENCE_REVIEW.revision}</code></dd>
+      <dd>
+        <code>{WPT_EVIDENCE_REVIEW.revision}</code>
+      </dd>
       <dt>Licence</dt>
       <dd>BSD 3-Clause</dd>
       <dt>Use</dt>

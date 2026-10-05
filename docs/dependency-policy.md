@@ -63,3 +63,21 @@ Dependabot may propose npm and Actions updates. A merge requires:
 - unit, type, build, dependency, browser, accessibility, and public-tree checks.
 
 Automatic major-version merges are not configured.
+
+## Compatibility holds
+
+TypeScript remains on the supported 6.0 release line while the reviewed
+`typescript-eslint` peer range requires a version below 6.1. A newer compiler
+major must not be forced through that constraint. Keep the Node.js type
+definitions on the 24.x line to match the documented runtime compatibility
+floor, even when a newer runtime has its own type definitions.
+
+Nested dependencies follow their owning package's declared ranges. Refresh
+compatible nested releases through the lockfile rather than adding blanket
+overrides for unrelated newer majors. Review runtime floors, licences and
+lifecycle-script changes before a locked reinstall.
+
+The reviewed formatting plugin's 1.x line uses the same compiler generation as
+the static framework's 7.x line and supports the project runtime and formatter.
+Its compiler rewrite requires a formatting pass and the normal build and browser
+checks; formatting changes must not introduce unrelated behaviour changes.

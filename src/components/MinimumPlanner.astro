@@ -30,45 +30,39 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
     <details open>
       <summary>Required controls</summary>
       <div class="control-choice-groups">
-        {
-          categories.map((category) => (
-            <fieldset class="choice-group">
-              <legend>{category}</legend>
-              {SECURITY_CONTROLS.filter((control) => control.category === category).map(
-                (control) => (
-                  <label class="choice-row">
-                    <input
-                      type="checkbox"
-                      name="minimum-control"
-                      value={control.id}
-                      checked={defaultControls.has(control.id)}
-                    />
-                    <span>{control.shortName}</span>
-                  </label>
-                )
-              )}
-            </fieldset>
-          ))
-        }
+        {categories.map((category) => (
+          <fieldset class="choice-group">
+            <legend>{category}</legend>
+            {SECURITY_CONTROLS.filter((control) => control.category === category).map((control) => (
+              <label class="choice-row">
+                <input
+                  type="checkbox"
+                  name="minimum-control"
+                  value={control.id}
+                  checked={defaultControls.has(control.id)}
+                />
+                <span>{control.shortName}</span>
+              </label>
+            ))}
+          </fieldset>
+        ))}
       </div>
     </details>
 
     <fieldset class="choice-group choice-group--browsers">
       <legend>Browser families</legend>
       <div class="choice-grid">
-        {
-          BROWSER_IDS.map((browser) => (
-            <label class="choice-row">
-              <input
-                type="checkbox"
-                name="minimum-browser"
-                value={browser}
-                checked={defaultBrowsers.has(browser)}
-              />
-              <span>{browserNames[browser]}</span>
-            </label>
-          ))
-        }
+        {BROWSER_IDS.map((browser) => (
+          <label class="choice-row">
+            <input
+              type="checkbox"
+              name="minimum-browser"
+              value={browser}
+              checked={defaultBrowsers.has(browser)}
+            />
+            <span>{browserNames[browser]}</span>
+          </label>
+        ))}
       </div>
     </fieldset>
 
@@ -78,7 +72,9 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
     </label>
 
     <div class="button-row">
-      <button type="submit" class="button button--primary">Find oldest versions</button>
+      <button type="submit" class="button button--primary">
+        Find oldest versions
+      </button>
     </div>
     <p id="minimum-message" class="form-message" role="status" aria-live="polite"></p>
   </form>
