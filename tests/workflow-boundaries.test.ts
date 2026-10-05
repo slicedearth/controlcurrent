@@ -1,6 +1,54 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
+describe("publication workflow hardening", () => {
+  it("does not silently bootstrap an unresolved package-manager bundle", () => {
+    for (const name of ["ci", "pages", "source-review", "update-dry-run"]) {
+      const workflow = readFileSync(`.github/workflows/${name}.yml`, "utf8");
+      expect(workflow).not.toContain("npm install --global");
+    }
+    expect(readFileSync(".nvmrc", "utf8").trim()).toBe("24");
+    const guidance = readFileSync("docs/dependency-policy.md", "utf8");
+    expect(guidance).toContain("outside the project");
+    expect(guidance).toContain("must not be described as vulnerability-free");
+    expect(guidance).toContain("not enforced by `packageManager` alone");
+  });
+
+  it("gates both publication paths and rechecks the exact build commit after environment approval", () => {
+    const workflow = readFileSync(".github/workflows/pages.yml", "utf8");
+    expect(workflow).toContain(
+      "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'"
+    );
+    expect(workflow.match(/run: node tools\/publication-gate.ts/gu)).toHaveLength(2);
+    expect(workflow).toContain('GATE_WAIT_SECONDS: "600"');
+    expect(workflow).toContain('GATE_WAIT_SECONDS: "0"');
+    expect(workflow).toContain("release_sha: ${{ steps.release.outputs.sha }}");
+    expect(workflow.indexOf("Require current verified release")).toBeLessThan(
+      workflow.indexOf("Install locked dependencies")
+    );
+    const deploy = workflow.split("\n  deploy:\n")[1] ?? "";
+    expect(deploy).toContain("ref: ${{ needs.build.outputs.release_sha }}");
+    expect(deploy).toContain("RELEASE_SHA: ${{ needs.build.outputs.release_sha }}");
+    expect(deploy).toContain("sparse-checkout: tools/publication-gate.ts");
+    expect(deploy).toContain("package-manager-cache: false");
+    expect(deploy).not.toMatch(/npm (?:ci|install|run)/u);
+    expect(deploy.indexOf("Recheck current release")).toBeLessThan(
+      deploy.indexOf("- name: Deploy Pages artifact")
+    );
+    expect(workflow.match(/actions: read/gu)).toHaveLength(2);
+    expect(workflow).not.toContain("actions: write");
+  });
+
+  it("keeps paired security actions on the same reviewed immutable revision", () => {
+    const workflow = readFileSync(".github/workflows/codeql.yml", "utf8");
+    for (const action of ["init", "analyze"]) {
+      expect(workflow).toContain(
+        `github/codeql-action/${action}@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2`
+      );
+    }
+  });
+});
+
 describe("manual deployment verification boundary", () => {
   it("binds checkout to the event SHA and gates upload on all verification commands", () => {
     const pages = readFileSync(".github/workflows/pages.yml", "utf8");

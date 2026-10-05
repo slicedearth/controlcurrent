@@ -51,6 +51,26 @@ The repository uses npm's `allowScripts` field:
 
 Changes to lifecycle-script packages require explicit review.
 
+The publication guard runs with native Node.js TypeScript support and no project
+dependencies, including in the final deployment job.
+
+### Package-manager bootstrap limitation
+
+The npm executable and its bundled dependencies are outside the project
+lockfile's audit. A clean project audit must not be described as an audit of the
+package manager itself. The reviewed npm 12.0.1 declaration, newer stable 12.2.0
+and maintained 11.21.0 release still have reported bundled-dependency issues;
+12.2.0 reports three high and one moderate issue. Bundled packages cannot be
+repaired by an ordinary `npm audit fix` without replacing upstream bundle
+contents. These versions must not be described as vulnerability-free.
+
+No additional workflow bootstrap pin is installed while that review remains
+unresolved. A replacement needs its own isolated installation, bundled-tree
+audit, signature verification and clean-reinstall testing. Repacking or
+separately patching the executable is a distinct toolchain-maintenance change,
+not a silent override in the application lockfile. Workflow npm selection still
+comes from the Node runner and is not enforced by `packageManager` alone.
+
 ## Updates
 
 Dependabot may propose npm and Actions updates. A merge requires:

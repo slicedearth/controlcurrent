@@ -209,7 +209,11 @@ edit the lockfile, selected data, source history, repository or deployment.
 
 The public site is suitable for static GitHub Pages hosting. It needs no
 runtime secret, server or database. Changes to `main` deploy only after the
-complete CI workflow succeeds.
+complete CI and CodeQL workflows succeed for the exact current `main` commit.
+Both automatic and manual publication recheck that commit immediately before
+deployment. The [dependency policy](docs/dependency-policy.md) records the
+separate unresolved package-manager bootstrap review; a clean application
+dependency audit is not proof that the build tools are vulnerability-free.
 
 GitHub Pages does not apply the generated `_headers` file, so the current public
 site relies on its restrictive meta Content Security Policy and framing guard.

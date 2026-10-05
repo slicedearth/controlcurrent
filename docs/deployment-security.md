@@ -17,14 +17,17 @@ path is not an origin-isolation boundary.
 
 The Pages workflow runs after CI completes successfully for a push to `main`
 and may also be dispatched manually. Automatic publication is bound to the
-exact commit SHA reported by the successful CI run. The workflow separates two
-trust levels:
+exact commit SHA reported by the successful CI run and additionally requires
+successful analysis and current-main checks. The workflow separates two trust
+levels:
 
 1. the build job checks out source, installs locked dependencies, runs the full
    verification suite, and uploads the generated artifact with read-only
-   repository and Pages access;
-2. the dependency-free deployment job receives only `pages: write` and
-   `id-token: write`, then deploys the already generated artifact.
+   repository, workflow-metadata and Pages access;
+2. the dependency-free deployment job receives `pages: write` and
+   `id-token: write`, plus read-only source and workflow-metadata access for a
+   sparse release-guard checkout and final verification, then deploys the
+   already generated artifact.
 
 Every third-party action is pinned to an immutable commit SHA. The repository
 audit refuses mutable action references, `pull_request_target`, self-hosted
@@ -45,6 +48,28 @@ does not alter the checked-out repository or trigger deployment.
 
 ### Manual-dispatch verification parity
 
+Both publication paths require the exact release commit to be current `main`,
+with successful main-branch **push** runs of CI and CodeQL. The latest matching
+run and its latest attempt must contain successful `verify`, `browser` and
+`analyse` jobs; old successes, PR checks, skipped jobs and incomplete metadata
+cannot authorise publication. A manual Pages dispatch on another branch is
+refused. If required checks are pending, the build gate waits with a bounded
+polling budget; failed, cancelled or unavailable results fail closed.
+The build gate has a ten-minute absolute network/polling budget and the final
+gate a ten-second budget. A later successful analysis does not itself dispatch
+Pages: after a bounded wait expires, review both pipelines and explicitly rerun
+the publication workflow rather than weakening the gate.
+
+The dependency-free native TypeScript guard uses only fixed-origin, read-only
+API requests with redirect refusal, ten-second request limits, bounded response
+bodies and complete result counts. It rechecks current `main` during each pass.
+Before deploying, after any environment approval, a sparse checkout retrieves
+only the same commit's guard. A second gate permits no pending-check wait and
+revalidates the exact build SHA, current `main` and required checks. No package
+installation or project build runs in the credential-bearing deployment job.
+Checks are point-in-time observations, not an atomic lock on future branch
+updates; branch protection and environment governance remain necessary.
+
 Manual Pages dispatch checks out its exact `github.sha` and runs `npm run verify`,
 `npm audit --audit-level=high`, installs the locked Chromium build, and runs
 `npm run test:e2e` before uploading. There is no emergency verification bypass:
@@ -63,6 +88,13 @@ read-only build boundary. The manual path has verification-command parity with
 the current CI workflow, not proof that hosted execution has succeeded. Local
 workflow edits do not change the deployed workflow until reviewed publication;
 no dispatch or deployment is required to test this contract locally.
+
+Node 24 remains the hosted compatibility line. The guard-only deployment job
+needs Node but neither npm installation nor dependency caching. npm selection
+in dependency-installing jobs still follows the runner: bootstrap enforcement
+is unresolved because even the newer reviewed stable release has reported
+bundled-dependency vulnerabilities. See the dependency policy before accepting
+that build-tool risk; a clean application audit does not resolve it.
 
 ### Organisation-specific origin review
 
