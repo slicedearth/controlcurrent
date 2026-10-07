@@ -168,8 +168,13 @@ npm run cli -- compare-reports previous-report.json report.json \
   --fail-regression --fail-incomparable --format junit
 ```
 
-`--fail-incomparable` returns exit code `1` when comparison cannot establish a
-like-for-like result. Without that flag, the existing exit-code behaviour is
+`compare-reports` accepts `--format text|json|markdown|junit`; `--json` remains
+a compatibility alias. Conflicting or missing format arguments return `2`.
+Text, Markdown and JUnit disclose complete event totals, emitted events and
+truncation separately; display limits do not reduce decision counts.
+
+`--fail-incomparable` returns exit code `1` for incompatible report context or
+any finding-level incomparable result in the complete summary. Without that flag, the existing exit-code behaviour is
 unchanged: incomparable results are reported but do not alone fail the command.
 Invalid input still returns `2`. Flags govern the process exit consistently
 across JSON, text, Markdown and JUnit output. Output documents still describe

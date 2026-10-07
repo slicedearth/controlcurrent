@@ -7,6 +7,8 @@ import {
   type CliOutputFormat,
   renderDecisionPacketComparisonJunit,
   renderDecisionPacketComparisonMarkdown,
+  renderEvidenceReportComparisonJunit,
+  renderEvidenceReportComparisonMarkdown,
   renderEvidenceEvaluationJunit,
   renderEvidenceEvaluationMarkdown,
   renderPolicyDriftJunit,
@@ -54,7 +56,7 @@ function usage(): never {
   npm run cli -- explain <control-id> [--json]
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
-  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--fail-incomparable] [--json]
+  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--fail-incomparable] [--format text|json|markdown|junit] [--json]
   npm run cli -- reduce-scope-inventory <inventory.json> [--json]
   npm run cli -- collect-evidence <manifest.json> --output <private-path.json> --confirm-authorised-target [--allow-loopback]
   npm run cli -- create-attestation-statement <report.json>
@@ -76,8 +78,18 @@ function optionValue(name: string): string | undefined {
 }
 
 function outputFormat(): CliOutputFormat {
-  if (process.argv.includes("--json")) return "json";
-  const value = optionValue("--format") ?? "text";
+  const indices = process.argv.flatMap((value, index) => (value === "--format" ? [index] : []));
+  if (indices.length > 1) throw new Error("Specify --format only once.");
+  const index = indices[0];
+  const explicit = index === undefined ? undefined : process.argv[index + 1];
+  if (index !== undefined && (!explicit || explicit.startsWith("--"))) {
+    throw new Error("--format requires text, json, markdown or junit.");
+  }
+  const json = process.argv.includes("--json");
+  if (json && explicit !== undefined && explicit !== "json") {
+    throw new Error("--json conflicts with --format; use --format json or omit --json.");
+  }
+  const value = explicit ?? (json ? "json" : "text");
   if (!["text", "json", "markdown", "junit"].includes(value)) {
     throw new Error(`Unsupported output format: ${value}`);
   }
@@ -319,13 +331,23 @@ async function compareReports(): Promise<void> {
   );
   const failed =
     (process.argv.includes("--fail-regression") && comparison.summary.regressions > 0) ||
-    (process.argv.includes("--fail-incomparable") && !comparison.compatible);
-  if (process.argv.includes("--json")) {
-    process.stdout.write(canonicalJson(comparison));
-  } else {
+    (process.argv.includes("--fail-incomparable") &&
+      (!comparison.compatible || comparison.summary.incomparable > 0));
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(comparison));
+  else if (format === "markdown")
+    process.stdout.write(renderEvidenceReportComparisonMarkdown(comparison));
+  else if (format === "junit")
+    process.stdout.write(renderEvidenceReportComparisonJunit(comparison));
+  else {
     console.log(
       `${comparison.beforeName} to ${comparison.afterName}: ${String(comparison.summary.regressions)} regressions, ${String(comparison.summary.resolutions)} resolutions, ${String(comparison.summary.changed)} other changes, ${String(comparison.summary.incomparable)} incomparable`
     );
+    console.log(
+      `Events: ${String(comparison.summary.totalEvents)} total, ${String(comparison.summary.emittedEvents)} emitted, truncated: ${String(comparison.summary.truncated)}; complete totals determine exit gates.`
+    );
+    console.log(`Report context compatible: ${String(comparison.compatible)}`);
+    for (const reason of comparison.compatibilityReasons) console.log(`- ${reason}`);
     for (const event of comparison.events) {
       console.log(`- ${event.type.toUpperCase()} ${event.key}: ${event.summary}`);
     }

@@ -221,8 +221,10 @@ runtime secret, server or database. Changes to `main` deploy only after the
 complete CI and CodeQL workflows succeed for the exact current `main` commit.
 Both automatic and manual publication recheck that commit immediately before
 deployment. The [dependency policy](docs/dependency-policy.md) records the
-separate unresolved package-manager bootstrap review; a clean application
-dependency audit is not proof that the build tools are vulnerability-free.
+reviewed, separately locked package-manager reconstruction and its trust
+assumptions. Complete checks on the corrected revision and eventual exact-main
+release remain required; a clean application dependency audit or verified
+signatures do not prove that build-tool code is benign or vulnerability-free.
 
 GitHub Pages does not apply the generated `_headers` file, so the current public
 site relies on its restrictive meta Content Security Policy and framing guard.

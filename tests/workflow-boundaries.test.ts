@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("publication workflow hardening", () => {
-  it("restores a separately audited toolchain before any package-manager invocation", () => {
+  it("restores a separately audited toolchain before project installation", () => {
     for (const name of ["ci", "pages", "source-review", "update-dry-run"]) {
       const workflow = readFileSync(`.github/workflows/${name}.yml`, "utf8");
       expect(workflow).not.toContain("npm install --global");
@@ -15,7 +15,10 @@ describe("publication workflow hardening", () => {
     expect(readFileSync(".nvmrc", "utf8").trim()).toBe("24");
     const guidance = readFileSync("docs/dependency-policy.md", "utf8");
     expect(guidance).toContain("outside the application");
-    expect(guidance).toContain("never executes the runner's npm");
+    expect(guidance).toContain("does not use runner npm for reconstruction");
+    expect(guidance).toContain("installation, audit or signature verification");
+    expect(guidance).toContain("node, npm and yarn with `--version`");
+    expect(guidance).toContain("disabling package-manager caching does not disable these probes");
     expect(guidance).toContain("not enforced by `packageManager` alone");
     expect(
       readFileSync(".github/workflows/ci.yml", "utf8").match(/run: node tools\/bootstrap-npm.ts/gu)

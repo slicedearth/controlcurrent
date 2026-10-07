@@ -61,7 +61,8 @@ audit. The official npm 12.2.0 archive still bundles reported vulnerable version
 of brace-expansion, http-cache-semantics, ip-address and undici. An ordinary
 application audit or `npm audit fix` does not repair that bundle.
 
-`node tools/bootstrap-npm.ts` never executes the runner's npm. It uses the
+`node tools/bootstrap-npm.ts` does not use runner npm for reconstruction,
+installation, audit or signature verification. It uses the
 supported native Node runtime and the host's `tar` executable to download the
 fixed official CLI archive, check its pinned SHA-512 integrity, and restore only
 CLI code, documentation and licence files. The upstream `node_modules` bundle
@@ -85,11 +86,17 @@ signatures before its npm and npx executables are added to workflow PATH.
 This is a project-maintained runtime reconstruction, not an unmodified upstream
 distribution or an assurance that unknown vulnerabilities cannot exist.
 
-Every dependency-installing workflow performs this bootstrap before using npm;
-pre-bootstrap package-manager caching is disabled. A failure cannot fall back
-to the runner's npm. The deployment job remains Node-only. The Node runtime,
-system extraction tool, runner and registry signing roots remain trusted
-bootstrap components. Application lifecycle-script permissions are unchanged.
+Every dependency-installing workflow performs this bootstrap before project
+installation or dependency audit. Pre-bootstrap package-manager caching is
+disabled. A failure cannot fall back to the runner's npm. The deployment job
+performs no project install or build.
+
+Pinned `setup-node` still invokes available node, npm and yarn with `--version`
+before cache handling; disabling package-manager caching does not disable these probes.
+The action and its environment probes remain inside the trusted runner and
+provisioning boundary. No vulnerable execution path or compromise was established
+by a version probe. The Node runtime, system extraction tool, runner and registry
+signing roots remain trusted bootstrap components. Application lifecycle-script permissions are unchanged.
 Executable selection is not enforced by `packageManager` alone.
 
 Review a CLI version change together with its archive integrity, original

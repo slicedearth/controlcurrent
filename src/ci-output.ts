@@ -1,6 +1,7 @@
 import {
   decisionPacketComparisonSchema,
   evidencePolicyEvaluationSchema,
+  evidenceReportComparisonSchema,
   policyDriftComparisonSchema,
   policyEvaluationSchema
 } from "./contracts";
@@ -309,5 +310,85 @@ export function renderDecisionPacketComparisonJunit(input: unknown): string {
     visibleFailures + (omitted && hiddenFailures > 0 ? 1 : 0),
     visibleReview + (omitted && hiddenFailures <= 0 && hiddenReview > 0 ? 1 : 0),
     properties
+  );
+}
+
+const REPORT_REGRESSIONS = new Set([
+  "finding_regressed",
+  "composite_regressed",
+  "surface_gap_added"
+]);
+
+export function renderEvidenceReportComparisonMarkdown(input: unknown): string {
+  const comparison = evidenceReportComparisonSchema.parse(input);
+  return [
+    `# Evidence report comparison: ${markdown(comparison.beforeName)} to ${markdown(comparison.afterName)}`,
+    "",
+    `- Regressions: ${String(comparison.summary.regressions)}`,
+    `- Resolutions: ${String(comparison.summary.resolutions)}`,
+    `- Other changes: ${String(comparison.summary.changed)}`,
+    `- Incomparable: ${String(comparison.summary.incomparable)}`,
+    `- Events: ${String(comparison.summary.totalEvents)} total, ${String(comparison.summary.emittedEvents)} emitted, truncated: ${String(comparison.summary.truncated)}`,
+    `- Report context compatible: ${String(comparison.compatible)}`,
+    ...comparison.compatibilityReasons.map((reason) => `- ${markdown(reason)}`),
+    "",
+    ...(comparison.events.length
+      ? [
+          "| Change | Key | Summary |",
+          "| --- | --- | --- |",
+          ...comparison.events.map(
+            (item) =>
+              `| ${markdown(item.type)} | ${markdown(item.key)} | ${markdown(item.summary)} |`
+          )
+        ]
+      : ["No evidence changes were detected."]),
+    "",
+    "Complete totals determine exit gates. Supplied evidence does not prove runtime enforcement or collection authenticity.",
+    ""
+  ].join("\n");
+}
+
+export function renderEvidenceReportComparisonJunit(input: unknown): string {
+  const comparison = evidenceReportComparisonSchema.parse(input);
+  const adverse = (type: string) =>
+    REPORT_REGRESSIONS.has(type) || type === "evidence_became_incomparable";
+  const cases = comparison.events.map((item) =>
+    junitCase(
+      `${item.type} / ${item.key}`,
+      "evidence report comparison",
+      adverse(item.type) ? "fail" : "pass",
+      item.summary
+    )
+  );
+  const visibleFailures = comparison.events.filter((item) => adverse(item.type)).length;
+  const hiddenFailures =
+    comparison.summary.regressions + comparison.summary.incomparable - visibleFailures;
+  if (comparison.summary.truncated)
+    cases.push(
+      junitCase(
+        "Omitted bounded events",
+        "evidence report comparison",
+        hiddenFailures > 0 ? "fail" : "pass",
+        `${String(comparison.summary.totalEvents - comparison.summary.emittedEvents)} events omitted, including ${String(hiddenFailures)} regressions or incomparable results; complete totals determine exit gates.`
+      )
+    );
+  const properties = {
+    "total-regressions": comparison.summary.regressions,
+    "total-resolutions": comparison.summary.resolutions,
+    "total-changed": comparison.summary.changed,
+    "total-incomparable": comparison.summary.incomparable,
+    "total-events": comparison.summary.totalEvents,
+    "emitted-events": comparison.summary.emittedEvents,
+    truncated: comparison.summary.truncated,
+    "context-compatible": comparison.compatible
+  };
+  return junitSuite(
+    `${comparison.beforeName} to ${comparison.afterName}`,
+    cases,
+    visibleFailures + (comparison.summary.truncated && hiddenFailures > 0 ? 1 : 0),
+    0,
+    `<properties>${Object.entries(properties)
+      .map(([name, value]) => `<property name="${name}" value="${String(value)}"/>`)
+      .join("")}</properties>`
   );
 }

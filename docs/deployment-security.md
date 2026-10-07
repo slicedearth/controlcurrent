@@ -91,7 +91,10 @@ no dispatch or deployment is required to test this contract locally.
 
 Node 24 remains the hosted compatibility line. Every dependency-installing job
 first restores the reviewed CLI and separately locked runtime graph through
-`node tools/bootstrap-npm.ts`, without executing runner npm or bundled modules.
+`node tools/bootstrap-npm.ts`, without using runner npm for reconstruction,
+installation, audit or signature verification, or executing upstream bundled
+modules. The pinned `setup-node` action still probes available node, npm and
+yarn with `--version` inside the trusted action/runner boundary.
 It audits and verifies that graph before activating PATH. Pre-bootstrap npm
 caching is disabled and failed restoration cannot fall back to runner npm.
 The guard-only deployment job needs Node but neither npm installation nor
