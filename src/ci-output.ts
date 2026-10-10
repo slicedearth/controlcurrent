@@ -24,10 +24,15 @@ function xml(value: string): string {
   return Array.from(value)
     .map((character) => {
       const codePoint = character.codePointAt(0);
-      return codePoint !== undefined &&
-        ((codePoint < 32 && ![9, 10, 13].includes(codePoint)) || codePoint === 127)
-        ? " "
-        : character;
+      // XML 1.0 Char: replace each forbidden code point (including lone surrogates)
+      // with one space, while preserving legal BMP and supplementary characters.
+      const legal =
+        codePoint !== undefined &&
+        ([9, 10, 13].includes(codePoint) ||
+          (codePoint >= 0x20 && codePoint <= 0xd7ff) ||
+          (codePoint >= 0xe000 && codePoint <= 0xfffd) ||
+          (codePoint >= 0x10000 && codePoint <= 0x10ffff));
+      return legal ? character : " ";
     })
     .join("")
     .replaceAll("&", "&amp;")

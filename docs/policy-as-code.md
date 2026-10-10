@@ -181,6 +181,12 @@ across JSON, text, Markdown and JUnit output. Output documents still describe
 all regressions and incomparable results even when an optional exit gate is
 omitted; JUnit may therefore contain failure cases with a non-strict exit `0`.
 
+All JUnit renderers replace each character forbidden by XML 1.0 with one ASCII
+space before escaping markup. This includes U+FFFE, U+FFFF and lone UTF-16
+surrogates. Legal Unicode, including supplementary characters, is preserved.
+The replacement affects display text only; source reports, fingerprints,
+comparison totals and exit decisions are unchanged.
+
 ## JSON Schemas
 
 The static site publishes draft 2020-12 schemas for browser policy profiles and
