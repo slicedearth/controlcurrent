@@ -14,6 +14,7 @@ import {
 import { compareEvidenceReports } from "./evidence-comparison";
 import { validateEvidenceReport } from "./evidence-report";
 import { comparePolicyEvaluations } from "./policy-comparison";
+import { compareEvidencePolicyProfiles } from "./evidence-policy-comparison";
 
 export const MAX_DECISION_PACKET_BYTES = 4 * 1_024 * 1_024;
 
@@ -121,6 +122,15 @@ export async function compareDecisionPackets(
     summary: string;
   }[] = [];
   let compatible = before.evidence.kind === after.evidence.kind;
+  let fullReportSummary:
+    | {
+        regressions: number;
+        resolutions: number;
+        changed: number;
+        incomparable: number;
+        totalEvents: number;
+      }
+    | undefined;
 
   if (!compatible) {
     evidenceEvents.push({
@@ -133,6 +143,7 @@ export async function compareDecisionPackets(
     after.evidence.kind === "reduced_evidence_report"
   ) {
     const comparison = await compareEvidenceReports(before.evidence.report, after.evidence.report);
+    fullReportSummary = comparison.summary;
     compatible = comparison.compatible;
     for (const item of comparison.events) {
       const type =
@@ -151,6 +162,7 @@ export async function compareDecisionPackets(
   ) {
     const left = before.evidence.evaluation;
     const right = after.evidence.evaluation;
+    evidenceEvents.push(...compareEvidencePolicyProfiles(left.profile, right.profile));
     compatible =
       left.reportIdentity.subject.applicationId === right.reportIdentity.subject.applicationId &&
       left.reportIdentity.subject.environment === right.reportIdentity.subject.environment &&
@@ -202,11 +214,22 @@ export async function compareDecisionPackets(
   const boundedEvents = evidenceEvents
     .sort((left, right) => left.key.localeCompare(right.key) || left.type.localeCompare(right.type))
     .slice(0, 512);
+  const totalEvents = fullReportSummary?.totalEvents ?? evidenceEvents.length;
   const evidenceSummary = {
-    regressions: boundedEvents.filter((item) => item.type === "regression").length,
-    resolutions: boundedEvents.filter((item) => item.type === "resolution").length,
-    changed: boundedEvents.filter((item) => item.type === "changed").length,
-    incomparable: boundedEvents.filter((item) => item.type === "incomparable").length
+    regressions:
+      fullReportSummary?.regressions ??
+      evidenceEvents.filter((item) => item.type === "regression").length,
+    resolutions:
+      fullReportSummary?.resolutions ??
+      evidenceEvents.filter((item) => item.type === "resolution").length,
+    changed:
+      fullReportSummary?.changed ?? evidenceEvents.filter((item) => item.type === "changed").length,
+    incomparable:
+      fullReportSummary?.incomparable ??
+      evidenceEvents.filter((item) => item.type === "incomparable").length,
+    totalEvents,
+    emittedEvents: boundedEvents.length,
+    truncated: totalEvents > boundedEvents.length
   };
 
   return decisionPacketComparisonSchema.parse({

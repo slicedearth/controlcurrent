@@ -1,9 +1,9 @@
 {
   "schemaVersion": 4,
   "name": "Release evidence baseline",
-  "expectedAnalyserVersion": "5.0.0",
+  "expectedAnalyserVersion": "5.1.0",
   "expectedCatalogueVersion": "2.2.0",
-  "expectedBcdVersion": "8.0.8",
+  "expectedBcdVersion": "8.1.4",
   "attestation": {
     "required": false,
     "certificateIssuer": "https://token.actions.githubusercontent.com/",

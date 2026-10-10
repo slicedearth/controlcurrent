@@ -72,7 +72,9 @@ const pathWithBase = (path: string) => `${base}${path}`;
         its own browser tab before entering any redacted evidence.
       </p>
     </aside>
-    <a class="skip-link" href="#main-content">Skip to content</a>
+    <a class="skip-link" href="#main-content">
+      Skip to content
+    </a>
     <header class="site-header">
       <div class="shell header-inner">
         <a class="brand" href={pathWithBase("/")} aria-label="ControlCurrent home">
@@ -96,24 +98,25 @@ const pathWithBase = (path: string) => `${base}${path}`;
             aria-expanded="false"
           >
             <span class="nav-toggle-label">Menu</span>
-            <i aria-hidden="true"><span></span><span></span></i>
+            <i aria-hidden="true">
+              <span></span>
+              <span></span>
+            </i>
           </button>
           <nav id="primary-navigation" aria-label="Primary navigation" data-open="false">
             <ul>
-              {
-                nav.map((item) => (
-                  <li>
-                    <a
-                      href={pathWithBase(item.href)}
-                      aria-current={
-                        Astro.url.pathname === pathWithBase(item.href) ? "page" : undefined
-                      }
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))
-              }
+              {nav.map((item) => (
+                <li>
+                  <a
+                    href={pathWithBase(item.href)}
+                    aria-current={
+                      Astro.url.pathname === pathWithBase(item.href) ? "page" : undefined
+                    }
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
@@ -138,7 +141,8 @@ const pathWithBase = (path: string) => `${base}${path}`;
         <div>
           <span class="eyebrow">Data version</span>
           <p>
-            MDN browser data {selectedSnapshot.bcdVersion}<br />
+            MDN browser data {selectedSnapshot.bcdVersion}
+            <br />
             Catalogue {selectedSnapshot.catalogueVersion}
           </p>
         </div>

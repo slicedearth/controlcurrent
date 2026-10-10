@@ -39,9 +39,8 @@ const wptEvidence = getWptEvidence(control.id);
       <section class="content-card">
         <h2>Support in current browsers</h2>
         <p>
-          Checked against the current browser versions recorded in MDN browser data {
-            selectedSnapshot.bcdVersion
-          }.
+          Checked against the current browser versions recorded in MDN browser data{" "}
+          {selectedSnapshot.bcdVersion}.
         </p>
         <div class="table-wrap">
           <table>
@@ -54,18 +53,16 @@ const wptEvidence = getWptEvidence(control.id);
               </tr>
             </thead>
             <tbody>
-              {
-                evaluations.map((evaluation) => (
-                  <tr>
-                    <th scope="row">{browserNames[evaluation.browser]}</th>
-                    <td>{evaluation.minimumVersion}</td>
-                    <td>
-                      <OutcomeBadge outcome={evaluation.outcome} />
-                    </td>
-                    <td>{evaluation.explanation}</td>
-                  </tr>
-                ))
-              }
+              {evaluations.map((evaluation) => (
+                <tr>
+                  <th scope="row">{browserNames[evaluation.browser]}</th>
+                  <td>{evaluation.minimumVersion}</td>
+                  <td>
+                    <OutcomeBadge outcome={evaluation.outcome} />
+                  </td>
+                  <td>{evaluation.explanation}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -74,11 +71,23 @@ const wptEvidence = getWptEvidence(control.id);
       <section class="content-card">
         <h2>What this feature can and cannot do</h2>
         <h3>Helps protect against</h3>
-        <ul>{control.threatClasses.map((item) => <li>{item}</li>)}</ul>
+        <ul>
+          {control.threatClasses.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
         <h3>Does not guarantee</h3>
-        <ul>{control.doesNotAddress.map((item) => <li>{item}</li>)}</ul>
+        <ul>
+          {control.doesNotAddress.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
         <h3>What you need before using it</h3>
-        <ul>{control.prerequisites.map((item) => <li>{item}</li>)}</ul>
+        <ul>
+          {control.prerequisites.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
         <h3>Fallback to keep in place</h3>
         <p>{control.fallback}</p>
       </section>
@@ -88,115 +97,105 @@ const wptEvidence = getWptEvidence(control.id);
       <section class="content-card">
         <span class="eyebrow">Browser data used</span>
         <h2>
-          {
-            control.mappingState === "active"
-              ? "Support can be calculated"
-              : "Not enough specific data"
-          }
+          {control.mappingState === "active"
+            ? "Support can be calculated"
+            : "Not enough specific data"}
         </h2>
         {control.mappingNote && <p>{control.mappingNote}</p>}
-        {
-          control.bcdPaths.length > 0 ? (
-            control.bcdPaths.map((path) => {
-              const feature = selectedSnapshot.features[path];
-              return (
-                <div>
-                  <code class="source-path">{path}</code>
-                  {feature?.mdnUrl && (
-                    <p>
-                      <a href={feature.mdnUrl} rel="noopener noreferrer">
-                        MDN reference
-                      </a>
-                    </p>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <p>
-              MDN browser data does not describe this exact feature separately enough for a reliable
-              browser-support calculation.
-            </p>
-          )
-        }
+        {control.bcdPaths.length > 0 ? (
+          control.bcdPaths.map((path) => {
+            const feature = selectedSnapshot.features[path];
+            return (
+              <div>
+                <code class="source-path">{path}</code>
+                {feature?.mdnUrl && (
+                  <p>
+                    <a href={feature.mdnUrl} rel="noopener noreferrer">
+                      MDN reference
+                    </a>
+                  </p>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p>
+            MDN browser data does not describe this exact feature separately enough for a reliable
+            browser-support calculation.
+          </p>
+        )}
       </section>
       <section class="content-card">
         <span class="eyebrow">Specifications</span>
         <ul>
-          {
-            control.specificationUrls.map((url) => (
-              <li>
-                <a href={url} rel="noopener noreferrer">
-                  {new URL(url).hostname}
-                </a>
-              </li>
-            ))
-          }
+          {control.specificationUrls.map((url) => (
+            <li>
+              <a href={url} rel="noopener noreferrer">
+                {new URL(url).hostname}
+              </a>
+            </li>
+          ))}
         </ul>
       </section>
       <section class="content-card">
         <span class="eyebrow">Support across major browsers</span>
         <h2>{baselineEvidence.length > 0 ? "Adoption information available" : "No exact match"}</h2>
-        {
-          baselineEvidence.length > 0 ? (
-            <>
-              <p>
-                Web Platform Baseline indicates when a feature became available across major
-                browsers. It does not inspect your website or replace the browser-by-browser result.
-              </p>
-              {baselineEvidence.map((evidence) => (
-                <div>
-                  <strong>{evidence.name}</strong>
-                  <p>
-                    <code class="source-path">{evidence.path}</code>
-                  </p>
-                  <p>
-                    Status:{" "}
-                    {evidence.status === false
-                      ? "not Baseline"
-                      : evidence.status === "low"
-                        ? "newly available"
-                        : "widely available"}
-                    {evidence.lowDate ? ` · low ${evidence.lowDate}` : ""}
-                    {evidence.highDate ? ` · high ${evidence.highDate}` : ""}
-                  </p>
-                </div>
-              ))}
-            </>
-          ) : (
+        {baselineEvidence.length > 0 ? (
+          <>
             <p>
-              Web Platform Baseline has no exact entry for this browser-data record. ControlCurrent
-              does not substitute a similar feature.
+              Web Platform Baseline indicates when a feature became available across major browsers.
+              It does not inspect your website or replace the browser-by-browser result.
             </p>
-          )
-        }
+            {baselineEvidence.map((evidence) => (
+              <div>
+                <strong>{evidence.name}</strong>
+                <p>
+                  <code class="source-path">{evidence.path}</code>
+                </p>
+                <p>
+                  Status:{" "}
+                  {evidence.status === false
+                    ? "not Baseline"
+                    : evidence.status === "low"
+                      ? "newly available"
+                      : "widely available"}
+                  {evidence.lowDate ? ` · low ${evidence.lowDate}` : ""}
+                  {evidence.highDate ? ` · high ${evidence.highDate}` : ""}
+                </p>
+              </div>
+            ))}
+          </>
+        ) : (
+          <p>
+            Web Platform Baseline has no exact entry for this browser-data record. ControlCurrent
+            does not substitute a similar feature.
+          </p>
+        )}
       </section>
       <section class="content-card">
         <span class="eyebrow">Public browser tests</span>
         <h2>{wptEvidence.state === "mapped" ? "Relevant tests found" : "No exact test link"}</h2>
         <p>{wptEvidence.scope}</p>
-        {
-          wptEvidence.suites.length > 0 ? (
-            <ul class="source-list">
-              {wptEvidence.suites.map((suite) => (
-                <li>
-                  <strong>{suite.label}</strong>
-                  <code class="source-path">{suite.path}</code>
-                  <span class="source-actions">
-                    <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
-                      reviewed test source
-                    </a>
-                    <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
-                      latest public results
-                    </a>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No similar test is substituted when an exact link is unavailable.</p>
-          )
-        }
+        {wptEvidence.suites.length > 0 ? (
+          <ul class="source-list">
+            {wptEvidence.suites.map((suite) => (
+              <li>
+                <strong>{suite.label}</strong>
+                <code class="source-path">{suite.path}</code>
+                <span class="source-actions">
+                  <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
+                    reviewed test source
+                  </a>
+                  <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
+                    latest public results
+                  </a>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No similar test is substituted when an exact link is unavailable.</p>
+        )}
         <p class="evidence-limit">
           <strong>Limit:</strong>
           {wptEvidence.limitation}

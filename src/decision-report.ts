@@ -130,7 +130,7 @@ export async function exportDecisionReport(
     <ul>${profile.baselines
       .map(
         (baseline) =>
-          `<li>${html(browserNames[baseline.browser])} ${html(baseline.minimumVersion)} or newer</li>`
+          `<li>${html(browserNames[baseline.browser])} from ${html(baseline.minimumVersion)} through the released versions recorded in BCD ${html(evaluation.bcdVersion)}</li>`
       )
       .join("")}</ul>
   </section>

@@ -4,9 +4,7 @@ import {
   minimumBaselineRequestSchema,
   selectedSnapshotSchema
 } from "./contracts";
-import { evaluateControl } from "./evaluate";
-
-const DEPLOYABLE_RELEASE_STATES = new Set(["retired", "current", "esr"]);
+import { evaluateControl, recordedReleasedVersions } from "./evaluate";
 
 export function findMinimumBaselines(
   snapshotInput: unknown,
@@ -32,28 +30,44 @@ export function findMinimumBaselines(
       };
     }
 
-    const releases = snapshot.browsers[browser].releases.filter(
-      (release) => DEPLOYABLE_RELEASE_STATES.has(release.status) && release.releaseDate
-    );
-    for (const release of releases) {
-      const blockers = controls.filter((control) => {
+    const releases = recordedReleasedVersions(snapshot, browser);
+    if (!releases)
+      return {
+        browser,
+        status: "source_inconsistent" as const,
+        blockers: controls.map((control) => control.id)
+      };
+    const blockersAt = (minimumVersion: string) =>
+      controls.filter((control) => {
         const outcome = evaluateControl(control, snapshot, {
           browser,
-          minimumVersion: release.version
+          minimumVersion
         }).outcome;
         return request.allowQualified
           ? outcome !== "available_unqualified" && outcome !== "available_with_qualification"
           : outcome !== "available_unqualified";
       });
-      if (blockers.length === 0) {
-        return {
-          browser,
-          status: "found" as const,
-          minimumVersion: release.version,
-          releaseDate: release.releaseDate,
-          blockers: []
-        };
-      }
+    // Each candidate covers a released suffix. Once that suffix is acceptable,
+    // removing older releases cannot introduce a new support gap. Find its first
+    // acceptable member without rescanning every overlapping suffix quadratically.
+    let start = 0;
+    let end = releases.length;
+    while (start < end) {
+      const middle = Math.floor((start + end) / 2);
+      const release = releases[middle];
+      if (!release) throw new Error("Missing bounded release candidate");
+      if (blockersAt(release.version).length === 0) end = middle;
+      else start = middle + 1;
+    }
+    const minimum = releases[start];
+    if (minimum) {
+      return {
+        browser,
+        status: "found" as const,
+        minimumVersion: minimum.version,
+        releaseDate: minimum.releaseDate,
+        blockers: []
+      };
     }
 
     const current = releases.at(-1);

@@ -3,6 +3,7 @@ import { selectedSnapshot } from "../data";
 import { browserNames } from "../format";
 import { BROWSER_IDS } from "../browsers";
 import { SECURITY_CONTROLS } from "../catalogue";
+import SourceContext from "./SourceContext.astro";
 
 const browsers = BROWSER_IDS;
 const controlCategories = [...new Set(SECURITY_CONTROLS.map((control) => control.category))];
@@ -25,6 +26,8 @@ const defaultRequiredControls = new Set([
     </p>
   </div>
 
+  <SourceContext />
+
   <aside class="guided-example" aria-labelledby="guided-example-heading">
     <div>
       <span class="eyebrow">Worked example</span>
@@ -36,9 +39,15 @@ const defaultRequiredControls = new Set([
       </p>
     </div>
     <ol>
-      <li><strong>Choose:</strong> load the three example browser minimums.</li>
-      <li><strong>Read:</strong> open “Why?” to see the browser-specific evidence.</li>
-      <li><strong>Act:</strong> follow the next step and keep the stated fallback.</li>
+      <li>
+        <strong>Choose:</strong> load the three example browser minimums.
+      </li>
+      <li>
+        <strong>Read:</strong> open “Why?” to see the browser-specific evidence.
+      </li>
+      <li>
+        <strong>Act:</strong> follow the next step and keep the stated fallback.
+      </li>
     </ol>
   </aside>
 
@@ -48,44 +57,52 @@ const defaultRequiredControls = new Set([
       <input name="profile-name" type="text" maxlength="80" value="Deployment profile" />
     </label>
     <div class="baseline-grid">
-      {
-        browsers.map((browser) => {
-          const releases = [...selectedSnapshot.browsers[browser].releases]
-            .filter((release) => ["current", "esr", "retired"].includes(release.status))
-            .reverse();
-          return (
-            <fieldset class="baseline-card">
-              <legend>{browserNames[browser]}</legend>
-              <label class="toggle-row">
-                <input type="checkbox" name={`include-${browser}`} />
-                <span>Include in profile</span>
-              </label>
-              <label>
-                <span>Minimum version</span>
-                <select name={`version-${browser}`} disabled>
-                  {releases.map((release) => (
-                    <option value={release.version}>
-                      {release.version}
-                      {release.status === "current"
-                        ? " · current"
-                        : release.status === "esr"
-                          ? " · ESR"
-                          : ""}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </fieldset>
-          );
-        })
-      }
+      {browsers.map((browser) => {
+        const releases = [...selectedSnapshot.browsers[browser].releases]
+          .filter((release) => ["current", "esr", "retired"].includes(release.status))
+          .reverse();
+        return (
+          <fieldset class="baseline-card">
+            <legend>{browserNames[browser]}</legend>
+            <label class="toggle-row">
+              <input type="checkbox" name={`include-${browser}`} />
+              <span>Include in profile</span>
+            </label>
+            <label>
+              <span>Minimum version</span>
+              <select name={`version-${browser}`} disabled>
+                {releases.map((release) => (
+                  <option value={release.version}>
+                    {release.version}
+                    {release.status === "current"
+                      ? " · current"
+                      : release.status === "esr"
+                        ? " · ESR"
+                        : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </fieldset>
+        );
+      })}
     </div>
     <div class="button-row">
-      <button type="submit" class="button button--primary">Check support</button>
-      <button type="button" class="button" id="load-example">Load example</button>
-      <button type="button" class="button" id="save-profile">Save locally</button>
-      <button type="button" class="button" id="clear-profile">Delete saved plan</button>
-      <button type="button" class="button" id="export-profile" disabled>Export JSON</button>
+      <button type="submit" class="button button--primary">
+        Check support
+      </button>
+      <button type="button" class="button" id="load-example">
+        Load example
+      </button>
+      <button type="button" class="button" id="save-profile">
+        Save locally
+      </button>
+      <button type="button" class="button" id="clear-profile">
+        Delete saved plan
+      </button>
+      <button type="button" class="button" id="export-profile" disabled>
+        Export JSON
+      </button>
       <button type="button" class="button" id="export-engineering-report" disabled>
         Export readable report
       </button>
@@ -140,7 +157,9 @@ const defaultRequiredControls = new Set([
         <span>Security area</span>
         <select id="result-category">
           <option value="">All areas</option>
-          {controlCategories.map((category) => <option value={category}>{category}</option>)}
+          {controlCategories.map((category) => (
+            <option value={category}>{category}</option>
+          ))}
         </select>
       </label>
       <label>
@@ -157,7 +176,9 @@ const defaultRequiredControls = new Set([
         <input id="result-blockers" type="checkbox" />
         <span>Show blockers only</span>
       </label>
-      <button type="button" class="button" id="clear-result-filters">Clear filters</button>
+      <button type="button" class="button" id="clear-result-filters">
+        Clear filters
+      </button>
     </form>
     <p id="result-filter-status" class="form-message" role="status" aria-live="polite"></p>
     <div id="results-list" class="result-groups"></div>
@@ -174,30 +195,32 @@ const defaultRequiredControls = new Set([
           </p>
         </div>
         <div class="button-row">
-          <button type="button" class="button" id="select-policy-controls">Select all</button>
-          <button type="button" class="button" id="clear-policy-controls">Clear selection</button>
+          <button type="button" class="button" id="select-policy-controls">
+            Select all
+          </button>
+          <button type="button" class="button" id="clear-policy-controls">
+            Clear selection
+          </button>
         </div>
         <div class="control-choice-groups policy-control-groups">
-          {
-            controlCategories.map((category) => (
-              <fieldset class="control-choice-group">
-                <legend>{category}</legend>
-                {SECURITY_CONTROLS.filter((control) => control.category === category).map(
-                  (control) => (
-                    <label class="choice-row">
-                      <input
-                        type="checkbox"
-                        name="required-control"
-                        value={control.id}
-                        checked={defaultRequiredControls.has(control.id)}
-                      />
-                      <span>{control.name}</span>
-                    </label>
-                  )
-                )}
-              </fieldset>
-            ))
-          }
+          {controlCategories.map((category) => (
+            <fieldset class="control-choice-group">
+              <legend>{category}</legend>
+              {SECURITY_CONTROLS.filter((control) => control.category === category).map(
+                (control) => (
+                  <label class="choice-row">
+                    <input
+                      type="checkbox"
+                      name="required-control"
+                      value={control.id}
+                      checked={defaultRequiredControls.has(control.id)}
+                    />
+                    <span>{control.name}</span>
+                  </label>
+                )
+              )}
+            </fieldset>
+          ))}
         </div>
         <div class="policy-rule-grid">
           <label>
@@ -229,22 +252,18 @@ const defaultRequiredControls = new Set([
             <label>
               <span>Security feature</span>
               <select id="exception-control">
-                {
-                  SECURITY_CONTROLS.map((control) => (
-                    <option value={control.id}>{control.name}</option>
-                  ))
-                }
+                {SECURITY_CONTROLS.map((control) => (
+                  <option value={control.id}>{control.name}</option>
+                ))}
               </select>
             </label>
             <label>
               <span>Browser</span>
               <select id="exception-browser">
                 <option value="">All selected browsers</option>
-                {
-                  browsers.map((browser) => (
-                    <option value={browser}>{browserNames[browser]}</option>
-                  ))
-                }
+                {browsers.map((browser) => (
+                  <option value={browser}>{browserNames[browser]}</option>
+                ))}
               </select>
             </label>
             <label>
@@ -274,7 +293,9 @@ const defaultRequiredControls = new Set([
               />
             </label>
           </div>
-          <button type="button" class="button" id="add-policy-exception">Add exception</button>
+          <button type="button" class="button" id="add-policy-exception">
+            Add exception
+          </button>
           <div id="policy-exceptions" class="exception-list"></div>
         </fieldset>
 
@@ -316,7 +337,9 @@ const defaultRequiredControls = new Set([
               <input id="policy-exceptions-only" type="checkbox" />
               <span>Show exception findings only</span>
             </label>
-            <button type="button" class="button" id="clear-policy-filters">Clear filters</button>
+            <button type="button" class="button" id="clear-policy-filters">
+              Clear filters
+            </button>
           </form>
           <p id="policy-filter-status" class="form-message" role="status" aria-live="polite"></p>
           <div id="policy-findings" class="results-list policy-findings"></div>
@@ -342,8 +365,12 @@ const defaultRequiredControls = new Set([
               <span>Evidence result JSON</span>
               <input id="decision-evidence" type="file" accept="application/json,.json" />
             </label>
-            <p id="decision-evidence-status" class="form-message" role="status" aria-live="polite">
-            </p>
+            <p
+              id="decision-evidence-status"
+              class="form-message"
+              role="status"
+              aria-live="polite"
+            ></p>
             <button type="button" class="button" id="export-decision-packet" disabled>
               Export two-part decision packet
             </button>
@@ -372,1128 +399,6 @@ const defaultRequiredControls = new Set([
 </section>
 
 <script>
-  import { SECURITY_CONTROLS } from "../catalogue";
-  import { selectedSnapshot } from "../data";
-  import {
-    type DecisionPacketEvidence,
-    profileEvaluationSchema,
-    type BrowserId,
-    type Outcome,
-    type PolicyDecision,
-    type PolicyException,
-    type PolicyEvaluation,
-    type PolicyFinding,
-    type PolicyProfile,
-    type ProfileComparison,
-    type ProfileEvaluation
-  } from "../contracts";
-  import { BROWSER_IDS } from "../browsers";
-  import { evaluateProfile } from "../evaluate";
-  import { exportProfileEvaluation } from "../export";
-  import { clearProfile, loadProfile, saveProfile } from "../profile-storage";
-  import { browserNames, outcomeLabels } from "../format";
-  import {
-    compareProfileEvaluations,
-    exportEngineeringReport,
-    importDeploymentProfile,
-    MAX_PROFILE_IMPORT_BYTES
-  } from "../profile-workflows";
-  import { importBrowserConfiguration, MAX_BROWSER_CONFIG_BYTES } from "../browser-config";
-  import {
-    clearEvaluation,
-    loadEvaluation,
-    saveEvaluation,
-    summariseEvaluationUpdate
-  } from "../evaluation-storage";
-  import {
-    buildPolicyProfile,
-    exportPolicyProfile,
-    importPolicyProfile,
-    MAX_POLICY_IMPORT_BYTES
-  } from "../policy-builder";
-  import { evaluatePolicyProfile } from "../policy";
-  import { exportDecisionReport } from "../decision-report";
-  import {
-    buildDecisionPacket,
-    exportDecisionPacket,
-    MAX_DECISION_PACKET_BYTES,
-    validateDecisionPacketEvidence
-  } from "../decision-packet";
-
-  const browsers: readonly BrowserId[] = BROWSER_IDS;
-  const form = document.querySelector<HTMLFormElement>("#profile-form");
-  const message = document.querySelector<HTMLElement>("#profile-message");
-  const results = document.querySelector<HTMLElement>("#profile-results");
-  const resultsList = document.querySelector<HTMLElement>("#results-list");
-  const resultsSource = document.querySelector<HTMLElement>("#results-source");
-  const exportButton = document.querySelector<HTMLButtonElement>("#export-profile");
-  const reportButton = document.querySelector<HTMLButtonElement>("#export-engineering-report");
-  const importInput = document.querySelector<HTMLInputElement>("#import-profile");
-  const compareInput = document.querySelector<HTMLInputElement>("#compare-profile");
-  const browserConfigInput = document.querySelector<HTMLInputElement>("#import-browser-config");
-  const rememberResult = document.querySelector<HTMLInputElement>("#remember-result");
-  const comparisonSection = document.querySelector<HTMLElement>("#profile-comparison");
-  const comparisonSource = document.querySelector<HTMLElement>("#comparison-source");
-  const comparisonSummary = document.querySelector<HTMLElement>("#comparison-summary");
-  const comparisonEvents = document.querySelector<HTMLElement>("#comparison-events");
-  const updateNotice = document.querySelector<HTMLElement>("#profile-update");
-  const resultSearch = document.querySelector<HTMLInputElement>("#result-search");
-  const resultCategory = document.querySelector<HTMLSelectElement>("#result-category");
-  const resultOutcome = document.querySelector<HTMLSelectElement>("#result-outcome");
-  const resultBlockers = document.querySelector<HTMLInputElement>("#result-blockers");
-  const resultFilterStatus = document.querySelector<HTMLElement>("#result-filter-status");
-  const policyQualifications = document.querySelector<HTMLSelectElement>("#policy-qualifications");
-  const policyUnknown = document.querySelector<HTMLSelectElement>("#policy-unknown");
-  const policyUnsupported = document.querySelector<HTMLSelectElement>("#policy-unsupported");
-  const exceptionControl = document.querySelector<HTMLSelectElement>("#exception-control");
-  const exceptionBrowser = document.querySelector<HTMLSelectElement>("#exception-browser");
-  const exceptionOutcome = document.querySelector<HTMLSelectElement>("#exception-outcome");
-  const exceptionExpiry = document.querySelector<HTMLInputElement>("#exception-expiry");
-  const exceptionReason = document.querySelector<HTMLInputElement>("#exception-reason");
-  const exceptionList = document.querySelector<HTMLElement>("#policy-exceptions");
-  const exportPolicyButton = document.querySelector<HTMLButtonElement>("#export-policy");
-  const exportDecisionButton = document.querySelector<HTMLButtonElement>("#export-decision-report");
-  const importPolicyInput = document.querySelector<HTMLInputElement>("#import-policy");
-  const policyMessage = document.querySelector<HTMLElement>("#policy-message");
-  const policyPreview = document.querySelector<HTMLElement>("#policy-preview");
-  const policySummary = document.querySelector<HTMLElement>("#policy-summary");
-  const policySearch = document.querySelector<HTMLInputElement>("#policy-search");
-  const policyDecision = document.querySelector<HTMLSelectElement>("#policy-decision");
-  const policyExceptionsOnly = document.querySelector<HTMLInputElement>("#policy-exceptions-only");
-  const policyFilterStatus = document.querySelector<HTMLElement>("#policy-filter-status");
-  const policyFindings = document.querySelector<HTMLElement>("#policy-findings");
-  const policyJson = document.querySelector<HTMLElement>("#policy-json");
-  const policyCiContext = document.querySelector<HTMLElement>("#policy-ci-context");
-  const policyCiCommand = document.querySelector<HTMLElement>("#policy-ci-command");
-  const decisionEvidenceInput = document.querySelector<HTMLInputElement>("#decision-evidence");
-  const decisionEvidenceStatus = document.querySelector<HTMLElement>("#decision-evidence-status");
-  const exportDecisionPacketButton =
-    document.querySelector<HTMLButtonElement>("#export-decision-packet");
-  let latestEvaluation: ProfileEvaluation | undefined;
-  let comparisonBaseline: ProfileEvaluation | undefined;
-  let latestComparison: ProfileComparison | undefined;
-  let rememberedEvaluation: ProfileEvaluation | undefined;
-  let policyExceptions: PolicyException[] = [];
-  let latestPolicy: PolicyProfile | undefined;
-  let latestPolicyEvaluation: PolicyEvaluation | undefined;
-  let decisionEvidence: DecisionPacketEvidence | undefined;
-  const basePath = import.meta.env.BASE_URL.replace(/\/$/u, "");
-
-  type ResultGroupId = "ready" | "limited" | "unsupported" | "unknown";
-
-  const resultGroups: readonly {
-    id: ResultGroupId;
-    title: string;
-    description: string;
-  }[] = [
-    {
-      id: "ready",
-      title: "Ready to use",
-      description:
-        "Every selected browser has an unqualified support record. Configuration and testing are still required."
-    },
-    {
-      id: "limited",
-      title: "Works with known limitations",
-      description:
-        "The feature is available, but at least one selected browser has a qualification to review."
-    },
-    {
-      id: "unsupported",
-      title: "Not supported",
-      description: "At least one selected browser cannot provide a required part of this feature."
-    },
-    {
-      id: "unknown",
-      title: "Not enough information",
-      description:
-        "The published browser records do not support a dependable answer for this browser plan."
-    }
-  ];
-
-  if (
-    !form ||
-    !message ||
-    !results ||
-    !resultsList ||
-    !resultsSource ||
-    !exportButton ||
-    !reportButton ||
-    !importInput ||
-    !compareInput ||
-    !browserConfigInput ||
-    !rememberResult ||
-    !comparisonSection ||
-    !comparisonSource ||
-    !comparisonSummary ||
-    !comparisonEvents ||
-    !updateNotice ||
-    !resultSearch ||
-    !resultCategory ||
-    !resultOutcome ||
-    !resultBlockers ||
-    !resultFilterStatus ||
-    !policyQualifications ||
-    !policyUnknown ||
-    !policyUnsupported ||
-    !exceptionControl ||
-    !exceptionBrowser ||
-    !exceptionOutcome ||
-    !exceptionExpiry ||
-    !exceptionReason ||
-    !exceptionList ||
-    !exportPolicyButton ||
-    !exportDecisionButton ||
-    !importPolicyInput ||
-    !policyMessage ||
-    !policyPreview ||
-    !policySummary ||
-    !policySearch ||
-    !policyDecision ||
-    !policyExceptionsOnly ||
-    !policyFilterStatus ||
-    !policyFindings ||
-    !policyJson ||
-    !policyCiContext ||
-    !policyCiCommand ||
-    !decisionEvidenceInput ||
-    !decisionEvidenceStatus ||
-    !exportDecisionPacketButton
-  ) {
-    throw new Error("Planner controls are unavailable.");
-  }
-
-  function browserCheckbox(browser: BrowserId): HTMLInputElement {
-    const input = form!.elements.namedItem(`include-${browser}`);
-    if (!(input instanceof HTMLInputElement)) throw new Error(`Missing ${browser} toggle.`);
-    return input;
-  }
-
-  function browserSelect(browser: BrowserId): HTMLSelectElement {
-    const select = form!.elements.namedItem(`version-${browser}`);
-    if (!(select instanceof HTMLSelectElement)) throw new Error(`Missing ${browser} versions.`);
-    return select;
-  }
-
-  function profileName(): HTMLInputElement {
-    const input = form!.elements.namedItem("profile-name");
-    if (!(input instanceof HTMLInputElement)) throw new Error("Missing profile name.");
-    return input;
-  }
-
-  function readProfile() {
-    return {
-      schemaVersion: 1 as const,
-      name: profileName().value.trim(),
-      baselines: browsers.flatMap((browser) =>
-        browserCheckbox(browser).checked
-          ? [{ browser, minimumVersion: browserSelect(browser).value }]
-          : []
-      )
-    };
-  }
-
-  function applyProfile(
-    profile: ReturnType<typeof readProfile>,
-    requireAvailableVersions = false
-  ): void {
-    if (requireAvailableVersions) {
-      const unavailable = profile.baselines.filter(
-        (baseline) =>
-          ![...browserSelect(baseline.browser).options].some(
-            (option) => option.value === baseline.minimumVersion
-          )
-      );
-      if (unavailable.length > 0) {
-        throw new Error(
-          `This data snapshot cannot evaluate ${unavailable
-            .map((baseline) => `${browserNames[baseline.browser]} ${baseline.minimumVersion}`)
-            .join(", ")}. Choose a version shown in the planner.`
-        );
-      }
-    }
-    profileName().value = profile.name;
-    for (const browser of browsers) {
-      const baseline = profile.baselines.find((item) => item.browser === browser);
-      const checkbox = browserCheckbox(browser);
-      const select = browserSelect(browser);
-      checkbox.checked = Boolean(baseline);
-      select.disabled = !baseline;
-      if (
-        baseline &&
-        [...select.options].some((option) => option.value === baseline.minimumVersion)
-      ) {
-        select.value = baseline.minimumVersion;
-      }
-    }
-  }
-
-  function resetPolicy(): void {
-    latestPolicy = undefined;
-    latestPolicyEvaluation = undefined;
-    exportPolicyButton!.disabled = true;
-    exportDecisionButton!.disabled = true;
-    exportDecisionPacketButton!.disabled = true;
-    policyPreview!.hidden = true;
-    policySummary!.replaceChildren();
-    policyFindings!.replaceChildren();
-    policyFilterStatus!.textContent = "";
-    policyJson!.textContent = "";
-    policyCiContext!.textContent = "";
-    policyCiCommand!.textContent = "";
-  }
-
-  function resultClass(outcome: string): string {
-    return `outcome outcome--${outcome}`;
-  }
-
-  function classifyResult(evaluations: ProfileEvaluation["results"][string]): ResultGroupId {
-    if (evaluations.some((item) => ["unavailable", "removed"].includes(item.outcome))) {
-      return "unsupported";
-    }
-    if (
-      evaluations.some((item) =>
-        ["unknown", "unsupported_mapping", "source_inconsistent"].includes(item.outcome)
-      )
-    ) {
-      return "unknown";
-    }
-    if (evaluations.some((item) => item.outcome === "available_with_qualification")) {
-      return "limited";
-    }
-    return "ready";
-  }
-
-  function nextStep(group: ResultGroupId, fallback: string): string {
-    if (group === "ready") {
-      return `Review the setup requirements, test the feature in your application, and keep the defence-in-depth fallback: ${fallback}`;
-    }
-    if (group === "limited") {
-      return `Review the browser-specific limitation before rollout and keep this fallback: ${fallback}`;
-    }
-    if (group === "unsupported") {
-      return `Keep the fallback or raise the oldest browser version before making this feature mandatory: ${fallback}`;
-    }
-    return `Treat support as unconfirmed, review the feature page and source links, and keep this fallback: ${fallback}`;
-  }
-
-  function download(contents: string, filename: string, type: string): void {
-    const blob = new Blob([contents], { type });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function readFile(input: HTMLInputElement, maximumBytes: number): Promise<string> {
-    const file = input.files?.[0];
-    if (!file) throw new Error("Choose a file first.");
-    if (file.size > maximumBytes) {
-      throw new Error(`The selected file exceeds the ${String(maximumBytes)}-byte limit.`);
-    }
-    return file.text();
-  }
-
-  async function readJsonFile(input: HTMLInputElement): Promise<string> {
-    return readFile(input, MAX_PROFILE_IMPORT_BYTES);
-  }
-
-  function stat(value: number, label: string): HTMLElement {
-    const card = document.createElement("div");
-    card.className = "stat-card";
-    const count = document.createElement("strong");
-    count.textContent = String(value);
-    const description = document.createElement("span");
-    description.textContent = label;
-    card.append(count, description);
-    return card;
-  }
-
-  function renderComparison(comparison: ProfileComparison): void {
-    comparisonSummary!.replaceChildren(
-      stat(comparison.summary.gained, "gained outcomes"),
-      stat(comparison.summary.lost, "lost outcomes"),
-      stat(comparison.summary.newlyQualified, "newly qualified outcomes"),
-      stat(comparison.summary.qualificationRemoved, "qualifications removed")
-    );
-    comparisonEvents!.replaceChildren();
-    for (const event of comparison.events) {
-      const article = document.createElement("article");
-      article.className = "result-card";
-      const header = document.createElement("div");
-      header.className = "result-card__header";
-      const heading = document.createElement("h3");
-      heading.textContent =
-        SECURITY_CONTROLS.find((control) => control.id === event.controlId)?.name ??
-        event.controlId;
-      const category = document.createElement("span");
-      category.className = "category";
-      category.textContent = event.type.replaceAll("_", " ");
-      header.append(heading, category);
-      const context = document.createElement("p");
-      context.textContent = `${browserNames[event.browser]} · ${event.beforeVersion ?? "not included"} to ${event.afterVersion ?? "not included"}`;
-      const detail = document.createElement("p");
-      detail.className = "assurance-evidence";
-      detail.textContent = event.summary;
-      article.append(header, context, detail);
-      comparisonEvents!.append(article);
-    }
-    comparisonSource!.textContent = `${comparison.beforeProfile.name} to ${comparison.afterProfile.name} · BCD ${comparison.bcdVersion}`;
-    comparisonSection!.hidden = false;
-    latestComparison = comparison;
-  }
-
-  function updateComparison(): void {
-    if (!comparisonBaseline || !latestEvaluation) {
-      comparisonSection!.hidden = true;
-      latestComparison = undefined;
-      return;
-    }
-    renderComparison(compareProfileEvaluations(comparisonBaseline, latestEvaluation));
-  }
-
-  function applyResultFilters(): void {
-    const query = resultSearch!.value.trim().toLocaleLowerCase("en-AU");
-    const category = resultCategory!.value;
-    const outcome = resultOutcome!.value;
-    const blockersOnly = resultBlockers!.checked;
-    const cards = [...resultsList!.querySelectorAll<HTMLElement>("[data-result-card]")];
-    let visible = 0;
-    for (const card of cards) {
-      const group = card.dataset.resultGroup ?? "";
-      const matches =
-        (query.length === 0 || (card.dataset.search ?? "").includes(query)) &&
-        (category.length === 0 || card.dataset.category === category) &&
-        (outcome.length === 0 || group === outcome) &&
-        (!blockersOnly || group !== "ready");
-      card.hidden = !matches;
-      if (matches) visible += 1;
-    }
-    for (const section of resultsList!.querySelectorAll<HTMLElement>("[data-result-section]")) {
-      const visibleCards = section.querySelectorAll<HTMLElement>(
-        "[data-result-card]:not([hidden])"
-      ).length;
-      section.hidden = visibleCards === 0;
-      const heading = section.querySelector<HTMLElement>("[data-result-heading]");
-      if (heading) {
-        heading.textContent = `${section.dataset.resultTitle ?? "Results"} (${String(
-          visibleCards
-        )})`;
-      }
-    }
-    resultFilterStatus!.textContent =
-      visible === cards.length
-        ? `Showing all ${String(cards.length)} security features.`
-        : visible === 0
-          ? "No security features match these filters."
-          : `Showing ${String(visible)} of ${String(cards.length)} security features.`;
-  }
-
-  function showRememberedUpdate(current: ProfileEvaluation): void {
-    if (!rememberResult!.checked) {
-      updateNotice!.hidden = true;
-      return;
-    }
-    if (rememberedEvaluation) {
-      const update = summariseEvaluationUpdate(rememberedEvaluation, current);
-      if (update.state === "source_updated") {
-        updateNotice!.textContent = `The bundled browser data changed from ${update.previousBcdVersion} to ${update.currentBcdVersion}. For this same plan, ${String(update.changed)} browser-feature results changed, ${String(update.added)} were added, and ${String(update.removed)} were removed. Review the affected features before changing a policy.`;
-        updateNotice!.hidden = false;
-      } else if (update.state === "different_profile") {
-        updateNotice!.textContent =
-          "The remembered result used a different browser plan, so it was not treated as a data-update comparison. This result is now the remembered baseline.";
-        updateNotice!.hidden = false;
-      } else {
-        updateNotice!.textContent = `The remembered result already uses browser data ${update.bcdVersion} and catalogue ${update.catalogueVersion}; there is no source update to compare.`;
-        updateNotice!.hidden = false;
-      }
-    } else {
-      updateNotice!.textContent =
-        "This result is now remembered on this device. A future version of the site can compare the same plan after its bundled browser data changes.";
-      updateNotice!.hidden = false;
-    }
-    saveEvaluation(window.localStorage, current);
-    rememberedEvaluation = current;
-  }
-
-  function render(evaluation: ProfileEvaluation): void {
-    resultsList!.replaceChildren();
-    const grouped = new Map<ResultGroupId, HTMLElement[]>(
-      resultGroups.map((group) => [group.id, []])
-    );
-    for (const control of SECURITY_CONTROLS) {
-      const article = document.createElement("article");
-      article.className = "result-card";
-      article.dataset.resultCard = "";
-      const header = document.createElement("div");
-      header.className = "result-card__header";
-      const heading = document.createElement("h3");
-      const link = document.createElement("a");
-      link.href = `${basePath}/controls/${control.id}/`;
-      link.textContent = control.name;
-      heading.append(link);
-      const category = document.createElement("span");
-      category.className = "category";
-      category.textContent = control.category;
-      header.append(heading, category);
-      article.append(header);
-
-      const evaluations = evaluation.results[control.id] ?? [];
-      const group = classifyResult(evaluations);
-      article.dataset.resultGroup = group;
-      article.dataset.category = control.category;
-      article.dataset.search =
-        `${control.name} ${control.shortName} ${control.category} ${control.summary}`.toLocaleLowerCase(
-          "en-AU"
-        );
-      const why = document.createElement("details");
-      why.className = "result-card__why";
-      const whySummary = document.createElement("summary");
-      whySummary.textContent = "Why?";
-      const list = document.createElement("ul");
-      for (const item of evaluations) {
-        const row = document.createElement("li");
-        const browser = document.createElement("strong");
-        browser.textContent = `${browserNames[item.browser]} ${item.minimumVersion}`;
-        const badge = document.createElement("span");
-        badge.className = resultClass(item.outcome);
-        const dot = document.createElement("span");
-        dot.className = "outcome__dot";
-        dot.setAttribute("aria-hidden", "true");
-        const label = document.createElement("span");
-        label.className = "outcome__label";
-        label.textContent = outcomeLabels[item.outcome];
-        badge.append(dot, label);
-        const detail = document.createElement("p");
-        detail.textContent = item.explanation;
-        row.append(browser, badge, detail);
-        list.append(row);
-      }
-      why.append(whySummary, list);
-      const action = document.createElement("div");
-      action.className = "result-card__next";
-      const actionHeading = document.createElement("strong");
-      actionHeading.textContent = "What should I do next?";
-      const actionDetail = document.createElement("p");
-      actionDetail.textContent = nextStep(group, control.fallback);
-      action.append(actionHeading, actionDetail);
-      article.append(why, action);
-      grouped.get(group)?.push(article);
-    }
-    for (const group of resultGroups) {
-      const cards = grouped.get(group.id) ?? [];
-      if (cards.length === 0) continue;
-      const section = document.createElement("section");
-      section.className = `result-group result-group--${group.id}`;
-      section.dataset.resultSection = "";
-      section.dataset.resultTitle = group.title;
-      section.setAttribute("aria-labelledby", `result-group-${group.id}`);
-      const headingRow = document.createElement("div");
-      headingRow.className = "result-group__heading";
-      const heading = document.createElement("h3");
-      heading.dataset.resultHeading = "";
-      heading.id = `result-group-${group.id}`;
-      heading.textContent = `${group.title} (${String(cards.length)})`;
-      const description = document.createElement("p");
-      description.textContent = group.description;
-      headingRow.append(heading, description);
-      const grid = document.createElement("div");
-      grid.className = "results-list result-group__cards";
-      grid.append(...cards);
-      section.append(headingRow, grid);
-      resultsList!.append(section);
-    }
-    resultsSource!.textContent = `BCD ${evaluation.bcdVersion} · catalogue ${evaluation.catalogueVersion}`;
-    results!.hidden = false;
-    exportButton!.disabled = false;
-    reportButton!.disabled = false;
-    latestEvaluation = evaluation;
-    resetPolicy();
-    applyResultFilters();
-    showRememberedUpdate(evaluation);
-    updateComparison();
-  }
-
-  for (const browser of browsers) {
-    browserCheckbox(browser).addEventListener("change", () => {
-      browserSelect(browser).disabled = !browserCheckbox(browser).checked;
-    });
-  }
-
-  function invalidateEvaluation(): void {
-    results!.hidden = true;
-    comparisonSection!.hidden = true;
-    latestEvaluation = undefined;
-    latestComparison = undefined;
-    exportButton!.disabled = true;
-    reportButton!.disabled = true;
-    resetPolicy();
-  }
-
-  for (const input of [resultSearch, resultCategory, resultOutcome, resultBlockers]) {
-    input.addEventListener("input", applyResultFilters);
-    input.addEventListener("change", applyResultFilters);
-  }
-
-  document.querySelector("#clear-result-filters")?.addEventListener("click", () => {
-    resultSearch!.value = "";
-    resultCategory!.value = "";
-    resultOutcome!.value = "";
-    resultBlockers!.checked = false;
-    applyResultFilters();
-    resultSearch!.focus();
-  });
-
-  rememberResult.addEventListener("change", () => {
-    if (!rememberResult.checked) {
-      clearEvaluation(window.localStorage);
-      rememberedEvaluation = undefined;
-      updateNotice!.hidden = true;
-      message!.textContent = "Remembered support result cleared from this browser.";
-      return;
-    }
-    if (latestEvaluation) {
-      showRememberedUpdate(latestEvaluation);
-      message!.textContent = "The latest result is now remembered on this device.";
-    } else {
-      message!.textContent =
-        "Select Check support to create the first result remembered on this device.";
-    }
-  });
-
-  function policyRule(select: HTMLSelectElement): "review" | "fail" {
-    if (select.value === "review" || select.value === "fail") return select.value;
-    throw new Error("Choose a valid policy decision rule.");
-  }
-
-  function checkedPolicyControls(): string[] {
-    return [
-      ...document.querySelectorAll<HTMLInputElement>('input[name="required-control"]:checked')
-    ].map((input) => input.value);
-  }
-
-  function renderPolicyExceptions(): void {
-    exceptionList!.replaceChildren();
-    if (policyExceptions.length === 0) {
-      const empty = document.createElement("p");
-      empty.className = "form-message";
-      empty.textContent = "No temporary exceptions recorded.";
-      exceptionList!.append(empty);
-      return;
-    }
-    policyExceptions.forEach((exception, index) => {
-      const article = document.createElement("article");
-      article.className = "exception-card";
-      const detail = document.createElement("p");
-      const controlName =
-        SECURITY_CONTROLS.find((control) => control.id === exception.controlId)?.name ??
-        exception.controlId;
-      const browserScope = exception.browsers
-        ? exception.browsers.map((browser) => browserNames[browser]).join(", ")
-        : "all selected browsers";
-      detail.textContent = `${controlName} · ${browserScope} · ${outcomeLabels[exception.outcomes[0] ?? "unknown"]} · expires ${exception.expiresOn}. ${exception.reason}`;
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "button";
-      remove.textContent = "Remove";
-      remove.setAttribute("aria-label", `Remove exception for ${controlName}`);
-      remove.addEventListener("click", () => {
-        policyExceptions = policyExceptions.filter(
-          (_candidate, candidateIndex) => candidateIndex !== index
-        );
-        renderPolicyExceptions();
-        resetPolicy();
-      });
-      article.append(detail, remove);
-      exceptionList!.append(article);
-    });
-  }
-
-  function policyDecisionLabel(decision: PolicyDecision): string {
-    if (decision === "review") return "Require review";
-    return decision === "pass" ? "Pass" : "Fail";
-  }
-
-  function daysUntil(date: string, from = new Date()): number {
-    const today = Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate());
-    return Math.floor((Date.parse(`${date}T00:00:00Z`) - today) / (24 * 60 * 60 * 1_000));
-  }
-
-  function policyFindingCard(finding: PolicyFinding): HTMLElement {
-    const article = document.createElement("article");
-    article.className = "result-card policy-finding";
-    article.dataset.policyFinding = "";
-    article.dataset.decision = finding.decision;
-    article.dataset.exception = finding.exceptionState ?? "";
-    const control =
-      SECURITY_CONTROLS.find((candidate) => candidate.id === finding.controlId) ?? undefined;
-    article.dataset.search =
-      `${control?.name ?? finding.controlId} ${browserNames[finding.browser]} ${finding.explanation} ${finding.exceptionReason ?? ""}`.toLocaleLowerCase(
-        "en-AU"
-      );
-
-    const header = document.createElement("div");
-    header.className = "result-card__header";
-    const heading = document.createElement("h4");
-    const link = document.createElement("a");
-    link.href = `${basePath}/controls/${finding.controlId}/`;
-    link.textContent = control?.name ?? finding.controlId;
-    heading.append(link);
-    const decision = document.createElement("span");
-    decision.className = `policy-decision policy-decision--${finding.decision}`;
-    decision.textContent = policyDecisionLabel(finding.decision);
-    header.append(heading, decision);
-
-    const context = document.createElement("p");
-    context.textContent = `${browserNames[finding.browser]} ${finding.minimumVersion}`;
-    const outcome = document.createElement("span");
-    outcome.className = resultClass(finding.outcome);
-    const dot = document.createElement("span");
-    dot.className = "outcome__dot";
-    dot.setAttribute("aria-hidden", "true");
-    const outcomeLabel = document.createElement("span");
-    outcomeLabel.className = "outcome__label";
-    outcomeLabel.textContent = outcomeLabels[finding.outcome];
-    outcome.append(dot, outcomeLabel);
-    const explanation = document.createElement("p");
-    explanation.className = "assurance-evidence";
-    explanation.textContent = finding.explanation;
-    article.append(header, context, outcome, explanation);
-
-    if (finding.exceptionState) {
-      const exception = document.createElement("p");
-      exception.className = `policy-exception-state policy-exception-state--${finding.exceptionState}`;
-      const remaining =
-        finding.exceptionState === "active" && finding.exceptionExpiresOn
-          ? daysUntil(finding.exceptionExpiresOn)
-          : undefined;
-      if (remaining !== undefined && remaining >= 0 && remaining <= 30) {
-        exception.classList.add("policy-exception-state--expiring");
-        article.dataset.expiringException = "";
-      }
-      exception.textContent =
-        finding.exceptionState === "active"
-          ? `${remaining !== undefined && remaining >= 0 && remaining <= 30 ? `Expires in ${String(remaining)} day${remaining === 1 ? "" : "s"}` : "Active exception"} until ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`
-          : `Expired exception from ${finding.exceptionExpiresOn ?? "unknown"}: ${finding.exceptionReason ?? "No reason supplied."}`;
-      article.append(exception);
-    }
-    return article;
-  }
-
-  function applyPolicyFilters(): void {
-    const query = policySearch!.value.trim().toLocaleLowerCase("en-AU");
-    const decision = policyDecision!.value;
-    const exceptionsOnly = policyExceptionsOnly!.checked;
-    const cards = [...policyFindings!.querySelectorAll<HTMLElement>("[data-policy-finding]")];
-    let visible = 0;
-    for (const card of cards) {
-      const matches =
-        (query.length === 0 || (card.dataset.search ?? "").includes(query)) &&
-        (decision.length === 0 || card.dataset.decision === decision) &&
-        (!exceptionsOnly || Boolean(card.dataset.exception));
-      card.hidden = !matches;
-      if (matches) visible += 1;
-    }
-    policyFilterStatus!.textContent =
-      visible === cards.length
-        ? `Showing all ${String(cards.length)} policy findings.`
-        : visible === 0
-          ? "No policy findings match these filters."
-          : `Showing ${String(visible)} of ${String(cards.length)} policy findings.`;
-  }
-
-  function renderPolicyFindings(decision: PolicyEvaluation): void {
-    policyFindings!.replaceChildren(...decision.findings.map(policyFindingCard));
-    applyPolicyFilters();
-  }
-
-  function createPolicy(): PolicyProfile {
-    if (!latestEvaluation) {
-      throw new Error("Check browser support before creating a policy.");
-    }
-    return buildPolicyProfile({
-      profile: latestEvaluation.profile,
-      requiredControls: checkedPolicyControls(),
-      rules: {
-        qualifications: policyRule(policyQualifications!),
-        unknown: policyRule(policyUnknown!),
-        unsupported: policyRule(policyUnsupported!)
-      },
-      exceptions: policyExceptions
-    });
-  }
-
-  function previewPolicy(): void {
-    const policy = createPolicy();
-    const decision = evaluatePolicyProfile(
-      selectedSnapshot,
-      policy,
-      new Date().toISOString().slice(0, 10)
-    );
-    latestPolicy = policy;
-    latestPolicyEvaluation = decision;
-    policySummary!.replaceChildren(
-      stat(decision.summary.pass, "pass"),
-      stat(decision.summary.review, "require review"),
-      stat(decision.summary.fail, "fail")
-    );
-    renderPolicyFindings(decision);
-    policyJson!.textContent = exportPolicyProfile(policy);
-    policyCiContext!.textContent = `Run this check from a reviewed ControlCurrent checkout that bundles MDN browser data ${decision.bcdVersion} and catalogue ${decision.catalogueVersion}. A later source snapshot may produce a different result and should be reviewed.`;
-    policyCiCommand!.textContent = `npm run cli -- check path/to/controlcurrent-policy.json --as-of ${decision.evaluatedAsOf} --strict-review --format junit\nnpm run cli -- compare-policies path/to/previous-policy.json path/to/controlcurrent-policy.json --as-of ${decision.evaluatedAsOf} --warn-expiring-days 30 --fail-regression --format markdown`;
-    policyPreview!.hidden = false;
-    exportPolicyButton!.disabled = false;
-    exportDecisionButton!.disabled = false;
-    exportDecisionPacketButton!.disabled = !decisionEvidence;
-    const expiringExceptions = decision.findings.filter(
-      (finding) =>
-        finding.exceptionState === "active" &&
-        finding.exceptionExpiresOn &&
-        daysUntil(finding.exceptionExpiresOn) >= 0 &&
-        daysUntil(finding.exceptionExpiresOn) <= 30
-    ).length;
-    const baseMessage =
-      decision.summary.fail > 0
-        ? "The policy has failing browser-feature decisions. Review them before adoption."
-        : decision.summary.review > 0
-          ? "The policy has decisions that require a human review."
-          : "Every required browser-feature decision passes the selected rules.";
-    policyMessage!.textContent =
-      expiringExceptions > 0
-        ? `${baseMessage} ${String(expiringExceptions)} exception finding${expiringExceptions === 1 ? "" : "s"} expire within 30 days.`
-        : baseMessage;
-  }
-
-  for (const input of [policySearch, policyDecision, policyExceptionsOnly]) {
-    input.addEventListener("input", applyPolicyFilters);
-    input.addEventListener("change", applyPolicyFilters);
-  }
-
-  document.querySelector("#clear-policy-filters")?.addEventListener("click", () => {
-    policySearch!.value = "";
-    policyDecision!.value = "";
-    policyExceptionsOnly!.checked = false;
-    applyPolicyFilters();
-    policySearch!.focus();
-  });
-
-  document.querySelector("#select-policy-controls")?.addEventListener("click", () => {
-    for (const input of document.querySelectorAll<HTMLInputElement>(
-      'input[name="required-control"]'
-    )) {
-      input.checked = true;
-    }
-    resetPolicy();
-  });
-
-  document.querySelector("#clear-policy-controls")?.addEventListener("click", () => {
-    for (const input of document.querySelectorAll<HTMLInputElement>(
-      'input[name="required-control"]'
-    )) {
-      input.checked = false;
-    }
-    resetPolicy();
-  });
-
-  for (const input of document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-    'input[name="required-control"], #policy-qualifications, #policy-unknown, #policy-unsupported'
-  )) {
-    input.addEventListener("change", resetPolicy);
-  }
-
-  document.querySelector("#add-policy-exception")?.addEventListener("click", () => {
-    try {
-      const selectedBrowser = exceptionBrowser!.value;
-      const outcome = exceptionOutcome!.value as Outcome;
-      const candidate: PolicyException = {
-        controlId: exceptionControl!.value,
-        ...(selectedBrowser ? { browsers: [selectedBrowser as BrowserId] } : {}),
-        outcomes: [outcome],
-        reason: exceptionReason!.value,
-        expiresOn: exceptionExpiry!.value
-      };
-      buildPolicyProfile({
-        profile: latestEvaluation?.profile ?? readProfile(),
-        requiredControls: checkedPolicyControls(),
-        rules: {
-          qualifications: policyRule(policyQualifications!),
-          unknown: policyRule(policyUnknown!),
-          unsupported: policyRule(policyUnsupported!)
-        },
-        exceptions: [...policyExceptions, candidate]
-      });
-      policyExceptions = [...policyExceptions, candidate];
-      exceptionReason!.value = "";
-      renderPolicyExceptions();
-      resetPolicy();
-      policyMessage!.textContent = "Temporary exception added locally.";
-    } catch (error) {
-      policyMessage!.textContent =
-        error instanceof Error ? error.message : "The exception could not be added.";
-    }
-  });
-
-  document.querySelector("#preview-policy")?.addEventListener("click", () => {
-    try {
-      previewPolicy();
-    } catch (error) {
-      resetPolicy();
-      policyMessage!.textContent =
-        error instanceof Error ? error.message : "The policy could not be evaluated.";
-    }
-  });
-
-  exportPolicyButton.addEventListener("click", () => {
-    if (!latestPolicy) return;
-    download(exportPolicyProfile(latestPolicy), "controlcurrent-policy.json", "application/json");
-    policyMessage!.textContent = "Policy JSON generated locally.";
-  });
-
-  exportDecisionButton.addEventListener("click", async () => {
-    if (!latestEvaluation || !latestPolicyEvaluation) return;
-    try {
-      download(
-        await exportDecisionReport(latestEvaluation, latestPolicyEvaluation),
-        "controlcurrent-decision-report.html",
-        "text/html"
-      );
-      policyMessage!.textContent = "Printable decision report generated locally.";
-    } catch (error) {
-      policyMessage!.textContent =
-        error instanceof Error ? error.message : "The decision report could not be generated.";
-    }
-  });
-
-  decisionEvidenceInput.addEventListener("change", async () => {
-    try {
-      const parsed = JSON.parse(
-        await readFile(decisionEvidenceInput, MAX_DECISION_PACKET_BYTES)
-      ) as unknown;
-      decisionEvidence = await validateDecisionPacketEvidence(parsed);
-      decisionEvidenceStatus!.textContent =
-        decisionEvidence.kind === "reduced_evidence_report"
-          ? `Reduced evidence report attached locally · ${decisionEvidence.report.name} · fingerprint ${decisionEvidence.fingerprint.slice(0, 12)}…`
-          : `Evidence-policy result attached locally · ${decisionEvidence.evaluation.profile.name} · ${String(decisionEvidence.evaluation.summary.fail)} fail, ${String(decisionEvidence.evaluation.summary.review)} review.`;
-      exportDecisionPacketButton!.disabled = !latestPolicyEvaluation;
-    } catch (error) {
-      decisionEvidence = undefined;
-      exportDecisionPacketButton!.disabled = true;
-      decisionEvidenceStatus!.textContent =
-        error instanceof Error
-          ? error.message
-          : "The supplied evidence result could not be attached.";
-    } finally {
-      decisionEvidenceInput.value = "";
-    }
-  });
-
-  exportDecisionPacketButton.addEventListener("click", async () => {
-    if (!latestPolicyEvaluation || !decisionEvidence) return;
-    try {
-      const evidence =
-        decisionEvidence.kind === "reduced_evidence_report"
-          ? decisionEvidence.report
-          : decisionEvidence.evaluation;
-      const packet = await buildDecisionPacket(
-        latestPolicyEvaluation,
-        evidence,
-        new Date().toISOString().slice(0, 10)
-      );
-      download(
-        await exportDecisionPacket(packet),
-        "controlcurrent-decision-packet.json",
-        "application/json"
-      );
-      decisionEvidenceStatus!.textContent =
-        "Two-part decision packet generated locally. Browser availability and supplied evidence remain separate.";
-    } catch (error) {
-      decisionEvidenceStatus!.textContent =
-        error instanceof Error ? error.message : "The decision packet could not be generated.";
-    }
-  });
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    try {
-      const evaluation = evaluateProfile(selectedSnapshot, readProfile());
-      render(evaluation);
-      message!.textContent = "Support checked on this device. No data was sent anywhere.";
-    } catch (error) {
-      message!.textContent =
-        error instanceof Error ? error.message : "The profile could not be evaluated.";
-    }
-  });
-
-  document.querySelector("#load-example")?.addEventListener("click", () => {
-    applyProfile({
-      schemaVersion: 1,
-      name: "Example browser baseline",
-      baselines: [
-        { browser: "chrome", minimumVersion: "120" },
-        { browser: "firefox", minimumVersion: "115" },
-        { browser: "safari", minimumVersion: "17" }
-      ]
-    });
-    message!.textContent = "Example values loaded. Select Check support to see the results.";
-  });
-
-  document.querySelector("#save-profile")?.addEventListener("click", () => {
-    try {
-      saveProfile(window.localStorage, readProfile());
-      message!.textContent = "Profile saved in this browser only.";
-    } catch (error) {
-      message!.textContent = error instanceof Error ? error.message : "Profile was not saved.";
-    }
-  });
-
-  document.querySelector("#clear-profile")?.addEventListener("click", () => {
-    clearProfile(window.localStorage);
-    clearEvaluation(window.localStorage);
-    rememberedEvaluation = undefined;
-    rememberResult!.checked = false;
-    updateNotice!.hidden = true;
-    message!.textContent = "Saved browser plan and remembered result cleared.";
-  });
-
-  exportButton.addEventListener("click", () => {
-    if (!latestEvaluation) return;
-    download(
-      exportProfileEvaluation(latestEvaluation),
-      "controlcurrent-profile.json",
-      "application/json"
-    );
-    message!.textContent = "Profile JSON generated locally.";
-  });
-
-  reportButton.addEventListener("click", () => {
-    if (!latestEvaluation) return;
-    download(
-      exportEngineeringReport(latestEvaluation, latestComparison),
-      "controlcurrent-engineering-report.md",
-      "text/markdown"
-    );
-    message!.textContent = "Engineering report generated locally.";
-  });
-
-  importInput.addEventListener("change", async () => {
-    try {
-      applyProfile(importDeploymentProfile(await readJsonFile(importInput)));
-      invalidateEvaluation();
-      message!.textContent =
-        "Plan imported on this device. Select Check support to see the current results.";
-    } catch (error) {
-      message!.textContent =
-        error instanceof Error ? error.message : "The profile could not be imported.";
-    } finally {
-      importInput.value = "";
-    }
-  });
-
-  importPolicyInput.addEventListener("change", async () => {
-    try {
-      const policy = importPolicyProfile(
-        await readFile(importPolicyInput, MAX_POLICY_IMPORT_BYTES)
-      );
-      applyProfile(
-        {
-          schemaVersion: 1,
-          name: policy.name,
-          baselines: policy.baselines
-        },
-        true
-      );
-      const requiredControls = new Set(policy.requiredControls);
-      for (const input of document.querySelectorAll<HTMLInputElement>(
-        'input[name="required-control"]'
-      )) {
-        input.checked = requiredControls.has(input.value);
-      }
-      policyQualifications!.value = policy.rules.qualifications;
-      policyUnknown!.value = policy.rules.unknown;
-      policyUnsupported!.value = policy.rules.unsupported;
-      policyExceptions = [...policy.exceptions];
-      renderPolicyExceptions();
-      render(evaluateProfile(selectedSnapshot, readProfile()));
-      previewPolicy();
-      policyMessage!.textContent =
-        "Policy imported and checked locally against this version's browser data.";
-    } catch (error) {
-      policyMessage!.textContent =
-        error instanceof Error ? error.message : "The policy could not be imported.";
-    } finally {
-      importPolicyInput.value = "";
-    }
-  });
-
-  browserConfigInput.addEventListener("change", async () => {
-    try {
-      const file = browserConfigInput.files?.[0];
-      if (!file) throw new Error("Choose a .browserslistrc or package.json file first.");
-      const imported = importBrowserConfiguration(
-        await readFile(browserConfigInput, MAX_BROWSER_CONFIG_BYTES),
-        file.name === "package.json"
-          ? "Imported package browser minimums"
-          : "Imported browser minimums"
-      );
-      applyProfile(imported, true);
-      invalidateEvaluation();
-      message!.textContent = `${String(imported.baselines.length)} explicit browser minimums imported locally. Select Check support to review them.`;
-    } catch (error) {
-      message!.textContent =
-        error instanceof Error ? error.message : "The browser configuration could not be imported.";
-    } finally {
-      browserConfigInput.value = "";
-    }
-  });
-
-  compareInput.addEventListener("change", async () => {
-    try {
-      comparisonBaseline = profileEvaluationSchema.parse(
-        JSON.parse(await readJsonFile(compareInput)) as unknown
-      );
-      updateComparison();
-      message!.textContent = latestEvaluation
-        ? "Earlier evaluation compared locally."
-        : "Earlier evaluation loaded. Evaluate the current profile to compare it.";
-    } catch (error) {
-      comparisonBaseline = undefined;
-      comparisonSection!.hidden = true;
-      latestComparison = undefined;
-      message!.textContent =
-        error instanceof Error ? error.message : "The comparison could not be loaded.";
-    } finally {
-      compareInput.value = "";
-    }
-  });
-
-  const stored = loadProfile(window.localStorage);
-  if (stored.state === "loaded") {
-    applyProfile(stored.profile);
-    message.textContent = "A saved local profile was loaded. Nothing was sent to a server.";
-  } else if (stored.state === "future_version") {
-    message.textContent =
-      "A newer saved profile was left untouched because this version cannot read it.";
-  } else if (stored.state === "invalid") {
-    message.textContent = "The saved local profile is invalid and was not loaded.";
-  }
-
-  const storedEvaluation = loadEvaluation(window.localStorage);
-  if (storedEvaluation.state === "loaded") {
-    rememberedEvaluation = storedEvaluation.evaluation;
-    rememberResult.checked = true;
-    message.textContent =
-      `${message.textContent} A previous support result is remembered for an update comparison.`.trim();
-  } else if (storedEvaluation.state === "future_version") {
-    message.textContent =
-      `${message.textContent} A result from a newer version was left untouched and will not be overwritten automatically.`.trim();
-  } else if (storedEvaluation.state === "invalid") {
-    message.textContent = `${message.textContent} An invalid remembered result was ignored.`.trim();
-  }
-
-  const defaultExceptionExpiry = new Date();
-  defaultExceptionExpiry.setUTCDate(defaultExceptionExpiry.getUTCDate() + 30);
-  exceptionExpiry.value = defaultExceptionExpiry.toISOString().slice(0, 10);
-  renderPolicyExceptions();
+  import { initialisePlanner } from "../controllers/planner";
+  initialisePlanner(document, import.meta.env.BASE_URL);
 </script>

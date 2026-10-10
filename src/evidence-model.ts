@@ -1,4 +1,4 @@
-export const EVIDENCE_ANALYSER_VERSION = "5.0.0";
+export const EVIDENCE_ANALYSER_VERSION = "5.1.0";
 
 export const EVIDENCE_ATTESTATION_STATEMENT_TYPE = "https://in-toto.io/Statement/v1";
 export const EVIDENCE_ATTESTATION_PAYLOAD_TYPE = "application/vnd.in-toto+json";

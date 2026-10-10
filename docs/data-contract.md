@@ -1,5 +1,32 @@
 # Data contract
 
+## Conservative comparison and policy changes
+
+Decision-packet evidence comparison counts the complete event set before its
+512-event display limit. `totalEvents`, `emittedEvents` and `truncated` describe
+that distinction; omitted events still affect regression gates. Reduced-report
+comparisons preserve the underlying comparison totals when wrapped in packets.
+The browser-policy comparison likewise counts before slicing its display list.
+These additive optional summary fields retain the existing schema numbers;
+consumers with strict older schemas must update their schema files. No browser
+storage migration is needed. Evidence analysis is versioned at 5.1.0; comparisons
+across analysis versions are inconclusive, and policies must deliberately review
+their expected version rather than accepting it automatically.
+
+Evidence-policy drift uses `policy:` keys distinct from factual finding keys.
+Removing surfaces or requirements, relaxing a fail rule, introducing/extending
+exceptions, or replacing trust, identity, scope, freshness or expected-version
+constraints requires regression review. Replacements are deliberately conservative:
+even an intended strengthening of a trust boundary requires human review rather
+than being interpreted as a factual fix. Strengthening a result rule and removing
+an exception are resolutions. Adding requirements and role changes are changes.
+An unchanged browser lane cannot conceal weakening in the evidence lane.
+
+Exceptions must name a declared surface and a required evidence/control/composite
+target. Outcomes must be unique and scopes cannot overlap, regardless of expiry
+or ordering. Disjoint outcomes remain permitted. Exceptions cannot target the
+independent trust, identity, freshness or inventory guards and cannot create pass.
+
 ## Selected snapshot
 
 `data/selected-bcd.json` is a versioned canonical projection, not a source
@@ -90,10 +117,10 @@ normaliser also has explicit behaviour for historic or fixture `true` and
 | Reduced evidence export                 |          512 KiB |
 | Reduced comparison events emitted       |              512 |
 | Collector manifest                      |           64 KiB |
-| Collector surfaces                      |               32 |
+| Collector surfaces                      |               16 |
 | Collector response body                 |          128 KiB |
 | Collector redirects                     |                5 |
-| Collector request timeout               |       10 seconds |
+| Collector absolute surface deadline     |       10 seconds |
 | Evidence-policy exceptions              |              128 |
 | Evidence-policy findings                |            4,096 |
 | Browser-policy exceptions               |               64 |

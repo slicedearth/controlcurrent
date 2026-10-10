@@ -2538,5 +2538,622 @@
     "sourceTimestamp": "2026-07-24T16:06:32.098Z",
     "summary": "Firefox 156 was added to the selected BCD release metadata.",
     "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-13",
+      "status": "planned",
+      "version": "158"
+    },
+    "browser": "firefox_android",
+    "id": "037ccdbcfa90e75323c34ee2",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Firefox for Android 158 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "version_added": "70"
+    },
+    "before": {
+      "version_added": false
+    },
+    "browser": "webview_android",
+    "id": "161d55e466686250bfc5ee8a",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static changed for webview_android: {\"version_added\":false} to {\"version_added\":\"70\"}.",
+    "type": "support_version_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-22",
+      "status": "nightly",
+      "version": "154"
+    },
+    "browser": "chrome",
+    "id": "1c33691d2753a1895f20e194",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Chrome 154 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "155"
+    },
+    "browser": "chrome",
+    "id": "29479f8610b07f8ac005c5a7",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Chrome 155 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-22",
+      "status": "nightly",
+      "version": "154"
+    },
+    "browser": "webview_android",
+    "id": "2c1e428eb26b72cf1924226e",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "WebView Android 154 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "155"
+    },
+    "browser": "webview_android",
+    "id": "32853ba9f5c9c13ee1f810d6",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "WebView Android 155 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "version_added": "85"
+    },
+    "before": {
+      "version_added": "88"
+    },
+    "browser": "webview_android",
+    "id": "34a6fe099ee00b009434fb8b",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "http.headers.Permissions-Policy",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "http.headers.Permissions-Policy changed for webview_android: {\"version_added\":\"88\"} to {\"version_added\":\"85\"}.",
+    "type": "support_version_corrected"
+  },
+  {
+    "after": {
+      "version_added": "85"
+    },
+    "before": {
+      "version_added": "88"
+    },
+    "browser": "chrome",
+    "id": "380bcc9d73d6deed5fe8546d",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "http.headers.Permissions-Policy",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "http.headers.Permissions-Policy changed for chrome: {\"version_added\":\"88\"} to {\"version_added\":\"85\"}.",
+    "type": "support_version_corrected"
+  },
+  {
+    "after": {
+      "version_added": "85"
+    },
+    "before": {
+      "version_added": "88"
+    },
+    "browser": "chrome_android",
+    "id": "4bbf22407c2aec2056a2623a",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "http.headers.Permissions-Policy",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "http.headers.Permissions-Policy changed for chrome_android: {\"version_added\":\"88\"} to {\"version_added\":\"85\"}.",
+    "type": "support_version_corrected"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "155"
+    },
+    "browser": "chrome_android",
+    "id": "513f19b97ab02332edc800b9",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Chrome Android 155 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-29",
+      "status": "nightly",
+      "version": "157"
+    },
+    "browser": "firefox_android",
+    "id": "5e3f14d2d0526657c479e372",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Firefox for Android 157 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-07-27",
+      "status": "current",
+      "version": "26.6"
+    },
+    "browser": "safari",
+    "id": "7733146a9762d58aa9385380",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Safari 26.6 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "notes": "Conditional mediation (autofill integration) is not supported; <code>isConditionalMediationAvailable()</code> always returns <code>false</code>.",
+      "partial_implementation": true,
+      "version_added": "131"
+    },
+    "before": {
+      "version_added": false
+    },
+    "browser": "webview_android",
+    "id": "7adb2f05248ebfd44b11c0a0",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "api.PublicKeyCredential.isConditionalMediationAvailable_static",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "api.PublicKeyCredential.isConditionalMediationAvailable_static changed for webview_android: {\"version_added\":false} to {\"version_added\":\"131\",\"partial_implementation\":true,\"notes\":\"Conditional mediation (autofill integration) is not sup….",
+    "type": "partial_support_added"
+  },
+  {
+    "after": {
+      "version_added": "14.0"
+    },
+    "before": {
+      "version_added": "15.0"
+    },
+    "browser": "samsunginternet_android",
+    "id": "86c0464bb1e9261c3f6b1a4c",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "http.headers.Permissions-Policy",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "http.headers.Permissions-Policy changed for samsunginternet_android: {\"version_added\":\"15.0\"} to {\"version_added\":\"14.0\"}.",
+    "type": "support_version_corrected"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-22",
+      "status": "nightly",
+      "version": "154"
+    },
+    "browser": "chrome_android",
+    "id": "877fca61a9626dfd88f2b969",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Chrome Android 154 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-07-27",
+      "status": "current",
+      "version": "26.6"
+    },
+    "browser": "safari_ios",
+    "id": "9ac921cc8bdd32cf90d48c84",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Safari on iOS 26.6 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-08",
+      "status": "planned",
+      "version": "155"
+    },
+    "browser": "edge",
+    "id": "b28d7c6a10e8b39513082cdc",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Edge 155 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-13",
+      "status": "planned",
+      "version": "158"
+    },
+    "browser": "firefox",
+    "id": "cb4899dcb14c351ac163d64d",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Firefox 158 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "version_added": "85"
+    },
+    "before": {
+      "version_added": "88"
+    },
+    "browser": "edge",
+    "id": "cc535ec1126dd819d740c43b",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "http.headers.Permissions-Policy",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "http.headers.Permissions-Policy changed for edge: {\"version_added\":\"88\"} to {\"version_added\":\"85\"}.",
+    "type": "support_version_corrected"
+  },
+  {
+    "after": {
+      "version_added": "149"
+    },
+    "before": {
+      "impl_url": "https://bugzil.la/1958716",
+      "version_added": false
+    },
+    "browser": "firefox_android",
+    "id": "cf410e6f346230a9f241b525",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "path": "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "api.CredentialsContainer.create.publicKey_option.extensions.prf changed for firefox_android: {\"version_added\":false,\"impl_url\":\"https://bugzil.la/1958716\"} to {\"version_added\":\"149\"}.",
+    "type": "support_version_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-29",
+      "status": "nightly",
+      "version": "157"
+    },
+    "browser": "firefox",
+    "id": "d6bf5e422846117151686980",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Firefox 157 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-09-24",
+      "status": "nightly",
+      "version": "154"
+    },
+    "browser": "edge",
+    "id": "e5592f8181c5392d545dce2a",
+    "observedInBcdVersion": "8.1.0",
+    "observedInWebFeaturesVersion": "3.37.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-09-03T15:52:15.027Z",
+    "summary": "Edge 154 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "beta",
+      "version": "27.2"
+    },
+    "browser": "safari_ios",
+    "id": "2317e1d97beed2465d73b1c6",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Safari on iOS 27.2 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-20",
+      "status": "nightly",
+      "version": "156"
+    },
+    "browser": "chrome",
+    "id": "24841353064df9d363785d72",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Chrome 156 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-22",
+      "status": "nightly",
+      "version": "156"
+    },
+    "browser": "edge",
+    "id": "25982a665bb3c7756647b154",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Edge 156 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-11-10",
+      "status": "planned",
+      "version": "160"
+    },
+    "browser": "firefox_android",
+    "id": "259da8174f9fb1d31fb1bc1f",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Firefox for Android 160 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-05-11",
+      "status": "current",
+      "version": "30.0"
+    },
+    "browser": "samsunginternet_android",
+    "id": "284ee04f14965b191a18674c",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Samsung Browser 30.0 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-27",
+      "status": "nightly",
+      "version": "159"
+    },
+    "browser": "firefox_android",
+    "id": "56649cddeb047632af3409a6",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Firefox for Android 159 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-27",
+      "status": "nightly",
+      "version": "159"
+    },
+    "browser": "firefox",
+    "id": "72f4af1348e5d5d79dff181a",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Firefox 159 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "157"
+    },
+    "browser": "chrome",
+    "id": "79122de93b6b6ebca0671bcc",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Chrome 157 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-20",
+      "status": "nightly",
+      "version": "156"
+    },
+    "browser": "chrome_android",
+    "id": "7cfca20381dcf2de017679b7",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Chrome Android 156 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-11-10",
+      "status": "planned",
+      "version": "160"
+    },
+    "browser": "firefox",
+    "id": "80c30d4cb1e47e1170f50616",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Firefox 160 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "157"
+    },
+    "browser": "webview_android",
+    "id": "834eaed7d80c41b50ff7dc19",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "WebView Android 157 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "version_added": "30.0"
+    },
+    "before": {
+      "version_added": false
+    },
+    "browser": "samsunginternet_android",
+    "id": "856f584c27a60a56f7294a5f",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "path": "http.headers.Integrity-Policy",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "http.headers.Integrity-Policy changed for samsunginternet_android: {\"version_added\":false} to {\"version_added\":\"30.0\"}.",
+    "type": "support_version_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-10-20",
+      "status": "nightly",
+      "version": "156"
+    },
+    "browser": "webview_android",
+    "id": "bdbbc0de7057d2921a97d356",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "WebView Android 156 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "beta",
+      "version": "27.2"
+    },
+    "browser": "safari",
+    "id": "c7c2bda6ded4d9c86ef276f7",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Safari 27.2 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "157"
+    },
+    "browser": "chrome_android",
+    "id": "c7c4d441e9916a04c41ad310",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Chrome Android 157 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "version_added": "30.0"
+    },
+    "before": {
+      "version_added": false
+    },
+    "browser": "samsunginternet_android",
+    "id": "d5c5d41d5c6a5dd21e1f7c33",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "path": "http.headers.Set-Cookie.http_host-http_prefixes",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "http.headers.Set-Cookie.http_host-http_prefixes changed for samsunginternet_android: {\"version_added\":false} to {\"version_added\":\"30.0\"}.",
+    "type": "support_version_added"
+  },
+  {
+    "after": {
+      "version_added": "30.0"
+    },
+    "before": {
+      "version_added": false
+    },
+    "browser": "samsunginternet_android",
+    "id": "f4eed25a2003a719afa9775a",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "path": "http.headers.Integrity-Policy-Report-Only",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "http.headers.Integrity-Policy-Report-Only changed for samsunginternet_android: {\"version_added\":false} to {\"version_added\":\"30.0\"}.",
+    "type": "support_version_added"
+  },
+  {
+    "after": {
+      "releaseDate": "2026-11-05",
+      "status": "planned",
+      "version": "157"
+    },
+    "browser": "edge",
+    "id": "fc51c60d71e976f89f9f784f",
+    "observedInBcdVersion": "8.1.4",
+    "observedInWebFeaturesVersion": "3.40.1",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-01T10:12:15.059Z",
+    "summary": "Edge 157 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
   }
 ]

@@ -5,8 +5,8 @@
     <p>
       Response headers are instructions a website sends to the browser. Paste a set below and
       ControlCurrent will look for recognised security settings. It does not visit the URL, save the
-      text, or send it anywhere. Replace cookie values and other secrets with{" "}
-      <code>REDACTED</code> first.
+      text, or send it anywhere. Replace cookie values and other secrets with <code>REDACTED</code>{" "}
+      first.
     </p>
   </div>
 
@@ -28,9 +28,15 @@ X-Content-Type-Options: nosniff"
       If redirects produced several blocks, only the final response is checked.
     </p>
     <div class="button-row">
-      <button type="submit" class="button button--primary">Review headers</button>
-      <button type="button" class="button" id="load-header-example">Load redacted example</button>
-      <button type="button" class="button" id="clear-headers">Clear</button>
+      <button type="submit" class="button button--primary">
+        Review headers
+      </button>
+      <button type="button" class="button" id="load-header-example">
+        Load redacted example
+      </button>
+      <button type="button" class="button" id="clear-headers">
+        Clear
+      </button>
     </div>
     <p id="header-message" class="form-message" role="status" aria-live="polite"></p>
   </form>

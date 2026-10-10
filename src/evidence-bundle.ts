@@ -34,7 +34,14 @@ import {
 import { EVIDENCE_ANALYSER_VERSION, EVIDENCE_COMPOSITE_IDS } from "./evidence-model";
 import { fingerprintEvidenceReportBody } from "./evidence-report";
 import { absentScopeInventory, reduceScopeInventory } from "./scope-inventory";
-import { cspElementTokens, extractCspEvidence, inspectHeaders, type CspPolicy } from "./assurance";
+import {
+  cspElementTokens,
+  effectiveCspBroadSourceCount,
+  scriptCspCandidate,
+  extractCspEvidence,
+  inspectHeaders,
+  type CspPolicy
+} from "./assurance";
 import {
   decodeBase64Bytes,
   parseCspHashSource,
@@ -487,19 +494,8 @@ async function hashMatches(content: string, tokens: readonly string[]): Promise<
 }
 
 function broadSourceCount(policy: CspPolicy, kinds: ReadonlySet<"script" | "style">): number {
-  const broad = new Set([
-    "'unsafe-inline'",
-    "'unsafe-eval'",
-    "'wasm-unsafe-eval'",
-    "*",
-    "data:",
-    "http:",
-    "https:"
-  ]);
   return [...kinds].reduce(
-    (total, kind) =>
-      total +
-      cspElementTokens(policy, kind).filter((token) => broad.has(token.toLowerCase())).length,
+    (total, kind) => total + effectiveCspBroadSourceCount(cspElementTokens(policy, kind), kind),
     0
   );
 }
@@ -511,7 +507,7 @@ async function inspectCspMarkup(
   reusedNonces: ReadonlySet<string>
 ): Promise<CspMarkupReport> {
   const { enforced } = extractCspEvidence(response);
-  const kinds = new Set(analysis.inlineElements.map((element) => element.kind));
+  const kinds = new Set<"script" | "style">(["script", "style"]);
   const broadSourceExpressionCount =
     enforced.state === "present"
       ? enforced.policies.reduce((total, policy) => total + broadSourceCount(policy, kinds), 0)
@@ -961,7 +957,7 @@ function notApplicableComposite(id: (typeof EVIDENCE_COMPOSITE_IDS)[number]): Co
     >
   > = {
     "strict-csp-candidate": {
-      name: "Strict CSP candidate",
+      name: "Script CSP declaration candidate",
       requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
     },
     "cross-origin-isolation-candidate": {
@@ -1026,42 +1022,53 @@ function stateOf(findings: AssuranceFinding[], controlId: string): AssuranceFind
 
 function strictCspComposite(
   findings: AssuranceFinding[],
-  markupReports: readonly CspMarkupReport[]
+  markupReports: readonly CspMarkupReport[],
+  responses: readonly ResponseSnapshot[]
 ): CompositeAssessment {
   const csp = stateOf(findings, "content-security-policy");
   const nonce = stateOf(findings, "csp-nonces");
   const hash = stateOf(findings, "csp-hashes");
   const base = stateOf(findings, "csp-base-uri");
   const states = [csp, nonce, hash, base];
-  const activeAuthorisation = nonce === "observed" || hash === "observed";
-  const markupNeedsReview = markupReports.some((report) =>
-    ["invalid", "inconclusive", "missing"].includes(report.finding.state)
+  const candidates = responses.map(scriptCspCandidate);
+  const activeAuthorisation =
+    candidates.length > 0 && candidates.every((state) => state === "satisfied");
+  const markupNeedsReview = markupReports.some(
+    (report) =>
+      report.finding.state === "invalid" ||
+      report.unmatchedInlineCount > 0 ||
+      report.crossDocumentNonceReuseCount > 0
   );
   if (states.every((state) => state === "not_evaluated")) {
     return {
       id: "strict-csp-candidate",
-      name: "Strict CSP candidate",
+      name: "Script CSP declaration candidate",
       state: "not_evaluated",
       summary: "No applicable CSP evidence was supplied.",
       requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
     };
   }
-  if (csp === "observed" && activeAuthorisation && base === "observed" && !markupNeedsReview) {
+  if (activeAuthorisation && !markupNeedsReview) {
     return {
       id: "strict-csp-candidate",
-      name: "Strict CSP candidate",
+      name: "Script CSP declaration candidate",
       state: "satisfied",
       summary:
         markupReports.length > 0
           ? "The supplied evidence contains the minimum declarations and every correlated inline element matched; runtime enforcement remains unverified."
-          : "The supplied evidence contains the minimum declarations for this project-authored strict CSP candidate; no paired markup was available for source matching.",
+          : "The supplied evidence contains the minimum script CSP declarations for this project-authored candidate; no paired markup was available for source matching.",
       requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
     };
   }
-  if (states.some((state) => ["invalid", "inconclusive", "report_only"].includes(state))) {
+  if (
+    candidates.includes("review") ||
+    markupNeedsReview ||
+    (candidates.length === 0 &&
+      states.some((state) => ["invalid", "inconclusive", "report_only"].includes(state)))
+  ) {
     return {
       id: "strict-csp-candidate",
-      name: "Strict CSP candidate",
+      name: "Script CSP declaration candidate",
       state: "review",
       summary:
         "CSP evidence is partial, report-only, invalid, or inconsistent across supplied observations.",
@@ -1070,9 +1077,9 @@ function strictCspComposite(
   }
   return {
     id: "strict-csp-candidate",
-    name: "Strict CSP candidate",
+    name: "Script CSP declaration candidate",
     state: "gap",
-    summary: "At least one minimum declaration for the strict CSP candidate is not observed.",
+    summary: "At least one minimum declaration for the script CSP candidate is not observed.",
     requirements: ["Enforced CSP", "Applicable nonce or hash source", "base-uri restriction"]
   };
 }
@@ -1206,11 +1213,12 @@ function evaluateComposite(
   id: (typeof EVIDENCE_COMPOSITE_IDS)[number],
   findings: AssuranceFinding[],
   responseReports: AssuranceReport[],
-  markupReports: readonly CspMarkupReport[]
+  markupReports: readonly CspMarkupReport[],
+  responses: readonly ResponseSnapshot[]
 ): CompositeAssessment {
   switch (id) {
     case "strict-csp-candidate":
-      return strictCspComposite(findings, markupReports);
+      return strictCspComposite(findings, markupReports, responses);
     case "cross-origin-isolation-candidate":
       return crossOriginComposite(responseReports);
     case "cookie-attribute-coverage":
@@ -1323,7 +1331,13 @@ export async function inspectEvidenceBundle(
         notApplicableFinding(controlId)
     );
     const composites = surface.requiredComposites.map((id) =>
-      evaluateComposite(id, allSurfaceFindings, scopedResponseReports, scopedMarkupReports)
+      evaluateComposite(
+        id,
+        allSurfaceFindings,
+        scopedResponseReports,
+        scopedMarkupReports,
+        bundle.responses.filter((response) => response.surfaceId === surface.id)
+      )
     );
     return surfaceAssessmentSchema.parse({
       surfaceId: surface.id,

@@ -8,6 +8,7 @@ export default tseslint.config(
       "coverage/**",
       "dist/**",
       "node_modules/**",
+      "tools/npm-toolchain/node_modules/**",
       "playwright-report/**",
       "test-results/**"
     ]

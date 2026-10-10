@@ -1,5 +1,5 @@
-import { lstat, mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, relative, resolve, sep } from "node:path";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { inspectHeaders } from "../src/assurance";
 import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
@@ -7,6 +7,8 @@ import {
   type CliOutputFormat,
   renderDecisionPacketComparisonJunit,
   renderDecisionPacketComparisonMarkdown,
+  renderEvidenceReportComparisonJunit,
+  renderEvidenceReportComparisonMarkdown,
   renderEvidenceEvaluationJunit,
   renderEvidenceEvaluationMarkdown,
   renderPolicyDriftJunit,
@@ -43,6 +45,7 @@ import { evaluatePolicyProfile } from "../src/policy";
 import { comparePolicyEvaluations } from "../src/policy-comparison";
 import { reduceScopeInventory } from "../src/scope-inventory";
 import { FixedOriginCollectorTransport } from "./collector-network";
+import { preparePrivateOutput, writePrivateJson } from "./private-output";
 
 const MAX_INPUT_BYTES = 64 * 1_024;
 
@@ -54,7 +57,7 @@ function usage(): never {
   npm run cli -- explain <control-id> [--json]
   npm run cli -- inspect-headers <snapshot.json> [--fail-missing] [--json]
   npm run cli -- inspect-bundle <bundle.json> [--fail-missing] [--strict-composites] [--json]
-  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--json]
+  npm run cli -- compare-reports <before.json> <after.json> [--fail-regression] [--fail-incomparable] [--format text|json|markdown|junit] [--json]
   npm run cli -- reduce-scope-inventory <inventory.json> [--json]
   npm run cli -- collect-evidence <manifest.json> --output <private-path.json> --confirm-authorised-target [--allow-loopback]
   npm run cli -- create-attestation-statement <report.json>
@@ -76,8 +79,18 @@ function optionValue(name: string): string | undefined {
 }
 
 function outputFormat(): CliOutputFormat {
-  if (process.argv.includes("--json")) return "json";
-  const value = optionValue("--format") ?? "text";
+  const indices = process.argv.flatMap((value, index) => (value === "--format" ? [index] : []));
+  if (indices.length > 1) throw new Error("Specify --format only once.");
+  const index = indices[0];
+  const explicit = index === undefined ? undefined : process.argv[index + 1];
+  if (index !== undefined && (!explicit || explicit.startsWith("--"))) {
+    throw new Error("--format requires text, json, markdown or junit.");
+  }
+  const json = process.argv.includes("--json");
+  if (json && explicit !== undefined && explicit !== "json") {
+    throw new Error("--json conflicts with --format; use --format json or omit --json.");
+  }
+  const value = explicit ?? (json ? "json" : "text");
   if (!["text", "json", "markdown", "junit"].includes(value)) {
     throw new Error(`Unsupported output format: ${value}`);
   }
@@ -106,44 +119,6 @@ async function readBoundedJson(path: string, maximumBytes = MAX_INPUT_BYTES): Pr
     throw new Error(`Input exceeds ${String(maximumBytes)} bytes.`);
   }
   return JSON.parse(contents) as unknown;
-}
-
-function outputIsPrivate(path: string): boolean {
-  const output = resolve(path);
-  const project = resolve(process.cwd());
-  const projectRelative = relative(project, output);
-  if (projectRelative.startsWith(`..${sep}`) || projectRelative === "..") return true;
-  return (
-    projectRelative.startsWith(`private-data${sep}`) ||
-    projectRelative.startsWith(`.private-data${sep}`)
-  );
-}
-
-async function writePrivateJson(path: string, value: unknown): Promise<string> {
-  const output = resolve(path);
-  if (!outputIsPrivate(output)) {
-    throw new Error(
-      "Collector output must be outside the repository or under private-data/ or .private-data/."
-    );
-  }
-  try {
-    await lstat(output);
-    throw new Error("Collector output already exists; choose a new path.");
-  } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      !("code" in error) ||
-      (error as NodeJS.ErrnoException).code !== "ENOENT"
-    ) {
-      throw error;
-    }
-  }
-  const directory = dirname(output);
-  await mkdir(directory, { recursive: true, mode: 0o700 });
-  const temporary = `${output}.${String(process.pid)}.tmp`;
-  await writeFile(temporary, canonicalJson(value), { encoding: "utf8", mode: 0o600, flag: "wx" });
-  await rename(temporary, output);
-  return output;
 }
 
 async function check(): Promise<void> {
@@ -317,13 +292,25 @@ async function compareReports(): Promise<void> {
     await readBoundedJson(beforePath, 1_024 * 1_024),
     await readBoundedJson(afterPath, 1_024 * 1_024)
   );
-  const failed = process.argv.includes("--fail-regression") && comparison.summary.regressions > 0;
-  if (process.argv.includes("--json")) {
-    process.stdout.write(canonicalJson(comparison));
-  } else {
+  const failed =
+    (process.argv.includes("--fail-regression") && comparison.summary.regressions > 0) ||
+    (process.argv.includes("--fail-incomparable") &&
+      (!comparison.compatible || comparison.summary.incomparable > 0));
+  const format = outputFormat();
+  if (format === "json") process.stdout.write(canonicalJson(comparison));
+  else if (format === "markdown")
+    process.stdout.write(renderEvidenceReportComparisonMarkdown(comparison));
+  else if (format === "junit")
+    process.stdout.write(renderEvidenceReportComparisonJunit(comparison));
+  else {
     console.log(
       `${comparison.beforeName} to ${comparison.afterName}: ${String(comparison.summary.regressions)} regressions, ${String(comparison.summary.resolutions)} resolutions, ${String(comparison.summary.changed)} other changes, ${String(comparison.summary.incomparable)} incomparable`
     );
+    console.log(
+      `Events: ${String(comparison.summary.totalEvents)} total, ${String(comparison.summary.emittedEvents)} emitted, truncated: ${String(comparison.summary.truncated)}; complete totals determine exit gates.`
+    );
+    console.log(`Report context compatible: ${String(comparison.compatible)}`);
+    for (const reason of comparison.compatibilityReasons) console.log(`- ${reason}`);
     for (const event of comparison.events) {
       console.log(`- ${event.type.toUpperCase()} ${event.key}: ${event.summary}`);
     }
@@ -401,11 +388,13 @@ async function collectEvidence(): Promise<void> {
   const manifest = collectorManifestSchema.parse(
     await readBoundedJson(manifestPath, MAX_COLLECTOR_MANIFEST_BYTES)
   );
+  // Refuse unsuitable destinations before contacting even an authorised target.
+  const destination = await preparePrivateOutput(outputPath);
   const bundle = await collectEvidenceBundle(
     manifest,
     new FixedOriginCollectorTransport(process.argv.includes("--allow-loopback"))
   );
-  const output = await writePrivateJson(outputPath, bundle);
+  const output = await writePrivateJson(destination, bundle);
   console.log(`Collected ${String(bundle.responses.length)} bounded response observations.`);
   console.log(`Wrote private evidence bundle: ${output}`);
   console.log(

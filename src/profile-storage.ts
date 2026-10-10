@@ -12,6 +12,7 @@ export type BoundedStorage = {
 
 export type StoredProfileResult =
   | { state: "absent" }
+  | { state: "unavailable" }
   | { state: "loaded"; profile: DeploymentProfile }
   | { state: "invalid"; reason: string }
   | { state: "future_version"; version: number };
@@ -26,7 +27,12 @@ export function saveProfile(storage: BoundedStorage, profileInput: unknown): voi
 }
 
 export function loadProfile(storage: BoundedStorage): StoredProfileResult {
-  const serialised = storage.getItem(PROFILE_STORAGE_KEY);
+  let serialised: string | null;
+  try {
+    serialised = storage.getItem(PROFILE_STORAGE_KEY);
+  } catch {
+    return { state: "unavailable" };
+  }
   if (serialised === null) return { state: "absent" };
   if (new TextEncoder().encode(serialised).byteLength > MAX_PROFILE_BYTES) {
     return { state: "invalid", reason: "Stored profile exceeds the byte limit." };

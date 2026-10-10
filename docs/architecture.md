@@ -54,6 +54,24 @@ static Astro build
 The browser receives only static HTML, CSS, JavaScript, and the selected data
 bundled by the build. There is no runtime source request.
 
+## Browser controllers
+
+The planner, minimum planner and evidence-bundle components own their static
+markup. Their scripts call explicit initialisers in `src/controllers/`, which
+own DOM references, operation generations, session state, rendering and event
+handlers. Required controls are checked by element type before handlers are
+registered. Shared helpers handle asynchronous event feedback and bounded Blob
+downloads with URL cleanup; model calculations and guarded storage remain in
+independent modules. This extracts the complete controllers without introducing
+a framework or changing opt-in persistence.
+
+The unit coverage denominator includes model modules, the publication gate,
+collector transport, private-output handling and toolchain activation. DOM
+controllers retain real-browser validation separately, as they did when embedded
+in Astro. CLI dispatch and bootstrap reconstruction remain outside the measured
+unit denominator; subprocess and archive tests are separate evidence for those
+paths. Thresholds are unchanged.
+
 ## Source selection
 
 The catalogue owns every requested BCD path. The generator:

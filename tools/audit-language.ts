@@ -1,12 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { extname } from "node:path";
+import { extname, resolve } from "node:path";
 
 const excludedFiles = new Set([
   "LICENSE",
   "data/selected-bcd.json",
   "data/source-history.json",
   "package-lock.json",
+  // Generated third-party package identifiers must retain their upstream spelling.
+  "tools/npm-toolchain/package-lock.json",
   "src/styles/global.css",
   "tools/audit-language.ts"
 ]);
@@ -37,9 +39,19 @@ const prohibited = [
   { label: "American utilise spelling", pattern: /\butiliz(?:e[ds]?|ing)\b/giu }
 ] as const;
 
-const trackedFiles = execFileSync("git", ["ls-files"], { encoding: "utf8" })
-  .split("\n")
-  .filter(Boolean)
+const root = resolve(import.meta.dirname, "..");
+const files = [
+  ...new Set(
+    execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
+      cwd: root,
+      encoding: "utf8",
+      maxBuffer: 2 * 1_024 * 1_024
+    })
+      .split("\0")
+      .filter(Boolean)
+  )
+]
+  .sort()
   .filter(
     (file) =>
       checkedExtensions.has(extname(file)) &&
@@ -49,8 +61,8 @@ const trackedFiles = execFileSync("git", ["ls-files"], { encoding: "utf8" })
 
 const failures: string[] = [];
 
-for (const file of trackedFiles) {
-  const content = readFileSync(file, "utf8");
+for (const file of files) {
+  const content = readFileSync(resolve(root, file), "utf8");
   for (const { label, pattern } of prohibited) {
     pattern.lastIndex = 0;
     for (const match of content.matchAll(pattern)) {
@@ -68,5 +80,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Audited ${String(trackedFiles.length)} project-authored files; ControlCurrent and Australian-English terminology are consistent.`
+  `Audited ${String(files.length)} tracked or unignored project-authored files; ControlCurrent and Australian-English terminology are consistent.`
 );

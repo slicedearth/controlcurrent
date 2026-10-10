@@ -43,7 +43,9 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
           <span>Security area</span>
           <select id="control-category">
             <option value="">All areas</option>
-            {categories.map((category) => <option value={category}>{category}</option>)}
+            {categories.map((category) => (
+              <option value={category}>{category}</option>
+            ))}
           </select>
         </label>
         <label>
@@ -56,21 +58,18 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
             <option value="unknown">Not enough information</option>
           </select>
         </label>
-        <button class="button" type="reset">Clear filters</button>
+        <button class="button" type="reset">
+          Clear filters
+        </button>
       </form>
       <p id="control-filter-status" class="form-message" role="status" aria-live="polite">
         Showing all {SECURITY_CONTROLS.length} features.
       </p>
     </div>
     <div class="control-grid" id="control-list">
-      {
-        SECURITY_CONTROLS.map((control) => (
-          <ControlCard
-            control={control}
-            evaluations={currentEvaluation.results[control.id] ?? []}
-          />
-        ))
-      }
+      {SECURITY_CONTROLS.map((control) => (
+        <ControlCard control={control} evaluations={currentEvaluation.results[control.id] ?? []} />
+      ))}
     </div>
     <p id="control-filter-empty" class="content-card control-filter-empty" hidden>
       No features match those filters. Try a broader search or clear one of the filters.

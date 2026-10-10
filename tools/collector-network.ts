@@ -141,11 +141,9 @@ async function resolvePinnedAddress(hostname: string, allowLoopback: boolean): P
 function redactedCookie(value: string): string {
   const [first = "", ...attributes] = value.split(";");
   const name = first.slice(0, Math.max(0, first.indexOf("="))).trim();
-  const redactedName = name.startsWith("__Host-")
-    ? "__Host-redacted"
-    : name.startsWith("__Secure-")
-      ? "__Secure-redacted"
-      : "redacted";
+  const prefix =
+    ["__Host-Http-", "__Http-", "__Host-", "__Secure-"].find((item) => name.startsWith(item)) ?? "";
+  const redactedName = `${prefix}redacted`;
   return [`${redactedName}=REDACTED`, ...attributes.map((attribute) => attribute.trim())]
     .filter(Boolean)
     .join("; ");
@@ -162,9 +160,9 @@ export function sanitiseCollectorHeaders(
   for (const [rawName, rawValue] of entries) {
     const name = rawName.toLowerCase();
     if (DROPPED_RESPONSE_HEADERS.has(name)) continue;
-    const values = (
-      Array.isArray(rawValue) ? rawValue : rawValue === undefined ? [] : [rawValue]
-    ).slice(0, 8);
+    const values = Array.isArray(rawValue) ? rawValue : rawValue === undefined ? [] : [rawValue];
+    if (values.length > 8)
+      throw new Error(`Response header ${name} exceeds the eight-value bound.`);
     if (values.some((value) => Buffer.byteLength(value, "utf8") > 8_192)) {
       throw new Error(`Response header ${name} exceeds the value bound.`);
     }
@@ -202,7 +200,7 @@ function contentType(
   return "other";
 }
 
-function cacheState(
+export function cacheState(
   status: number,
   headers: Readonly<Record<string, string | string[] | undefined>>
 ): CollectorHop["cache"] {
@@ -215,8 +213,8 @@ function cacheState(
     .join(" ")
     .toLowerCase();
   if (status === 304 || evidence.includes("revalid")) return "revalidated";
-  if (/(?:^|\\W)hit(?:\\W|$)/u.test(evidence)) return "hit";
-  if (/(?:^|\\W)miss(?:\\W|$)/u.test(evidence)) return "miss";
+  if (/(?:^|\W)hit(?:\W|$)/u.test(evidence)) return "hit";
+  if (/(?:^|\W)miss(?:\W|$)/u.test(evidence)) return "miss";
   const cacheControl = firstHeader(headers, "cache-control")?.toLowerCase() ?? "";
   if (cacheControl.includes("no-store") || cacheControl.includes("private")) return "bypass";
   return "unknown";
@@ -240,7 +238,7 @@ async function requestOnce(
   url: URL,
   address: string,
   maximumBodyBytes: number,
-  timeoutMs: number
+  signal: AbortSignal
 ): Promise<{
   status: number;
   headers: Record<string, string | string[] | undefined>;
@@ -255,6 +253,7 @@ async function requestOnce(
         family: isIP(address),
         port: url.port || undefined,
         method: "GET",
+        signal,
         path: `${url.pathname}${url.search}`,
         servername: url.protocol === "https:" ? url.hostname : undefined,
         checkServerIdentity:
@@ -272,6 +271,10 @@ async function requestOnce(
       (response) => {
         const chunks: Buffer[] = [];
         let bytes = 0;
+        response.on("error", reject);
+        response.on("aborted", () =>
+          reject(Object.assign(new Error("Collector response aborted."), { code: "ECONNRESET" }))
+        );
         response.on("data", (chunk: Buffer) => {
           bytes += chunk.byteLength;
           if (bytes > maximumBodyBytes) {
@@ -298,18 +301,16 @@ async function requestOnce(
         });
       }
     );
-    request.setTimeout(timeoutMs, () => {
-      request.destroy(
-        Object.assign(new Error("Collector request timed out."), { code: "ETIMEDOUT" })
-      );
-    });
     request.on("error", reject);
     request.end();
   });
 }
 
 export class FixedOriginCollectorTransport implements CollectorTransport {
-  constructor(private readonly allowLoopback = false) {}
+  constructor(
+    private readonly allowLoopback = false,
+    private readonly resolveAddress: typeof resolvePinnedAddress = resolvePinnedAddress
+  ) {}
 
   async collect(input: {
     baseOrigin: string;
@@ -330,73 +331,93 @@ export class FixedOriginCollectorTransport implements CollectorTransport {
     }
     let current = new URL(input.path, origin);
     const hops: CollectorHop[] = [];
+    // One absolute deadline includes DNS, headers, body and the complete redirect chain.
+    const controller = new AbortController();
+    const timeoutError = Object.assign(new Error("Collector absolute deadline exceeded."), {
+      code: "ETIMEDOUT"
+    });
+    let rejectDeadline: (error: Error) => void = (error) => {
+      throw error;
+    };
+    const deadline = new Promise<never>((_resolve, reject) => {
+      rejectDeadline = reject;
+    });
+    const timer = setTimeout(() => {
+      controller.abort(timeoutError);
+      rejectDeadline(timeoutError);
+    }, input.timeoutMs);
 
-    for (let sequence = 0; sequence <= input.maximumRedirects; sequence += 1) {
-      try {
-        const address = await resolvePinnedAddress(current.hostname, this.allowLoopback);
-        const response = await requestOnce(
-          current,
-          address,
-          input.maximumBodyBytes,
-          input.timeoutMs
-        );
-        const type = contentType(response.headers);
-        const cache = cacheState(response.status, response.headers);
-        const headers = sanitiseCollectorHeaders(response.headers);
-        if (REDIRECT_STATUSES.has(response.status)) {
-          const location = firstHeader(response.headers, "location");
-          let target: URL | undefined;
-          try {
-            target = location ? new URL(location, current) : undefined;
-          } catch {
-            target = undefined;
+    try {
+      for (let sequence = 0; sequence <= input.maximumRedirects; sequence += 1) {
+        try {
+          const address = await Promise.race([
+            this.resolveAddress(current.hostname, this.allowLoopback),
+            deadline
+          ]);
+          const response = await Promise.race([
+            requestOnce(current, address, input.maximumBodyBytes, controller.signal),
+            deadline
+          ]);
+          const type = contentType(response.headers);
+          const cache = cacheState(response.status, response.headers);
+          const headers = sanitiseCollectorHeaders(response.headers);
+          if (REDIRECT_STATUSES.has(response.status)) {
+            const location = firstHeader(response.headers, "location");
+            let target: URL | undefined;
+            try {
+              target = location ? new URL(location, current) : undefined;
+            } catch {
+              target = undefined;
+            }
+            const targetRelation = target
+              ? target.origin === origin.origin
+                ? "same_origin"
+                : "cross_origin"
+              : "unknown";
+            hops.push({
+              status: response.status,
+              outcome: "redirect",
+              headers,
+              contentType: type,
+              cache,
+              redirectTarget: targetRelation
+            });
+            if (
+              !target ||
+              targetRelation !== "same_origin" ||
+              target.username !== "" ||
+              target.password !== "" ||
+              !["http:", "https:"].includes(target.protocol) ||
+              sequence === input.maximumRedirects
+            ) {
+              return hops;
+            }
+            current = target;
+            continue;
           }
-          const targetRelation = target
-            ? target.origin === origin.origin
-              ? "same_origin"
-              : "cross_origin"
-            : "unknown";
           hops.push({
             status: response.status,
-            outcome: "redirect",
+            outcome: response.status >= 400 ? "http_error" : "final",
             headers,
             contentType: type,
             cache,
-            redirectTarget: targetRelation
+            ...(type === "html" && response.body !== undefined ? { body: response.body } : {})
           });
-          if (
-            !target ||
-            targetRelation !== "same_origin" ||
-            target.username !== "" ||
-            target.password !== "" ||
-            !["http:", "https:"].includes(target.protocol) ||
-            sequence === input.maximumRedirects
-          ) {
-            return hops;
-          }
-          current = target;
-          continue;
+          return hops;
+        } catch (error) {
+          hops.push({
+            outcome: "transport_error",
+            headers: {},
+            contentType: "unknown",
+            cache: "unknown",
+            errorKind: controller.signal.aborted ? "timeout" : errorKind(error)
+          });
+          return hops;
         }
-        hops.push({
-          status: response.status,
-          outcome: response.status >= 400 ? "http_error" : "final",
-          headers,
-          contentType: type,
-          cache,
-          ...(type === "html" && response.body !== undefined ? { body: response.body } : {})
-        });
-        return hops;
-      } catch (error) {
-        hops.push({
-          outcome: "transport_error",
-          headers: {},
-          contentType: "unknown",
-          cache: "unknown",
-          errorKind: errorKind(error)
-        });
-        return hops;
       }
+      return hops;
+    } finally {
+      clearTimeout(timer);
     }
-    return hops;
   }
 }

@@ -7,6 +7,10 @@ import {
   EVIDENCE_COMPOSITE_IDS
 } from "./evidence-model";
 
+// Strict CSP must not trigger even a caught dynamic-compilation probe. Parsing
+// remains non-evaluating in the browser and uses the same contracts in the CLI.
+z.config({ jitless: true });
+
 export const browserIdSchema = z.enum(BROWSER_IDS);
 export type BrowserId = z.infer<typeof browserIdSchema>;
 
@@ -461,7 +465,9 @@ export const policyDriftComparisonSchema = z
         review: z.number().int().min(0).max(4_096),
         information: z.number().int().min(0).max(4_096),
         expiringExceptions: z.number().int().min(0).max(64),
-        totalEvents: z.number().int().min(0).max(512)
+        totalEvents: z.number().int().min(0).max(4_096),
+        emittedEvents: z.number().int().min(0).max(512).optional(),
+        truncated: z.boolean().optional()
       })
       .strict(),
     events: z.array(policyDriftEventSchema).max(512)
@@ -1611,6 +1617,39 @@ export const evidencePolicyProfileSchema = z
       }
       surfaces.add(surface.id);
     }
+    const exceptionScopes = new Set<string>();
+    for (const [index, exception] of profile.exceptions.entries()) {
+      const surface = profile.surfaces.find((item) => item.id === exception.surfaceId);
+      const declared =
+        surface &&
+        (exception.targetKind === "evidence"
+          ? surface.requiredEvidence.includes(
+              exception.targetId as (typeof surface.requiredEvidence)[number]
+            )
+          : exception.targetKind === "control"
+            ? surface.requiredControls.includes(exception.targetId)
+            : surface.requiredComposites.includes(
+                exception.targetId as (typeof surface.requiredComposites)[number]
+              ));
+      if (!declared)
+        context.addIssue({
+          code: "custom",
+          message:
+            "Evidence exceptions must refer to a declared surface requirement of the matching kind.",
+          path: ["exceptions", index]
+        });
+      for (const outcome of exception.outcomes) {
+        const key = `${exception.surfaceId}\0${exception.targetKind}\0${exception.targetId}\0${outcome}`;
+        if (exceptionScopes.has(key))
+          context.addIssue({
+            code: "custom",
+            message:
+              "Evidence exception outcomes must be unique and their scopes must not overlap.",
+            path: ["exceptions", index, "outcomes"]
+          });
+        exceptionScopes.add(key);
+      }
+    }
   });
 export type EvidencePolicyProfile = z.infer<typeof evidencePolicyProfileSchema>;
 
@@ -1710,6 +1749,8 @@ export const decisionPacketEvidenceChangeSchema = z
   })
   .strict();
 
+// Two disjoint 4096-finding inputs plus bounded policy drift fit within 16384.
+// Combined totals also include the browser lane (at most 4096 events).
 export const decisionPacketComparisonSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -1724,10 +1765,13 @@ export const decisionPacketComparisonSchema = z
         afterKind: z.enum(["reduced_evidence_report", "evidence_policy_evaluation"]),
         summary: z
           .object({
-            regressions: z.number().int().min(0).max(4_096),
-            resolutions: z.number().int().min(0).max(4_096),
-            changed: z.number().int().min(0).max(4_096),
-            incomparable: z.number().int().min(0).max(4_096)
+            regressions: z.number().int().min(0).max(16_384),
+            resolutions: z.number().int().min(0).max(16_384),
+            changed: z.number().int().min(0).max(16_384),
+            incomparable: z.number().int().min(0).max(16_384),
+            totalEvents: z.number().int().min(0).max(16_384).optional(),
+            emittedEvents: z.number().int().min(0).max(512).optional(),
+            truncated: z.boolean().optional()
           })
           .strict(),
         events: z.array(decisionPacketEvidenceChangeSchema).max(512)
@@ -1735,11 +1779,11 @@ export const decisionPacketComparisonSchema = z
       .strict(),
     summary: z
       .object({
-        regressions: z.number().int().min(0).max(8_192),
-        resolutions: z.number().int().min(0).max(8_192),
-        review: z.number().int().min(0).max(8_192),
-        changed: z.number().int().min(0).max(8_192),
-        incomparable: z.number().int().min(0).max(8_192)
+        regressions: z.number().int().min(0).max(20_480),
+        resolutions: z.number().int().min(0).max(20_480),
+        review: z.number().int().min(0).max(20_480),
+        changed: z.number().int().min(0).max(20_480),
+        incomparable: z.number().int().min(0).max(20_480)
       })
       .strict()
   })

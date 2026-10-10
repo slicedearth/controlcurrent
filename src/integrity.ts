@@ -60,10 +60,19 @@ export function parseIntegrityMetadata(value: string): IntegrityMetadataParseRes
 }
 
 export function parseCspHashSource(token: string): IntegrityMetadataParseResult {
-  if (!token.startsWith("'") || !token.endsWith("'")) {
-    return { metadata: [], invalidSupportedTokenCount: 0 };
+  // CSP hash sources have their own full-token grammar; SRI options are not CSP syntax.
+  const match = /^'(sha256|sha384|sha512)-([A-Za-z0-9+/_-]+={0,2})'$/iu.exec(token);
+  if (!match?.[1] || !match[2] || match[0] !== token) {
+    return {
+      metadata: [],
+      invalidSupportedTokenCount: /^'sha(?:256|384|512)-/iu.test(token) ? 1 : 0
+    };
   }
-  return parseIntegrityMetadata(token.slice(1, -1));
+  const algorithm = match[1].toLowerCase() as IntegrityAlgorithm;
+  const digest = decodeBase64Value(match[2]);
+  return digest?.byteLength === DIGEST_LENGTHS[algorithm]
+    ? { metadata: [{ algorithm, digest }], invalidSupportedTokenCount: 0 }
+    : { metadata: [], invalidSupportedTokenCount: 1 };
 }
 
 export function parseCspNonceSource(token: string): CspNonceSource {

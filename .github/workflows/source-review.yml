@@ -24,8 +24,12 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
-          cache: npm
+          package-manager-cache: false
           registry-url: https://registry.npmjs.org
+
+      - name: Restore the reviewed package-manager toolchain
+        id: toolchain
+        run: node tools/bootstrap-npm.ts
 
       - name: Install locked dependencies
         run: npm ci
@@ -39,7 +43,7 @@ jobs:
         run: npm outdated @mdn/browser-compat-data web-features --json > source-review.json
 
       - name: Summarise source review
-        if: always()
+        if: always() && steps.toolchain.outcome == 'success'
         run: npm run source-review:summary -- source-review.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Require review when an update is available

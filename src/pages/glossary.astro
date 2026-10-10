@@ -108,14 +108,12 @@ const terms = [
       tracking, search service, or external request.
     </p>
     <dl class="glossary-list">
-      {
-        terms.map(({ term, definition }) => (
-          <div>
-            <dt>{term}</dt>
-            <dd>{definition}</dd>
-          </div>
-        ))
-      }
+      {terms.map(({ term, definition }) => (
+        <div>
+          <dt>{term}</dt>
+          <dd>{definition}</dd>
+        </div>
+      ))}
     </dl>
     <div class="callout">
       A feature being available in a browser is only the first step. Correct configuration,

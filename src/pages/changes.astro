@@ -20,30 +20,27 @@ import { formatDate } from "../format";
   <section class="shell section">
     <div class="section-heading">
       <div>
-        <span class="eyebrow"
-          >{changeEvents.length} recorded event{changeEvents.length === 1 ? "" : "s"}</span
-        >
+        <span class="eyebrow">
+          {changeEvents.length} recorded event{changeEvents.length === 1 ? "" : "s"}
+        </span>
         <h2>Update timeline</h2>
       </div>
       <p>
-        Current sources: MDN BCD {selectedSnapshot.bcdVersion} and WebDX {
-          selectedSnapshot.webFeaturesVersion
-        }
+        Current sources: MDN BCD {selectedSnapshot.bcdVersion} and WebDX{" "}
+        {selectedSnapshot.webFeaturesVersion}
       </p>
     </div>
     <ol class="event-list">
-      {
-        [...changeEvents].reverse().map((event) => (
-          <li>
-            <time datetime={event.sourceTimestamp}>{formatDate(event.sourceTimestamp)}</time>
-            <div>
-              <span class="category">{event.type.replaceAll("_", " ")}</span>
-              <h3>{event.summary}</h3>
-              {event.path && <code class="source-path">{event.path}</code>}
-            </div>
-          </li>
-        ))
-      }
+      {[...changeEvents].reverse().map((event) => (
+        <li>
+          <time datetime={event.sourceTimestamp}>{formatDate(event.sourceTimestamp)}</time>
+          <div>
+            <span class="category">{event.type.replaceAll("_", " ")}</span>
+            <h3>{event.summary}</h3>
+            {event.path && <code class="source-path">{event.path}</code>}
+          </div>
+        </li>
+      ))}
     </ol>
     <div class="callout">
       The timeline starts when ControlCurrent began retaining this data. It does not invent earlier
@@ -76,20 +73,18 @@ import { formatDate } from "../format";
           </tr>
         </thead>
         <tbody>
-          {
-            [...sourceHistory.entries].reverse().map((entry) => (
-              <tr>
-                <th scope="row">{formatDate(entry.bcdTimestamp)}</th>
-                <td>{entry.bcdVersion}</td>
-                <td>{entry.webFeaturesVersion}</td>
-                <td>{entry.catalogueVersion}</td>
-                <td>{entry.controlCount}</td>
-                <td>{entry.pathCount}</td>
-                <td>{entry.baselineAssociationCount}</td>
-                <td>{entry.associatedEventCount}</td>
-              </tr>
-            ))
-          }
+          {[...sourceHistory.entries].reverse().map((entry) => (
+            <tr>
+              <th scope="row">{formatDate(entry.bcdTimestamp)}</th>
+              <td>{entry.bcdVersion}</td>
+              <td>{entry.webFeaturesVersion}</td>
+              <td>{entry.catalogueVersion}</td>
+              <td>{entry.controlCount}</td>
+              <td>{entry.pathCount}</td>
+              <td>{entry.baselineAssociationCount}</td>
+              <td>{entry.associatedEventCount}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

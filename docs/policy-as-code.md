@@ -85,6 +85,14 @@ Browser availability and supplied configuration evidence remain separate
 decision lanes. A packet does not prove independent collection, complete
 coverage, correct runtime enforcement, or production security.
 
+Comparison decisions use complete event totals, not the bounded list displayed
+in a report. Truncated lists expose emitted and total counts. JUnit output adds
+an explicit omitted-events case when needed so an adverse event beyond the
+display limit cannot disappear from the CI result. Evidence-policy requirement
+removals and weakened rules are policy regressions, separate from factual
+evidence changes. Changes to pinned trust, identity, scope or freshness contracts
+also require review rather than implying that evidence improved.
+
 The command line can build, validate and compare packets. Comparison keeps the
 browser-policy and evidence lanes separate, refuses invalid fingerprints, and
 classifies incomparable evidence rather than manufacturing a resolution.
@@ -152,6 +160,47 @@ npm run cli -- compare-packets previous-packet.json decision-packet.json \
   --fail-regression \
   --format junit
 ```
+
+Compare reduced evidence reports with an optional incomparable-result gate:
+
+```sh
+npm run cli -- compare-reports previous-report.json report.json \
+  --fail-regression --fail-incomparable --format junit
+```
+
+`compare-reports` accepts `--format text|json|markdown|junit`; `--json` remains
+a compatibility alias. Conflicting or missing format arguments return `2`.
+Text, Markdown and JUnit disclose complete event totals, emitted events and
+truncation separately; display limits do not reduce decision counts.
+
+`--fail-incomparable` returns exit code `1` for incompatible report context or
+any finding-level incomparable result in the complete summary. Without that flag, the existing exit-code behaviour is
+unchanged: incomparable results are reported but do not alone fail the command.
+Invalid input still returns `2`. Flags govern the process exit consistently
+across JSON, text, Markdown and JUnit output. Output documents still describe
+all regressions and incomparable results even when an optional exit gate is
+omitted; JUnit may therefore contain failure cases with a non-strict exit `0`.
+
+All JUnit renderers replace each character forbidden by XML 1.0 with one ASCII
+space before escaping markup. This includes U+FFFE, U+FFFF and lone UTF-16
+surrogates. Legal Unicode, including supplementary characters, is preserved.
+The replacement affects display text only; source reports, fingerprints,
+comparison totals and exit decisions are unchanged.
+
+CI Markdown renderers escape supplied names, keys and summaries as CommonMark
+text, including image/link delimiters, HTML, formatting, entities and table pipes.
+Control characters become spaces. This prevents supplied Markdown syntax from
+creating images or raw HTML; a viewer can still independently linkify plain URLs.
+No renderer controls a viewer's network or extension policy. JSON and fingerprints
+retain the original values.
+
+Decision-packet comparison keeps complete evidence totals up to 16,384 and combined
+browser/evidence totals up to 20,480 while emitting at most 512 events per lane.
+Two disjoint accepted 4,096-finding evidence-policy inputs can therefore report
+all 8,192 changes without overflowing a category total. The stress fixture uses
+schema-valid inputs and the normal packet builder; it does not claim the bundled
+catalogue evaluator naturally produces that many findings. Input and byte limits
+are unchanged.
 
 ## JSON Schemas
 

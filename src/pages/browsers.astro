@@ -19,29 +19,27 @@ import { browserNames, formatDate } from "../format";
   </header>
   <section class="shell section">
     <div class="control-grid">
-      {
-        currentProfile.baselines.map((baseline) => {
-          const browser = selectedSnapshot.browsers[baseline.browser];
-          const recent = [...browser.releases].reverse().slice(0, 8);
-          return (
-            <article class="content-card">
-              <span class="eyebrow">{browser.id}</span>
-              <h2>{browserNames[baseline.browser]}</h2>
-              <p>
-                Current release in this MDN data: <strong>{baseline.minimumVersion}</strong>
-              </p>
-              <ul>
-                {recent.map((release) => (
-                  <li>
-                    {release.version} · {release.status}
-                    {release.releaseDate ? ` · ${formatDate(release.releaseDate)}` : ""}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          );
-        })
-      }
+      {currentProfile.baselines.map((baseline) => {
+        const browser = selectedSnapshot.browsers[baseline.browser];
+        const recent = [...browser.releases].reverse().slice(0, 8);
+        return (
+          <article class="content-card">
+            <span class="eyebrow">{browser.id}</span>
+            <h2>{browserNames[baseline.browser]}</h2>
+            <p>
+              Current release in this MDN data: <strong>{baseline.minimumVersion}</strong>
+            </p>
+            <ul>
+              {recent.map((release) => (
+                <li>
+                  {release.version} · {release.status}
+                  {release.releaseDate ? ` · ${formatDate(release.releaseDate)}` : ""}
+                </li>
+              ))}
+            </ul>
+          </article>
+        );
+      })}
     </div>
   </section>
 </Layout>

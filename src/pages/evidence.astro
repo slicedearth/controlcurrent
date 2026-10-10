@@ -54,51 +54,49 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
       </div>
 
       <div class="evidence-list">
-        {
-          WPT_EVIDENCE.map((mapping) => {
-            const control = getControl(mapping.controlId);
-            if (!control) throw new Error(`Missing control ${mapping.controlId}`);
-            return (
-              <article class="content-card evidence-card">
-                <div class="card-topline">
-                  <span class="category">{control.category}</span>
-                  <span class={`evidence-state evidence-state--${mapping.state}`}>
-                    {mapping.state === "mapped" ? "Test link available" : "No exact test link"}
-                  </span>
-                </div>
-                <h3>
-                  <a href={`${base}/controls/${control.id}/`}>{control.name}</a>
-                </h3>
-                <p>{mapping.scope}</p>
-                {mapping.suites.length > 0 ? (
-                  <ul class="source-list">
-                    {mapping.suites.map((suite) => (
-                      <li>
-                        <strong>{suite.label}</strong>
-                        <code class="source-path">{suite.path}</code>
-                        <span class="source-actions">
-                          <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
-                            reviewed test source
-                          </a>
-                          <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
-                            latest public results
-                          </a>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p class="muted">
-                    No similar test is substituted when an exact link is unavailable.
-                  </p>
-                )}
-                <p class="evidence-limit">
-                  <strong>Limit:</strong> {mapping.limitation}
+        {WPT_EVIDENCE.map((mapping) => {
+          const control = getControl(mapping.controlId);
+          if (!control) throw new Error(`Missing control ${mapping.controlId}`);
+          return (
+            <article class="content-card evidence-card">
+              <div class="card-topline">
+                <span class="category">{control.category}</span>
+                <span class={`evidence-state evidence-state--${mapping.state}`}>
+                  {mapping.state === "mapped" ? "Test link available" : "No exact test link"}
+                </span>
+              </div>
+              <h3>
+                <a href={`${base}/controls/${control.id}/`}>{control.name}</a>
+              </h3>
+              <p>{mapping.scope}</p>
+              {mapping.suites.length > 0 ? (
+                <ul class="source-list">
+                  {mapping.suites.map((suite) => (
+                    <li>
+                      <strong>{suite.label}</strong>
+                      <code class="source-path">{suite.path}</code>
+                      <span class="source-actions">
+                        <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
+                          reviewed test source
+                        </a>
+                        <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
+                          latest public results
+                        </a>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="muted">
+                  No similar test is substituted when an exact link is unavailable.
                 </p>
-              </article>
-            );
-          })
-        }
+              )}
+              <p class="evidence-limit">
+                <strong>Limit:</strong> {mapping.limitation}
+              </p>
+            </article>
+          );
+        })}
       </div>
     </div>
   </section>

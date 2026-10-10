@@ -1,6 +1,6 @@
 {
-  "bcdTimestamp": "2026-07-24T16:06:32.098Z",
-  "bcdVersion": "8.0.8",
+  "bcdTimestamp": "2026-10-01T10:12:15.059Z",
+  "bcdVersion": "8.1.4",
   "browsers": {
     "chrome": {
       "id": "chrome",
@@ -748,22 +748,42 @@
         },
         {
           "releaseDate": "2026-06-30",
-          "status": "current",
+          "status": "retired",
           "version": "150"
         },
         {
           "releaseDate": "2026-07-28",
-          "status": "beta",
+          "status": "retired",
           "version": "151"
         },
         {
           "releaseDate": "2026-08-25",
-          "status": "nightly",
+          "status": "retired",
           "version": "152"
         },
         {
-          "status": "planned",
+          "releaseDate": "2026-09-08",
+          "status": "retired",
           "version": "153"
+        },
+        {
+          "releaseDate": "2026-09-22",
+          "status": "current",
+          "version": "154"
+        },
+        {
+          "releaseDate": "2026-10-06",
+          "status": "beta",
+          "version": "155"
+        },
+        {
+          "releaseDate": "2026-10-20",
+          "status": "nightly",
+          "version": "156"
+        },
+        {
+          "status": "planned",
+          "version": "157"
         }
       ]
     },
@@ -1398,22 +1418,42 @@
         },
         {
           "releaseDate": "2026-06-30",
-          "status": "current",
+          "status": "retired",
           "version": "150"
         },
         {
           "releaseDate": "2026-07-28",
-          "status": "beta",
+          "status": "retired",
           "version": "151"
         },
         {
           "releaseDate": "2026-08-25",
-          "status": "nightly",
+          "status": "retired",
           "version": "152"
         },
         {
-          "status": "planned",
+          "releaseDate": "2026-09-08",
+          "status": "retired",
           "version": "153"
+        },
+        {
+          "releaseDate": "2026-09-22",
+          "status": "current",
+          "version": "154"
+        },
+        {
+          "releaseDate": "2026-10-06",
+          "status": "beta",
+          "version": "155"
+        },
+        {
+          "releaseDate": "2026-10-20",
+          "status": "nightly",
+          "version": "156"
+        },
+        {
+          "status": "planned",
+          "version": "157"
         }
       ],
       "upstream": "chrome"
@@ -1809,23 +1849,43 @@
         },
         {
           "releaseDate": "2026-07-02",
-          "status": "current",
+          "status": "retired",
           "version": "150"
         },
         {
-          "releaseDate": "2026-07-30",
-          "status": "beta",
+          "releaseDate": "2026-07-31",
+          "status": "retired",
           "version": "151"
         },
         {
-          "releaseDate": "2026-08-27",
-          "status": "nightly",
+          "releaseDate": "2026-08-28",
+          "status": "retired",
           "version": "152"
         },
         {
-          "releaseDate": "2026-09-10",
-          "status": "planned",
+          "releaseDate": "2026-09-11",
+          "status": "retired",
           "version": "153"
+        },
+        {
+          "releaseDate": "2026-09-24",
+          "status": "current",
+          "version": "154"
+        },
+        {
+          "releaseDate": "2026-10-08",
+          "status": "beta",
+          "version": "155"
+        },
+        {
+          "releaseDate": "2026-10-22",
+          "status": "nightly",
+          "version": "156"
+        },
+        {
+          "releaseDate": "2026-11-05",
+          "status": "planned",
+          "version": "157"
         }
       ],
       "upstream": "chrome"
@@ -2611,23 +2671,43 @@
         },
         {
           "releaseDate": "2026-07-21",
-          "status": "current",
+          "status": "esr",
           "version": "153"
         },
         {
           "releaseDate": "2026-08-18",
-          "status": "beta",
+          "status": "retired",
           "version": "154"
         },
         {
           "releaseDate": "2026-09-01",
-          "status": "nightly",
+          "status": "retired",
           "version": "155"
         },
         {
           "releaseDate": "2026-09-15",
-          "status": "planned",
+          "status": "retired",
           "version": "156"
+        },
+        {
+          "releaseDate": "2026-09-29",
+          "status": "current",
+          "version": "157"
+        },
+        {
+          "releaseDate": "2026-10-13",
+          "status": "beta",
+          "version": "158"
+        },
+        {
+          "releaseDate": "2026-10-27",
+          "status": "nightly",
+          "version": "159"
+        },
+        {
+          "releaseDate": "2026-11-10",
+          "status": "planned",
+          "version": "160"
         }
       ]
     },
@@ -3317,23 +3397,43 @@
         },
         {
           "releaseDate": "2026-07-21",
-          "status": "current",
+          "status": "esr",
           "version": "153"
         },
         {
           "releaseDate": "2026-08-18",
-          "status": "beta",
+          "status": "retired",
           "version": "154"
         },
         {
           "releaseDate": "2026-09-01",
-          "status": "nightly",
+          "status": "retired",
           "version": "155"
         },
         {
           "releaseDate": "2026-09-15",
-          "status": "planned",
+          "status": "retired",
           "version": "156"
+        },
+        {
+          "releaseDate": "2026-09-29",
+          "status": "current",
+          "version": "157"
+        },
+        {
+          "releaseDate": "2026-10-13",
+          "status": "beta",
+          "version": "158"
+        },
+        {
+          "releaseDate": "2026-10-27",
+          "status": "nightly",
+          "version": "159"
+        },
+        {
+          "releaseDate": "2026-11-10",
+          "status": "planned",
+          "version": "160"
         }
       ],
       "upstream": "firefox"
@@ -3634,12 +3734,22 @@
         },
         {
           "releaseDate": "2026-05-11",
-          "status": "current",
+          "status": "retired",
           "version": "26.5"
         },
         {
-          "status": "beta",
+          "releaseDate": "2026-07-27",
+          "status": "retired",
+          "version": "26.6"
+        },
+        {
+          "releaseDate": "2026-09-14",
+          "status": "current",
           "version": "27"
+        },
+        {
+          "status": "beta",
+          "version": "27.2"
         }
       ]
     },
@@ -3924,19 +4034,29 @@
         },
         {
           "releaseDate": "2026-05-11",
-          "status": "current",
+          "status": "retired",
           "version": "26.5"
         },
         {
-          "status": "beta",
+          "releaseDate": "2026-07-27",
+          "status": "retired",
+          "version": "26.6"
+        },
+        {
+          "releaseDate": "2026-09-14",
+          "status": "current",
           "version": "27"
+        },
+        {
+          "status": "beta",
+          "version": "27.2"
         }
       ],
       "upstream": "safari"
     },
     "samsunginternet_android": {
       "id": "samsunginternet_android",
-      "name": "Samsung Internet",
+      "name": "Samsung Browser",
       "releases": [
         {
           "releaseDate": "2013-04-27",
@@ -4190,8 +4310,13 @@
         },
         {
           "releaseDate": "2025-10-25",
-          "status": "current",
+          "status": "retired",
           "version": "29.0"
+        },
+        {
+          "releaseDate": "2026-05-11",
+          "status": "current",
+          "version": "30.0"
         }
       ],
       "upstream": "chrome_android"
@@ -4802,22 +4927,42 @@
         },
         {
           "releaseDate": "2026-06-30",
-          "status": "current",
+          "status": "retired",
           "version": "150"
         },
         {
           "releaseDate": "2026-07-28",
-          "status": "beta",
+          "status": "retired",
           "version": "151"
         },
         {
           "releaseDate": "2026-08-25",
-          "status": "nightly",
+          "status": "retired",
           "version": "152"
         },
         {
-          "status": "planned",
+          "releaseDate": "2026-09-08",
+          "status": "retired",
           "version": "153"
+        },
+        {
+          "releaseDate": "2026-09-22",
+          "status": "current",
+          "version": "154"
+        },
+        {
+          "releaseDate": "2026-10-06",
+          "status": "beta",
+          "version": "155"
+        },
+        {
+          "releaseDate": "2026-10-20",
+          "status": "nightly",
+          "version": "156"
+        },
+        {
+          "status": "planned",
+          "version": "157"
         }
       ],
       "upstream": "chrome_android"
@@ -5062,8 +5207,7 @@
         ],
         "firefox_android": [
           {
-            "impl_url": "https://bugzil.la/1958716",
-            "version_added": false
+            "version_added": "149"
           }
         ],
         "safari": [
@@ -5222,7 +5366,9 @@
         ],
         "webview_android": [
           {
-            "version_added": false
+            "notes": "Conditional mediation (autofill integration) is not supported; <code>isConditionalMediationAvailable()</code> always returns <code>false</code>.",
+            "partial_implementation": true,
+            "version_added": "131"
           }
         ]
       }
@@ -5300,7 +5446,7 @@
         ],
         "webview_android": [
           {
-            "version_added": false
+            "version_added": "70"
           }
         ]
       }
@@ -6467,7 +6613,7 @@
         ],
         "samsunginternet_android": [
           {
-            "version_added": false
+            "version_added": "30.0"
           }
         ],
         "webview_android": [
@@ -6538,7 +6684,7 @@
         ],
         "samsunginternet_android": [
           {
-            "version_added": false
+            "version_added": "30.0"
           }
         ],
         "webview_android": [
@@ -6629,17 +6775,17 @@
       "support": {
         "chrome": [
           {
-            "version_added": "88"
+            "version_added": "85"
           }
         ],
         "chrome_android": [
           {
-            "version_added": "88"
+            "version_added": "85"
           }
         ],
         "edge": [
           {
-            "version_added": "88"
+            "version_added": "85"
           }
         ],
         "firefox": [
@@ -6666,12 +6812,12 @@
         ],
         "samsunginternet_android": [
           {
-            "version_added": "15.0"
+            "version_added": "14.0"
           }
         ],
         "webview_android": [
           {
-            "version_added": "88"
+            "version_added": "85"
           }
         ]
       }
@@ -7153,7 +7299,7 @@
         ],
         "samsunginternet_android": [
           {
-            "version_added": false
+            "version_added": "30.0"
           }
         ],
         "webview_android": [
@@ -7547,7 +7693,7 @@
       }
     }
   },
-  "schemaFingerprint": "ebad2f9787d9e115700d562ee122e62ba9116b04888263ebdaf922464b36b092",
+  "schemaFingerprint": "55e3832ebde9d4644e72e418bfda3bc9f2104f195a589da318a9fad1cde9a403",
   "schemaVersion": 2,
-  "webFeaturesVersion": "3.34.2"
+  "webFeaturesVersion": "3.40.1"
 }

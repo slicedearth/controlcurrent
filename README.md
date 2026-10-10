@@ -55,6 +55,8 @@ checker or certification service.
 - Save a browser plan locally or export it as JSON.
 - Opt in to remembering one result so a later data update can be compared.
 - Compare an exported result with a newer result from the same source version.
+- Read exact source versions, package timestamps and local package age beside
+  both planning workflows.
 
 ### Record an engineering decision
 
@@ -130,8 +132,8 @@ boundary.
 
 The current selected dataset is generated from:
 
-- `@mdn/browser-compat-data` 8.0.8;
-- `web-features` 3.34.2; and
+- `@mdn/browser-compat-data` 8.1.4;
+- `web-features` 3.40.1; and
 - exact Web Platform Tests suite paths pinned to revision
   `af38980d2fcd74af19a226f5f651051cc15940ed`.
 
@@ -149,10 +151,12 @@ third-party notices for attribution and licence details.
 Requirements:
 
 - Node.js 24.15 or a compatible later supported release;
-- npm 11.17–12; and
+- the reviewed npm 12.2.0 runtime reconstructed from its separate lock; and
 - dependencies installed from the committed lockfile.
 
 ```bash
+node tools/bootstrap-npm.ts
+# Apply the PATH export printed after a successful bootstrap.
 npm ci
 npm run dev
 ```
@@ -163,6 +167,13 @@ The local development server prints its URL. The static production build is:
 npm run build
 npm run preview
 ```
+
+The bootstrap downloads only reviewed registry archives and checks integrity,
+the toolchain audit and registry signatures before activation. It does not
+modify global npm or execute the upstream bundled dependencies. Ordinary tests
+remain fixture-only; bootstrap and signature checks require registry access.
+See [dependency policy](docs/dependency-policy.md) for the separate runtime lock
+and host trust assumptions.
 
 ## Verification
 
@@ -209,7 +220,13 @@ edit the lockfile, selected data, source history, repository or deployment.
 
 The public site is suitable for static GitHub Pages hosting. It needs no
 runtime secret, server or database. Changes to `main` deploy only after the
-complete CI workflow succeeds.
+complete CI and CodeQL workflows succeed for the exact current `main` commit.
+Both automatic and manual publication recheck that commit immediately before
+deployment. The [dependency policy](docs/dependency-policy.md) records the
+reviewed, separately locked package-manager reconstruction and its trust
+assumptions. Complete checks on the corrected revision and eventual exact-main
+release remain required; a clean application dependency audit or verified
+signatures do not prove that build-tool code is benign or vulnerability-free.
 
 GitHub Pages does not apply the generated `_headers` file, so the current public
 site relies on its restrictive meta Content Security Policy and framing guard.
@@ -217,6 +234,8 @@ A dedicated header-capable origin is recommended before using the interface
 with organisation-specific evidence.
 
 ## Documentation
+
+- [PR32 optional follow-up and local validation](docs/pr32-optional-follow-up.md)
 
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)
