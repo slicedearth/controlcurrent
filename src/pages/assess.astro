@@ -9,18 +9,17 @@ import Layout from "../components/Layout.astro";
   description="Review security headers and other evidence you have already collected without sending it to ControlCurrent."
 >
   <header class="shell page-header">
-    <span class="eyebrow">No website scan or upload</span>
-    <h1>Check security information you have already collected</h1>
+    <span class="eyebrow">The evidence desk</span>
+    <h1>Inspect supplied evidence.</h1>
     <p>
-      Paste a set of response headers, or load a structured evidence file covering several pages.
-      ControlCurrent checks whether expected browser protections appear and whether the supplied
-      pages disagree. Everything is analysed on this device. It does not visit your website or prove
-      that the protections work in production.
+      Paste response headers or open a structured evidence file. Check which settings are present,
+      which need attention, and where the supplied pages disagree. Analysis runs on this device; it
+      does not visit your website or prove that a protection works in production.
     </p>
   </header>
   <div class="shell">
     <HeaderInspector />
-    <details class="advanced-assessment">
+    <details id="structured-evidence" class="advanced-assessment">
       <summary>
         <span>Advanced: review evidence from several pages and signed reports</span>
         <small>

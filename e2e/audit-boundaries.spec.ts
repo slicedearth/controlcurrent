@@ -564,10 +564,10 @@ test("planning shows exact bundled timestamps and local source age beside both f
   page
 }) => {
   await page.clock.setFixedTime(new Date("2026-10-10T12:00:00.000Z"));
-  await page.goto("/planner/");
-  const contexts = page.locator(".source-context");
-  await expect(contexts).toHaveCount(2);
-  for (const context of await contexts.all()) {
+  for (const path of ["/planner/", "/minimums/"]) {
+    await page.goto(path);
+    const context = page.locator(".source-context");
+    await expect(context).toHaveCount(1);
     await expect(context.locator("time")).toHaveAttribute(
       "datetime",
       selectedSnapshot.bcdTimestamp

@@ -14,14 +14,19 @@ test("renders real source provenance and makes no external request", async ({ pa
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Choose security features your supported browsers can handle"
+      name: "Find the break."
     })
   ).toBeVisible();
   await expect(
-    page.getByText("MDN browser data", { exact: true }).first().locator("..")
+    page.locator(".source-strip").getByText("MDN browser data", { exact: true }).locator("..")
   ).toContainText("8.1.5");
-  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.42.0");
-  await expect(page.getByText("Server connection").locator("..")).toContainText("none");
+  await expect(
+    page.locator(".source-strip").getByText("Web feature data").locator("..")
+  ).toContainText("3.42.0");
+  await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute(
+    "content",
+    /(?:^|;)\s*connect-src 'none'(?:;|$)/u
+  );
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).analyze();
@@ -260,7 +265,7 @@ test("calculates minimum browser baselines without a network request", async ({ 
     if (url.hostname !== "127.0.0.1") externalRequests.push(request.url());
   });
 
-  await page.goto("/planner/");
+  await page.goto("/minimums/");
   await page.getByRole("button", { name: "Find oldest versions" }).click();
 
   await expect(page.getByRole("heading", { name: "Minimum browser versions" })).toBeVisible();
@@ -304,10 +309,16 @@ test("wraps long browser-data labels without clipping", async ({ page }) => {
   await page.goto("/planner/");
   await page.getByRole("button", { name: "Load example" }).click();
   await page.getByRole("button", { name: "Check support" }).click();
-  await page.getByRole("button", { name: "Find oldest versions" }).click();
   await expectLabelsInsideBounds();
 
   await page.setViewportSize({ width: 320, height: 800 });
+  await expectLabelsInsideBounds();
+
+  await page.goto("/minimums/");
+  await page.locator('input[name="minimum-control"][value="csp-nonces"]').check();
+  await page.getByRole("button", { name: "Find oldest versions" }).click();
+  await expectLabelsInsideBounds();
+  await page.setViewportSize({ width: 1280, height: 900 });
   await expectLabelsInsideBounds();
 });
 
@@ -319,6 +330,7 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
     "/glossary/",
     "/matrix/",
     "/planner/",
+    "/minimums/",
     "/assess/",
     "/evidence/",
     "/changes/",
@@ -353,8 +365,8 @@ test("stacks homepage actions evenly on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  const actions = page.locator(".hero-actions .button");
-  await expect(actions).toHaveCount(3);
+  const actions = page.locator(".bench-actions .button");
+  await expect(actions).toHaveCount(2);
   const boxes = await actions.evaluateAll((elements) =>
     elements.map((element) => {
       const box = element.getBoundingClientRect();
@@ -365,10 +377,9 @@ test("stacks homepage actions evenly on mobile", async ({ page }) => {
   expect(new Set(boxes.map((box) => box.x)).size).toBe(1);
   expect(new Set(boxes.map((box) => box.width)).size).toBe(1);
   expect(new Set(boxes.map((box) => box.height)).size).toBe(1);
-  const [first, second, third] = boxes;
-  if (!first || !second || !third) throw new Error("Expected three homepage actions.");
+  const [first, second] = boxes;
+  if (!first || !second) throw new Error("Expected two homepage actions.");
   expect(first.y).toBeLessThan(second.y);
-  expect(second.y).toBeLessThan(third.y);
 });
 
 test("uses a contained mobile navigation menu without horizontal scrolling", async ({ page }) => {
@@ -387,7 +398,12 @@ test("uses a contained mobile navigation menu without horizontal scrolling", asy
   await expect(toggle).toHaveText(/Close/u);
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
   await expect(navigation).toBeVisible();
-  await expect(navigation.getByRole("link")).toHaveCount(8);
+  await expect(navigation.getByRole("link")).toHaveText([
+    "01Plan",
+    "02Inspect",
+    "03Reference",
+    "04Sources"
+  ]);
 
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
@@ -413,9 +429,7 @@ test("shows pinned WPT mappings without fetching result data", async ({ page }) 
   });
 
   await page.goto("/evidence/");
-  await expect(
-    page.getByRole("heading", { name: "See the public tests behind browser behaviour" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Public browser tests." })).toBeVisible();
   await expect(page.locator(".evidence-card")).toHaveCount(30);
   await expect(page.getByText("28")).toBeVisible();
   await expect(page.getByText("af38980d")).toBeVisible();

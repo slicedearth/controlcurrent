@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+<title id="title">ControlCurrent</title><desc id="description">Find the break. Browser security support, with the gaps left in view.</desc>
+<rect width="1200" height="630" fill="#173844"/>
+<rect width="1200" height="115" fill="#102c36"/>
+<g transform="translate(50 18) scale(.82)" fill="none" stroke="#ff7448" stroke-width="11"><path d="M82 15H36C-2 15-2 81 36 81H82M82 37H45C27 37 27 59 45 59H82"/></g>
+<text x="140" y="74" fill="#e8eef2" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="40" font-weight="700" letter-spacing="-2">controlcurrent</text>
+<text x="1148" y="65" text-anchor="end" fill="#b7c7d2" font-family="monospace" font-size="12" letter-spacing="1.2">BROWSER SECURITY / COMPATIBILITY &amp; EVIDENCE</text>
+<text x="54" y="162" fill="#b7c7d2" font-family="monospace" font-size="11" letter-spacing="1.2">CC—01 / BROWSER SUPPORT</text>
+<path d="M54 181H1146" stroke="#4a6674"/>
+<g font-family="Impact, Arial Narrow, sans-serif" font-size="130" letter-spacing="-1">
+<text x="49" y="327" fill="#e8eef2">FIND THE</text>
+<text x="49" y="453" fill="#ff7448">BREAK.</text>
+</g>
+<text x="54" y="506" fill="#b7c7d2" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="21">Browser security support, with the gaps left in view.</text>
+<g transform="translate(865 360)">
+<circle r="145" fill="none" stroke="#4a6674"/>
+<g stroke="#b7c7d2" stroke-width="2"><path d="M0-145v17M0 128v17M-145 0h17M128 0h17M-102-102l12 12M90 90l12 12M-102 102l12-12M90-90l12-12"/></g>
+<circle cx="4" cy="6" r="112" fill="#0b2631"/><circle r="112" fill="#ff7448"/><circle r="94" fill="none" stroke="#a3381b"/>
+<path d="m73-81-20 22" stroke="#e8eef2" stroke-width="7"/>
+<text y="22" text-anchor="middle" fill="#173844" font-family="Impact,Arial Narrow,sans-serif" font-size="68">CC</text>
+<text y="52" text-anchor="middle" fill="#173844" font-family="monospace" font-size="10">CONTROL / CURRENT</text>
+</g>
+<path d="M0 572H1200" stroke="#ff7448" stroke-width="6"/>
+<text x="54" y="609" fill="#b7c7d2" font-family="monospace" font-size="11" letter-spacing=".8">CHOOSE A PROTECTION. READ THE SUPPORT. KEEP THE EXCEPTIONS.</text>
+</svg>

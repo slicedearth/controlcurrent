@@ -9,8 +9,8 @@ import { formatDate } from "../format";
   description="See when the browser data or ControlCurrent feature definitions used by the site changed."
 >
   <header class="shell page-header">
-    <span class="eyebrow">What changed in the data</span>
-    <h1>Track updates to browser support information</h1>
+    <span class="eyebrow">Data updates</span>
+    <h1>The update log.</h1>
     <p>
       This page separates changes to MDN data, Web Platform Baseline information, ControlCurrent's
       feature definitions, and browser release records. A data correction does not necessarily mean
@@ -23,16 +23,29 @@ import { formatDate } from "../format";
         <span class="eyebrow">
           {changeEvents.length} recorded event{changeEvents.length === 1 ? "" : "s"}
         </span>
-        <h2>Update timeline</h2>
+        <h2 id="timeline-heading" tabindex="-1">
+          Update timeline
+        </h2>
       </div>
       <p>
         Current sources: MDN BCD {selectedSnapshot.bcdVersion} and WebDX{" "}
         {selectedSnapshot.webFeaturesVersion}
       </p>
     </div>
-    <ol class="event-list">
+    <nav class="event-pagination" aria-label="Update log pages" hidden>
+      <p data-events-page-status role="status" aria-live="polite"></p>
+      <div>
+        <button class="button" type="button" data-events-previous aria-controls="update-events">
+          ← Previous
+        </button>
+        <button class="button" type="button" data-events-next aria-controls="update-events">
+          Next →
+        </button>
+      </div>
+    </nav>
+    <ol class="event-list" id="update-events">
       {[...changeEvents].reverse().map((event) => (
-        <li>
+        <li data-event-row>
           <time datetime={event.sourceTimestamp}>{formatDate(event.sourceTimestamp)}</time>
           <div>
             <span class="category">{event.type.replaceAll("_", " ")}</span>
@@ -42,6 +55,17 @@ import { formatDate } from "../format";
         </li>
       ))}
     </ol>
+    <nav class="event-pagination" aria-label="Update log pages, bottom" hidden>
+      <p data-events-page-status></p>
+      <div>
+        <button class="button" type="button" data-events-previous aria-controls="update-events">
+          ← Previous
+        </button>
+        <button class="button" type="button" data-events-next aria-controls="update-events">
+          Next →
+        </button>
+      </div>
+    </nav>
     <div class="callout">
       The timeline starts when ControlCurrent began retaining this data. It does not invent earlier
       changes from source versions the project never stored and compared.
@@ -94,3 +118,36 @@ import { formatDate } from "../format";
     </p>
   </section>
 </Layout>
+
+<script>
+  const rows = [...document.querySelectorAll<HTMLElement>("[data-event-row]")];
+  const pagers = [...document.querySelectorAll<HTMLElement>(".event-pagination")];
+  const previous = [...document.querySelectorAll<HTMLButtonElement>("[data-events-previous]")];
+  const next = [...document.querySelectorAll<HTMLButtonElement>("[data-events-next]")];
+  const statuses = [...document.querySelectorAll<HTMLElement>("[data-events-page-status]")];
+  const heading = document.querySelector<HTMLElement>("#timeline-heading");
+  const pageSize = 20;
+  let currentPage = 0;
+  const pageCount = Math.ceil(rows.length / pageSize);
+
+  function showPage(page: number, moveFocus = false): void {
+    currentPage = Math.max(0, Math.min(pageCount - 1, page));
+    const start = currentPage * pageSize;
+    for (const [index, row] of rows.entries())
+      row.hidden = index < start || index >= start + pageSize;
+    for (const button of previous) button.disabled = currentPage === 0;
+    for (const button of next) button.disabled = currentPage === pageCount - 1;
+    for (const status of statuses)
+      status.textContent = `Events ${start + 1}–${Math.min(start + pageSize, rows.length)} of ${rows.length} · Page ${currentPage + 1} of ${pageCount}`;
+    if (moveFocus) heading?.focus();
+  }
+
+  if (rows.length > pageSize) {
+    for (const pager of pagers) pager.hidden = false;
+    for (const button of previous)
+      button.addEventListener("click", () => showPage(currentPage - 1, true));
+    for (const button of next)
+      button.addEventListener("click", () => showPage(currentPage + 1, true));
+    showPage(0);
+  }
+</script>

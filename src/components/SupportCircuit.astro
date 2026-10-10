@@ -1,0 +1,217 @@
+---
+import { SECURITY_CONTROLS } from "../catalogue";
+import { currentEvaluation, selectedSnapshot } from "../data";
+import CircuitBoard from "./CircuitBoard.astro";
+const selectedId = "permissions-policy";
+const selectedIndex = SECURITY_CONTROLS.findIndex((control) => control.id === selectedId);
+const initialControl = SECURITY_CONTROLS[selectedIndex]!;
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+const angleFor = (index: number) => -140 + (index / (SECURITY_CONTROLS.length - 1)) * 280;
+---
+
+<section class="support-workbench" aria-label="Interactive browser support instrument">
+  <div class="shell">
+    <div class="instrument-nameplate">
+      <span>CC—01 / BROWSER SUPPORT</span>
+      <span>Bundled data · No network lookups</span>
+      <span>BCD {selectedSnapshot.bcdVersion}</span>
+    </div>
+    <div class="instrument-body">
+      <div class="instrument-input">
+        <header class="instrument-intro">
+          <h1>
+            Find the <span>break.</span>
+          </h1>
+          <p>
+            Browser security doesn’t arrive everywhere at once. Choose a protection. See where
+            support stops.
+          </p>
+        </header>
+        <div class="dial-assembly">
+          <svg
+            class="selector-dial"
+            viewBox="0 0 360 340"
+            width="360"
+            height="340"
+            aria-hidden="true"
+          >
+            <circle class="dial-guide" cx="180" cy="170" r="148" />
+            {SECURITY_CONTROLS.map((_, index) => (
+              <g transform={`rotate(${angleFor(index)} 180 170)`}>
+                <path
+                  class:list={["dial-tick", { "dial-tick--major": index % 5 === 0 }]}
+                  d={index % 5 === 0 ? "M180 24v16" : "M180 27v9"}
+                />
+                {index % 5 === 0 && (
+                  <text class="dial-scale" x="180" y="15" text-anchor="middle">
+                    {String(index + 1).padStart(2, "0")}
+                  </text>
+                )}
+              </g>
+            ))}
+            <circle class="dial-shadow" cx="183" cy="177" r="112" />
+            <circle class="dial-face" cx="180" cy="170" r="112" />
+            <circle class="dial-inner" cx="180" cy="170" r="94" />
+            <g id="circuit-needle" transform={`rotate(${angleFor(selectedIndex)} 180 170)`}>
+              <path d="M180 66v29" />
+              <circle cx="180" cy="53" r="4" />
+            </g>
+            <text id="circuit-dial-number" x="180" y="183" text-anchor="middle">
+              {String(selectedIndex + 1).padStart(2, "0")}
+            </text>
+            <text class="dial-centre-label" x="180" y="212" text-anchor="middle">
+              OF {SECURITY_CONTROLS.length} PROTECTIONS
+            </text>
+            <path class="dial-base" d="M135 327h90" />
+          </svg>
+          <div class="dial-controls">
+            <label for="circuit-feature">Choose a protection</label>
+            <div class="dial-selector">
+              <button type="button" data-dial-step="-1" aria-label="Previous protection" disabled>
+                −
+              </button>
+              <select id="circuit-feature" disabled aria-describedby="circuit-selection-status">
+                {SECURITY_CONTROLS.map((control, index) => (
+                  <option value={control.id} selected={control.id === selectedId}>
+                    {String(index + 1).padStart(2, "0")} / {control.shortName}
+                  </option>
+                ))}
+              </select>
+              <button type="button" data-dial-step="1" aria-label="Next protection" disabled>
+                +
+              </button>
+            </div>
+            <p id="circuit-selection-status" role="status" aria-live="polite">
+              Showing {initialControl.shortName}.
+            </p>
+          </div>
+        </div>
+        <p class="instrument-footnote">
+          Current release channels in the bundled source. For older browsers,{" "}
+          <a href={`${base}/planner/`}>
+            set your own minimums <span aria-hidden="true">↗</span>
+          </a>
+        </p>
+        <noscript>
+          <p>
+            This reading shows Permissions Policy. The{" "}
+            <a href={`${base}/controls/`}>feature index</a> includes all protections without
+            JavaScript.
+          </p>
+        </noscript>
+      </div>
+      <div id="circuit-output">
+        <CircuitBoard
+          control={initialControl}
+          evaluations={currentEvaluation.results[selectedId] ?? []}
+        />
+      </div>
+    </div>
+    <div class="instrument-legend">
+      <p>
+        Support data, not a security score. A browser result does not certify a site or prove
+        runtime enforcement.
+      </p>
+      <a href={`${base}/matrix/`}>
+        Full support table <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+  {SECURITY_CONTROLS.map((control) => (
+    <template data-circuit-template={control.id}>
+      <CircuitBoard control={control} evaluations={currentEvaluation.results[control.id] ?? []} />
+    </template>
+  ))}
+</section>
+
+<script>
+  const select = document.querySelector<HTMLSelectElement>("#circuit-feature");
+  const output = document.querySelector<HTMLElement>("#circuit-output");
+  const status = document.querySelector<HTMLElement>("#circuit-selection-status");
+  const needle = document.querySelector<SVGGElement>("#circuit-needle");
+  const dialNumber = document.querySelector<SVGTextElement>("#circuit-dial-number");
+  const dial = document.querySelector<SVGSVGElement>(".selector-dial");
+  const steps = document.querySelectorAll<HTMLButtonElement>("[data-dial-step]");
+  const templates = new Map(
+    [...document.querySelectorAll<HTMLTemplateElement>("[data-circuit-template]")].map(
+      (template) => [template.dataset.circuitTemplate, template]
+    )
+  );
+  if (!select || !output || !status || !needle || !dialNumber || !dial)
+    throw new Error("The support instrument is unavailable.");
+  const enableTerminals = (): void => {
+    for (const button of output.querySelectorAll<HTMLButtonElement>("[data-circuit-browser]"))
+      button.disabled = false;
+  };
+  const update = (): void => {
+    const template = templates.get(select.value);
+    if (!template) return;
+    // Only source-rendered nodes are cloned; supplied markup is never parsed here.
+    output.replaceChildren(template.content.cloneNode(true));
+    enableTerminals();
+    const index = select.selectedIndex;
+    needle.setAttribute(
+      "transform",
+      `rotate(${-140 + (index / (select.options.length - 1)) * 280} 180 170)`
+    );
+    dialNumber.textContent = String(index + 1).padStart(2, "0");
+    status.textContent = `Showing ${select.selectedOptions[0]?.textContent?.trim().replace(/^\d+\s*\/\s*/u, "") ?? "the selected protection"} across 9 browser families.`;
+  };
+  select.disabled = false;
+  enableTerminals();
+  for (const button of steps) {
+    button.disabled = false;
+    button.addEventListener("click", () => {
+      select.selectedIndex =
+        (select.selectedIndex + Number(button.dataset.dialStep) + select.options.length) %
+        select.options.length;
+      update();
+    });
+  }
+  select.addEventListener("change", update);
+  // Pointer control has equivalent native select and step-button keyboard input.
+  let pointerId: number | undefined;
+  const turnDial = (event: PointerEvent): void => {
+    const bounds = dial.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 360 - 180;
+    const y = ((event.clientY - bounds.top) / bounds.height) * 340 - 170;
+    if (Math.hypot(x, y) < 25) return;
+    const angle = Math.atan2(x, -y) * (180 / Math.PI);
+    const index = Math.round(
+      ((Math.max(-140, Math.min(140, angle)) + 140) / 280) * (select.options.length - 1)
+    );
+    if (index === select.selectedIndex) return;
+    select.selectedIndex = index;
+    update();
+  };
+  dial.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    pointerId = event.pointerId;
+    dial.setPointerCapture(pointerId);
+    turnDial(event);
+  });
+  dial.addEventListener("pointermove", (event) => {
+    if (event.pointerId === pointerId) turnDial(event);
+  });
+  const releaseDial = (): void => {
+    pointerId = undefined;
+  };
+  dial.addEventListener("pointerup", releaseDial);
+  dial.addEventListener("pointercancel", releaseDial);
+  dial.addEventListener("lostpointercapture", releaseDial);
+  output.addEventListener("click", (event) => {
+    const button =
+      event.target instanceof Element
+        ? event.target.closest<HTMLButtonElement>("[data-circuit-browser]")
+        : null;
+    if (!button || !output.contains(button)) return;
+    for (const terminal of output.querySelectorAll("[data-circuit-browser]"))
+      terminal.setAttribute("aria-pressed", String(terminal === button));
+    const heading = output.querySelector<HTMLElement>("[data-reading-heading]");
+    const body = output.querySelector<HTMLElement>("[data-reading-body]");
+    if (heading)
+      heading.textContent = `${button.dataset.browserName ?? "Browser"} ${button.dataset.version ?? ""} · ${button.dataset.outcomeLabel ?? "Unknown"}`;
+    if (body)
+      body.textContent = button.dataset.explanation ?? "No recorded explanation is available.";
+  });
+</script>

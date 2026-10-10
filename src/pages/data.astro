@@ -12,152 +12,165 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
   description="Where ControlCurrent's browser data comes from, what the site keeps, and how it is licensed."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Where the information comes from</span>
-    <h1>Published browser data with clear source links</h1>
+    <span class="eyebrow">Data &amp; licensing</span>
+    <h1>Sources &amp; versions.</h1>
     <p>
       The website includes only the records needed for its security-feature calculations. It does
       not copy the complete source datasets or public browser-test results.
     </p>
   </header>
-  <article class="shell prose">
-    <h2>Browser compatibility source</h2>
-    <dl>
-      <dt>Operator</dt>
-      <dd>MDN Web Docs Open Web Docs community project</dd>
-      <dt>Package</dt>
-      <dd>
-        <code>@mdn/browser-compat-data</code> {selectedSnapshot.bcdVersion}
-      </dd>
-      <dt>Package timestamp</dt>
-      <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
-      <dt>Licence</dt>
-      <dd>CC0 1.0 Universal</dd>
-      <dt>Selected paths</dt>
-      <dd>{Object.keys(selectedSnapshot.features).length}</dd>
-      <dt>Schema fingerprint</dt>
-      <dd>
-        <code>{selectedSnapshot.schemaFingerprint}</code>
-      </dd>
-    </dl>
-    <p>
-      <a href="https://github.com/mdn/browser-compat-data" rel="noopener noreferrer">
-        View MDN Browser Compatibility Data
-      </a>
-    </p>
-
-    <h2>Cross-browser availability source</h2>
-    <dl>
-      <dt>Operator</dt>
-      <dd>W3C WebDX Community Group</dd>
-      <dt>Package</dt>
-      <dd>
-        <code>web-features</code> {selectedSnapshot.webFeaturesVersion}
-      </dd>
-      <dt>Licence</dt>
-      <dd>Apache License 2.0</dd>
-      <dt>Use</dt>
-      <dd>Exact compatibility-path associations and Baseline status metadata</dd>
-    </dl>
-    <p>
-      <a href="https://github.com/web-platform-dx/web-features" rel="noopener noreferrer">
-        View Web Platform Features
-      </a>
-    </p>
-
-    <h2>Public browser-test source</h2>
-    <dl>
-      <dt>Operator</dt>
-      <dd>Web Platform Tests contributors</dd>
-      <dt>Repository</dt>
-      <dd>
-        <code>{WPT_EVIDENCE_REVIEW.repository}</code>
-      </dd>
-      <dt>Reviewed revision</dt>
-      <dd>
-        <code>{WPT_EVIDENCE_REVIEW.revision}</code>
-      </dd>
-      <dt>Licence</dt>
-      <dd>BSD 3-Clause</dd>
-      <dt>Use</dt>
-      <dd>{WPT_EVIDENCE.length} project-authored control-to-suite mappings</dd>
-    </dl>
-    <p>
-      <a
-        href={`https://github.com/web-platform-tests/wpt/tree/${WPT_EVIDENCE_REVIEW.revision}`}
-        rel="noopener noreferrer"
-      >
-        View the reviewed Web Platform Tests revision
-      </a>
-    </p>
-
-    <h2>Information kept in the public site</h2>
-    <ul>
-      <li>Selected feature paths, source files, MDN and specification URLs.</li>
-      <li>
-        Support statements for Chrome, Edge, Firefox, Safari, Chrome for Android, Firefox for
-        Android, Safari on iOS, Android WebView, and Samsung Internet.
-      </li>
-      <li>Version added, removed, or last supported.</li>
-      <li>Partial implementation, flags, prefixes, alternative names, and bounded notes.</li>
-      <li>Browser release status and dates needed for explicit baseline selection.</li>
-      <li>Exact WebDX feature associations and Baseline status and dates where available.</li>
-      <li>
-        BCD version, Web Platform Features version, package timestamp, catalogue version, and schema
-        fingerprint.
-      </li>
-    </ul>
-
-    <h2>Information not copied into the public site</h2>
-    <ul>
-      <li>The complete BCD dataset.</li>
-      <li>The complete Web Platform Features dataset.</li>
-      <li>WPT test bodies, expectations, logs, or wpt.fyi result data.</li>
-      <li>MDN article prose or diagrams.</li>
-      <li>Website observations, user-agent strings, visitor profiles, or analytics.</li>
-      <li>Market-share data or project-authored browser policy defaults.</li>
-    </ul>
-
-    <h2>Machine-readable contracts</h2>
-    <p>
-      Draft 2020-12 JSON Schemas are generated from the same runtime contracts used by the website
-      and command-line checks. They support editor validation and continuous-integration tooling.
-      Runtime validation still applies cross-field rules that JSON Schema cannot fully express.
-    </p>
-    <ul>
-      <li>
-        <a href={`${base}/schemas/browser-policy-profile.schema.json`}>
-          Browser policy profile JSON Schema
+  <div class="shell reading-layout">
+    <nav class="page-contents" aria-label="On this page">
+      <span class="eyebrow">In this section</span>
+      <a href="#section-1">Browser compatibility source</a>
+      <a href="#section-2">Cross-browser availability source</a>
+      <a href="#section-3">Public browser-test source</a>
+      <a href="#section-4">Information kept in the public site</a>
+      <a href="#section-5">Information not copied into the public site</a>
+      <a href="#section-6">Machine-readable contracts</a>
+      <a href="#section-7">How the licences apply</a>
+    </nav>
+    <article class="prose">
+      <h2 id="section-1">Browser compatibility source</h2>
+      <dl>
+        <dt>Operator</dt>
+        <dd>MDN Web Docs Open Web Docs community project</dd>
+        <dt>Package</dt>
+        <dd>
+          <code>@mdn/browser-compat-data</code> {selectedSnapshot.bcdVersion}
+        </dd>
+        <dt>Package timestamp</dt>
+        <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
+        <dt>Licence</dt>
+        <dd>CC0 1.0 Universal</dd>
+        <dt>Selected paths</dt>
+        <dd>{Object.keys(selectedSnapshot.features).length}</dd>
+        <dt>Schema fingerprint</dt>
+        <dd>
+          <code>{selectedSnapshot.schemaFingerprint}</code>
+        </dd>
+      </dl>
+      <p>
+        <a href="https://github.com/mdn/browser-compat-data" rel="noopener noreferrer">
+          View MDN Browser Compatibility Data
         </a>
-      </li>
-      <li>
-        <a href={`${base}/schemas/evidence-policy-profile.schema.json`}>
-          Evidence policy profile JSON Schema
-        </a>
-      </li>
-      <li>
-        <a href={`${base}/schemas/reduced-evidence-report.schema.json`}>
-          Reduced evidence report JSON Schema
-        </a>
-      </li>
-      <li>
-        <a href={`${base}/schemas/decision-packet.schema.json`}> Decision packet JSON Schema </a>
-      </li>
-      <li>
-        <a href={`${base}/schemas/index.json`}>Schema manifest</a>
-      </li>
-    </ul>
+      </p>
 
-    <h2>How the licences apply</h2>
-    <p>
-      ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains
-      available under CC0, and selected Web Platform Features metadata remains under Apache-2.0. The
-      WPT path registry is project-authored and links to BSD-3-Clause source. The project licence
-      does not relicense upstream data, specifications, tests, results, or linked documentation.
-    </p>
-    <p>
-      <a href={`${base}/third-party-notices.txt`}>
-        Read the deployed third-party notices and licence terms
-      </a>
-    </p>
-  </article>
+      <h2 id="section-2">Cross-browser availability source</h2>
+      <dl>
+        <dt>Operator</dt>
+        <dd>W3C WebDX Community Group</dd>
+        <dt>Package</dt>
+        <dd>
+          <code>web-features</code> {selectedSnapshot.webFeaturesVersion}
+        </dd>
+        <dt>Licence</dt>
+        <dd>Apache License 2.0</dd>
+        <dt>Use</dt>
+        <dd>Exact compatibility-path associations and Baseline status metadata</dd>
+      </dl>
+      <p>
+        <a href="https://github.com/web-platform-dx/web-features" rel="noopener noreferrer">
+          View Web Platform Features
+        </a>
+      </p>
+
+      <h2 id="section-3">Public browser-test source</h2>
+      <dl>
+        <dt>Operator</dt>
+        <dd>Web Platform Tests contributors</dd>
+        <dt>Repository</dt>
+        <dd>
+          <code>{WPT_EVIDENCE_REVIEW.repository}</code>
+        </dd>
+        <dt>Reviewed revision</dt>
+        <dd>
+          <code>{WPT_EVIDENCE_REVIEW.revision}</code>
+        </dd>
+        <dt>Licence</dt>
+        <dd>BSD 3-Clause</dd>
+        <dt>Use</dt>
+        <dd>{WPT_EVIDENCE.length} project-authored control-to-suite mappings</dd>
+      </dl>
+      <p>
+        <a
+          href={`https://github.com/web-platform-tests/wpt/tree/${WPT_EVIDENCE_REVIEW.revision}`}
+          rel="noopener noreferrer"
+        >
+          View the reviewed Web Platform Tests revision
+        </a>
+      </p>
+
+      <h2 id="section-4">Information kept in the public site</h2>
+      <ul>
+        <li>Selected feature paths, source files, MDN and specification URLs.</li>
+        <li>
+          Support statements for Chrome, Edge, Firefox, Safari, Chrome for Android, Firefox for
+          Android, Safari on iOS, Android WebView, and Samsung Internet.
+        </li>
+        <li>Version added, removed, or last supported.</li>
+        <li>Partial implementation, flags, prefixes, alternative names, and bounded notes.</li>
+        <li>Browser release status and dates needed for explicit baseline selection.</li>
+        <li>Exact WebDX feature associations and Baseline status and dates where available.</li>
+        <li>
+          BCD version, Web Platform Features version, package timestamp, catalogue version, and
+          schema fingerprint.
+        </li>
+      </ul>
+
+      <h2 id="section-5">Information not copied into the public site</h2>
+      <ul>
+        <li>The complete BCD dataset.</li>
+        <li>The complete Web Platform Features dataset.</li>
+        <li>WPT test bodies, expectations, logs, or wpt.fyi result data.</li>
+        <li>MDN article prose or diagrams.</li>
+        <li>Website observations, user-agent strings, visitor profiles, or analytics.</li>
+        <li>Market-share data or project-authored browser policy defaults.</li>
+      </ul>
+
+      <h2 id="section-6">Machine-readable contracts</h2>
+      <p>
+        Draft 2020-12 JSON Schemas are generated from the same runtime contracts used by the website
+        and command-line checks. They support editor validation and continuous-integration tooling.
+        Runtime validation still applies cross-field rules that JSON Schema cannot fully express.
+      </p>
+      <ul>
+        <li>
+          <a href={`${base}/schemas/browser-policy-profile.schema.json`}>
+            Browser policy profile JSON Schema
+          </a>
+        </li>
+        <li>
+          <a href={`${base}/schemas/evidence-policy-profile.schema.json`}>
+            Evidence policy profile JSON Schema
+          </a>
+        </li>
+        <li>
+          <a href={`${base}/schemas/reduced-evidence-report.schema.json`}>
+            Reduced evidence report JSON Schema
+          </a>
+        </li>
+        <li>
+          <a href={`${base}/schemas/decision-packet.schema.json`}> Decision packet JSON Schema </a>
+        </li>
+        <li>
+          <a href={`${base}/schemas/index.json`}>Schema manifest</a>
+        </li>
+      </ul>
+
+      <h2 id="section-7">How the licences apply</h2>
+      <p>
+        ControlCurrent source code is licensed under MIT. The selected BCD-derived data remains
+        available under CC0, and selected Web Platform Features metadata remains under Apache-2.0.
+        The WPT path registry is project-authored and links to BSD-3-Clause source. The project
+        licence does not relicense upstream data, specifications, tests, results, or linked
+        documentation.
+      </p>
+      <p>
+        <a href={`${base}/third-party-notices.txt`}>
+          Read the deployed third-party notices and licence terms
+        </a>
+      </p>
+    </article>
+  </div>
 </Layout>

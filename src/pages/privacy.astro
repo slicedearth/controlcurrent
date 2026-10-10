@@ -7,88 +7,99 @@ import Layout from "../components/Layout.astro";
   description="ControlCurrent does not track visitors or upload browser plans and supplied evidence."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Your information stays on your device</span>
-    <h1>No account, tracking, or evidence upload</h1>
+    <span class="eyebrow">Privacy</span>
+    <h1>What stays on your device.</h1>
     <p>
       The public website has no accounts, analytics, advertising, visitor tracking, application
       server, or database.
     </p>
   </header>
-  <article class="shell prose">
-    <h2>Browser plans</h2>
-    <p>
-      Your browser plan stays in memory while the planner is open. It is saved to this browser only
-      when you choose “Save locally”, and you can delete it from the planner. Export files are
-      created on your device.
-    </p>
-    <p>
-      You can separately choose to remember the latest support result so the site can compare it
-      after its bundled browser data changes. This is opt-in browser storage, is not synchronised,
-      and can be cleared with “Delete saved plan”. Imported <code>.browserslistrc</code>,
-      <code>package.json</code>, policy, and result files are read locally and are not uploaded.
-      Imported policy values, decision-record fingerprints, and optional two-part decision packets
-      are also created only on the visitor's device. A packet repeats the selected browser-policy
-      result and supplied reduced evidence, so it should be reviewed before sharing. Command-line
-      Markdown and JUnit reports can repeat bounded names, opaque identifiers, exceptions, and
-      findings; review the visibility and retention of any CI artifact or workflow summary that
-      receives them.
-    </p>
+  <div class="shell reading-layout">
+    <nav class="page-contents" aria-label="On this page">
+      <span class="eyebrow">In this section</span>
+      <a href="#section-1">Browser plans</a>
+      <a href="#section-2">Your browser is not detected</a>
+      <a href="#section-3">Evidence you paste or load</a>
+      <a href="#section-4">Network connections</a>
+      <a href="#section-5">Deletion</a>
+    </nav>
+    <article class="prose">
+      <h2 id="section-1">Browser plans</h2>
+      <p>
+        Your browser plan stays in memory while the planner is open. It is saved to this browser
+        only when you choose “Save locally”, and you can delete it from the planner. Export files
+        are created on your device.
+      </p>
+      <p>
+        You can separately choose to remember the latest support result so the site can compare it
+        after its bundled browser data changes. This is opt-in browser storage, is not synchronised,
+        and can be cleared with “Delete saved plan”. Imported <code>.browserslistrc</code>,
+        <code>package.json</code>, policy, and result files are read locally and are not uploaded.
+        Imported policy values, decision-record fingerprints, and optional two-part decision packets
+        are also created only on the visitor's device. A packet repeats the selected browser-policy
+        result and supplied reduced evidence, so it should be reviewed before sharing. Command-line
+        Markdown and JUnit reports can repeat bounded names, opaque identifiers, exceptions, and
+        findings; review the visibility and retention of any CI artifact or workflow summary that
+        receives them.
+      </p>
 
-    <h2>Your browser is not detected</h2>
-    <p>
-      ControlCurrent does not detect your installed browser or its capabilities, and it does not
-      fingerprint visitors. You choose the browser versions to check.
-    </p>
+      <h2 id="section-2">Your browser is not detected</h2>
+      <p>
+        ControlCurrent does not detect your installed browser or its capabilities, and it does not
+        fingerprint visitors. You choose the browser versions to check.
+      </p>
 
-    <h2>Evidence you paste or load</h2>
-    <p>
-      Pasted response headers stay in page memory. The site does not visit a URL, save your input,
-      or include complete header values, cookie names, or cookie values in the result. Login
-      credentials are refused. Remove secrets before pasting and use “Clear” when finished.
-    </p>
-    <p>
-      Advanced evidence files may contain a page list, HTML, local resource bytes, selected request
-      headers, reduced passkey settings, and expected evidence for each page. Markup is read without
-      being run and resources are not loaded. Files chosen or dropped into the website are held in
-      page memory only. Exported reports omit the original page list, excluded page reasons, HTML,
-      resource locations and bytes, inline content, CSP nonces and hashes, request targets,
-      credentials, cookies, passkey challenges, and user or credential IDs.
-    </p>
-    <p>
-      Exports still contain the non-identifying labels you provide, application and environment IDs,
-      revision and build IDs, producer ID, capture times, page requirements, reduced counts, and
-      fingerprints. Use neutral identifiers rather than names, URLs, or other sensitive details. A
-      fingerprint can reveal later changes but does not prove who produced the original evidence.
-    </p>
-    <p>
-      The optional command-line signature check keeps only its result and the approved signer
-      identity. It does not retain the full signature bundle, certificate, or transparency-log
-      record.
-    </p>
+      <h2 id="section-3">Evidence you paste or load</h2>
+      <p>
+        Pasted response headers stay in page memory. The site does not visit a URL, save your input,
+        or include complete header values, cookie names, or cookie values in the result. Login
+        credentials are refused. Remove secrets before pasting and use “Clear” when finished.
+      </p>
+      <p>
+        Advanced evidence files may contain a page list, HTML, local resource bytes, selected
+        request headers, reduced passkey settings, and expected evidence for each page. Markup is
+        read without being run and resources are not loaded. Files chosen or dropped into the
+        website are held in page memory only. Exported reports omit the original page list, excluded
+        page reasons, HTML, resource locations and bytes, inline content, CSP nonces and hashes,
+        request targets, credentials, cookies, passkey challenges, and user or credential IDs.
+      </p>
+      <p>
+        Exports still contain the non-identifying labels you provide, application and environment
+        IDs, revision and build IDs, producer ID, capture times, page requirements, reduced counts,
+        and fingerprints. Use neutral identifiers rather than names, URLs, or other sensitive
+        details. A fingerprint can reveal later changes but does not prove who produced the original
+        evidence.
+      </p>
+      <p>
+        The optional command-line signature check keeps only its result and the approved signer
+        identity. It does not retain the full signature bundle, certificate, or transparency-log
+        record.
+      </p>
 
-    <h2>Network connections</h2>
-    <p>
-      Browser compatibility data is included with the static site. The planner and evidence tools
-      make no background request. External documentation links do not receive the page you came
-      from. Optional signature verification is available only in the command-line tool.
-    </p>
-    <p>
-      A separate command-line collector can gather evidence from a website you are authorised to
-      assess. It requires explicit confirmation, visits only the exact approved origin, follows only
-      redirects on that origin, and sends no cookies or login credentials. Raw collections can still
-      contain sensitive locations or page information, so they must remain private. The collector
-      cannot be started from this website.
-    </p>
-    <p>
-      ControlCurrent refuses interactive use when it detects an embedded frame. On a shared hosting
-      origin, enter only deliberately redacted examples; use a dedicated reviewed origin before
-      handling organisation-specific evidence.
-    </p>
+      <h2 id="section-4">Network connections</h2>
+      <p>
+        Browser compatibility data is included with the static site. The planner and evidence tools
+        make no background request. External documentation links do not receive the page you came
+        from. Optional signature verification is available only in the command-line tool.
+      </p>
+      <p>
+        A separate command-line collector can gather evidence from a website you are authorised to
+        assess. It requires explicit confirmation, visits only the exact approved origin, follows
+        only redirects on that origin, and sends no cookies or login credentials. Raw collections
+        can still contain sensitive locations or page information, so they must remain private. The
+        collector cannot be started from this website.
+      </p>
+      <p>
+        ControlCurrent refuses interactive use when it detects an embedded frame. On a shared
+        hosting origin, enter only deliberately redacted examples; use a dedicated reviewed origin
+        before handling organisation-specific evidence.
+      </p>
 
-    <h2>Deletion</h2>
-    <p>
-      Use “Delete saved plan” in the planner to remove the saved plan and remembered result, or
-      clear site storage in your browser. There is no server copy to request or delete.
-    </p>
-  </article>
+      <h2 id="section-5">Deletion</h2>
+      <p>
+        Use “Delete saved plan” in the planner to remove the saved plan and remembered result, or
+        clear site storage in your browser. There is no server copy to request or delete.
+      </p>
+    </article>
+  </div>
 </Layout>
