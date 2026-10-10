@@ -1,5 +1,5 @@
-import { lstat, mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, relative, resolve, sep } from "node:path";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { inspectHeaders } from "../src/assurance";
 import { SECURITY_CONTROLS } from "../src/catalogue";
 import { canonicalJson } from "../src/canonical";
@@ -45,6 +45,7 @@ import { evaluatePolicyProfile } from "../src/policy";
 import { comparePolicyEvaluations } from "../src/policy-comparison";
 import { reduceScopeInventory } from "../src/scope-inventory";
 import { FixedOriginCollectorTransport } from "./collector-network";
+import { preparePrivateOutput, writePrivateJson } from "./private-output";
 
 const MAX_INPUT_BYTES = 64 * 1_024;
 
@@ -118,44 +119,6 @@ async function readBoundedJson(path: string, maximumBytes = MAX_INPUT_BYTES): Pr
     throw new Error(`Input exceeds ${String(maximumBytes)} bytes.`);
   }
   return JSON.parse(contents) as unknown;
-}
-
-function outputIsPrivate(path: string): boolean {
-  const output = resolve(path);
-  const project = resolve(process.cwd());
-  const projectRelative = relative(project, output);
-  if (projectRelative.startsWith(`..${sep}`) || projectRelative === "..") return true;
-  return (
-    projectRelative.startsWith(`private-data${sep}`) ||
-    projectRelative.startsWith(`.private-data${sep}`)
-  );
-}
-
-async function writePrivateJson(path: string, value: unknown): Promise<string> {
-  const output = resolve(path);
-  if (!outputIsPrivate(output)) {
-    throw new Error(
-      "Collector output must be outside the repository or under private-data/ or .private-data/."
-    );
-  }
-  try {
-    await lstat(output);
-    throw new Error("Collector output already exists; choose a new path.");
-  } catch (error) {
-    if (
-      !(error instanceof Error) ||
-      !("code" in error) ||
-      (error as NodeJS.ErrnoException).code !== "ENOENT"
-    ) {
-      throw error;
-    }
-  }
-  const directory = dirname(output);
-  await mkdir(directory, { recursive: true, mode: 0o700 });
-  const temporary = `${output}.${String(process.pid)}.tmp`;
-  await writeFile(temporary, canonicalJson(value), { encoding: "utf8", mode: 0o600, flag: "wx" });
-  await rename(temporary, output);
-  return output;
 }
 
 async function check(): Promise<void> {
@@ -425,11 +388,13 @@ async function collectEvidence(): Promise<void> {
   const manifest = collectorManifestSchema.parse(
     await readBoundedJson(manifestPath, MAX_COLLECTOR_MANIFEST_BYTES)
   );
+  // Refuse unsuitable destinations before contacting even an authorised target.
+  const destination = await preparePrivateOutput(outputPath);
   const bundle = await collectEvidenceBundle(
     manifest,
     new FixedOriginCollectorTransport(process.argv.includes("--allow-loopback"))
   );
-  const output = await writePrivateJson(outputPath, bundle);
+  const output = await writePrivateJson(destination, bundle);
   console.log(`Collected ${String(bundle.responses.length)} bounded response observations.`);
   console.log(`Wrote private evidence bundle: ${output}`);
   console.log(

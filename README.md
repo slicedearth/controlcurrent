@@ -55,6 +55,8 @@ checker or certification service.
 - Save a browser plan locally or export it as JSON.
 - Opt in to remembering one result so a later data update can be compared.
 - Compare an exported result with a newer result from the same source version.
+- Read exact source versions, package timestamps and local package age beside
+  both planning workflows.
 
 ### Record an engineering decision
 
@@ -232,6 +234,8 @@ A dedicated header-capable origin is recommended before using the interface
 with organisation-specific evidence.
 
 ## Documentation
+
+- [PR32 optional follow-up and local validation](docs/pr32-optional-follow-up.md)
 
 - [Architecture](docs/architecture.md)
 - [Data contract](docs/data-contract.md)

@@ -9,15 +9,18 @@ import {
 export type CliOutputFormat = "text" | "json" | "markdown" | "junit";
 
 function markdown(value: string): string {
-  return Array.from(value)
-    .map((character) => {
-      const codePoint = character.codePointAt(0);
-      return codePoint !== undefined && (codePoint < 32 || codePoint === 127) ? " " : character;
-    })
-    .join("")
-    .replaceAll("\\", "\\\\")
-    .replaceAll("|", "\\|")
-    .trim();
+  return (
+    Array.from(value)
+      .map((character) => {
+        const codePoint = character.codePointAt(0);
+        return codePoint !== undefined && (codePoint < 32 || codePoint === 127) ? " " : character;
+      })
+      .join("")
+      // Escape all CommonMark punctuation in supplied text, including entities,
+      // HTML, autolinks, images and formatting. Renderer-owned syntax stays intact.
+      .replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/gu, "\\$&")
+      .trim()
+  );
 }
 
 function xml(value: string): string {

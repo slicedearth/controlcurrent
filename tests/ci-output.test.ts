@@ -8,6 +8,7 @@ import {
 import { selectedSnapshot } from "../src/data";
 import { evaluatePolicyProfile } from "../src/policy";
 import { comparePolicyEvaluations } from "../src/policy-comparison";
+import { markdownToMdast } from "satteri";
 
 const evaluation = evaluatePolicyProfile(
   selectedSnapshot,
@@ -25,9 +26,51 @@ const evaluation = evaluatePolicyProfile(
 describe("CI report formats", () => {
   it("renders bounded Markdown with policy totals and caveats", () => {
     const report = renderPolicyEvaluationMarkdown(evaluation);
-    expect(report).toContain("# <build & review>");
-    expect(report).toContain("| fail | csp-nonces |");
+    expect(report).toContain("# \\<build \\& review\\>");
+    expect(report).toContain("| fail | csp\\-nonces |");
     expect(report).toContain("not proof of runtime enforcement");
+  });
+
+  it.each([
+    "![status](https://example.test/pixel)",
+    "[link](https://example.test/)",
+    '<img src="https://example.test/pixel">',
+    "**bold** _emphasis_ ~~strike~~ `code`",
+    "<https://example.test/> &copy; \\ | # heading"
+  ])("renders supplied Markdown syntax as literal text: %s", (name) => {
+    const input = { ...evaluation, profile: { ...evaluation.profile, name } };
+    const report = renderPolicyEvaluationMarkdown(input);
+    const tree = markdownToMdast(report, { features: { gfm: false } });
+    if (!("children" in tree)) throw new Error("Missing Markdown document");
+    const heading = tree.children.find((node) => node.type === "heading");
+    expect(heading).toMatchObject({ children: [{ type: "text", value: name }] });
+    // Parse only; this offline oracle never mounts HTML or follows a URL.
+    expect(input.profile.name).toBe(name);
+    const drift = comparePolicyEvaluations(input, input, "2026-07-24");
+    const withSummary = {
+      ...drift,
+      summary: { ...drift.summary, information: 1, totalEvents: 1, emittedEvents: 1 },
+      events: [
+        {
+          id: "a".repeat(24),
+          type: "decision_context_changed",
+          severity: "information",
+          key: "fixture",
+          summary: name
+        }
+      ]
+    };
+    const summaryTree = markdownToMdast(renderPolicyDriftMarkdown(withSummary));
+    const nodeTypes: string[] = [];
+    const visit = (node: typeof summaryTree) => {
+      nodeTypes.push(node.type);
+      if ("children" in node) node.children.forEach(visit);
+    };
+    visit(summaryTree);
+    // GFM viewers may independently linkify literal URLs after parsing text.
+    // No supplied image, HTML or formatting syntax may become active nodes.
+    for (const type of ["image", "html", "emphasis", "strong", "delete", "inlineCode"])
+      expect(nodeTypes).not.toContain(type);
   });
 
   it("escapes hostile values in JUnit XML", () => {

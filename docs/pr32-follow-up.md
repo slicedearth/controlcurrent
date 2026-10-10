@@ -1,5 +1,9 @@
 # PR32 XML output follow-up
 
+Later authorised optional work is recorded in
+[the optional follow-up](pr32-optional-follow-up.md). This file retains the
+validation evidence and deferred choices at the XML correction's revision.
+
 This local correction addresses FU01 from the supplied follow-up audit dated
 7 October 2026. The implementation session began on 10 October with a clean
 checkout at `7f16e8b25366a4ccd15ead7af152f92767c33877` on

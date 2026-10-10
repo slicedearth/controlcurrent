@@ -1,15 +1,12 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
-  appendFileSync,
-  chmodSync,
   copyFileSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
   realpathSync,
   rmSync,
-  symlinkSync,
   writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,7 +15,8 @@ import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const run = promisify(execFile);
-export const CLI_VERSION = "12.2.0";
+export { activateToolchain, CLI_VERSION } from "./toolchain-activation.ts";
+import { activateToolchain, CLI_VERSION } from "./toolchain-activation.ts";
 const CLI_URL = `https://registry.npmjs.org/npm/-/npm-${CLI_VERSION}.tgz`;
 const CLI_INTEGRITY =
   "sha512-ZsJjKpTnlmSXOLLXiU1xDCzC4Wlok4IwZmh/aw2KUuXytU7q6qMv/cUT7MoeSf95Slwuw/lRXYefGzGCspHPNQ==";
@@ -253,12 +251,6 @@ export async function bootstrapToolchain(): Promise<string> {
     );
     if (workers.some((worker) => worker.status === "rejected"))
       throw new Error("Toolchain materialisation failed.");
-    chmodSync(join(target, "bin/npm-cli.js"), 0o700);
-    chmodSync(join(target, "bin/npx-cli.js"), 0o700);
-    const executables = join(target, "executables");
-    mkdirSync(executables, { mode: 0o700 });
-    symlinkSync(join(target, "bin/npm-cli.js"), join(executables, "npm"));
-    symlinkSync(join(target, "bin/npx-cli.js"), join(executables, "npx"));
     rmSync(staging, { recursive: true, force: true });
     return target;
   } catch (error) {
@@ -270,24 +262,13 @@ export async function bootstrapToolchain(): Promise<string> {
 
 async function main(): Promise<void> {
   const target = await bootstrapToolchain();
-  const path = join(target, "executables");
-  const env = { ...process.env, PATH: `${path}:${process.env.PATH ?? ""}` };
-  const { stdout } = await run(process.execPath, [join(target, "bin/npm-cli.js"), "--version"], {
-    env,
-    timeout: 10_000
-  });
-  if (stdout.trim() !== CLI_VERSION) throw new Error("Restored CLI version did not match.");
-  await run(
-    process.execPath,
-    [join(target, "bin/npm-cli.js"), "audit", "--prefix", target, "--audit-level=low"],
-    { env, timeout: 60_000 }
-  );
-  await run(
-    process.execPath,
-    [join(target, "bin/npm-cli.js"), "audit", "signatures", "--prefix", target],
-    { env, timeout: 60_000 }
-  );
-  if (process.env.GITHUB_PATH) appendFileSync(process.env.GITHUB_PATH, `${path}\n`);
+  let path: string;
+  try {
+    path = await activateToolchain(target);
+  } catch (error) {
+    rmSync(target, { recursive: true, force: true });
+    throw error;
+  }
   console.log(
     `Reviewed npm ${CLI_VERSION} restored with an independently audited locked runtime graph.`
   );

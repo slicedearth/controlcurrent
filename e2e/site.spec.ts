@@ -28,7 +28,7 @@ test("renders real source provenance and makes no external request", async ({ pa
   expect(violations.violations).toEqual([]);
 });
 
-test("evaluates, stores, clears, and exports a profile locally", async ({ page }) => {
+test("evaluates, stores, clears, and exports a profile locally @workflow", async ({ page }) => {
   await page.goto("/planner/");
   await page.getByRole("button", { name: "Load example" }).click();
   await page.getByRole("button", { name: "Check support" }).click();
@@ -122,7 +122,9 @@ test("evaluates, stores, clears, and exports a profile locally", async ({ page }
   expect(violations.violations).toEqual([]);
 });
 
-test("imports explicit browser minimums and builds a local policy report", async ({ page }) => {
+test("imports explicit browser minimums and builds a local policy report @workflow", async ({
+  page
+}) => {
   await page.goto("/planner/");
   await page.locator("#import-browser-config").setInputFiles({
     name: "package.json",
@@ -309,7 +311,7 @@ test("wraps long browser-data labels without clipping", async ({ page }) => {
   await expectLabelsInsideBounds();
 });
 
-test("keeps dense views inside the viewport at 320 pixels", async ({ page }) => {
+test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
   for (const path of [
     "/",
@@ -451,7 +453,9 @@ test("assesses and clears a redacted header snapshot without a network request",
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
 });
 
-test("reduces a multi-surface evidence bundle without exposing raw inputs", async ({ page }) => {
+test("reduces a multi-surface evidence bundle without exposing raw inputs @workflow", async ({
+  page
+}) => {
   const externalRequests: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
@@ -673,7 +677,9 @@ test("does not detect the actual browser or expose a runtime connection surface"
   expect(source).not.toContain("userAgentData");
 });
 
-test("publishes a restrictive meta policy and refuses embedded interaction", async ({ page }) => {
+test("publishes a restrictive meta policy and refuses embedded interaction @workflow", async ({
+  page
+}) => {
   await page.goto("/assess/");
   const policy = await page
     .locator('meta[http-equiv="Content-Security-Policy"]')

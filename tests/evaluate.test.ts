@@ -160,6 +160,32 @@ describe("control and profile evaluation", () => {
     expect(result.outcome).toBe("available_with_qualification");
   });
 
+  it("requires one alternative to cover the complete released population", () => {
+    const selected = snapshot({
+      one: feature("one", { chrome: [{ version_added: "100", version_removed: "120" }] }),
+      two: feature("two", { chrome: [{ version_added: "120" }] })
+    });
+    const control = { ...allControl, combination: "any" as const };
+    const { one, two } = selected.features;
+    if (!one || !two) throw new Error("Missing synthetic alternatives");
+    // Every recorded release has some alternative, but an unchanged deployment
+    // cannot assume it selects a different implementation for each browser.
+    expect(evaluateFeature(one, { browser: "chrome", minimumVersion: "100" }).outcome).toBe(
+      "available_unqualified"
+    );
+    expect(evaluateFeature(two, baseline).outcome).toBe("available_unqualified");
+    expect(
+      evaluateControl(control, selected, { browser: "chrome", minimumVersion: "100" }).outcome
+    ).toBe("removed");
+    expect(evaluateControl(control, selected, baseline).outcome).toBe("available_unqualified");
+    selected.features.two = feature("two", {
+      chrome: [{ version_added: "100", notes: "Qualified throughout" }]
+    });
+    expect(
+      evaluateControl(control, selected, { browser: "chrome", minimumVersion: "100" }).outcome
+    ).toBe("available_with_qualification");
+  });
+
   it("evaluates the complete catalogue deterministically", () => {
     const paths = [
       "http.headers.Content-Security-Policy",

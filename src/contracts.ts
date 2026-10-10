@@ -1749,6 +1749,8 @@ export const decisionPacketEvidenceChangeSchema = z
   })
   .strict();
 
+// Two disjoint 4096-finding inputs plus bounded policy drift fit within 16384.
+// Combined totals also include the browser lane (at most 4096 events).
 export const decisionPacketComparisonSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -1763,10 +1765,10 @@ export const decisionPacketComparisonSchema = z
         afterKind: z.enum(["reduced_evidence_report", "evidence_policy_evaluation"]),
         summary: z
           .object({
-            regressions: z.number().int().min(0).max(4_096),
-            resolutions: z.number().int().min(0).max(4_096),
-            changed: z.number().int().min(0).max(4_096),
-            incomparable: z.number().int().min(0).max(4_096),
+            regressions: z.number().int().min(0).max(16_384),
+            resolutions: z.number().int().min(0).max(16_384),
+            changed: z.number().int().min(0).max(16_384),
+            incomparable: z.number().int().min(0).max(16_384),
             totalEvents: z.number().int().min(0).max(16_384).optional(),
             emittedEvents: z.number().int().min(0).max(512).optional(),
             truncated: z.boolean().optional()
@@ -1777,11 +1779,11 @@ export const decisionPacketComparisonSchema = z
       .strict(),
     summary: z
       .object({
-        regressions: z.number().int().min(0).max(8_192),
-        resolutions: z.number().int().min(0).max(8_192),
-        review: z.number().int().min(0).max(8_192),
-        changed: z.number().int().min(0).max(8_192),
-        incomparable: z.number().int().min(0).max(8_192)
+        regressions: z.number().int().min(0).max(20_480),
+        resolutions: z.number().int().min(0).max(20_480),
+        review: z.number().int().min(0).max(20_480),
+        changed: z.number().int().min(0).max(20_480),
+        incomparable: z.number().int().min(0).max(20_480)
       })
       .strict()
   })

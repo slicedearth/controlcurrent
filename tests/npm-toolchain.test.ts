@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import {
   CLI_VERSION,
+  activateToolchain,
   downloadArchive,
   extractArchive,
   lockedPackages,
@@ -32,6 +33,63 @@ const lock = (path = "node_modules/example", entry: unknown = pkg) => ({
 });
 
 describe("reviewed package-manager runtime", () => {
+  it.each(["version", "audit", "signatures", "success"])(
+    "keeps activation behind successful version, audit and signature processes: %s",
+    async (stage) => {
+      const target = mkdtempSync(join(tmpdir(), "controlcurrent-activation-test-"));
+      try {
+        mkdirSync(join(target, "bin"));
+        const calls = join(target, "calls.jsonl");
+        const pathFile = join(target, "path.txt");
+        writeFileSync(pathFile, "existing-path\n");
+        // An offline CLI fixture executes in real subprocesses; no registry or
+        // runner package manager is contacted by these orchestration tests.
+        writeFileSync(
+          join(target, "bin/npm-cli.js"),
+          `
+          const fs = require("node:fs");
+          const args = process.argv.slice(2);
+          fs.appendFileSync(process.env.FIXTURE_CALLS, JSON.stringify(args) + "\\n");
+          const step = args[0] === "--version" ? "version" : args[1] === "signatures" ? "signatures" : "audit";
+          if (step === "version") console.log(process.env.FIXTURE_FAILURE === "version" ? "0.0.0" : ${JSON.stringify(CLI_VERSION)});
+          else if (process.env.FIXTURE_FAILURE === step) process.exitCode = 1;
+        `
+        );
+        writeFileSync(join(target, "bin/npx-cli.js"), "// unused fixture\n");
+        const environment = {
+          ...process.env,
+          GITHUB_PATH: pathFile,
+          FIXTURE_CALLS: calls,
+          FIXTURE_FAILURE: stage
+        };
+        if (stage === "success") {
+          expect(await activateToolchain(target, environment)).toBe(join(target, "executables"));
+          expect(existsSync(join(target, "executables/npm"))).toBe(true);
+          expect(existsSync(join(target, "executables/npx"))).toBe(true);
+          expect(readFileSync(pathFile, "utf8")).toBe(
+            `existing-path\n${join(target, "executables")}\n`
+          );
+        } else {
+          await expect(activateToolchain(target, environment)).rejects.toThrow();
+          expect(existsSync(join(target, "executables"))).toBe(false);
+          expect(readFileSync(pathFile, "utf8")).toBe("existing-path\n");
+        }
+        const invoked = readFileSync(calls, "utf8")
+          .trim()
+          .split("\n")
+          .map((line) => JSON.parse(line) as string[]);
+        expect(invoked).toEqual([
+          ["--version"],
+          ...(stage === "version" ? [] : [["audit", "--prefix", target, "--audit-level=low"]]),
+          ...(["version", "audit"].includes(stage)
+            ? []
+            : [["audit", "signatures", "--prefix", target]])
+        ]);
+      } finally {
+        rmSync(target, { recursive: true, force: true });
+      }
+    }
+  );
   it.each([false, true])("validates actual host-tar extraction with link=%s", async (link) => {
     const root = mkdtempSync(join(tmpdir(), "controlcurrent-archive-test-"));
     try {

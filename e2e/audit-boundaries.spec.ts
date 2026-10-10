@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { inspectEvidenceBundle } from "../src/evidence-bundle";
 import { evaluateProfile } from "../src/evaluate";
 import { selectedSnapshotSchema } from "../src/contracts";
@@ -157,7 +158,7 @@ async function settled(page: Page) {
     .toBe(0);
 }
 
-test("profile edits invalidate every derived export, including an empty browser selection", async ({
+test("profile edits invalidate every derived export, including an empty browser selection @workflow", async ({
   page
 }) => {
   await page.goto("/planner/");
@@ -176,7 +177,7 @@ test("profile edits invalidate every derived export, including an empty browser 
   await expect(page.locator("#profile-results")).toBeHidden();
 });
 
-test("rejects an unavailable imported release without substituting the old select value", async ({
+test("rejects an unavailable imported release without substituting the old select value @workflow", async ({
   page
 }) => {
   await page.goto("/planner/");
@@ -197,7 +198,9 @@ test("rejects an unavailable imported release without substituting the old selec
   await expect(page.getByLabel("Profile name")).not.toHaveValue("Unavailable plan");
 });
 
-test("supports session-only evaluation with a throwing storage getter", async ({ page }) => {
+test("supports session-only evaluation with a throwing storage getter @workflow", async ({
+  page
+}) => {
   await page.addInitScript(() =>
     Object.defineProperty(window, "localStorage", {
       get() {
@@ -214,7 +217,7 @@ test("supports session-only evaluation with a throwing storage getter", async ({
   await expect(page.locator("#profile-message")).toContainText("not saved");
 });
 
-test("clear and replacement supersede deferred evidence-file successes and errors", async ({
+test("clear and replacement supersede deferred evidence-file successes and errors @workflow", async ({
   page
 }) => {
   await deferredInputs(page);
@@ -245,7 +248,9 @@ test("clear and replacement supersede deferred evidence-file successes and error
   await expect(page.locator("#bundle-message")).not.toContainText("Stale synthetic");
 });
 
-test("clear during deferred hashing cannot restore the report or its export", async ({ page }) => {
+test("clear during deferred hashing cannot restore the report or its export @workflow", async ({
+  page
+}) => {
   await deferredInputs(page);
   await page.goto("/assess/");
   await page.locator(".advanced-assessment > summary").click();
@@ -262,7 +267,9 @@ test("clear during deferred hashing cannot restore the report or its export", as
   await expect(page.locator("#bundle-form")).toHaveAttribute("aria-busy", "false");
 });
 
-test("a profile edit cancels a deferred import before any form mutation", async ({ page }) => {
+test("a profile edit cancels a deferred import before any form mutation @workflow", async ({
+  page
+}) => {
   await deferredInputs(page);
   await page.goto("/planner/");
   await page.locator("#import-profile").setInputFiles({
@@ -284,7 +291,7 @@ test("a profile edit cancels a deferred import before any form mutation", async 
   await expect(page.locator("#export-profile")).toBeDisabled();
 });
 
-test("preserves import-before-evaluation comparison input but clears it on a genuine edit", async ({
+test("preserves import-before-evaluation comparison input but clears it on a genuine edit @workflow", async ({
   page
 }) => {
   await page.goto("/planner/");
@@ -315,7 +322,7 @@ test("preserves import-before-evaluation comparison input but clears it on a gen
   ).toBeHidden();
 });
 
-test("clear during deferred comparison hashing cannot restore comparison exports", async ({
+test("clear during deferred comparison hashing cannot restore comparison exports @workflow", async ({
   page
 }) => {
   await deferredInputs(page);
@@ -337,7 +344,7 @@ test("clear during deferred comparison hashing cannot restore comparison exports
   await expect(page.locator("#bundle-results")).toBeHidden();
 });
 
-test("profile edits supersede deferred attachment validation and packet export", async ({
+test("profile edits supersede deferred attachment validation and packet export @workflow", async ({
   page
 }) => {
   await deferredInputs(page);
@@ -406,4 +413,168 @@ test("planner remains keyboard-operable at enlarged text @smoke", async ({ page 
     )
   ).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test("a pending replacement disables evidence review until its bytes arrive @workflow", async ({
+  page
+}) => {
+  await deferredInputs(page);
+  await page.goto("/assess/");
+  await page.locator(".advanced-assessment > summary").click();
+  await page.getByRole("button", { name: "Load redacted example" }).last().click();
+  const old = await page.locator("#bundle-block").inputValue();
+  const replacement = old.replace('"Release candidate"', '"Replacement evidence"');
+  await page.locator("#bundle-file").setInputFiles({
+    name: "replacement.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(replacement)
+  });
+  await expect.poll(() => pending(page)).toEqual(["file"]);
+  await expect(page.getByRole("button", { name: "Review evidence file" })).toBeDisabled();
+  await expect(page.locator("#bundle-form")).toHaveAttribute("aria-busy", "true");
+  await expect(page.locator("#bundle-message")).toContainText("Reading evidence");
+  // Exercise the handler guard as well as the native disabled button.
+  await page.locator("#bundle-form").dispatchEvent("submit");
+  await expect(page.locator("#bundle-results")).toBeHidden();
+  await gate(page, "release", 0);
+  await settled(page);
+  await expect(page.locator("#bundle-block")).toHaveValue(replacement);
+  await expect(page.getByRole("button", { name: "Review evidence file" })).toBeEnabled();
+  await page.getByRole("button", { name: "Review evidence file" }).click();
+  await expect(page.locator("#bundle-source")).toContainText("Replacement evidence");
+});
+
+test("a pending comparison hides its predecessor from the visible result and exported report @workflow", async ({
+  page
+}) => {
+  await page.goto("/planner/");
+  await page.getByRole("button", { name: "Load example" }).click();
+  await page.getByRole("button", { name: "Check support" }).click();
+  const earlier = evaluateProfile(selectedSnapshot, {
+    schemaVersion: 1,
+    name: "Earlier snapshot",
+    baselines: [{ browser: "chrome", minimumVersion: "120" }]
+  });
+  await page.locator("#compare-profile").setInputFiles({
+    name: "earlier.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(earlier))
+  });
+  await expect(page.locator("#profile-comparison")).toBeVisible();
+  // Delay the next read without navigating away from the retained result.
+  await page.evaluate(() => {
+    File.prototype.text = () =>
+      new Promise<string>(() => {
+        /* Deliberately pending fixture. */
+      });
+  });
+  await page.locator("#compare-profile").setInputFiles({
+    name: "replacement.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(earlier))
+  });
+  await expect(page.locator("#profile-message")).toContainText("Reading the earlier evaluation");
+  await expect(page.locator("#profile-comparison")).toBeHidden();
+  const downloading = page.waitForEvent("download");
+  await page.locator("#export-engineering-report").click();
+  const path = await (await downloading).path();
+  if (!path) throw new Error("Missing local report download");
+  expect(await readFile(path, "utf8")).not.toContain("Earlier snapshot");
+});
+
+test("bounded export and Blob failures reach the live status and recover without a download @workflow", async ({
+  page
+}) => {
+  await page.goto("/planner/");
+  await page.getByRole("button", { name: "Load example" }).click();
+  await page.getByRole("button", { name: "Check support" }).click();
+  const downloads: string[] = [];
+  page.on("download", (download) => downloads.push(download.suggestedFilename()));
+  await page.evaluate(() => {
+    const descriptor = Object.getOwnPropertyDescriptor(TextEncoder.prototype, "encode");
+    if (!descriptor) throw new Error("Missing native encoder");
+    TextEncoder.prototype.encode = function () {
+      Object.defineProperty(TextEncoder.prototype, "encode", descriptor);
+      return new Uint8Array(512 * 1024 + 1);
+    };
+  });
+  await page.locator("#export-profile").click();
+  await expect(page.locator("#profile-message")).toHaveAttribute("role", "status");
+  await expect(page.locator("#profile-message")).toContainText("exceeds the 524288-byte limit");
+  expect(downloads).toEqual([]);
+  await page.evaluate(() => {
+    const create = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = () => {
+      URL.createObjectURL = create;
+      throw new Error("Synthetic Blob creation failure");
+    };
+  });
+  await page.locator("#export-profile").click();
+  await expect(page.locator("#profile-message")).toContainText("Synthetic Blob creation failure");
+  expect(downloads).toEqual([]);
+  const downloading = page.waitForEvent("download");
+  await page.locator("#export-profile").click();
+  expect((await downloading).suggestedFilename()).toBe("controlcurrent-profile.json");
+  await expect(page.locator("#profile-message")).toContainText("generated locally");
+});
+
+test("file-drop input stays local and never executes supplied markup @workflow", async ({
+  page
+}) => {
+  const external: string[] = [];
+  await page.route("**/*", async (route) => {
+    if (new URL(route.request().url()).hostname !== "127.0.0.1") {
+      external.push(route.request().url());
+      await route.abort();
+    } else await route.continue();
+  });
+  await page.goto("/assess/");
+  await page.locator(".advanced-assessment > summary").click();
+  await page.getByRole("button", { name: "Load redacted example" }).last().click();
+  const example: unknown = JSON.parse(await page.locator("#bundle-block").inputValue());
+  if (!example || typeof example !== "object") throw new Error("Missing fixture");
+  const fixture = {
+    ...example,
+    htmlDocuments: [
+      {
+        schemaVersion: 1,
+        name: "Synthetic markup",
+        surfaceId: "sign-in",
+        html: '<img src="https://example.invalid/pixel" onerror="window.fixtureExecuted=true"><script>window.fixtureExecuted=true</script>'
+      }
+    ]
+  };
+  const text = JSON.stringify(fixture);
+  await page.getByRole("button", { name: "Clear" }).last().click();
+  await page.locator("#bundle-drop").evaluate((element, value) => {
+    const transfer = new DataTransfer();
+    transfer.items.add(new File([value], "dropped.json", { type: "application/json" }));
+    element.dispatchEvent(
+      new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: transfer })
+    );
+  }, text);
+  await expect(page.locator("#bundle-message")).toContainText("Evidence file loaded");
+  await page.getByRole("button", { name: "Review evidence file" }).click();
+  await expect(page.locator("#bundle-results")).toBeVisible();
+  expect(await page.evaluate(() => "fixtureExecuted" in window)).toBe(false);
+  expect(external).toEqual([]);
+});
+
+test("planning shows exact bundled timestamps and local source age beside both forms @workflow", async ({
+  page
+}) => {
+  await page.clock.setFixedTime(new Date("2026-10-10T12:00:00.000Z"));
+  await page.goto("/planner/");
+  const contexts = page.locator(".source-context");
+  await expect(contexts).toHaveCount(2);
+  for (const context of await contexts.all()) {
+    await expect(context.locator("time")).toHaveAttribute(
+      "datetime",
+      selectedSnapshot.bcdTimestamp
+    );
+    await expect(context).toContainText(`BCD ${selectedSnapshot.bcdVersion}`);
+    await expect(context).toContainText(`Web feature data ${selectedSnapshot.webFeaturesVersion}`);
+    await expect(context).toContainText("Package age on this device:");
+    await expect(context).toContainText("may omit later releases or corrections");
+  }
 });

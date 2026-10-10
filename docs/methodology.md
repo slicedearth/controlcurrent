@@ -32,7 +32,13 @@ control definition. Multi-path controls use:
 - `all` when every mapped feature is required;
 - `any` only when independent paths each establish the intended capability.
 
-No current catalogue control uses `any`.
+Integrity Policy uses `any` for its enforcement and report-only source paths;
+the currently bundled paths carry identical support data. An `any` mapping
+requires at least one path to cover the complete reviewed released population
+from the chosen minimum onwards. Complementary intervals across different paths
+do not establish one consistently available implementation. Synthetic tests
+retain this deliberately stronger planning contract, including qualified support;
+the evaluator does not assume an application switches implementations by release.
 
 Related data is not substituted for a missing feature. CSP nonce and hash
 sources remain unsupported mappings in BCD 8.1.4 because the package does not
@@ -78,12 +84,19 @@ policy. The planner accepts explicit minimum versions.
 The reverse planner searches release entries marked `retired`, `current`, or
 `esr` that carry a release date in the selected snapshot. For every requested
 browser, it returns the earliest retained release at which all selected
-controls have the required outcome. Source-qualified support is accepted only
+controls have the required outcome throughout the later reviewed released
+population. Source-qualified support is accepted only
 when the visitor selects that option.
 
 An unsupported mapping blocks the complete calculation rather than inheriting
 a related control. If no retained release satisfies every control, the result
 identifies the blockers at the most recent comparable release.
+
+Both planning forms show the exact bundled package timestamp and source versions.
+Package age is calculated against the device's clock, with an explicit unavailable
+state for a future timestamp or invalid clock. It is the age of package metadata,
+not a review date, freshness guarantee or runtime source check. The displayed
+snapshot may omit later releases and corrections.
 
 Profile comparison requires the same BCD and catalogue versions. It distinguishes:
 

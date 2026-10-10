@@ -187,6 +187,21 @@ surrogates. Legal Unicode, including supplementary characters, is preserved.
 The replacement affects display text only; source reports, fingerprints,
 comparison totals and exit decisions are unchanged.
 
+CI Markdown renderers escape supplied names, keys and summaries as CommonMark
+text, including image/link delimiters, HTML, formatting, entities and table pipes.
+Control characters become spaces. This prevents supplied Markdown syntax from
+creating images or raw HTML; a viewer can still independently linkify plain URLs.
+No renderer controls a viewer's network or extension policy. JSON and fingerprints
+retain the original values.
+
+Decision-packet comparison keeps complete evidence totals up to 16,384 and combined
+browser/evidence totals up to 20,480 while emitting at most 512 events per lane.
+Two disjoint accepted 4,096-finding evidence-policy inputs can therefore report
+all 8,192 changes without overflowing a category total. The stress fixture uses
+schema-valid inputs and the normal packet builder; it does not claim the bundled
+catalogue evaluator naturally produces that many findings. Input and byte limits
+are unchanged.
+
 ## JSON Schemas
 
 The static site publishes draft 2020-12 schemas for browser policy profiles and

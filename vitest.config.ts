@@ -7,8 +7,16 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
-      include: ["src/**/*.ts", "tools/publication-gate.ts"],
-      exclude: ["src/catalogue.ts"],
+      include: [
+        "src/**/*.ts",
+        "tools/publication-gate.ts",
+        "tools/private-output.ts",
+        "tools/collector-network.ts",
+        "tools/toolchain-activation.ts"
+      ],
+      // DOM controllers were previously inline Astro scripts. Their real-browser
+      // coverage remains separate from this Node-only unit denominator.
+      exclude: ["src/catalogue.ts", "src/controllers/**"],
       thresholds: {
         lines: 90,
         functions: 90,

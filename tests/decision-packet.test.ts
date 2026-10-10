@@ -17,6 +17,7 @@ import { evaluateEvidencePolicy } from "../src/evidence-policy";
 import { selectedSnapshot } from "../src/data";
 import { evaluatePolicyProfile } from "../src/policy";
 import { evidenceIdentity, evidenceSourceContext } from "./helpers";
+import { evidencePolicyEvaluationSchema } from "../src/contracts";
 
 const browserPolicy = evaluatePolicyProfile(
   selectedSnapshot,
@@ -71,6 +72,45 @@ async function evidencePolicyEvaluation() {
 }
 
 describe("two-part decision packets", () => {
+  it("compares disjoint maximum accepted findings using genuine packet builders", async () => {
+    const base = await evidencePolicyEvaluation();
+    const input = (prefix: string) =>
+      evidencePolicyEvaluationSchema.parse({
+        ...base,
+        summary: { pass: 4096, review: 0, fail: 0 },
+        findings: Array.from({ length: 4096 }, (_, index) => ({
+          targetKind: "control",
+          targetId: `${prefix}-${String(index)}`,
+          outcome: "observed",
+          decision: "pass",
+          explanation: "Synthetic maximum-contract finding"
+        }))
+      });
+    // Accepted public-builder inputs, not a claim that the bundled evaluator
+    // emits 4096 findings or that these synthetic controls exist in its catalogue.
+    const before = await buildDecisionPacket(browserPolicy, input("before"), "2026-07-24");
+    const after = await buildDecisionPacket(browserPolicy, input("after"), "2026-07-24");
+    expect(Buffer.byteLength(await exportDecisionPacket(before))).toBeLessThan(4 * 1024 * 1024);
+    expect(Buffer.byteLength(await exportDecisionPacket(after))).toBeLessThan(4 * 1024 * 1024);
+    const comparison = await compareDecisionPackets(before, after, "2026-07-24");
+    expect(comparison.evidence.summary).toEqual({
+      regressions: 0,
+      resolutions: 0,
+      changed: 8192,
+      incomparable: 0,
+      totalEvents: 8192,
+      emittedEvents: 512,
+      truncated: true
+    });
+    expect(comparison.summary.changed).toBe(8192);
+    expect(renderDecisionPacketComparisonMarkdown(comparison)).toContain("512 of 8192");
+    expect(renderDecisionPacketComparisonJunit(comparison)).toContain(
+      "7680 review events were omitted"
+    );
+    expect(
+      (await compareDecisionPackets(before, before, "2026-07-24")).evidence.summary.totalEvents
+    ).toBe(0);
+  });
   it("keeps browser policy and reduced evidence separate with deterministic fingerprints", async () => {
     const evidence = await evidenceReport();
     const packet = await buildDecisionPacket(browserPolicy, evidence, "2026-07-24");
@@ -167,7 +207,7 @@ describe("two-part decision packets", () => {
     expect(
       comparison.evidence.summary.regressions + comparison.evidence.summary.resolutions
     ).toBeGreaterThan(0);
-    expect(renderEvidenceEvaluationMarkdown(evaluation)).toContain("Evidence for example-app");
+    expect(renderEvidenceEvaluationMarkdown(evaluation)).toContain("Evidence for example\\-app");
     expect(renderEvidenceEvaluationJunit(evaluation)).toContain("<testsuite ");
   });
 

@@ -1,0 +1,19 @@
+---
+import { selectedSnapshot } from "../data";
+const { bcdTimestamp, bcdVersion, webFeaturesVersion, catalogueVersion } = selectedSnapshot;
+---
+
+<p class="source-context form-message">
+  Browser-data package timestamp: <time datetime={bcdTimestamp}>{bcdTimestamp}</time>.
+  <span data-source-age={bcdTimestamp}></span>
+  BCD {bcdVersion} · Web feature data {webFeaturesVersion} · catalogue {catalogueVersion}. This
+  bundled snapshot may omit later releases or corrections.
+  <a href={`${import.meta.env.BASE_URL}data/`}>Source details and limitations</a>
+</p>
+
+<script>
+  import { sourceAge } from "../source-age";
+  for (const element of document.querySelectorAll<HTMLElement>("[data-source-age]")) {
+    element.textContent = sourceAge(element.dataset.sourceAge ?? "");
+  }
+</script>

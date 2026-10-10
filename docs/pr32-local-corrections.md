@@ -1,5 +1,9 @@
 # PR32 local correction and maintenance record
 
+Later authorised optional work is recorded in
+[the optional follow-up](pr32-optional-follow-up.md). This file retains the
+dated maintenance evidence and choices for the original correction batch.
+
 This record accompanies the local correction of the four confirmed PR32 issues
 on 7 October 2026 AEDT. The companion source audit dated 6 October was read as
 evidence, not additional authority. This record does not establish release

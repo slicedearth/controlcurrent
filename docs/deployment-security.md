@@ -269,6 +269,28 @@ The smoke scenario checks keyboard use and enlarged text. The complete
 Chromium suite remains the default; a smoke pass is not equivalent to complete
 Firefox or WebKit coverage.
 
+The broader local workflow selection is separately opt-in:
+
+```sh
+CONTROLCURRENT_DEPLOY_TARGET= CONTROLCURRENT_BROWSER_WORKFLOWS=1 \
+  npm run test:e2e -- --grep '@smoke|@workflow'
+```
+
+It uses the same disposable HTTPS fixture and runs serially across Chromium,
+Firefox and WebKit. It covers profile/policy imports, Blob downloads, denied
+storage, evidence file drop, non-executing markup, pending-operation supersession,
+bounded export failures, source context, restrictive CSP/framing behaviour, axe
+checks and 320-pixel reflow. The original smoke flag still selects only the
+keyboard/enlarged-text smoke for the optional engines. Neither flag changes
+recurring hosted workflows or uploads artefacts.
+
+The reflow fixture uses a 320 CSS-pixel viewport and the keyboard fixture uses
+200% root font size. Neither is native 400% browser zoom. A manual zoom check
+should set a 1280-pixel browser window to 400% in the browser UI, then exercise
+planner inputs, imports, result disclosure, evidence review and downloads while
+checking focus visibility and horizontal scrolling. Record the browser/version
+and actual zoom setting; do not substitute a CSS transform or device scale factor.
+
 After deployment:
 
 1. compare the deployed commit with the reviewed local commit;

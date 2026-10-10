@@ -82,7 +82,12 @@ special archive entries, bundled modules and script-bearing runtime packages.
 It caps archives, metadata, members, graph size, total downloads, concurrency
 and duration. A fresh temporary directory is used for each invocation. The
 reconstructed CLI audits that graph at every severity and verifies registry
-signatures before its npm and npx executables are added to workflow PATH.
+signatures before its npm and npx executable links are created or added to
+workflow PATH. Activation uses the reconstructed CLI's absolute path for the
+version, advisory and signature checks. Any failed gate stops activation; the
+entry point removes that invocation's temporary reconstruction. Offline process
+fixtures exercise each failure and confirm that no executable links or PATH
+entry become available.
 This is a project-maintained runtime reconstruction, not an unmodified upstream
 distribution or an assurance that unknown vulnerabilities cannot exist.
 

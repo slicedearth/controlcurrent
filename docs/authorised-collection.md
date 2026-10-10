@@ -87,9 +87,28 @@ npm run cli -- collect-evidence private-data/collector/manifest.json \
   --confirm-authorised-target
 ```
 
-The command refuses to overwrite an existing file. Output directories are
-created with restrictive permissions where the platform supports them, the file
-is written atomically with mode `0600`, and no output is committed or uploaded.
+The repository boundary is the real directory containing this CLI's checkout,
+even when the command is invoked from a different working directory. Relative
+output arguments are still relative to that working directory. Before any target
+request, the command refuses public repository destinations, existing output
+files and symlink parents beneath the repository's private directories. External
+destinations are resolved through their existing parent directory before new
+children are created; an alias back into the publication tree is refused.
+
+Output directories are created with mode `0700` and temporary files with mode
+`0600` where supported. Complete, flushed bytes are published with an atomic
+same-directory hard link. An existing destination makes that operation fail;
+competing writers cannot replace the winner. Temporary files are removed after
+write or publication failures. A filesystem without hard-link support fails
+closed; there is no overwrite-capable rename fallback. No output is committed
+or uploaded.
+
+Use directories controlled by the operator. Parent validation prevents existing
+aliases; it does not provide a sandbox against another local process that can
+rename or replace those directories concurrently. Defending against a malicious
+same-user directory swap would require a reviewed directory-handle strategy and
+platform-specific support. Restrictive file modes alone do not make a public
+publication directory safe.
 
 Inspect the resulting private bundle separately:
 
