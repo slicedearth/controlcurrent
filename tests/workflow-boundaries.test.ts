@@ -57,7 +57,7 @@ describe("publication workflow hardening", () => {
     const workflow = readFileSync(".github/workflows/codeql.yml", "utf8");
     for (const action of ["init", "analyze"]) {
       expect(workflow).toContain(
-        `github/codeql-action/${action}@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2`
+        `github/codeql-action/${action}@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3`
       );
     }
   });

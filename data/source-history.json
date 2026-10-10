@@ -77,6 +77,19 @@
       "pathCount": 36,
       "schemaFingerprint": "55e3832ebde9d4644e72e418bfda3bc9f2104f195a589da318a9fad1cde9a403",
       "webFeaturesVersion": "3.40.1"
+    },
+    {
+      "associatedEventCount": 3,
+      "baselineAssociationCount": 28,
+      "bcdTimestamp": "2026-10-08T12:46:21.707Z",
+      "bcdVersion": "8.1.5",
+      "browserCount": 9,
+      "catalogueVersion": "2.2.0",
+      "controlCount": 30,
+      "id": "f1c1456ef8c9ea84f5d21b71",
+      "pathCount": 36,
+      "schemaFingerprint": "55e3832ebde9d4644e72e418bfda3bc9f2104f195a589da318a9fad1cde9a403",
+      "webFeaturesVersion": "3.42.0"
     }
   ],
   "schemaVersion": 1

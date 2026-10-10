@@ -19,8 +19,8 @@ test("renders real source provenance and makes no external request", async ({ pa
   ).toBeVisible();
   await expect(
     page.getByText("MDN browser data", { exact: true }).first().locator("..")
-  ).toContainText("8.1.4");
-  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.40.1");
+  ).toContainText("8.1.5");
+  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.42.0");
   await expect(page.getByText("Server connection").locator("..")).toContainText("none");
   expect(externalRequests).toEqual([]);
 
@@ -504,7 +504,7 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs @workf
     "captured 2026-07-20T09:05:00.000Z by example-ci (application_ci)"
   );
   await expect(results.locator("#bundle-source")).toContainText(
-    "analyser 5.1.0 · catalogue 2.2.0 · BCD 8.1.4"
+    "analyser 5.1.0 · catalogue 2.2.0 · BCD 8.1.5"
   );
   await expect(
     results.getByText("Supplied page list · Reviewed application route manifest")
