@@ -1,6 +1,6 @@
 {
-  "bcdTimestamp": "2026-10-01T10:12:15.059Z",
-  "bcdVersion": "8.1.4",
+  "bcdTimestamp": "2026-10-08T12:46:21.707Z",
+  "bcdVersion": "8.1.5",
   "browsers": {
     "chrome": {
       "id": "chrome",
@@ -768,22 +768,27 @@
         },
         {
           "releaseDate": "2026-09-22",
-          "status": "current",
+          "status": "retired",
           "version": "154"
         },
         {
           "releaseDate": "2026-10-06",
-          "status": "beta",
+          "status": "current",
           "version": "155"
         },
         {
           "releaseDate": "2026-10-20",
-          "status": "nightly",
+          "status": "beta",
           "version": "156"
         },
         {
-          "status": "planned",
+          "releaseDate": "2026-11-03",
+          "status": "nightly",
           "version": "157"
+        },
+        {
+          "status": "planned",
+          "version": "158"
         }
       ]
     },
@@ -1438,22 +1443,27 @@
         },
         {
           "releaseDate": "2026-09-22",
-          "status": "current",
+          "status": "retired",
           "version": "154"
         },
         {
           "releaseDate": "2026-10-06",
-          "status": "beta",
+          "status": "current",
           "version": "155"
         },
         {
           "releaseDate": "2026-10-20",
-          "status": "nightly",
+          "status": "beta",
           "version": "156"
         },
         {
-          "status": "planned",
+          "releaseDate": "2026-11-03",
+          "status": "nightly",
           "version": "157"
+        },
+        {
+          "status": "planned",
+          "version": "158"
         }
       ],
       "upstream": "chrome"
@@ -4947,22 +4957,27 @@
         },
         {
           "releaseDate": "2026-09-22",
-          "status": "current",
+          "status": "retired",
           "version": "154"
         },
         {
           "releaseDate": "2026-10-06",
-          "status": "beta",
+          "status": "current",
           "version": "155"
         },
         {
           "releaseDate": "2026-10-20",
-          "status": "nightly",
+          "status": "beta",
           "version": "156"
         },
         {
-          "status": "planned",
+          "releaseDate": "2026-11-03",
+          "status": "nightly",
           "version": "157"
+        },
+        {
+          "status": "planned",
+          "version": "158"
         }
       ],
       "upstream": "chrome_android"
@@ -7695,5 +7710,5 @@
   },
   "schemaFingerprint": "55e3832ebde9d4644e72e418bfda3bc9f2104f195a589da318a9fad1cde9a403",
   "schemaVersion": 2,
-  "webFeaturesVersion": "3.40.1"
+  "webFeaturesVersion": "3.42.0"
 }

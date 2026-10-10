@@ -3155,5 +3155,47 @@
     "sourceTimestamp": "2026-10-01T10:12:15.059Z",
     "summary": "Edge 157 was added to the selected BCD release metadata.",
     "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "158"
+    },
+    "browser": "chrome",
+    "id": "0ea9ec0e0dc0be71c66c737c",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "Chrome 158 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "158"
+    },
+    "browser": "chrome_android",
+    "id": "12126cbf82c39376a5ac7282",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "Chrome Android 158 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "status": "planned",
+      "version": "158"
+    },
+    "browser": "webview_android",
+    "id": "7b1c5b28c26f7913e25d9c18",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "WebView Android 158 was added to the selected BCD release metadata.",
+    "type": "browser_release_added"
   }
 ]

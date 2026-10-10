@@ -132,8 +132,8 @@ boundary.
 
 The current selected dataset is generated from:
 
-- `@mdn/browser-compat-data` 8.1.4;
-- `web-features` 3.40.1; and
+- `@mdn/browser-compat-data` 8.1.5;
+- `web-features` 3.42.0; and
 - exact Web Platform Tests suite paths pinned to revision
   `af38980d2fcd74af19a226f5f651051cc15940ed`.
 
@@ -235,6 +235,7 @@ with organisation-specific evidence.
 
 ## Documentation
 
+- [Dependency and source refresh, 11 October 2026](docs/dependency-refresh-2026-10-11.md)
 - [PR32 optional follow-up and local validation](docs/pr32-optional-follow-up.md)
 
 - [Architecture](docs/architecture.md)
