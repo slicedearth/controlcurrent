@@ -27,8 +27,9 @@ const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.
     </div>
     <p>
       These are published results from specific stable-labelled browser builds. They are separate
-      from the compatibility calculation and from evidence about your application. Harness status
-      and subtest counts stay separate; an OK harness can contain failing subtests.
+      from the compatibility calculation and from evidence about your application. File outcomes and
+      subtest counts stay separate. OK describes a completed harness, which can still contain
+      failing subtests; Pass and Fail can also describe tests without a harness.
     </p>
     <details class="content-card wpt-run-details">
       <summary>Exact browser builds, systems and source revision</summary>
@@ -74,7 +75,7 @@ const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.
               <tr>
                 <th scope="col">Browser build</th>
                 <th scope="col">Subtests passed / reported</th>
-                <th scope="col">Harness results</th>
+                <th scope="col">File outcomes</th>
               </tr>
             </thead>
             <tbody>

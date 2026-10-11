@@ -33,8 +33,9 @@ registry above. Each suite records the SHA-256 of its source API response, the
 returned search count, and every result retained after exact-prefix filtering.
 The source API's substring matches outside that prefix are excluded explicitly.
 
-Harness statuses and subtest counts are displayed separately. An OK harness does
-not imply all subtests passed; zero reported subtests are not a passing test.
+File outcomes and subtest counts are displayed separately. OK describes a
+completed harness and does not imply all subtests passed. Pass and Fail can also
+describe tests without a harness; zero reported subtests are not a passing test.
 Complete runtime flags and a full expected-test inventory are not supplied by
 these summaries. The snapshot does not change browser compatibility outcomes.
 

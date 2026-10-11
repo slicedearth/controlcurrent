@@ -105,6 +105,35 @@ describe("retained public browser-test snapshots", () => {
       { runId: "200", status: "E", passes: 0, total: 0 }
     ]);
   });
+  it("keeps harness and non-harness file outcomes separate from subtest totals", () => {
+    const snapshot = buildWptSnapshot(
+      mutateInput((value) => {
+        value.results.push(
+          {
+            test: "/permissions-policy/reference-pass.html",
+            legacy_status: [{ ...ok, status: "P", passes: 0, total: 0 }, error]
+          },
+          {
+            test: "/permissions-policy/reference-fail.html",
+            legacy_status: [{ ...ok, status: "F", passes: 0, total: 0 }, error]
+          }
+        );
+      }),
+      "2026-10-11"
+    );
+    const suite = snapshot.suites[0];
+    if (!suite) throw new Error("Missing fixture suite");
+    expect(summariseWptSuite(suite, "100")).toEqual({
+      files: 3,
+      passes: 2,
+      total: 3,
+      statuses: [
+        { label: "OK", count: 1 },
+        { label: "Pass", count: 1 },
+        { label: "Fail", count: 1 }
+      ]
+    });
+  });
   it("retains an absent run as No result without changing another browser's counts", () => {
     const snapshot = buildWptSnapshot(
       mutateInput((value) => {

@@ -87,7 +87,7 @@ checker or certification service.
 - See exact source mappings, qualifications and known data gaps.
 - Review source changes and pinned Web Platform Tests links.
 - Trace support across recorded browser releases and explore deployment dependencies as interactive circuits.
-- Read retained results from exact public browser-test runs, with harness outcomes separate from subtest totals.
+- Read retained results from exact public browser-test runs, with file outcomes separate from subtest totals.
 - Validate exported contracts with public draft 2020-12 JSON Schemas.
 - Find the oldest browser versions that support a selected group of features.
 

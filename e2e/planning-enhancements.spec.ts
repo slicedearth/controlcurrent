@@ -370,7 +370,7 @@ test("dependency circuits expose alternatives, unresolved data and separate revi
   await expect(page.locator("#dependency-caveat")).toContainText("separate clearing instructions");
 });
 
-test("public test snapshots show exact runs and complete harness/subtest totals", async ({
+test("public test snapshots show exact runs and complete file/subtest totals @workflow", async ({
   page
 }) => {
   await page.goto("/evidence/");
@@ -383,6 +383,10 @@ test("public test snapshots show exact runs and complete harness/subtest totals"
     "cc74d2669f5de548e808779877d1d33339ec5115"
   );
   const permissions = page.locator(".wpt-suite").first();
+  await expect(permissions.getByRole("columnheader", { name: "File outcomes" })).toBeVisible();
+  await expect(page.locator(".wpt-snapshot")).toContainText(
+    "Pass and Fail can also describe tests without a harness"
+  );
   await expect(permissions).toContainText("118 test files retained from 161");
   await permissions.getByText("Read all 118 retained file results", { exact: true }).click();
   await expect(permissions.locator(".wpt-file-results tbody tr")).toHaveCount(118);
