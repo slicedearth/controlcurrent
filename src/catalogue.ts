@@ -1,4 +1,4 @@
-export const CATALOGUE_VERSION = "2.2.0";
+export const CATALOGUE_VERSION = "2.3.0";
 
 export type ControlMappingState = "active" | "unsupported";
 export type CombinationRule = "all" | "any";
@@ -24,6 +24,56 @@ export type SecurityControl = {
   bcdPaths: readonly string[];
   specificationUrls: readonly string[];
 };
+
+export const DIRECTIVE_CONTROLS: readonly SecurityControl[] = [
+  ...(["camera", "microphone", "geolocation"] as const).map((directive) => ({
+    id: `permissions-policy-${directive}`,
+    name: `Permissions Policy: ${directive}`,
+    shortName: `${directive.charAt(0).toUpperCase()}${directive.slice(1)} policy`,
+    category: "Browser privacy" as const,
+    summary: `Controls whether this document and its frames may use ${directive}.`,
+    threatClasses: ["Unexpected capability use", "Over-privileged embedded content"],
+    doesNotAddress: [
+      "Application authorisation",
+      "User permission decisions",
+      "Other capabilities"
+    ],
+    prerequisites: [
+      "An explicit capability and frame allowlist",
+      "Review of inherited frame restrictions"
+    ],
+    fallback:
+      "Request only necessary capabilities and provide a usable path when access is denied.",
+    mappingState: "active" as const,
+    combination: "all" as const,
+    bcdPaths: [`http.headers.Permissions-Policy.${directive}`],
+    specificationUrls: ["https://w3c.github.io/webappsec-permissions-policy/"]
+  })),
+  ...(["cache", "cookies", "storage"] as const).map((directive) => ({
+    id: `clear-site-data-${directive}`,
+    name: `Clear-Site-Data: ${directive}`,
+    shortName: `Clear ${directive}`,
+    category: "Transport and response hardening" as const,
+    summary: `Requests clearing of browser-held ${directive} in the scope of the response.`,
+    threatClasses: ["Residual client state after logout or reset"],
+    doesNotAddress: [
+      "Server-side sessions",
+      "Data outside the directive's scope",
+      "Confirmation that clearing completed"
+    ],
+    prerequisites: [
+      "Secure-context delivery",
+      "A deliberate logout or reset flow",
+      "Review of effects on related applications"
+    ],
+    fallback:
+      "Invalidate server sessions and explicitly clear application state in the logout flow.",
+    mappingState: "active" as const,
+    combination: "all" as const,
+    bcdPaths: [`http.headers.Clear-Site-Data.${directive}`],
+    specificationUrls: ["https://w3c.github.io/webappsec-clear-site-data/"]
+  }))
+];
 
 export const SECURITY_CONTROLS = [
   {
@@ -641,7 +691,8 @@ export const SECURITY_CONTROLS = [
     combination: "all",
     bcdPaths: ["api.PublicKeyCredential.isConditionalMediationAvailable_static"],
     specificationUrls: ["https://w3c.github.io/webauthn/#enum-credentialmediationrequirement"]
-  }
+  },
+  ...DIRECTIVE_CONTROLS
 ] as const satisfies readonly SecurityControl[];
 
 export function getControl(controlId: string): SecurityControl | undefined {

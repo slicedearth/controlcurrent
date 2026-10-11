@@ -41,7 +41,7 @@ test("evaluates, stores, clears, and exports a profile locally @workflow", async
   await expect(
     page.getByRole("heading", { name: "What your browser choices can support" })
   ).toBeVisible();
-  await expect(page.locator(".result-card")).toHaveCount(30);
+  await expect(page.locator(".result-card")).toHaveCount(36);
   await expect(page.getByRole("heading", { name: /Ready to use/u })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Works with known limitations/u })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Not enough information/u })).toBeVisible();
@@ -58,9 +58,9 @@ test("evaluates, stores, clears, and exports a profile locally @workflow", async
 
   await page.getByLabel("Show blockers only").check();
   await expect(page.locator(".result-group--ready")).toBeHidden();
-  expect(await page.locator("[data-result-card]:visible").count()).toBeLessThan(30);
+  expect(await page.locator("[data-result-card]:visible").count()).toBeLessThan(36);
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("[data-result-card]:visible")).toHaveCount(30);
+  await expect(page.locator("[data-result-card]:visible")).toHaveCount(36);
 
   await page.getByRole("button", { name: "Save locally" }).click();
   await expect
@@ -94,7 +94,7 @@ test("evaluates, stores, clears, and exports a profile locally @workflow", async
   await expect(
     page.getByRole("heading", { name: "What changed since the earlier result" })
   ).toBeVisible();
-  await expect(page.locator("#comparison-events .result-card")).toHaveCount(30);
+  await expect(page.locator("#comparison-events .result-card")).toHaveCount(36);
 
   const reportPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export readable report" }).click();
@@ -430,12 +430,12 @@ test("shows pinned WPT mappings without fetching result data", async ({ page }) 
 
   await page.goto("/evidence/");
   await expect(page.getByRole("heading", { name: "Public browser tests." })).toBeVisible();
-  await expect(page.locator(".evidence-card")).toHaveCount(30);
-  await expect(page.getByText("28")).toBeVisible();
+  await expect(page.locator(".evidence-card")).toHaveCount(36);
+  await expect(page.locator(".evidence-stats").getByText("28", { exact: true })).toBeVisible();
   await expect(page.getByText("af38980d")).toBeVisible();
   await expect(
     page.getByText("No similar test is substituted when an exact link is unavailable.")
-  ).toHaveCount(2);
+  ).toHaveCount(8);
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
@@ -456,12 +456,12 @@ test("assesses and clears a redacted header snapshot without a network request",
   await page.getByRole("button", { name: "Review headers" }).click();
 
   await expect(page.getByRole("heading", { name: "Security header results" })).toBeVisible();
-  await expect(page.locator(".assurance-card")).toHaveCount(30);
+  await expect(page.locator(".assurance-card")).toHaveCount(36);
   await expect(page.getByText("Headers reviewed on this device")).toBeVisible();
   await expect(page.getByText("18")).toBeVisible();
   expect(externalRequests).toEqual([]);
 
-  await page.getByRole("button", { name: "Clear" }).first().click();
+  await page.locator("#header-form").getByRole("button", { name: "Clear", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Security header results" })).toBeHidden();
   await expect(page.getByLabel("HTTP response headers")).toHaveValue("");
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
@@ -518,7 +518,7 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs @workf
     "captured 2026-07-20T09:05:00.000Z by example-ci (application_ci)"
   );
   await expect(results.locator("#bundle-source")).toContainText(
-    "analyser 5.1.0 · catalogue 2.2.0 · BCD 8.1.5"
+    "analyser 5.1.0 · catalogue 2.3.0 · BCD 8.1.5"
   );
   await expect(
     results.getByText("Supplied page list · Reviewed application route manifest")
@@ -614,17 +614,17 @@ test("filters security features locally without hiding the full static catalogue
   });
 
   await page.goto("/controls/");
-  await expect(page.locator("[data-control-card]")).toHaveCount(30);
+  await expect(page.locator("[data-control-card]")).toHaveCount(36);
   await page.getByLabel("Search features").fill("clickjacking");
   await expect(page.locator("[data-control-card]:visible")).toHaveCount(1);
-  await expect(page.getByText("Showing 1 of 30 features.")).toBeVisible();
+  await expect(page.getByText("Showing 1 of 36 features.")).toBeVisible();
 
   await page.getByLabel("Security area").selectOption("Authentication");
   await expect(page.locator("[data-control-card]:visible")).toHaveCount(0);
   await expect(page.getByText("No features match those filters.")).toBeVisible();
 
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("[data-control-card]:visible")).toHaveCount(30);
+  await expect(page.locator("[data-control-card]:visible")).toHaveCount(36);
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();

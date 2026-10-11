@@ -4,6 +4,7 @@ import { browserNames } from "../format";
 import { BROWSER_IDS } from "../browsers";
 import { SECURITY_CONTROLS } from "../catalogue";
 import SourceContext from "./SourceContext.astro";
+import PlanLibrary from "./PlanLibrary.astro";
 
 const browsers = BROWSER_IDS;
 const controlCategories = [...new Set(SECURITY_CONTROLS.map((control) => control.category))];
@@ -141,6 +142,8 @@ const defaultRequiredControls = new Set([
     <p id="profile-message" class="form-message" role="status" aria-live="polite"></p>
   </form>
 
+  <PlanLibrary />
+
   <section id="profile-results" class="profile-results" aria-labelledby="results-heading" hidden>
     <div class="section-heading">
       <div>
@@ -150,6 +153,14 @@ const defaultRequiredControls = new Set([
       <p id="results-source"></p>
     </div>
     <aside id="profile-update" class="update-notice" aria-live="polite" hidden></aside>
+    <div class="button-row plan-handoffs">
+      <a id="plan-to-compare" class="button" href="#">
+        Try changes to this plan
+      </a>
+      <a id="plan-to-inspect" class="button" href="#">
+        Inspect headers with this plan
+      </a>
+    </div>
     <form id="result-filters" class="result-filters" aria-label="Filter support results">
       <label>
         <span>Search results</span>

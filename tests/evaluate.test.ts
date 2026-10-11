@@ -217,6 +217,6 @@ describe("control and profile evaluation", () => {
       baselines: [baseline]
     };
     expect(evaluateProfile(selected, profile)).toEqual(evaluateProfile(selected, profile));
-    expect(Object.keys(evaluateProfile(selected, profile).results)).toHaveLength(30);
+    expect(Object.keys(evaluateProfile(selected, profile).results)).toHaveLength(36);
   });
 });

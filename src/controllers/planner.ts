@@ -1,4 +1,7 @@
 import { requiredElement, listenAsync } from "./dom";
+import { initialisePlanLibrary } from "./plan-library";
+import { planFragment } from "../plan-transfer";
+import { consumePlanTransfer } from "./plan-transfer";
 import { SECURITY_CONTROLS } from "../catalogue";
 import { selectedSnapshot } from "../data";
 import {
@@ -509,6 +512,11 @@ export function initialisePlanner(document: Document = window.document, baseUrl 
     exportButton.disabled = false;
     reportButton.disabled = false;
     latestEvaluation = evaluation;
+    const fragment = planFragment(selectedSnapshot, evaluation.profile);
+    requiredElement(document, "#plan-to-compare", HTMLAnchorElement).href =
+      `${basePath}/compare/${fragment}`;
+    requiredElement(document, "#plan-to-inspect", HTMLAnchorElement).href =
+      `${basePath}/assess/${fragment}`;
     resetPolicy();
     applyResultFilters();
     showRememberedUpdate(evaluation);
@@ -1201,6 +1209,31 @@ export function initialisePlanner(document: Document = window.document, baseUrl 
       `${message.textContent} A result from a newer version was left untouched and will not be overwritten automatically.`.trim();
   } else if (storedEvaluation.state === "invalid") {
     message.textContent = `${message.textContent} An invalid remembered result was ignored.`.trim();
+  }
+
+  initialisePlanLibrary(document, readProfile, (profile) => {
+    operations.cancel();
+    invalidateEvaluation();
+    applyProfile(profile);
+    message.textContent = "Named plan loaded. Select Check support to see the results.";
+  });
+  try {
+    const transfer = consumePlanTransfer();
+    if (transfer) {
+      invalidateEvaluation();
+      applyProfile(transfer.profile);
+      if (transfer.controlIds.length > 0) {
+        for (const input of document.querySelectorAll<HTMLInputElement>(
+          'input[name="required-control"]'
+        ))
+          input.checked = transfer.controlIds.includes(input.value);
+      }
+      message.textContent =
+        "Transferred browser choices loaded for review. Nothing was saved. Select Check support.";
+    }
+  } catch (error) {
+    message.textContent =
+      error instanceof Error ? error.message : "The transferred plan could not be read.";
   }
 
   const defaultExceptionExpiry = new Date();

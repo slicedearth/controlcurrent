@@ -48,6 +48,17 @@ The value is:
 Future-version values are left untouched and refused rather than migrated
 silently. Invalid and oversized values are ignored.
 
+The named-plan library is a separate opt-in store, `controlcurrent.plans.v1`,
+limited to 12 browser plans and 64 KiB. **Save current as a new plan** and
+**Duplicate selected** write to this store. Rename and delete affect only the
+selected named plan. Plans contain browser choices and a name, never pasted
+headers or evidence. No library is created automatically.
+
+Hand-offs between tools carry browser choices and selected feature IDs in a
+bounded URL fragment. The receiving page removes the fragment from its current
+address after reading it. Fragments are not sent in HTTP requests. These actions
+do not save a plan to either local-storage key.
+
 ## Exports
 
 JSON exports are generated locally from the displayed calculation. They contain
@@ -158,5 +169,6 @@ no imported policy, decision, evidence or visitor values.
 
 ## Deletion
 
-Use **Clear saved profile** in the planner or clear the site's storage in the
-browser. There is no application-side server copy.
+Use **Delete saved plan** for the current saved profile and remembered result,
+and **Delete selected** for individual named plans. Clearing the site's storage
+removes both stores. There is no application-side server copy.

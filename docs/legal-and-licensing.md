@@ -49,10 +49,12 @@ ControlCurrent includes project-authored factual mappings to suite paths in:
 - **Reviewed revision:** `af38980d2fcd74af19a226f5f651051cc15940ed`
 - **Licence:** BSD 3-Clause
 
-The project does not copy WPT source, test bodies, expectations, or wpt.fyi
-result data. It retains exact suite paths, pinned source links, current
-dashboard links, and original scope and limitation statements. Links do not
-incorporate WPT or dashboard content into the project licence.
+The project does not copy WPT source, test bodies, expectations or raw logs.
+It retains exact suite paths, pinned source links, current dashboard links,
+and original scope and limitation statements. A bounded projection of public
+wpt.fyi result counts, statuses and run metadata identifies each original run
+and source-response digest. Neither the source licence nor the project licence
+relicenses linked dashboard content or reports from their original producers.
 
 ## Client-side HTML parsing
 

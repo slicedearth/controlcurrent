@@ -3171,6 +3171,443 @@
     "type": "browser_release_added"
   },
   {
+    "after": [
+      {
+        "combination": "all",
+        "controlId": "content-security-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-nonces",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-hashes",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-dynamic",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.strict-dynamic"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-base-uri",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.base-uri"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-frame-ancestors",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.frame-ancestors"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-form-action",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.form-action"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-upgrade-insecure-requests",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.upgrade-insecure-requests"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-sandbox",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.sandbox"]
+      },
+      {
+        "combination": "all",
+        "controlId": "trusted-types",
+        "mappingState": "active",
+        "paths": [
+          "api.trustedTypes",
+          "http.headers.Content-Security-Policy.require-trusted-types-for"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "subresource-integrity",
+        "mappingState": "active",
+        "paths": ["html.elements.script.integrity", "html.elements.link.integrity"]
+      },
+      {
+        "combination": "any",
+        "controlId": "integrity-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Integrity-Policy", "http.headers.Integrity-Policy-Report-Only"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-opener-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Opener-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-embedder-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-resource-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Resource-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "coep-credentialless",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy.credentialless"]
+      },
+      {
+        "combination": "all",
+        "controlId": "origin-agent-cluster",
+        "mappingState": "active",
+        "paths": ["http.headers.Origin-Agent-Cluster"]
+      },
+      {
+        "combination": "all",
+        "controlId": "fetch-metadata",
+        "mappingState": "active",
+        "paths": [
+          "http.headers.Sec-Fetch-Dest",
+          "http.headers.Sec-Fetch-Mode",
+          "http.headers.Sec-Fetch-Site",
+          "http.headers.Sec-Fetch-User"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-transport-security",
+        "mappingState": "active",
+        "paths": ["http.headers.Strict-Transport-Security"]
+      },
+      {
+        "combination": "all",
+        "controlId": "x-content-type-options",
+        "mappingState": "active",
+        "paths": ["http.headers.X-Content-Type-Options"]
+      },
+      {
+        "combination": "all",
+        "controlId": "clear-site-data",
+        "mappingState": "active",
+        "paths": ["http.headers.Clear-Site-Data"]
+      },
+      {
+        "combination": "all",
+        "controlId": "referrer-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Referrer-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "samesite-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.SameSite"]
+      },
+      {
+        "combination": "all",
+        "controlId": "partitioned-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.Partitioned"]
+      },
+      {
+        "combination": "all",
+        "controlId": "httponly-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.HttpOnly"]
+      },
+      {
+        "combination": "all",
+        "controlId": "secure-cookie-prefixes",
+        "mappingState": "active",
+        "paths": [
+          "http.headers.Set-Cookie.host_secure_prefixes",
+          "http.headers.Set-Cookie.http_host-http_prefixes"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-platform-authenticator",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static"]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-prf",
+        "mappingState": "active",
+        "paths": [
+          "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+          "api.CredentialsContainer.get.publicKey_option.extensions.prf"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-conditional-mediation",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy-camera",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy.camera"]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy-microphone",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy.microphone"]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy-geolocation",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy.geolocation"]
+      },
+      {
+        "combination": "all",
+        "controlId": "clear-site-data-cache",
+        "mappingState": "active",
+        "paths": ["http.headers.Clear-Site-Data.cache"]
+      },
+      {
+        "combination": "all",
+        "controlId": "clear-site-data-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Clear-Site-Data.cookies"]
+      },
+      {
+        "combination": "all",
+        "controlId": "clear-site-data-storage",
+        "mappingState": "active",
+        "paths": ["http.headers.Clear-Site-Data.storage"]
+      }
+    ],
+    "before": [
+      {
+        "combination": "all",
+        "controlId": "content-security-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-nonces",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-hashes",
+        "mappingState": "unsupported",
+        "paths": []
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-dynamic",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.strict-dynamic"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-base-uri",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.base-uri"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-frame-ancestors",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.frame-ancestors"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-form-action",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.form-action"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-upgrade-insecure-requests",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.upgrade-insecure-requests"]
+      },
+      {
+        "combination": "all",
+        "controlId": "csp-sandbox",
+        "mappingState": "active",
+        "paths": ["http.headers.Content-Security-Policy.sandbox"]
+      },
+      {
+        "combination": "all",
+        "controlId": "trusted-types",
+        "mappingState": "active",
+        "paths": [
+          "api.trustedTypes",
+          "http.headers.Content-Security-Policy.require-trusted-types-for"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "subresource-integrity",
+        "mappingState": "active",
+        "paths": ["html.elements.script.integrity", "html.elements.link.integrity"]
+      },
+      {
+        "combination": "any",
+        "controlId": "integrity-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Integrity-Policy", "http.headers.Integrity-Policy-Report-Only"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-opener-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Opener-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-embedder-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "cross-origin-resource-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Resource-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "coep-credentialless",
+        "mappingState": "active",
+        "paths": ["http.headers.Cross-Origin-Embedder-Policy.credentialless"]
+      },
+      {
+        "combination": "all",
+        "controlId": "origin-agent-cluster",
+        "mappingState": "active",
+        "paths": ["http.headers.Origin-Agent-Cluster"]
+      },
+      {
+        "combination": "all",
+        "controlId": "fetch-metadata",
+        "mappingState": "active",
+        "paths": [
+          "http.headers.Sec-Fetch-Dest",
+          "http.headers.Sec-Fetch-Mode",
+          "http.headers.Sec-Fetch-Site",
+          "http.headers.Sec-Fetch-User"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "permissions-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Permissions-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "strict-transport-security",
+        "mappingState": "active",
+        "paths": ["http.headers.Strict-Transport-Security"]
+      },
+      {
+        "combination": "all",
+        "controlId": "x-content-type-options",
+        "mappingState": "active",
+        "paths": ["http.headers.X-Content-Type-Options"]
+      },
+      {
+        "combination": "all",
+        "controlId": "clear-site-data",
+        "mappingState": "active",
+        "paths": ["http.headers.Clear-Site-Data"]
+      },
+      {
+        "combination": "all",
+        "controlId": "referrer-policy",
+        "mappingState": "active",
+        "paths": ["http.headers.Referrer-Policy"]
+      },
+      {
+        "combination": "all",
+        "controlId": "samesite-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.SameSite"]
+      },
+      {
+        "combination": "all",
+        "controlId": "partitioned-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.Partitioned"]
+      },
+      {
+        "combination": "all",
+        "controlId": "httponly-cookies",
+        "mappingState": "active",
+        "paths": ["http.headers.Set-Cookie.HttpOnly"]
+      },
+      {
+        "combination": "all",
+        "controlId": "secure-cookie-prefixes",
+        "mappingState": "active",
+        "paths": [
+          "http.headers.Set-Cookie.host_secure_prefixes",
+          "http.headers.Set-Cookie.http_host-http_prefixes"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-platform-authenticator",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable_static"]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-prf",
+        "mappingState": "active",
+        "paths": [
+          "api.CredentialsContainer.create.publicKey_option.extensions.prf",
+          "api.CredentialsContainer.get.publicKey_option.extensions.prf"
+        ]
+      },
+      {
+        "combination": "all",
+        "controlId": "webauthn-conditional-mediation",
+        "mappingState": "active",
+        "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
+      }
+    ],
+    "id": "0ef2c89b22e868bd1b2ebc5c",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The control catalogue mapping changed from 2.2.0 to 2.3.0.",
+    "type": "control_mapping_changed"
+  },
+  {
     "after": {
       "status": "planned",
       "version": "158"
@@ -3186,6 +3623,156 @@
   },
   {
     "after": {
+      "baseline": [
+        {
+          "featureId": "media-capture",
+          "name": "Media capture",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy/microphone",
+      "path": "http.headers.Permissions-Policy.microphone",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": ["https://w3c.github.io/mediacapture-main/#permissions-policy-integration"],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": false
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
+          }
+        ]
+      }
+    },
+    "id": "13b7d4f7f5b6940ed7e1fd84",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "path": "http.headers.Permissions-Policy.microphone",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The selected BCD path http.headers.Permissions-Policy.microphone was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "media-capture",
+          "name": "Media capture",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy/camera",
+      "path": "http.headers.Permissions-Policy.camera",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": ["https://w3c.github.io/mediacapture-main/#permissions-policy-integration"],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": false
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
+          }
+        ]
+      }
+    },
+    "id": "2c6e71f3d8d01fec77d864c2",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "path": "http.headers.Permissions-Policy.camera",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The selected BCD path http.headers.Permissions-Policy.camera was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
       "status": "planned",
       "version": "158"
     },
@@ -3197,5 +3784,413 @@
     "sourceTimestamp": "2026-10-08T12:46:21.707Z",
     "summary": "WebView Android 158 was added to the selected BCD release metadata.",
     "type": "browser_release_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "name": "Clearing site data",
+          "status": false
+        }
+      ],
+      "description": "<code>&quot;cache&quot;</code>",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Clear-Site-Data#cache",
+      "path": "http.headers.Clear-Site-Data.cache",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#grammardef-cache"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "65",
+            "version_last": "126",
+            "version_removed": "127"
+          },
+          {
+            "notes": [
+              "Setting this value may prevent a page from fully loading. See <a href=\"https://crbug.com/41343050\">bug 41343050</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "61",
+            "version_last": "62",
+            "version_removed": "63"
+          }
+        ],
+        "chrome_android": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "65",
+            "version_last": "126",
+            "version_removed": "127"
+          },
+          {
+            "notes": [
+              "Setting this value may prevent a page from fully loading. See <a href=\"https://crbug.com/41343050\">bug 41343050</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "61",
+            "version_last": "62",
+            "version_removed": "63"
+          }
+        ],
+        "edge": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "79",
+            "version_last": "126",
+            "version_removed": "127"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "138"
+          },
+          {
+            "impl_url": "https://bugzil.la/1838506",
+            "version_added": "63",
+            "version_last": "93",
+            "version_removed": "94"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "138"
+          },
+          {
+            "impl_url": "https://bugzil.la/1838506",
+            "version_added": "63",
+            "version_last": "93",
+            "version_removed": "94"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "28.0"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "9.0",
+            "version_last": "27.0",
+            "version_removed": "28.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "65",
+            "version_last": "126",
+            "version_removed": "127"
+          },
+          {
+            "notes": [
+              "Setting this value may prevent a page from fully loading. See <a href=\"https://crbug.com/41343050\">bug 41343050</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "61",
+            "version_last": "62",
+            "version_removed": "63"
+          }
+        ]
+      }
+    },
+    "id": "8a6c685395a6e5a6a6cdf15a",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "path": "http.headers.Clear-Site-Data.cache",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The selected BCD path http.headers.Clear-Site-Data.cache was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "highDate": "2026-03-18",
+          "lowDate": "2023-09-18",
+          "name": "Clearing site data",
+          "status": "high"
+        }
+      ],
+      "description": "<code>&quot;cookies&quot;</code>",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Clear-Site-Data#cookies",
+      "path": "http.headers.Clear-Site-Data.cookies",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#grammardef-cookies"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "8.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "61"
+          }
+        ]
+      }
+    },
+    "id": "8bba16426f38a02f9784cfca",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "path": "http.headers.Clear-Site-Data.cookies",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The selected BCD path http.headers.Clear-Site-Data.cookies was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "geolocation",
+          "name": "Geolocation API",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy/geolocation",
+      "path": "http.headers.Permissions-Policy.geolocation",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": ["https://w3c.github.io/geolocation/#permissions-policy"],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": false
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
+          }
+        ]
+      }
+    },
+    "id": "e8fcbe75a5b387f560615049",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "path": "http.headers.Permissions-Policy.geolocation",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The selected BCD path http.headers.Permissions-Policy.geolocation was added.",
+    "type": "selected_path_added"
+  },
+  {
+    "after": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "highDate": "2026-03-18",
+          "lowDate": "2023-09-18",
+          "name": "Clearing site data",
+          "status": "high"
+        }
+      ],
+      "description": "<code>&quot;storage&quot;</code>",
+      "path": "http.headers.Clear-Site-Data.storage",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#grammardef-storage"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "8.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "61"
+          }
+        ]
+      }
+    },
+    "id": "f5ef8b0d54c81cbc33130bce",
+    "observedInBcdVersion": "8.1.5",
+    "observedInWebFeaturesVersion": "3.42.0",
+    "path": "http.headers.Clear-Site-Data.storage",
+    "schemaVersion": 1,
+    "sourceTimestamp": "2026-10-08T12:46:21.707Z",
+    "summary": "The selected BCD path http.headers.Clear-Site-Data.storage was added.",
+    "type": "selected_path_added"
   }
 ]

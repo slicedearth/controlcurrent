@@ -17,7 +17,7 @@ describe("locked BCD source selection", () => {
     expect(buildSelectedSnapshot(bcd, { webFeaturesVersion: selected.webFeaturesVersion })).toEqual(
       selected
     );
-    expect(Object.keys(selected.features)).toHaveLength(36);
+    expect(Object.keys(selected.features)).toHaveLength(42);
     expect(selected.bcdVersion).toBe(bcd.__meta.version);
   });
 

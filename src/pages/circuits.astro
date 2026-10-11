@@ -1,0 +1,132 @@
+---
+import Layout from "../components/Layout.astro";
+import SourceContext from "../components/SourceContext.astro";
+import { DEPENDENCY_CIRCUITS } from "../dependency-circuits";
+import { BROWSER_IDS } from "../browsers";
+import { browserNames } from "../format";
+import { selectedSnapshot } from "../data";
+import { recordedReleasedVersions } from "../evaluate";
+---
+
+<Layout
+  title="Explore deployment circuits"
+  description="Trace security feature dependencies, browser support and the application checks needed for a deployment goal."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">The dependency board</span>
+    <h1>Follow the connection.</h1>
+    <p>
+      Pick a deployment goal. Trace its browser features, examine alternatives, and keep the
+      application checks beside them.
+    </p>
+  </header>
+  <div class="shell circuit-workspace">
+    <SourceContext />
+    <form id="dependency-form" class="circuit-controls">
+      <label>
+        <span>Deployment goal</span>
+        <select id="circuit-goal">
+          {DEPENDENCY_CIRCUITS.map((goal) => (
+            <option value={goal.id}>{goal.name}</option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>Browser family</span>
+        <select id="dependency-browser">
+          {BROWSER_IDS.map((browser) => (
+            <option value={browser}>{browserNames[browser]}</option>
+          ))}
+        </select>
+      </label>
+      {BROWSER_IDS.map((browser) => (
+        <label data-circuit-versions={browser} hidden={browser !== "chrome"}>
+          <span>Minimum {browserNames[browser]} version</span>
+          <select data-version-for={browser}>
+            {[...(recordedReleasedVersions(selectedSnapshot, browser) ?? [])]
+              .reverse()
+              .map((release) => (
+                <option value={release.version}>
+                  {release.version}
+                  {release.status === "current" ? " · current" : ""}
+                </option>
+              ))}
+          </select>
+        </label>
+      ))}
+      <label id="circuit-alternative-label">
+        <span>Route</span>
+        <select id="circuit-alternative">
+          <option value="primary">COEP require-corp</option>
+          <option value="alternative">COEP credentialless</option>
+        </select>
+      </label>
+      <button type="submit" class="button">
+        Trace this circuit
+      </button>
+    </form>
+    <noscript>
+      <div class="content-card">
+        <p>Interactive traces need JavaScript running locally. These are the available goals:</p>
+        <ul>
+          {DEPENDENCY_CIRCUITS.map((goal) => (
+            <li>
+              <strong>{goal.name}:</strong> {goal.description}{" "}
+              <a href={goal.reference}>Read the requirements</a>.
+            </li>
+          ))}
+        </ul>
+      </div>
+    </noscript>
+    <section id="dependency-result" hidden>
+      <div class="dependency-board">
+        <div class="dependency-feed">
+          <span class="eyebrow">Selected supply</span>
+          <h2 id="dependency-title"></h2>
+          <p id="dependency-baseline"></p>
+          <span class="feed-terminal" aria-hidden="true"></span>
+        </div>
+        <ol id="dependency-nodes" class="dependency-nodes"></ol>
+        <div class="dependency-readout" aria-live="polite">
+          <strong id="dependency-reading"></strong>
+          <p>Select a feature terminal for its source explanation.</p>
+        </div>
+      </div>
+      <div class="dependency-detail-grid">
+        <section class="content-card" aria-labelledby="dependency-detail-title">
+          <span class="eyebrow">Selected terminal</span>
+          <h3 id="dependency-detail-title"></h3>
+          <p id="dependency-explanation"></p>
+          <ul id="dependency-qualifications"></ul>
+          <a id="dependency-feature-link" href="#">
+            Open the feature and release trace
+          </a>
+        </section>
+        <section class="content-card" aria-labelledby="dependency-review-title">
+          <span class="eyebrow">Your application</span>
+          <h3 id="dependency-review-title">Checks beyond browser support</h3>
+          <div id="dependency-reviews"></div>
+          <p id="dependency-review-status" role="status"></p>
+          <p class="muted">
+            Ticking a check records your review in this page only. It does not validate your
+            application or save evidence.
+          </p>
+        </section>
+      </div>
+      <p id="dependency-caveat" class="callout"></p>
+      <div class="button-row">
+        <a class="button" id="dependency-source" href="#" rel="noopener noreferrer">
+          Read the deployment requirements
+        </a>
+        <a class="button button--primary" id="dependency-plan" href="#">
+          Use this browser in a plan
+        </a>
+      </div>
+    </section>
+    <p id="dependency-status" role="status" aria-live="polite"></p>
+  </div>
+</Layout>
+<script>
+  import { initialiseDependencyCircuit } from "../controllers/dependency-circuit";
+  initialiseDependencyCircuit(document, import.meta.env.BASE_URL);
+</script>

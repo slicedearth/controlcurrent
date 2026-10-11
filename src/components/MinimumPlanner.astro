@@ -96,10 +96,16 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
       <p id="minimum-source"></p>
     </div>
     <div id="minimum-result-list" class="results-list"></div>
+    <div class="button-row">
+      <a id="use-minimums" class="button button--primary" hidden>
+        Use these minimums
+      </a>
+    </div>
+    <p id="minimum-transfer-status" class="muted"></p>
   </section>
 </section>
 
 <script>
   import { initialiseMinimumPlanner } from "../controllers/minimum-planner";
-  initialiseMinimumPlanner();
+  initialiseMinimumPlanner(document, import.meta.env.BASE_URL);
 </script>

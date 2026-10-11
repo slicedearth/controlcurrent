@@ -27,8 +27,15 @@ import Layout from "../components/Layout.astro";
       <h2 id="section-1">Browser plans</h2>
       <p>
         Your browser plan stays in memory while the planner is open. It is saved to this browser
-        only when you choose “Save locally”, and you can delete it from the planner. Export files
-        are created on your device.
+        only when you choose “Save locally”. The separate named-plan library holds up to 12 plans
+        when you choose “Save current as a new plan” or “Duplicate selected”. Both stores can be
+        cleared from the planner. Export files are created on your device.
+      </p>
+      <p>
+        Moving a plan between tools uses a bounded URL fragment containing its name, browser choices
+        and selected feature IDs. The receiving page removes that fragment from its address after
+        reading it. The fragment is not sent in HTTP requests, and no headers or evidence are
+        included.
       </p>
       <p>
         You can separately choose to remember the latest support result so the site can compare it
@@ -98,7 +105,8 @@ import Layout from "../components/Layout.astro";
       <h2 id="section-5">Deletion</h2>
       <p>
         Use “Delete saved plan” in the planner to remove the saved plan and remembered result, or
-        clear site storage in your browser. There is no server copy to request or delete.
+        use “Delete selected” for each named plan, or clear site storage in your browser. There is
+        no server copy to request or delete.
       </p>
     </article>
   </div>

@@ -1,0 +1,165 @@
+---
+import input from "../../data/wpt-snapshot.json";
+import {
+  wptSnapshotSchema,
+  WPT_SNAPSHOT_SUITES,
+  WPT_STATUS_LABELS,
+  summariseWptSuite,
+  wptSnapshotQuery
+} from "../wpt-snapshot";
+import { formatDate } from "../format";
+interface Props {
+  paths?: readonly string[];
+}
+const { paths } = Astro.props;
+const snapshot = wptSnapshotSchema.parse(input);
+const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.path));
+---
+
+{suites.length > 0 && (
+  <section class="wpt-snapshot" aria-label="Retained public test results">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">A fixed result snapshot</span>
+        <h2>What those browser runs reported</h2>
+      </div>
+      <p>Reviewed {formatDate(snapshot.reviewedOn)}</p>
+    </div>
+    <p>
+      These are published results from specific stable-labelled browser builds. They are separate
+      from the compatibility calculation and from evidence about your application. Harness status
+      and subtest counts stay separate; an OK harness can contain failing subtests.
+    </p>
+    <details class="content-card wpt-run-details">
+      <summary>Exact browser builds, systems and source revision</summary>
+      <ul>
+        {snapshot.runs.map((run) => (
+          <li>
+            <strong>
+              {run.browser} {run.browserVersion}
+            </strong>{" "}
+            · {run.os} {run.osVersion} · {run.channel}
+            <br />
+            <a href={`https://wpt.fyi/api/runs/${run.id}`} rel="noopener noreferrer">
+              Run {run.id}
+            </a>{" "}
+            · {run.startedAt} to {run.completedAt}
+            <br />
+            <code class="source-path">{run.revision}</code>
+          </li>
+        ))}
+      </ul>
+      <p>
+        “Stable” is the upstream run label. Complete runtime flags were not supplied by the summary
+        API. These results do not cover every browser version, mobile platform or operating system.
+      </p>
+    </details>
+    {suites.map((suite) => (
+      <article class="content-card wpt-suite">
+        <h3>{WPT_SNAPSHOT_SUITES.find((known) => known.path === suite.path)?.name}</h3>
+        <code class="source-path">{suite.path}</code>
+        <p>
+          {suite.tests.length} test files retained from {suite.returnedTests} returned search
+          matches. Only this exact directory prefix is included. This is the returned result
+          inventory, not a claim that every possible suite test ran.
+        </p>
+        <div
+          class="table-wrap"
+          role="region"
+          aria-label={`${suite.path} retained totals`}
+          tabindex="0"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Browser build</th>
+                <th scope="col">Subtests passed / reported</th>
+                <th scope="col">Harness results</th>
+              </tr>
+            </thead>
+            <tbody>
+              {snapshot.runs.map((run) => {
+                const summary = summariseWptSuite(suite, run.id);
+                return (
+                  <tr>
+                    <th scope="row">
+                      {run.browser}
+                      <br />
+                      <small>{run.browserVersion}</small>
+                    </th>
+                    <td>
+                      {summary.passes} / {summary.total}
+                    </td>
+                    <td>
+                      {summary.statuses
+                        .map((status) => `${status.count} ${status.label}`)
+                        .join(" · ") || "No results"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <details class="wpt-file-results">
+          <summary>Read all {suite.tests.length} retained file results</summary>
+          <div
+            class="table-wrap"
+            role="region"
+            aria-label={`${suite.path} individual file results`}
+            tabindex="0"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Test file</th>
+                  {snapshot.runs.map((run) => (
+                    <th scope="col">{run.browser}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {suite.tests.map((test) => (
+                  <tr>
+                    <th scope="row">
+                      <code>{test.path.slice(suite.path.length + 2)}</code>
+                    </th>
+                    {snapshot.runs.map((run) => {
+                      const result = test.results.find((entry) => entry.runId === run.id);
+                      return (
+                        <td>
+                          {result
+                            ? `${WPT_STATUS_LABELS[result.status]} · ${result.passes}/${result.total} subtests`
+                            : "No result"}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+        <p class="source-actions">
+          <a href={wptSnapshotQuery(suite, snapshot.runs)} rel="noopener noreferrer">
+            Pinned API query
+          </a>
+          <a
+            href={`https://github.com/web-platform-tests/wpt/tree/${snapshot.runs[0]?.revision}/${suite.path}`}
+            rel="noopener noreferrer"
+          >
+            Test source at the run revision
+          </a>
+        </p>
+        <details>
+          <summary>Source-response fingerprint</summary>
+          <code class="source-path">SHA-256 {suite.responseSha256}</code>
+          <p>
+            The digest identifies the downloaded API response used for this projection. It does not
+            authenticate the runner or prove that the results are truthful.
+          </p>
+        </details>
+      </article>
+    ))}
+  </section>
+)}

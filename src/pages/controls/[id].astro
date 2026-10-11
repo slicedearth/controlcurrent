@@ -1,6 +1,8 @@
 ---
 import Layout from "../../components/Layout.astro";
 import OutcomeBadge from "../../components/OutcomeBadge.astro";
+import SupportTimeline from "../../components/SupportTimeline.astro";
+import WptSnapshot from "../../components/WptSnapshot.astro";
 import { SECURITY_CONTROLS, type SecurityControl } from "../../catalogue";
 import { currentEvaluation, selectedSnapshot } from "../../data";
 import { browserNames } from "../../format";
@@ -68,6 +70,8 @@ const wptEvidence = getWptEvidence(control.id);
         </div>
       </section>
 
+      <SupportTimeline controlId={control.id} />
+      <WptSnapshot paths={wptEvidence.suites.map((suite) => suite.path)} />
       <section class="content-card">
         <h2>What this feature can and cannot do</h2>
         <h3>Helps protect against</h3>

@@ -1,5 +1,6 @@
 ---
 import Layout from "../components/Layout.astro";
+import WptSnapshot from "../components/WptSnapshot.astro";
 import { getControl } from "../catalogue";
 import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW, wptResultsUrl, wptSourceUrl } from "../wpt-evidence";
 
@@ -39,6 +40,10 @@ const mappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")
       <span>date the links were reviewed</span>
     </div>
   </section>
+
+  <div class="shell section">
+    <WptSnapshot />
+  </div>
 
   <section class="section">
     <div class="shell">

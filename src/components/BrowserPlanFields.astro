@@ -1,0 +1,63 @@
+---
+import { BROWSER_IDS } from "../browsers";
+import { selectedSnapshot } from "../data";
+import { browserNames } from "../format";
+import { recordedReleasedVersions } from "../evaluate";
+interface Props {
+  side: string;
+  label: string;
+}
+const { side, label } = Astro.props;
+const defaults: Record<string, string> = { chrome: "120", firefox: "115", safari: "17" };
+---
+
+<fieldset class="comparison-plan" data-plan-side={side}>
+  <legend>
+    <span class="eyebrow">{side === "before" ? "Circuit A" : "Circuit B"}</span>
+    {label}
+  </legend>
+  <label>
+    <span>Plan name</span>
+    <input
+      name={`${side}-name`}
+      maxlength="80"
+      value={side === "before" ? "Existing browser plan" : "Proposed browser plan"}
+    />
+  </label>
+  <label>
+    <span>Load a saved plan</span>
+    <select data-saved-side={side}>
+      <option value="">Choose a saved plan</option>
+    </select>
+  </label>
+  <div class="comparison-browsers">
+    {BROWSER_IDS.map((browser) => {
+      const releases = [...(recordedReleasedVersions(selectedSnapshot, browser) ?? [])].reverse();
+      const version = side === "before" ? defaults[browser] : releases[0]?.version;
+      const included = browser in defaults;
+      return (
+        <div class="comparison-browser">
+          <label>
+            <input type="checkbox" name={`${side}-include-${browser}`} checked={included} />
+            <span>{browserNames[browser]}</span>
+          </label>
+          <label>
+            <span class="sr-only">{browserNames[browser]} minimum</span>
+            <select name={`${side}-version-${browser}`} disabled={!included}>
+              {releases.map((release) => (
+                <option value={release.version} selected={release.version === version}>
+                  {release.version}
+                  {release.status === "current"
+                    ? " · current"
+                    : release.status === "esr"
+                      ? " · ESR"
+                      : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      );
+    })}
+  </div>
+</fieldset>

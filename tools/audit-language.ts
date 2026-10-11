@@ -6,6 +6,8 @@ const excludedFiles = new Set([
   "LICENSE",
   "data/selected-bcd.json",
   "data/source-history.json",
+  // Generated upstream test identifiers retain their exact source spelling.
+  "data/wpt-snapshot.json",
   "package-lock.json",
   // Generated third-party package identifiers must retain their upstream spelling.
   "tools/npm-toolchain/package-lock.json",

@@ -17,7 +17,12 @@ const contentSecurityPolicy = import.meta.env.DEV
   : "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data:; connect-src 'none'; font-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests";
 const localPath = Astro.url.pathname.slice(base.length);
 const nav = [
-  { href: "/planner/", label: "Plan", number: "01", paths: ["/planner/", "/minimums/"] },
+  {
+    href: "/planner/",
+    label: "Plan",
+    number: "01",
+    paths: ["/planner/", "/minimums/", "/compare/", "/circuits/"]
+  },
   { href: "/assess/", label: "Inspect", number: "02", paths: ["/assess/"] },
   {
     href: "/controls/",
@@ -37,7 +42,9 @@ const tabs =
   section?.number === "01"
     ? [
         { href: "/planner/", label: "Choose browser versions" },
-        { href: "/minimums/", label: "Find minimum versions" }
+        { href: "/minimums/", label: "Find minimum versions" },
+        { href: "/compare/", label: "Compare plans" },
+        { href: "/circuits/", label: "Dependency circuits" }
       ]
     : section?.number === "03"
       ? [

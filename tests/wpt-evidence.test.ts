@@ -25,7 +25,16 @@ describe("WPT evidence registry", () => {
       WPT_EVIDENCE.filter((mapping) => mapping.state === "not_mapped").map(
         (mapping) => mapping.controlId
       )
-    ).toEqual(["strict-transport-security", "httponly-cookies"]);
+    ).toEqual([
+      "strict-transport-security",
+      "httponly-cookies",
+      "permissions-policy-camera",
+      "permissions-policy-microphone",
+      "permissions-policy-geolocation",
+      "clear-site-data-cache",
+      "clear-site-data-cookies",
+      "clear-site-data-storage"
+    ]);
 
     for (const mapping of WPT_EVIDENCE) {
       expect(mapping.scope.length).toBeGreaterThan(20);

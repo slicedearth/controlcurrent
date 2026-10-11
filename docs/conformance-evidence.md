@@ -25,6 +25,26 @@ Pinned source links use the reviewed revision. Links to wpt.fyi are deliberately
 labelled as current results because the dashboard changes independently of the
 reviewed registry.
 
+The separate retained snapshot in `data/wpt-snapshot.json` contains five exact
+directory prefixes from aligned, stable-labelled runs. Each run records its own
+full test-source revision, browser build, operating system, start and completion
+times, and public run ID. These revisions are independent of the older suite-link
+registry above. Each suite records the SHA-256 of its source API response, the
+returned search count, and every result retained after exact-prefix filtering.
+The source API's substring matches outside that prefix are excluded explicitly.
+
+Harness statuses and subtest counts are displayed separately. An OK harness does
+not imply all subtests passed; zero reported subtests are not a passing test.
+Complete runtime flags and a full expected-test inventory are not supplied by
+these summaries. The snapshot does not change browser compatibility outcomes.
+
+`npm run wpt:import -- <response-directory> <YYYY-MM-DD>` validates already
+downloaded responses named `wpt-search-0.json` through `wpt-search-4.json` in the
+suite order in `src/wpt-snapshot.ts`. It makes no network request. Imports refuse
+mixed run metadata, unaligned revisions, old aggregation semantics, duplicate
+references and exceeded bounds. Normal builds validate the retained snapshot
+without refreshing it.
+
 ## Mapping rule
 
 A mapping is retained only when the reviewed repository contains an exact suite

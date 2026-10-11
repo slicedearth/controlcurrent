@@ -2,7 +2,7 @@
   "schemaVersion": 4,
   "name": "Release evidence baseline",
   "expectedAnalyserVersion": "5.1.0",
-  "expectedCatalogueVersion": "2.2.0",
+  "expectedCatalogueVersion": "2.3.0",
   "expectedBcdVersion": "8.1.4",
   "attestation": {
     "required": false,

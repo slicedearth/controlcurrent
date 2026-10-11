@@ -1,4 +1,4 @@
-import { SECURITY_CONTROLS } from "./catalogue";
+import { DIRECTIVE_CONTROLS, SECURITY_CONTROLS } from "./catalogue";
 
 export const WPT_EVIDENCE_REVIEW = {
   schemaVersion: 1,
@@ -281,7 +281,17 @@ const MAPPINGS = [
 ] as const satisfies readonly WptEvidenceMapping[];
 
 const mappingByControl = new Map<string, WptEvidenceMapping>(
-  MAPPINGS.map((mapping) => [mapping.controlId, mapping])
+  [
+    ...MAPPINGS,
+    ...DIRECTIVE_CONTROLS.map((control): WptEvidenceMapping => ({
+      controlId: control.id,
+      state: "not_mapped",
+      suites: [],
+      scope: "No directive-specific suite has been reviewed for this catalogue entry.",
+      limitation:
+        "The broader header suite is not substituted for evidence about this individual directive."
+    }))
+  ].map((mapping) => [mapping.controlId, mapping])
 );
 
 export const WPT_EVIDENCE = SECURITY_CONTROLS.map((control) => {
