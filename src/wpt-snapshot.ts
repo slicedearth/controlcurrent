@@ -124,12 +124,20 @@ const apiRunSchema = z.looseObject({
   time_end: z.iso.datetime(),
   labels: z.array(z.string().max(128)).max(32)
 });
-const apiResultSchema = z.looseObject({
-  passes: z.number().int().min(0).max(100_000),
-  total: z.number().int().min(0).max(100_000),
-  status: statusSchema,
-  newAggProcess: z.literal(true)
-});
+const apiResultSchema = z.discriminatedUnion("newAggProcess", [
+  z.looseObject({
+    passes: z.number().int().min(0).max(100_000),
+    total: z.number().int().min(0).max(100_000),
+    status: statusSchema,
+    newAggProcess: z.literal(true)
+  }),
+  z.looseObject({
+    passes: z.literal(0),
+    total: z.literal(0),
+    status: z.literal(""),
+    newAggProcess: z.literal(false)
+  })
+]);
 const apiSchema = z.looseObject({
   runs: z.array(apiRunSchema).min(1).max(6),
   results: z

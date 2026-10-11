@@ -23,6 +23,7 @@ const run = {
 const secondRun = { ...run, id: 200, browser_name: "firefox" };
 const ok = { passes: 2, total: 3, status: "O", newAggProcess: true };
 const error = { passes: 0, total: 0, status: "E", newAggProcess: true };
+const missing = { passes: 0, total: 0, status: "", newAggProcess: false };
 function inputs() {
   return WPT_SNAPSHOT_SUITES.map((suite) => ({
     path: suite.path,
@@ -103,6 +104,65 @@ describe("retained public browser-test snapshots", () => {
       { runId: "100", status: "O", passes: 2, total: 3 },
       { runId: "200", status: "E", passes: 0, total: 0 }
     ]);
+  });
+  it("retains an absent run as No result without changing another browser's counts", () => {
+    const snapshot = buildWptSnapshot(
+      mutateInput((value) => {
+        const result = value.results[0];
+        if (result) result.legacy_status[1] = missing;
+        value.runs.reverse();
+        for (const test of value.results) test.legacy_status.reverse();
+      }),
+      "2026-10-11"
+    );
+    const suite = snapshot.suites[0];
+    if (!suite) throw new Error("Missing fixture suite");
+    expect(suite.tests[0]?.results).toEqual([
+      { runId: "100", status: "O", passes: 2, total: 3 },
+      { runId: "200", status: "", passes: 0, total: 0 }
+    ]);
+    expect(summariseWptSuite(suite, "100")).toEqual({
+      files: 1,
+      passes: 2,
+      total: 3,
+      statuses: [{ label: "OK", count: 1 }]
+    });
+    expect(summariseWptSuite(suite, "200")).toEqual({
+      files: 1,
+      passes: 0,
+      total: 0,
+      statuses: [{ label: "No result", count: 1 }]
+    });
+  });
+  it("discards an out-of-prefix match containing a missing-run slot", () => {
+    const snapshot = buildWptSnapshot(
+      mutateInput((value) => {
+        const result = value.results[1];
+        if (result) result.legacy_status[0] = missing;
+      }),
+      "2026-10-11"
+    );
+    expect(snapshot).toEqual(buildWptSnapshot(inputs(), "2026-10-11"));
+  });
+  it.each([
+    ...["O", "P", "F", "S", "E", "N", "C", "T", "PF"].map((status) => ({
+      ...missing,
+      status
+    })),
+    { ...missing, total: 1 },
+    { ...missing, passes: 1, total: 1 },
+    { ...missing, passes: 1 },
+    { passes: 0, total: 0, status: "" }
+  ])("rejects legacy counts and incomplete missing-run slots: %j", (invalid) => {
+    expect(() =>
+      buildWptSnapshot(
+        mutateInput((value) => {
+          const result = value.results[0];
+          if (result) result.legacy_status[1] = invalid as typeof ok;
+        }),
+        "2026-10-11"
+      )
+    ).toThrow();
   });
   it("refuses old count semantics, misaligned metadata, partial arrays and non-stable runs", () => {
     expect(() => buildWptSnapshot(inputs().slice(1), "2026-10-11")).toThrow(/each retained suite/u);
