@@ -523,11 +523,16 @@ test("shows pinned WPT mappings without fetching result data", async ({ page }) 
   await page.goto("/evidence/");
   await expect(page.getByRole("heading", { name: "Public browser tests." })).toBeVisible();
   await expect(page.locator(".evidence-card")).toHaveCount(36);
-  await expect(page.locator(".evidence-stats").getByText("28", { exact: true })).toBeVisible();
-  await expect(page.getByText("af38980d")).toBeVisible();
+  await expect(page.locator(".evidence-stats").getByText("34", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("af38980d2fcd74af19a226f5f651051cc15940ed", { exact: true })
+  ).toHaveCount(28);
+  await expect(
+    page.getByText("cc74d2669f5de548e808779877d1d33339ec5115", { exact: true })
+  ).toHaveCount(9);
   await expect(
     page.getByText("No similar test is substituted when an exact link is unavailable.")
-  ).toHaveCount(8);
+  ).toHaveCount(2);
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();
@@ -653,6 +658,12 @@ test("shows the reviewed source manifest without inventing review timestamps", a
 
 test("publishes third-party licence notices with the static site", async ({ page, request }) => {
   await page.goto("/data/");
+  await expect(page.getByText("Original suite-link revision", { exact: true })).toBeVisible();
+  await expect(page.getByText("Directive file-selection revision", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "View the directive test source" })).toHaveAttribute(
+    "href",
+    "https://github.com/web-platform-tests/wpt/tree/cc74d2669f5de548e808779877d1d33339ec5115"
+  );
   const noticeLink = page.getByRole("link", {
     name: "Read the deployed third-party notices and licence terms"
   });

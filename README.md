@@ -88,6 +88,7 @@ checker or certification service.
 - Review source changes and pinned Web Platform Tests links.
 - Trace support across recorded browser releases and explore deployment dependencies as interactive circuits.
 - Read retained results from exact public browser-test runs, with file outcomes separate from subtest totals.
+- Inspect exact test selections for individual camera, microphone, geolocation and data-clearing directives, with their own counts and coverage limits.
 - Validate exported contracts with public draft 2020-12 JSON Schemas.
 - Find the oldest browser versions that support a selected group of features.
 

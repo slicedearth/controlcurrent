@@ -42,15 +42,17 @@ Links do not incorporate specification text into the project licence.
 
 ## Web Platform Tests
 
-ControlCurrent includes project-authored factual mappings to suite paths in:
+ControlCurrent includes project-authored factual mappings to suite paths and
+exact file selections in:
 
 - **Source:** Web Platform Tests
 - **Repository:** <https://github.com/web-platform-tests/wpt>
-- **Reviewed revision:** `af38980d2fcd74af19a226f5f651051cc15940ed`
+- **Original suite-link revision:** `af38980d2fcd74af19a226f5f651051cc15940ed`
+- **Directive file-selection revision:** `cc74d2669f5de548e808779877d1d33339ec5115`
 - **Licence:** BSD 3-Clause
 
 The project does not copy WPT source, test bodies, expectations or raw logs.
-It retains exact suite paths, pinned source links, current dashboard links,
+It retains exact suite and file paths, pinned source links, current dashboard links,
 and original scope and limitation statements. A bounded projection of public
 wpt.fyi result counts, statuses and run metadata identifies each original run
 and source-response digest. Neither the source licence nor the project licence

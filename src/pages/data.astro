@@ -2,7 +2,7 @@
 import Layout from "../components/Layout.astro";
 import { selectedSnapshot } from "../data";
 import { formatDate } from "../format";
-import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
+import { WPT_DIRECTIVE_REVIEW, WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
 ---
@@ -83,21 +83,35 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
         <dd>
           <code>{WPT_EVIDENCE_REVIEW.repository}</code>
         </dd>
-        <dt>Reviewed revision</dt>
+        <dt>Original suite-link revision</dt>
         <dd>
-          <code>{WPT_EVIDENCE_REVIEW.revision}</code>
+          <code>{WPT_EVIDENCE_REVIEW.revision}</code>· reviewed{" "}
+          {formatDate(WPT_EVIDENCE_REVIEW.reviewedOn)}
+        </dd>
+        <dt>Directive file-selection revision</dt>
+        <dd>
+          <code>{WPT_DIRECTIVE_REVIEW.revision}</code>· reviewed{" "}
+          {formatDate(WPT_DIRECTIVE_REVIEW.reviewedOn)}
         </dd>
         <dt>Licence</dt>
         <dd>BSD 3-Clause</dd>
         <dt>Use</dt>
-        <dd>{WPT_EVIDENCE.length} project-authored control-to-suite mappings</dd>
+        <dd>{WPT_EVIDENCE.length} project-authored control-to-test mappings</dd>
       </dl>
       <p>
         <a
           href={`https://github.com/web-platform-tests/wpt/tree/${WPT_EVIDENCE_REVIEW.revision}`}
           rel="noopener noreferrer"
         >
-          View the reviewed Web Platform Tests revision
+          View the original suite-link source
+        </a>
+      </p>
+      <p>
+        <a
+          href={`https://github.com/web-platform-tests/wpt/tree/${WPT_DIRECTIVE_REVIEW.revision}`}
+          rel="noopener noreferrer"
+        >
+          View the directive test source
         </a>
       </p>
 

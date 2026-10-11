@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { canonicalJson } from "./canonical";
+import { getWptSourceReview, type WptEvidenceMapping } from "./wpt-evidence";
 
 export const WPT_SNAPSHOT_SUITES = [
   { path: "permissions-policy", name: "Permissions Policy" },
@@ -112,6 +113,48 @@ export const wptSnapshotSchema = z
   });
 export type WptSnapshot = z.infer<typeof wptSnapshotSchema>;
 export type WptSnapshotSuite = WptSnapshot["suites"][number];
+
+export type WptSuiteSelection = {
+  suite: WptSnapshotSuite;
+  retainedFiles: number;
+  selectedFiles?: readonly string[];
+  missingFiles: string[];
+};
+
+/** Select complete file results only; never infer directive-level subtest counts. */
+export function selectWptSnapshot(
+  snapshot: WptSnapshot,
+  mapping?: WptEvidenceMapping
+): {
+  state: "available" | "not_retained" | "revision_mismatch";
+  suites: WptSuiteSelection[];
+} {
+  if (mapping?.state === "not_mapped") return { state: "not_retained", suites: [] };
+  if (
+    mapping?.suites.some((suite) => suite.tests) &&
+    snapshot.runs.some((run) => run.revision !== getWptSourceReview(mapping).revision)
+  )
+    return { state: "revision_mismatch", suites: [] };
+
+  const suites = snapshot.suites.flatMap((suite): WptSuiteSelection[] => {
+    const source = mapping?.suites.find((entry) => entry.path === suite.path);
+    if (mapping && !source) return [];
+    const selectedFiles = source?.tests;
+    const tests = selectedFiles
+      ? suite.tests.filter((test) => selectedFiles.includes(test.path.slice(1)))
+      : suite.tests;
+    return [
+      {
+        suite: { ...suite, tests },
+        retainedFiles: suite.tests.length,
+        ...(selectedFiles ? { selectedFiles } : {}),
+        missingFiles:
+          selectedFiles?.filter((path) => !tests.some((test) => test.path === `/${path}`)) ?? []
+      }
+    ];
+  });
+  return { state: suites.length ? "available" : "not_retained", suites };
+}
 
 const apiRunSchema = z.looseObject({
   id: z.number().int().positive(),

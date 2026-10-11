@@ -393,6 +393,59 @@ test("public test snapshots show exact runs and complete file/subtest totals @wo
   await expect(permissions).toContainText("Timeout");
 });
 
+for (const [id, files, chromeTotals, scope] of [
+  ["permissions-policy-camera", 4, "4 / 4", "potential-violation"],
+  ["permissions-policy-microphone", 2, "2 / 2", "media-test automation"],
+  ["permissions-policy-geolocation", 2, "1 / 2", "location availability"],
+  ["clear-site-data-cache", 4, "21 / 29", "tentative partitioning"],
+  ["clear-site-data-cookies", 2, "2 / 2", "response header ordering"],
+  ["clear-site-data-storage", 1, "10 / 10", "backends available in that browser"]
+] as const) {
+  test(`directive evidence for ${id} shows exact file totals and scope @workflow`, async ({
+    page
+  }) => {
+    const externalRequests: string[] = [];
+    page.on("request", (request) => {
+      if (new URL(request.url()).hostname !== "127.0.0.1") externalRequests.push(request.url());
+    });
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto(`/controls/${id}/`);
+    const suite = page.locator(".wpt-suite");
+    await expect(suite).toHaveCount(1);
+    await expect(suite).toContainText(
+      `${String(files)} of ${String(files)} selected test files have retained results.`
+    );
+    await expect(page.locator(".wpt-selection-scope")).toContainText(scope);
+    await expect(page.locator(".wpt-selection-scope")).toContainText(
+      "not isolated directive pass counts or application evidence"
+    );
+    const totals = suite.locator(":scope > .table-wrap tbody tr");
+    await expect(totals).toHaveCount(3);
+    await expect(totals.filter({ hasText: "chrome" })).toContainText(chromeTotals);
+    await suite
+      .getByText(`Read all ${String(files)} retained file results`, { exact: true })
+      .click();
+    await expect(suite.locator(".wpt-file-results tbody tr")).toHaveCount(files);
+    await suite.getByText("Source-response fingerprint", { exact: true }).click();
+    await expect(suite).toContainText("complete downloaded directory response");
+    const sources = page.locator("aside").getByRole("link", { name: "reviewed test source" });
+    await expect(sources).toHaveCount(files);
+    for (const link of await sources.all())
+      await expect(link).toHaveAttribute(
+        "href",
+        /^https:\/\/github\.com\/web-platform-tests\/wpt\/blob\/cc74d2669f5de548e808779877d1d33339ec5115\//u
+      );
+    const dimensions = await page.evaluate(() => ({
+      document: document.documentElement.scrollWidth,
+      viewport: document.documentElement.clientWidth
+    }));
+    expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
+    expect(await page.evaluate(() => localStorage.length)).toBe(0);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect(externalRequests).toEqual([]);
+  });
+}
+
 test("new workflows remain usable with blocked storage and narrow layouts @workflow", async ({
   page
 }) => {

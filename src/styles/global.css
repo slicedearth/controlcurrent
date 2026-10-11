@@ -158,6 +158,7 @@
   color: var(--muted);
 }
 .release-trace ul {
+  overflow-wrap: anywhere;
   padding-left: 1rem;
   font-size: 0.85rem;
 }

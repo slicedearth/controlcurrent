@@ -4,19 +4,23 @@ import {
   wptSnapshotSchema,
   WPT_SNAPSHOT_SUITES,
   WPT_STATUS_LABELS,
+  selectWptSnapshot,
   summariseWptSuite,
   wptSnapshotQuery
 } from "../wpt-snapshot";
 import { formatDate } from "../format";
+import type { WptEvidenceMapping } from "../wpt-evidence";
 interface Props {
-  paths?: readonly string[];
+  mapping?: WptEvidenceMapping;
 }
-const { paths } = Astro.props;
+const { mapping } = Astro.props;
 const snapshot = wptSnapshotSchema.parse(input);
-const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.path));
+const selection = selectWptSnapshot(snapshot, mapping);
+const { suites } = selection;
+const hasSelectedFiles = mapping?.suites.some((suite) => suite.tests);
 ---
 
-{suites.length > 0 && (
+{(suites.length > 0 || hasSelectedFiles) && (
   <section class="wpt-snapshot" aria-label="Retained public test results">
     <div class="section-heading">
       <div>
@@ -31,6 +35,27 @@ const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.
       subtest counts stay separate. OK describes a completed harness, which can still contain
       failing subtests; Pass and Fail can also describe tests without a harness.
     </p>
+    {hasSelectedFiles && (
+      <div class="wpt-selection-scope">
+        <p>
+          <strong>Selected directive tests:</strong> {mapping?.scope}
+        </p>
+        <p>{mapping?.limitation}</p>
+        <p>
+          Counts cover every subtest reported by each selected file, including any setup or
+          complementary cases. They are not isolated directive pass counts or application evidence.
+        </p>
+      </div>
+    )}
+    {selection.state === "revision_mismatch" && (
+      <p role="status">
+        Directive results are incomparable: the reviewed file selection and retained browser runs
+        use different test-source revisions. No totals are substituted from the parent suite.
+      </p>
+    )}
+    {selection.state === "not_retained" && (
+      <p role="status">No results for this reviewed selection are retained in the snapshot.</p>
+    )}
     <details class="content-card wpt-run-details">
       <summary>Exact browser builds, systems and source revision</summary>
       <ul>
@@ -55,53 +80,85 @@ const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.
         API. These results do not cover every browser version, mobile platform or operating system.
       </p>
     </details>
-    {suites.map((suite) => (
+    {suites.map(({ suite, retainedFiles, selectedFiles, missingFiles }) => (
       <article class="content-card wpt-suite">
-        <h3>{WPT_SNAPSHOT_SUITES.find((known) => known.path === suite.path)?.name}</h3>
+        <h3>
+          {mapping?.suites.find((source) => source.path === suite.path)?.label ??
+            WPT_SNAPSHOT_SUITES.find((known) => known.path === suite.path)?.name}
+        </h3>
         <code class="source-path">{suite.path}</code>
-        <p>
-          {suite.tests.length} test files retained from {suite.returnedTests} returned search
-          matches. Only this exact directory prefix is included. This is the returned result
-          inventory, not a claim that every possible suite test ran.
-        </p>
-        <div
-          class="table-wrap"
-          role="region"
-          aria-label={`${suite.path} retained totals`}
-          tabindex="0"
-        >
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Browser build</th>
-                <th scope="col">Subtests passed / reported</th>
-                <th scope="col">File outcomes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {snapshot.runs.map((run) => {
-                const summary = summariseWptSuite(suite, run.id);
-                return (
-                  <tr>
-                    <th scope="row">
-                      {run.browser}
-                      <br />
-                      <small>{run.browserVersion}</small>
-                    </th>
-                    <td>
-                      {summary.passes} / {summary.total}
-                    </td>
-                    <td>
-                      {summary.statuses
-                        .map((status) => `${status.count} ${status.label}`)
-                        .join(" · ") || "No results"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        {selectedFiles ? (
+          <p>
+            {suite.tests.length} of {selectedFiles.length} selected test files have retained
+            results. The parent directory contains {retainedFiles} retained files from{" "}
+            {suite.returnedTests} returned search matches. Only the exact files listed below enter
+            these totals.
+          </p>
+        ) : (
+          <p>
+            {suite.tests.length} test files retained from {suite.returnedTests} returned search
+            matches. Only this exact directory prefix is included. This is the returned result
+            inventory, not a claim that every possible suite test ran.
+          </p>
+        )}
+        {missingFiles.length > 0 && (
+          <div class="wpt-missing-files">
+            <p>
+              Missing from the retained inventory; these files contribute no outcomes or subtests:
+            </p>
+            <ul>
+              {missingFiles.map((path) => (
+                <li>
+                  <code class="source-path">{path}</code>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {suite.tests.length > 0 ? (
+          <div
+            class="table-wrap"
+            role="region"
+            aria-label={`${suite.path} retained totals`}
+            tabindex="0"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Browser build</th>
+                  <th scope="col">Subtests passed / reported</th>
+                  <th scope="col">File outcomes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {snapshot.runs.map((run) => {
+                  const summary = summariseWptSuite(suite, run.id);
+                  return (
+                    <tr>
+                      <th scope="row">
+                        {run.browser}
+                        <br />
+                        <small>{run.browserVersion}</small>
+                      </th>
+                      <td>
+                        {summary.passes} / {summary.total}
+                      </td>
+                      <td>
+                        {summary.statuses
+                          .map((status) => `${status.count} ${status.label}`)
+                          .join(" · ") || "No results"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p>
+            No selected file results are available. This is an evidence gap, not a passing result.
+          </p>
+        )}
         <details class="wpt-file-results">
           <summary>Read all {suite.tests.length} retained file results</summary>
           <div
@@ -143,7 +200,7 @@ const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.
         </details>
         <p class="source-actions">
           <a href={wptSnapshotQuery(suite, snapshot.runs)} rel="noopener noreferrer">
-            Pinned API query
+            {selectedFiles ? "Source API query (whole directory)" : "Pinned API query"}
           </a>
           <a
             href={`https://github.com/web-platform-tests/wpt/tree/${snapshot.runs[0]?.revision}/${suite.path}`}
@@ -156,8 +213,9 @@ const suites = snapshot.suites.filter((suite) => !paths || paths.includes(suite.
           <summary>Source-response fingerprint</summary>
           <code class="source-path">SHA-256 {suite.responseSha256}</code>
           <p>
-            The digest identifies the downloaded API response used for this projection. It does not
-            authenticate the runner or prove that the results are truthful.
+            The digest identifies the complete downloaded directory response used for this
+            projection, before file selection. It does not authenticate the runner or prove that the
+            results are truthful.
           </p>
         </details>
       </article>
