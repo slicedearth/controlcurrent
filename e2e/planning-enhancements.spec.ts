@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { selectedSnapshotSchema, type DeploymentProfile } from "../src/contracts";
 import { planFragment } from "../src/plan-transfer";
+import { PLAN_LIBRARY_KEY } from "../src/plan-library";
 
 const selectedSnapshot = selectedSnapshotSchema.parse(
   JSON.parse(readFileSync(new URL("../data/selected-bcd.json", import.meta.url), "utf8")) as unknown
@@ -126,6 +127,132 @@ test("named plans save, rename, duplicate, export and delete independently @work
     .locator('[data-saved-side="before"]')
     .selectOption({ label: "<script>Literal plan</script>" });
   await expect(page.locator('[name="before-name"]')).toHaveValue("<script>Literal plan</script>");
+});
+
+for (const side of ["before", "after"]) {
+  for (const failure of ["deleted", "unavailable release"]) {
+    test(`saved plan ${failure} on ${side} keeps the load error and invalidates outputs @workflow`, async ({
+      page,
+      context
+    }) => {
+      const id = "11111111-1111-4111-8111-111111111111";
+      await page.goto("/compare/");
+      await page.evaluate(
+        ({ key, id, version }) => {
+          localStorage.setItem(
+            key,
+            JSON.stringify({
+              schemaVersion: 1,
+              plans: [
+                {
+                  id,
+                  profile: {
+                    schemaVersion: 1,
+                    name: "Saved fixture",
+                    baselines: [{ browser: "chrome", minimumVersion: version }]
+                  }
+                }
+              ]
+            })
+          );
+        },
+        { key: PLAN_LIBRARY_KEY, id, version: failure === "deleted" ? "56" : "9999" }
+      );
+      await page.reload();
+      await page.locator('[name="after-version-chrome"]').selectOption("40");
+      await page.getByText("Choose required features", { exact: true }).click();
+      await page.locator('[name="upgrade-control"][value="referrer-policy"]').check();
+      await page.getByRole("button", { name: "Find the required increases" }).click();
+      await expect(page.locator("#apply-upgrade")).toBeEnabled();
+      await expect(page.locator("#live-comparison")).toBeVisible();
+      const fields = page.locator("#compare-plans-form input, #compare-plans-form select[name]");
+      const before = await fields.evaluateAll((elements) =>
+        elements.map((element) => ({
+          value: (element as HTMLInputElement).value,
+          checked: (element as HTMLInputElement).checked,
+          disabled: (element as HTMLInputElement).disabled
+        }))
+      );
+      const saved = page.locator(`[data-saved-side="${side}"]`);
+      await saved.focus();
+      if (failure === "deleted") {
+        const otherTab = await context.newPage();
+        await otherTab.goto("/privacy/");
+        await otherTab.evaluate((key) => localStorage.removeItem(key), PLAN_LIBRARY_KEY);
+        await otherTab.close();
+        await expect(saved.locator(`option[value="${id}"]`)).toHaveCount(1);
+      }
+      await saved.selectOption(id);
+      await expect(page.locator("#compare-plans-status")).toContainText(
+        failure === "deleted" ? "no longer available" : "no selectable chrome 9999 release"
+      );
+      await expect(page.locator("#live-comparison")).toBeHidden();
+      await expect(page.locator("#export-plan-comparison")).toBeDisabled();
+      await expect(page.locator("#use-plan-a")).not.toHaveAttribute("href");
+      await expect(page.locator("#use-plan-b")).not.toHaveAttribute("href");
+      await expect(page.locator("#apply-upgrade")).toBeDisabled();
+      await expect(page.locator("#upgrade-status")).toBeEmpty();
+      expect(
+        await fields.evaluateAll((elements) =>
+          elements.map((element) => ({
+            value: (element as HTMLInputElement).value,
+            checked: (element as HTMLInputElement).checked,
+            disabled: (element as HTMLInputElement).disabled
+          }))
+        )
+      ).toEqual(before);
+      const downloads: string[] = [];
+      page.on("download", (download) => downloads.push(download.suggestedFilename()));
+      await page.locator("#export-plan-comparison").dispatchEvent("click");
+      await expect(page.locator("#compare-plans-status")).toContainText(
+        "Compare the current plans before exporting"
+      );
+      expect(downloads).toEqual([]);
+      await page.locator('[name="after-version-chrome"]').selectOption("56");
+      await expect(page.locator("#live-comparison")).toBeVisible();
+      await expect(page.locator("#export-plan-comparison")).toBeEnabled();
+    });
+  }
+}
+
+test("saved plans update each comparison side independently and allow manual changes @workflow", async ({
+  page
+}) => {
+  await page.goto("/compare/");
+  await page.evaluate((key) => {
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        schemaVersion: 1,
+        plans: [
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            profile: {
+              schemaVersion: 1,
+              name: "Single browser plan",
+              baselines: [{ browser: "chrome", minimumVersion: "56" }]
+            }
+          }
+        ]
+      })
+    );
+  }, PLAN_LIBRARY_KEY);
+  await page.reload();
+  await page.locator('[data-saved-side="before"]').selectOption({ label: "Single browser plan" });
+  await expect(page.locator('[name="before-name"]')).toHaveValue("Single browser plan");
+  await expect(page.locator('[name="before-version-chrome"]')).toHaveValue("56");
+  await expect(page.locator('[data-plan-side="before"] input:checked')).toHaveCount(1);
+  await expect(page.locator('[name="after-name"]')).toHaveValue("Proposed browser plan");
+  await expect(page.locator('[data-plan-side="after"] input:checked')).toHaveCount(3);
+  await page.locator('[data-saved-side="after"]').selectOption({ label: "Single browser plan" });
+  await expect(page.locator("#live-comparison-totals")).toContainText("36 unchanged");
+  await expect(page.locator('[name="after-version-chrome"]')).toHaveValue("56");
+  await page.locator('[name="after-version-chrome"]').selectOption("40");
+  await expect(page.locator("#live-comparison-totals")).toContainText(/[1-9]\d* lost/u);
+  await expect(page.locator('[name="before-version-chrome"]')).toHaveValue("56");
+  await expect(page.locator("#compare-plans-status")).toContainText("Both plans evaluated locally");
+  await expect(page.locator("#use-plan-a")).toHaveAttribute("href", /\/planner\/#plan=/u);
+  await expect(page.locator("#export-plan-comparison")).toBeEnabled();
 });
 
 test("inspection separates header declarations from plan compatibility and clears stale results @workflow", async ({

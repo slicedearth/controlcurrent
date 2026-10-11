@@ -22,6 +22,9 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
   const changesOnly = requiredElement(document, "#comparison-changes-only", HTMLInputElement);
   const upgradeStatus = requiredElement(document, "#upgrade-status", HTMLElement);
   const applyUpgrade = requiredElement(document, "#apply-upgrade", HTMLButtonElement);
+  const exportComparison = requiredElement(document, "#export-plan-comparison", HTMLButtonElement);
+  const usePlanA = requiredElement(document, "#use-plan-a", HTMLAnchorElement);
+  const usePlanB = requiredElement(document, "#use-plan-b", HTMLAnchorElement);
   const storage = guardedStorage(() => window.localStorage);
   const base = baseUrl.replace(/\/$/u, "");
   let latest: ProfileComparison | undefined;
@@ -55,6 +58,13 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
     applyUpgrade.disabled = true;
     upgradeStatus.textContent = "";
   }
+  function invalidateComparison(): void {
+    latest = undefined;
+    results.hidden = true;
+    exportComparison.disabled = true;
+    usePlanA.removeAttribute("href");
+    usePlanB.removeAttribute("href");
+  }
   function filterRows(): void {
     const allRows = [...rows.querySelectorAll<HTMLElement>("tr")];
     for (const row of allRows)
@@ -64,8 +74,7 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
       `${String(visible)} of ${String(allRows.length)} browser-feature results shown. Complete totals above include hidden rows. No results are truncated.`;
   }
   function compare(): void {
-    results.hidden = true;
-    latest = undefined;
+    invalidateComparison();
     try {
       const before = evaluateProfile(selectedSnapshot, read("before"));
       const after = evaluateProfile(selectedSnapshot, read("after"));
@@ -102,11 +111,10 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
           }
           rows.append(row);
         }
-      requiredElement(document, "#use-plan-a", HTMLAnchorElement).href =
-        `${base}/planner/${planFragment(selectedSnapshot, before.profile)}`;
-      requiredElement(document, "#use-plan-b", HTMLAnchorElement).href =
-        `${base}/planner/${planFragment(selectedSnapshot, after.profile)}`;
+      usePlanA.href = `${base}/planner/${planFragment(selectedSnapshot, before.profile)}`;
+      usePlanB.href = `${base}/planner/${planFragment(selectedSnapshot, after.profile)}`;
       latest = comparison;
+      exportComparison.disabled = false;
       results.hidden = false;
       filterRows();
       status.textContent = "Both plans evaluated locally against the same source snapshot.";
@@ -119,7 +127,9 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
     event.preventDefault();
     compare();
   });
-  form.addEventListener("change", () => {
+  form.addEventListener("change", (event) => {
+    if (event.target instanceof HTMLSelectElement && event.target.matches("[data-saved-side]"))
+      return;
     for (const side of ["before", "after"])
       for (const browser of BROWSER_IDS)
         version(side, browser).disabled = !input(`${side}-include-${browser}`).checked;
@@ -128,8 +138,7 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
   });
   form.addEventListener("input", (event) => {
     if (event.target instanceof HTMLInputElement && event.target.type === "text") {
-      latest = undefined;
-      results.hidden = true;
+      invalidateComparison();
       invalidateUpgrade();
       status.textContent = "Plan name changed. Compare plans to update the result.";
     }
@@ -219,16 +228,15 @@ export function initialisePlanComparison(document: Document, baseUrl: string): v
     refresh();
     select.addEventListener("focus", refresh);
     select.addEventListener("change", () => {
+      if (!select.value) return;
+      invalidateComparison();
+      invalidateUpgrade();
       try {
         const entry = readPlanLibrary(storage).plans.find((plan) => plan.id === select.value);
-        if (entry) {
-          apply(side, entry.profile);
-          invalidateUpgrade();
-          compare();
-        }
+        if (!entry) throw new Error("This saved plan is no longer available. Choose another plan.");
+        apply(side, entry.profile);
+        compare();
       } catch (error) {
-        results.hidden = true;
-        latest = undefined;
         status.textContent =
           error instanceof Error ? error.message : "The saved plan could not be loaded.";
       }
