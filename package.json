@@ -19,6 +19,7 @@
     "schemas:check": "tsx tools/generate-json-schemas.ts --check",
     "source-review:summary": "tsx tools/source-review-summary.ts",
     "source-update:preview": "tsx tools/source-update-preview.ts",
+    "wpt:import": "tsx tools/import-wpt-snapshot.ts",
     "lint": "eslint src tools tests e2e --max-warnings=0",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.tools.json",

@@ -1,12 +1,47 @@
-<section class="inspector-panel" aria-labelledby="inspector-heading">
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+---
+
+<section id="response-headers" class="inspector-panel" aria-labelledby="inspector-heading">
   <div class="planner-intro">
-    <span class="eyebrow">Simple check</span>
-    <h2 id="inspector-heading">Review one set of website response headers</h2>
+    <span class="eyebrow">One response at a time</span>
+    <h2 id="inspector-heading">Read the headers</h2>
     <p>
       Response headers are instructions a website sends to the browser. Paste a set below and
       ControlCurrent will look for recognised security settings. It does not visit the URL, save the
       text, or send it anywhere. Replace cookie values and other secrets with <code>REDACTED</code>{" "}
       first.
+    </p>
+  </div>
+
+  <div class="inspector-plan content-card">
+    <h3>Which browsers does this need to work in?</h3>
+    <p>
+      Add a browser plan to show compatibility beside each header finding. A recognised declaration
+      does not prove that a browser enforced it.
+    </p>
+    <div class="library-fields">
+      <label>
+        <span>Browser plan for inspection</span>
+        <select id="inspector-plan">
+          <option value="">No browser plan selected</option>
+        </select>
+      </label>
+      <label>
+        <span>Import browser plan for inspection</span>
+        <input id="inspector-plan-file" type="file" accept=".json,application/json" />
+      </label>
+    </div>
+    <div class="button-row">
+      <button type="button" class="button" id="clear-inspector-plan">
+        Clear browser plan
+      </button>
+      <a class="button" href={`${base}/planner/`}>
+        Create a browser plan
+      </a>
+    </div>
+    <p id="inspector-plan-status" role="status" aria-live="polite">
+      Header review also works without a browser plan.
     </p>
   </div>
 
@@ -63,6 +98,17 @@ X-Content-Type-Options: nosniff"
   import { inspectHeaders, parseHeaderBlock } from "../assurance";
   import { SECURITY_CONTROLS } from "../catalogue";
   import type { AssuranceReport } from "../contracts";
+  import type { DeploymentProfile } from "../contracts";
+  import { selectedSnapshot } from "../data";
+  import { evaluateProfile } from "../evaluate";
+  import { browserNames, outcomeLabels } from "../format";
+  import { readPlanLibrary } from "../plan-library";
+  import { loadProfile } from "../profile-storage";
+  import { guardedStorage, OperationGeneration } from "../local-state";
+  import { validatePlan } from "../plan-transfer";
+  import { consumePlanTransfer } from "../controllers/plan-transfer";
+  import { importDeploymentProfile, MAX_PROFILE_IMPORT_BYTES } from "../profile-workflows";
+  import { requiredElement, listenAsync } from "../controllers/dom";
 
   const example = `HTTP/1.1 200 OK
 Content-Security-Policy: default-src 'self'; script-src 'nonce-REDACTED' 'strict-dynamic'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; require-trusted-types-for 'script'; upgrade-insecure-requests
@@ -83,6 +129,12 @@ X-Content-Type-Options: nosniff`;
   const source = document.querySelector<HTMLElement>("#header-source");
   const summary = document.querySelector<HTMLElement>("#assurance-summary");
   const findings = document.querySelector<HTMLElement>("#assurance-findings");
+  const planSelect = requiredElement(document, "#inspector-plan", HTMLSelectElement);
+  const planFile = requiredElement(document, "#inspector-plan-file", HTMLInputElement);
+  const planStatus = requiredElement(document, "#inspector-plan-status", HTMLElement);
+  const storage = guardedStorage(() => window.localStorage);
+  const planOperations = new OperationGeneration();
+  let selectedPlan: DeploymentProfile | undefined;
 
   if (!form || !input || !message || !results || !source || !summary || !findings) {
     throw new Error("Header inspector controls are unavailable.");
@@ -113,6 +165,9 @@ X-Content-Type-Options: nosniff`;
   }
 
   function render(report: AssuranceReport): void {
+    const compatibility = selectedPlan
+      ? evaluateProfile(selectedSnapshot, selectedPlan)
+      : undefined;
     summary!.replaceChildren(
       stat(report.summary.observed, "security features found"),
       stat(report.summary.missing, "security features not found"),
@@ -142,10 +197,117 @@ X-Content-Type-Options: nosniff`;
         evidence.textContent = finding.evidence;
         article.append(evidence);
       }
+      if (compatibility) {
+        const support = document.createElement("div");
+        support.className = "inspection-compatibility";
+        const label = document.createElement("h4");
+        label.textContent = "Browser support for this plan";
+        const entries = document.createElement("ul");
+        for (const result of compatibility.results[finding.controlId] ?? []) {
+          const entry = document.createElement("li");
+          entry.textContent = `${browserNames[result.browser]} ${result.minimumVersion}: ${outcomeLabels[result.outcome]}`;
+          entries.append(entry);
+        }
+        support.append(label, entries);
+        article.append(support);
+      }
       findings!.append(article);
     }
-    source!.textContent = `${String(report.recognisedHeaderCount)} recognised of ${String(report.inputHeaderCount)} header names · no values retained`;
+    source!.textContent = `${String(report.recognisedHeaderCount)} recognised of ${String(report.inputHeaderCount)} header names · no values retained${selectedPlan ? ` · plan: ${selectedPlan.name} · BCD ${selectedSnapshot.bcdVersion}` : ""}`;
     results!.hidden = false;
+  }
+
+  function invalidateHeaders(): void {
+    results!.hidden = true;
+    summary!.replaceChildren();
+    findings!.replaceChildren();
+  }
+  function applyPlan(profile: DeploymentProfile | undefined): void {
+    selectedPlan = profile ? validatePlan(selectedSnapshot, profile) : undefined;
+    invalidateHeaders();
+    planStatus.textContent = selectedPlan
+      ? `${selectedPlan.name}: ${selectedPlan.baselines.map((item) => `${browserNames[item.browser]} ${item.minimumVersion}`).join(" · ")}. Select Review headers to update the findings. No header input is saved.`
+      : "No browser plan selected. Header review remains available.";
+  }
+  function refreshPlans(): void {
+    try {
+      const chosen = planSelect.value;
+      const saved = loadProfile(storage);
+      planSelect.replaceChildren(
+        new Option("No browser plan selected", ""),
+        ...(saved.state === "loaded"
+          ? [new Option(`Current saved plan: ${saved.profile.name}`, "current")]
+          : []),
+        ...readPlanLibrary(storage).plans.map((entry) => new Option(entry.profile.name, entry.id))
+      );
+      planSelect.value = chosen;
+    } catch {
+      planStatus.textContent =
+        "Saved plans are unavailable. Import a plan file or review headers without a plan.";
+    }
+  }
+  planSelect.addEventListener("focus", refreshPlans);
+  planSelect.addEventListener("change", () => {
+    planOperations.cancel();
+    applyPlan(undefined);
+    try {
+      if (planSelect.value === "current") {
+        const saved = loadProfile(storage);
+        if (saved.state !== "loaded") throw new Error("The current saved plan is unavailable.");
+        applyPlan(saved.profile);
+      } else if (planSelect.value) {
+        const entry = readPlanLibrary(storage).plans.find((plan) => plan.id === planSelect.value);
+        if (!entry) throw new Error("The selected saved plan is unavailable.");
+        applyPlan(entry.profile);
+      }
+    } catch (error) {
+      planStatus.textContent =
+        error instanceof Error ? error.message : "The plan could not be loaded.";
+    }
+  });
+  listenAsync(planFile, "change", planStatus, async () => {
+    const token = planOperations.begin();
+    const file = planFile.files?.[0];
+    applyPlan(undefined);
+    planSelect.value = "";
+    if (!file) return;
+    try {
+      if (file.size > MAX_PROFILE_IMPORT_BYTES)
+        throw new Error("The browser plan exceeds the 512 KiB import limit.");
+      const contents = await file.text();
+      if (!planOperations.current(token)) return;
+      let profile: DeploymentProfile;
+      try {
+        profile = importDeploymentProfile(contents);
+      } catch {
+        throw new Error("Choose a valid browser plan or an exported support result JSON file.");
+      }
+      applyPlan(profile);
+    } catch (error) {
+      if (planOperations.current(token))
+        planStatus.textContent =
+          error instanceof Error ? error.message : "The plan could not be read.";
+    } finally {
+      if (planFile.files?.[0] === file) planFile.value = "";
+    }
+  });
+  document.querySelector("#clear-inspector-plan")?.addEventListener("click", () => {
+    planOperations.cancel();
+    planSelect.value = "";
+    planFile.value = "";
+    applyPlan(undefined);
+  });
+  input.addEventListener("input", () => {
+    invalidateHeaders();
+    message!.textContent = "Headers changed. Select Review headers to update the findings.";
+  });
+  refreshPlans();
+  try {
+    const transfer = consumePlanTransfer();
+    if (transfer) applyPlan(transfer.profile);
+  } catch (error) {
+    planStatus.textContent =
+      error instanceof Error ? error.message : "The transferred browser plan could not be read.";
   }
 
   form.addEventListener("submit", (event) => {
@@ -163,6 +325,7 @@ X-Content-Type-Options: nosniff`;
   });
 
   document.querySelector("#load-header-example")?.addEventListener("click", () => {
+    invalidateHeaders();
     input!.value = example;
     message!.textContent = "Redacted example loaded. Select Review headers to check it.";
   });

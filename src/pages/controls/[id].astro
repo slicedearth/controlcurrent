@@ -1,10 +1,13 @@
 ---
 import Layout from "../../components/Layout.astro";
 import OutcomeBadge from "../../components/OutcomeBadge.astro";
+import SupportTimeline from "../../components/SupportTimeline.astro";
+import WptSnapshot from "../../components/WptSnapshot.astro";
+import WptSourceLinks from "../../components/WptSourceLinks.astro";
 import { SECURITY_CONTROLS, type SecurityControl } from "../../catalogue";
 import { currentEvaluation, selectedSnapshot } from "../../data";
 import { browserNames } from "../../format";
-import { getWptEvidence, wptResultsUrl, wptSourceUrl } from "../../wpt-evidence";
+import { getWptEvidence } from "../../wpt-evidence";
 
 export function getStaticPaths() {
   return SECURITY_CONTROLS.map((control) => ({
@@ -42,7 +45,7 @@ const wptEvidence = getWptEvidence(control.id);
           Checked against the current browser versions recorded in MDN browser data{" "}
           {selectedSnapshot.bcdVersion}.
         </p>
-        <div class="table-wrap">
+        <div class="table-wrap" role="region" aria-label="Current browser support" tabindex="0">
           <table>
             <thead>
               <tr>
@@ -68,6 +71,8 @@ const wptEvidence = getWptEvidence(control.id);
         </div>
       </section>
 
+      <SupportTimeline controlId={control.id} />
+      <WptSnapshot mapping={wptEvidence} />
       <section class="content-card">
         <h2>What this feature can and cannot do</h2>
         <h3>Helps protect against</h3>
@@ -176,26 +181,7 @@ const wptEvidence = getWptEvidence(control.id);
         <span class="eyebrow">Public browser tests</span>
         <h2>{wptEvidence.state === "mapped" ? "Relevant tests found" : "No exact test link"}</h2>
         <p>{wptEvidence.scope}</p>
-        {wptEvidence.suites.length > 0 ? (
-          <ul class="source-list">
-            {wptEvidence.suites.map((suite) => (
-              <li>
-                <strong>{suite.label}</strong>
-                <code class="source-path">{suite.path}</code>
-                <span class="source-actions">
-                  <a href={wptSourceUrl(suite.path)} rel="noopener noreferrer">
-                    reviewed test source
-                  </a>
-                  <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
-                    latest public results
-                  </a>
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No similar test is substituted when an exact link is unavailable.</p>
-        )}
+        <WptSourceLinks mapping={wptEvidence} />
         <p class="evidence-limit">
           <strong>Limit:</strong>
           {wptEvidence.limitation}

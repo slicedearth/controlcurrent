@@ -39,27 +39,29 @@ const searchText = [
   data-search={searchText}
   data-support-group={supportGroup}
 >
-  <div class="card-topline">
-    <span class="category">{control.category}</span>
+  <div class="control-entry-title">
+    <h3>
+      <a href={`${base}/controls/${control.id}/`}>
+        {control.name}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </h3>
     <span class="mapping-count">
       {control.mappingState === "active"
-        ? `${control.bcdPaths.length} browser data record${control.bcdPaths.length === 1 ? "" : "s"}`
+        ? `${control.bcdPaths.length} source record${control.bcdPaths.length === 1 ? "" : "s"}`
         : "Browser data unavailable"}
     </span>
   </div>
-  <h3>
-    <a href={`${base}/controls/${control.id}/`}>
-      {control.name}
-      <span aria-hidden="true">↗</span>
-    </a>
-  </h3>
   <p>{control.summary}</p>
-  <div class="mini-results" aria-label={`Current support summary for ${control.name}`}>
-    {evaluations.map((evaluation) => (
-      <span>
-        <small>{browserNames[evaluation.browser]}</small>
-        <OutcomeBadge outcome={evaluation.outcome} />
-      </span>
-    ))}
-  </div>
+  <details class="control-support">
+    <summary>View {evaluations.length} browser results</summary>
+    <div class="mini-results" aria-label={`Current support summary for ${control.name}`}>
+      {evaluations.map((evaluation) => (
+        <span>
+          <small>{browserNames[evaluation.browser]}</small>
+          <OutcomeBadge outcome={evaluation.outcome} />
+        </span>
+      ))}
+    </div>
+  </details>
 </article>

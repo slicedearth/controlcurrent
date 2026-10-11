@@ -5,13 +5,19 @@ import type { BrowserId, MinimumBaselineResult } from "../contracts";
 import { selectedSnapshot } from "../data";
 import { browserNames } from "../format";
 import { findMinimumBaselines } from "../minimums";
+import { planFragment, planFromMinimums } from "../plan-transfer";
 
-export function initialiseMinimumPlanner(document: Document = window.document): void {
+export function initialiseMinimumPlanner(
+  document: Document = window.document,
+  baseUrl = "/"
+): void {
   const form = requiredElement(document, "#minimum-form", HTMLFormElement);
   const message = requiredElement(document, "#minimum-message", HTMLElement);
   const results = requiredElement(document, "#minimum-results", HTMLElement);
   const source = requiredElement(document, "#minimum-source", HTMLElement);
   const list = requiredElement(document, "#minimum-result-list", HTMLElement);
+  const useMinimums = requiredElement(document, "#use-minimums", HTMLAnchorElement);
+  const transferStatus = requiredElement(document, "#minimum-transfer-status", HTMLElement);
 
   const controlNames = new Map<string, string>(
     SECURITY_CONTROLS.map((control) => [control.id, control.shortName] as const)
@@ -63,7 +69,26 @@ export function initialiseMinimumPlanner(document: Document = window.document): 
     }
     source.textContent = `BCD ${selectedSnapshot.bcdVersion} · catalogue ${selectedSnapshot.catalogueVersion}`;
     results.hidden = false;
+    useMinimums.hidden = true;
+    useMinimums.removeAttribute("href");
+    try {
+      const profile = planFromMinimums(selectedSnapshot, calculated);
+      useMinimums.href = `${baseUrl.replace(/\/$/u, "")}/planner/${planFragment(selectedSnapshot, profile, checkedValues("minimum-control"))}`;
+      useMinimums.hidden = false;
+      transferStatus.textContent =
+        "Transfers these browser choices and required features to the planner without saving them.";
+    } catch {
+      transferStatus.textContent =
+        "A plan can be transferred when every selected browser has a matching minimum. No browser is silently left out.";
+    }
   }
+
+  form.addEventListener("change", () => {
+    results.hidden = true;
+    useMinimums.hidden = true;
+    useMinimums.removeAttribute("href");
+    message.textContent = "Selection changed. Find oldest versions again to update the result.";
+  });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();

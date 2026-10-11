@@ -4,6 +4,7 @@ import { browserNames } from "../format";
 import { BROWSER_IDS } from "../browsers";
 import { SECURITY_CONTROLS } from "../catalogue";
 import SourceContext from "./SourceContext.astro";
+import PlanLibrary from "./PlanLibrary.astro";
 
 const browsers = BROWSER_IDS;
 const controlCategories = [...new Set(SECURITY_CONTROLS.map((control) => control.category))];
@@ -16,40 +17,42 @@ const defaultRequiredControls = new Set([
 ]);
 ---
 
-<section class="planner-panel" aria-labelledby="planner-heading">
+<section id="browser-plan" class="planner-panel" aria-labelledby="planner-heading">
   <div class="planner-intro">
     <span class="eyebrow">Step 1</span>
-    <h2 id="planner-heading">Choose the browsers your website supports</h2>
+    <h2 id="planner-heading">Choose your browsers</h2>
     <p>
-      Include each browser your website promises to support, then choose the oldest accepted
-      version. ControlCurrent does not detect your browser or send these choices to a server.
+      Include each browser you support and choose its oldest accepted version. These are your policy
+      choices; ControlCurrent does not detect the browser you are using.
     </p>
   </div>
 
   <SourceContext />
 
-  <aside class="guided-example" aria-labelledby="guided-example-heading">
-    <div>
-      <span class="eyebrow">Worked example</span>
-      <h3 id="guided-example-heading">Try Chrome 120, Firefox 115, and Safari 17</h3>
-      <p>
-        Select <strong>Load example</strong>, then <strong>Check support</strong>. Results are
-        grouped into features that are ready, need care, are not supported, or do not have enough
-        browser data.
-      </p>
+  <details class="guided-example">
+    <summary>First visit? Try a worked example.</summary>
+    <div class="guided-example__body">
+      <div>
+        <h3>Chrome 120, Firefox 115, and Safari 17</h3>
+        <p>
+          Select <strong>Load example</strong>, then <strong>Check support</strong>. Results are
+          grouped into features that are ready, need care, are not supported, or do not have enough
+          browser data.
+        </p>
+      </div>
+      <ol>
+        <li>
+          <strong>Choose:</strong> load the three example browser minimums.
+        </li>
+        <li>
+          <strong>Read:</strong> open “Why?” to see the browser-specific evidence.
+        </li>
+        <li>
+          <strong>Act:</strong> follow the next step and keep the stated fallback.
+        </li>
+      </ol>
     </div>
-    <ol>
-      <li>
-        <strong>Choose:</strong> load the three example browser minimums.
-      </li>
-      <li>
-        <strong>Read:</strong> open “Why?” to see the browser-specific evidence.
-      </li>
-      <li>
-        <strong>Act:</strong> follow the next step and keep the stated fallback.
-      </li>
-    </ol>
-  </aside>
+  </details>
 
   <form id="profile-form" class="profile-form">
     <label class="profile-name">
@@ -62,13 +65,13 @@ const defaultRequiredControls = new Set([
           .filter((release) => ["current", "esr", "retired"].includes(release.status))
           .reverse();
         return (
-          <fieldset class="baseline-card">
-            <legend>{browserNames[browser]}</legend>
+          <div class="baseline-card" role="group" aria-labelledby={`browser-${browser}`}>
+            <h3 id={`browser-${browser}`}>{browserNames[browser]}</h3>
             <label class="toggle-row">
               <input type="checkbox" name={`include-${browser}`} />
-              <span>Include in profile</span>
+              <span>Include</span>
             </label>
-            <label>
+            <label class="baseline-version">
               <span>Minimum version</span>
               <select name={`version-${browser}`} disabled>
                 {releases.map((release) => (
@@ -83,7 +86,7 @@ const defaultRequiredControls = new Set([
                 ))}
               </select>
             </label>
-          </fieldset>
+          </div>
         );
       })}
     </div>
@@ -139,6 +142,8 @@ const defaultRequiredControls = new Set([
     <p id="profile-message" class="form-message" role="status" aria-live="polite"></p>
   </form>
 
+  <PlanLibrary />
+
   <section id="profile-results" class="profile-results" aria-labelledby="results-heading" hidden>
     <div class="section-heading">
       <div>
@@ -148,6 +153,14 @@ const defaultRequiredControls = new Set([
       <p id="results-source"></p>
     </div>
     <aside id="profile-update" class="update-notice" aria-live="polite" hidden></aside>
+    <div class="button-row plan-handoffs">
+      <a id="plan-to-compare" class="button" href="#">
+        Try changes to this plan
+      </a>
+      <a id="plan-to-inspect" class="button" href="#">
+        Inspect headers with this plan
+      </a>
+    </div>
     <form id="result-filters" class="result-filters" aria-label="Filter support results">
       <label>
         <span>Search results</span>

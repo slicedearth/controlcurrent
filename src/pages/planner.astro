@@ -1,6 +1,5 @@
 ---
 import Layout from "../components/Layout.astro";
-import MinimumPlanner from "../components/MinimumPlanner.astro";
 import Planner from "../components/Planner.astro";
 ---
 
@@ -9,16 +8,14 @@ import Planner from "../components/Planner.astro";
   description="Choose the oldest browsers your website supports and see which security features will work or need a fallback."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Private browser planning</span>
-    <h1>Check which security features your browsers can support</h1>
+    <span class="eyebrow">The browser planner</span>
+    <h1>Set your browser minimums.</h1>
     <p>
-      Choose the oldest versions your website must support. ControlCurrent uses published browser
-      data to show what should work and what has known limitations. Your choices stay on this
-      device.
+      Set the oldest browser versions you support, then check which security features they can use.
+      Known limitations and missing data stay in the results. Your plan stays on this device.
     </p>
   </header>
   <div class="shell">
     <Planner />
-    <MinimumPlanner />
   </div>
 </Layout>

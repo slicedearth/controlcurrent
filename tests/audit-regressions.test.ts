@@ -449,7 +449,7 @@ describe("display-independent public builder contracts", () => {
     if (!surface) throw new Error("Missing fixture surface");
     surface.requiredControls = SECURITY_CONTROLS.map((control) => control.id);
     const result = await evaluateEvidencePolicy(report, p, "2026-07-24");
-    expect(result.findings.filter((finding) => finding.targetKind === "control")).toHaveLength(30);
+    expect(result.findings.filter((finding) => finding.targetKind === "control")).toHaveLength(36);
   });
 });
 

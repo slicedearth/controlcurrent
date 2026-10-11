@@ -12,21 +12,20 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
   description="Plain explanations of browser security features, their support, setup needs, limits, and fallbacks."
 >
   <header class="shell page-header">
-    <span class="eyebrow">What each feature does</span>
-    <h1>Explore browser security features</h1>
+    <span class="eyebrow">The feature index / {SECURITY_CONTROLS.length} entries</span>
+    <h1>Browser security, indexed.</h1>
     <p>
-      Each page explains what the feature helps protect, which browsers support it, what you need
-      before using it, what it cannot guarantee, and what fallback to keep in place.
+      Look up what a feature does, what it depends on, and what to keep when support falls short.
+      Open an entry for its source records, setup notes and limits.
     </p>
   </header>
   <section class="shell section" data-control-explorer>
     <div class="control-explorer" aria-labelledby="control-filter-heading">
       <div>
-        <span class="eyebrow">Find the right feature</span>
-        <h2 id="control-filter-heading">Search and filter {SECURITY_CONTROLS.length} features</h2>
+        <h2 id="control-filter-heading">Find a feature</h2>
         <p>
-          Search by a feature name, security goal, or the problem it helps address. Filtering
-          happens on this device and does not make a network request.
+          Search a name, a security goal, or a problem such as clickjacking. Results use current
+          browser versions from the bundled data. Use the planner for older versions.
         </p>
       </div>
       <form class="control-filters" id="control-filters">
@@ -66,9 +65,25 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
         Showing all {SECURITY_CONTROLS.length} features.
       </p>
     </div>
-    <div class="control-grid" id="control-list">
-      {SECURITY_CONTROLS.map((control) => (
-        <ControlCard control={control} evaluations={currentEvaluation.results[control.id] ?? []} />
+    <div id="control-list">
+      {categories.map((category, index) => (
+        <section class="control-group" data-control-group aria-labelledby={`area-${index}`}>
+          <div class="control-group-heading">
+            <h2 id={`area-${index}`}>
+              <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              {category}
+            </h2>
+            <span>
+              {SECURITY_CONTROLS.filter((control) => control.category === category).length} entries
+            </span>
+          </div>
+          {SECURITY_CONTROLS.filter((control) => control.category === category).map((control) => (
+            <ControlCard
+              control={control}
+              evaluations={currentEvaluation.results[control.id] ?? []}
+            />
+          ))}
+        </section>
       ))}
     </div>
     <p id="control-filter-empty" class="content-card control-filter-empty" hidden>
@@ -91,6 +106,8 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
     throw new Error("Security feature filters are unavailable.");
   }
 
+  const groups = [...document.querySelectorAll<HTMLElement>("[data-control-group]")];
+
   function applyFilters(): void {
     const query = search!.value.trim().toLocaleLowerCase("en-AU");
     let visible = 0;
@@ -108,6 +125,11 @@ const categories = [...new Set(SECURITY_CONTROLS.map((control) => control.catego
         ? `Showing all ${String(cards.length)} features.`
         : `Showing ${String(visible)} of ${String(cards.length)} features.`;
     empty!.hidden = visible !== 0;
+    for (const group of groups) {
+      group.hidden = ![...group.querySelectorAll<HTMLElement>("[data-control-card]")].some(
+        (card) => !card.hidden
+      );
+    }
   }
 
   form.addEventListener("input", applyFilters);

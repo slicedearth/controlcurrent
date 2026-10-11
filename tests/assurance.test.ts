@@ -23,7 +23,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff`)
     );
 
-    expect(report.findings).toHaveLength(30);
+    expect(report.findings).toHaveLength(36);
     expect(report.recognisedHeaderCount).toBe(10);
     expect(finding(report, "content-security-policy").state).toBe("observed");
     expect(finding(report, "csp-nonces").state).toBe("observed");

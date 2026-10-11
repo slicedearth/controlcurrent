@@ -1,0 +1,21 @@
+---
+import Layout from "../components/Layout.astro";
+import MinimumPlanner from "../components/MinimumPlanner.astro";
+---
+
+<Layout
+  title="Find minimum browser versions"
+  description="Choose the security features you need and find the earliest supported browser versions in the bundled release history."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">01 / Plan / Start with features</span>
+    <h1>How far back can you support?</h1>
+    <p>
+      Choose the protections you need. Find the oldest browser versions whose recorded later
+      releases also support them. Gaps and uncertain source data stay visible.
+    </p>
+  </header>
+  <div class="shell">
+    <MinimumPlanner />
+  </div>
+</Layout>

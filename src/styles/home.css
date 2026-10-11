@@ -1,0 +1,657 @@
+/* The home page is an instrument face; its tracks represent categorical source results. */
+.support-workbench {
+  --instrument-ink: #e8eef2;
+  --instrument-muted: #b7c7d2;
+  --instrument-line: #4a6674;
+  color: var(--instrument-ink);
+  background: #173844;
+  border-bottom: 7px solid var(--signal);
+}
+.support-workbench a {
+  color: var(--instrument-ink);
+}
+.support-workbench a:hover {
+  color: var(--signal);
+}
+.support-workbench :focus-visible {
+  outline-color: #ffd391;
+}
+.instrument-nameplate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 1.15rem;
+  border-bottom: 1px solid var(--instrument-line);
+  font: 0.62rem/1.5 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--instrument-muted);
+}
+.instrument-nameplate > :first-child {
+  color: var(--signal);
+}
+.instrument-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: 5rem;
+  padding-block: 2.7rem 2.5rem;
+}
+.instrument-input {
+  min-width: 0;
+}
+.instrument-intro h1 {
+  max-width: 5.4em;
+  font: 400 clamp(5rem, 8.4vw, 8rem)/0.87 var(--display);
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  text-wrap: initial;
+}
+.instrument-intro h1 span {
+  display: block;
+  color: var(--signal);
+}
+.instrument-intro p {
+  max-width: 23rem;
+  margin-block: 1.35rem 0;
+  color: var(--instrument-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.dial-assembly {
+  margin-top: 0.7rem;
+}
+.selector-dial {
+  display: block;
+  width: min(100%, 19.5rem);
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.selector-dial:active {
+  cursor: grabbing;
+}
+.dial-guide {
+  fill: none;
+  stroke: var(--instrument-line);
+  stroke-width: 0.7;
+}
+.dial-tick {
+  fill: none;
+  stroke: var(--instrument-muted);
+  stroke-width: 1;
+}
+.dial-tick--major {
+  stroke: var(--instrument-ink);
+  stroke-width: 2;
+}
+.dial-scale {
+  fill: var(--instrument-muted);
+  font: 8px var(--mono);
+}
+.dial-shadow {
+  fill: #0b2631;
+}
+.dial-face {
+  fill: var(--signal);
+}
+.dial-inner {
+  fill: none;
+  stroke: #a3381b;
+  stroke-width: 1;
+}
+#circuit-needle {
+  fill: var(--instrument-ink);
+  stroke: var(--instrument-ink);
+  stroke-width: 5;
+}
+#circuit-dial-number {
+  fill: #173844;
+  font: 68px var(--display);
+  letter-spacing: -2px;
+}
+.dial-centre-label {
+  fill: #173844;
+  font: 7.5px var(--mono);
+  letter-spacing: 0.7px;
+}
+.dial-base {
+  fill: none;
+  stroke: var(--instrument-line);
+  stroke-width: 1;
+}
+.dial-controls {
+  max-width: 25rem;
+  margin-inline: auto;
+}
+.dial-controls > label {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: var(--instrument-muted);
+  font: 0.6rem/1.5 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.dial-selector {
+  display: grid;
+  grid-template-columns: 2.8rem minmax(0, 1fr) 2.8rem;
+}
+.dial-selector select,
+.dial-selector button {
+  min-height: 3.1rem;
+  border: 1px solid var(--instrument-line);
+  border-radius: 0;
+  color: var(--instrument-ink);
+  background: #173844;
+  box-shadow: none;
+}
+.dial-selector select {
+  padding: 0.7rem 0.65rem;
+  font: 0.78rem/1.4 var(--mono);
+  border-inline: 0;
+}
+.dial-selector select option {
+  background: #173844;
+  color: var(--instrument-ink);
+}
+.dial-selector button {
+  font: 1.6rem/1 var(--heading);
+  cursor: pointer;
+}
+.dial-selector button:hover {
+  color: #173844;
+  background: var(--signal);
+}
+#circuit-selection-status {
+  min-height: 2.8em;
+  margin-block: 0.6rem 0;
+  color: var(--instrument-muted);
+  font: 0.61rem/1.5 var(--mono);
+}
+.instrument-footnote {
+  max-width: 25rem;
+  margin: 1rem auto 0;
+  color: var(--instrument-muted);
+  font-size: 0.73rem;
+}
+#circuit-output {
+  min-width: 0;
+  padding-left: 2.5rem;
+  border-left: 1px solid var(--instrument-line);
+}
+.circuit-board__heading {
+  min-height: 9rem;
+}
+.circuit-board__heading .eyebrow {
+  color: var(--signal);
+  font-size: 0.58rem;
+}
+.circuit-board__heading h2 {
+  margin-top: 0.65rem;
+  color: var(--instrument-ink);
+  font-size: clamp(1.65rem, 2.5vw, 2.3rem);
+  letter-spacing: -0.04em;
+}
+.circuit-board__heading p {
+  color: var(--instrument-muted);
+  font-size: 0.8rem;
+  max-width: 38rem;
+}
+.trace-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.75rem;
+  color: var(--instrument-muted);
+  font: 0.55rem/1.5 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.browser-terminals {
+  border-top: 1px solid var(--instrument-line);
+}
+.browser-terminal {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.3rem minmax(7.5rem, 0.85fr) minmax(0, 1.3fr) 1.4rem;
+  align-items: center;
+  width: 100%;
+  min-height: 3.45rem;
+  gap: 0.8rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--instrument-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--instrument-ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.browser-terminal:hover {
+  background: #254957;
+}
+.browser-terminal[aria-pressed="true"] {
+  background: #254957;
+}
+.browser-terminal[aria-pressed="true"]::before {
+  position: absolute;
+  left: -0.55rem;
+  width: 3px;
+  top: 0;
+  bottom: 0;
+  background: var(--signal);
+  content: "";
+}
+.terminal-number {
+  color: var(--instrument-muted);
+  font: 0.55rem/1 var(--mono);
+}
+.terminal-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.71rem;
+  line-height: 1.2;
+}
+.terminal-name strong {
+  font: 0.6rem/1.5 var(--mono);
+  color: var(--instrument-muted);
+}
+.terminal-contact {
+  display: grid;
+  width: 1.4rem;
+  height: 1.4rem;
+  place-items: center;
+  border: 1px solid var(--instrument-line);
+  border-radius: 50%;
+  color: var(--instrument-muted);
+  font-size: 0.8rem;
+}
+.browser-terminal[aria-pressed="true"] .terminal-contact {
+  color: #173844;
+  background: var(--signal);
+  border-color: var(--signal);
+}
+.browser-terminal .circuit-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.65rem;
+  margin: 0;
+  font: 0.6rem/1.35 var(--mono);
+  color: var(--instrument-muted);
+}
+.browser-terminal .circuit-status__drawing {
+  width: 4.5rem;
+  height: 1.8rem;
+  flex: 0 0 auto;
+}
+.browser-terminal .circuit-status > span {
+  width: 7rem;
+}
+.browser-terminal .circuit-status--available_unqualified {
+  color: #bae3c1;
+}
+.browser-terminal .circuit-status--available_with_qualification {
+  color: #ffd391;
+}
+.browser-terminal .circuit-status--unknown,
+.browser-terminal .circuit-status--unsupported_mapping,
+.browser-terminal .circuit-status--source_inconsistent {
+  color: #c1c7f1;
+}
+.circuit-readout {
+  display: flex;
+  gap: 0.8rem;
+  min-height: 6.3rem;
+  padding: 1.15rem 0 0;
+}
+.readout-contact {
+  flex: 0 0 auto;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid var(--signal);
+  border-radius: 50%;
+  margin-top: 0.3rem;
+}
+.circuit-readout h3 {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.circuit-readout p {
+  margin-block: 0.5rem 0;
+  color: var(--instrument-muted);
+  font-size: 0.75rem;
+}
+.circuit-source-link {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--instrument-line);
+  font-size: 0.7rem;
+}
+.instrument-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--instrument-line);
+}
+.instrument-legend p {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--instrument-muted);
+  font: 0.6rem/1.7 var(--mono);
+}
+.instrument-legend a {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+.bench-page {
+  padding-block: 2.75rem;
+}
+.bench-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+.bench-actions .button {
+  justify-content: space-between;
+  border: 0;
+  border-top: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 1.3rem 0 0;
+  font-weight: 400;
+}
+.bench-actions .button > span:first-child {
+  display: grid;
+  gap: 0.5rem;
+}
+.bench-actions small {
+  color: var(--accent);
+  font: 0.6rem/1.5 var(--mono);
+}
+.bench-actions strong {
+  font-size: 1.25rem;
+  letter-spacing: -0.035em;
+}
+.bench-actions .button > span > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.action-contact {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  font-size: 1.5rem;
+}
+.bench-actions .button:hover {
+  background: transparent;
+  color: var(--accent);
+}
+.bench-actions .button:hover .action-contact {
+  background: var(--ink);
+  color: var(--signal);
+}
+.source-strip {
+  background: var(--surface-soft);
+  border-block: 1px solid var(--line);
+}
+.source-strip__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1.4rem;
+  gap: 2rem;
+}
+.source-strip dl {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin: 0;
+  gap: 0.75rem 2rem;
+}
+.source-strip dt {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.source-strip dd {
+  margin: 0.15rem 0 0;
+  font: 0.75rem/1.5 var(--mono);
+}
+.source-strip a {
+  font-size: 0.75rem;
+}
+.bench-footnote {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
+  padding-block: 1.5rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.bench-footnote p {
+  max-width: 48rem;
+}
+.bench-footnote p:last-child {
+  font: 0.65rem/1.7 var(--mono);
+}
+@media (max-width: 75rem) {
+  .instrument-body {
+    gap: 2.5rem;
+  }
+  #circuit-output {
+    padding-left: 1.5rem;
+  }
+  .browser-terminal {
+    grid-template-columns: 1rem minmax(6rem, 0.85fr) minmax(0, 1.3fr) 1.3rem;
+    gap: 0.55rem;
+  }
+  .browser-terminal .circuit-status__drawing {
+    width: 3rem;
+  }
+}
+@media (max-width: 62rem) {
+  .instrument-body {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 1.5rem;
+  }
+  .instrument-intro h1 {
+    font-size: 5.2rem;
+  }
+  .instrument-intro p {
+    font-size: 0.82rem;
+  }
+  .instrument-nameplate > :nth-child(2) {
+    display: none;
+  }
+  .browser-terminal {
+    grid-template-columns: minmax(6rem, 1fr) minmax(0, 1.3fr) 1.3rem;
+  }
+  .terminal-number {
+    display: none;
+  }
+  .dial-selector {
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+  }
+  .dial-selector select {
+    font-size: 0.66rem;
+    padding-inline: 0.4rem;
+  }
+  .circuit-board__heading {
+    min-height: 10rem;
+  }
+  .browser-terminal .circuit-status {
+    font-size: 0.55rem;
+    gap: 0.3rem;
+  }
+  .browser-terminal .circuit-status__drawing {
+    width: 2.7rem;
+  }
+}
+@media (max-width: 48rem) {
+  .instrument-body {
+    display: block;
+    padding-block: 1.75rem;
+  }
+  .instrument-input {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-bottom: 2rem;
+  }
+  .instrument-intro h1 {
+    font-size: clamp(3.1rem, 9.4vw, 5.5rem);
+  }
+  .instrument-intro p {
+    max-width: 24rem;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+  }
+  .dial-assembly {
+    display: contents;
+  }
+  .selector-dial {
+    width: min(100%, 17rem);
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+  .dial-controls {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+  }
+  .dial-selector {
+    grid-template-columns: 3rem minmax(0, 1fr) 3rem;
+  }
+  .dial-selector select {
+    font-size: 0.78rem;
+    padding-inline: 0.75rem;
+  }
+  #circuit-selection-status {
+    min-height: 0;
+  }
+  .instrument-footnote {
+    grid-column: 1 / -1;
+    max-width: none;
+    margin: 0;
+    font-size: 0.7rem;
+  }
+  .instrument-input noscript {
+    grid-column: 1 / -1;
+  }
+  #circuit-output {
+    padding-left: 0;
+    padding-top: 1.75rem;
+    border-left: 0;
+    border-top: 1px solid var(--instrument-line);
+  }
+  .circuit-board__heading {
+    min-height: 0;
+  }
+  .circuit-board__heading h2 {
+    font-size: 1.8rem;
+  }
+  .trace-head {
+    margin-top: 1rem;
+  }
+  .browser-terminal {
+    grid-template-columns: 1rem minmax(6.3rem, 0.9fr) minmax(0, 1.3fr) 1.4rem;
+    min-height: 3.4rem;
+    gap: 0.65rem;
+  }
+  .terminal-number {
+    display: block;
+  }
+  .terminal-name {
+    font-size: 0.75rem;
+  }
+  .browser-terminal .circuit-status {
+    font-size: 0.6rem;
+  }
+  .browser-terminal .circuit-status__drawing {
+    width: 3.5rem;
+  }
+  .instrument-legend {
+    display: block;
+    padding-block: 1.1rem;
+  }
+  .instrument-legend p {
+    margin-bottom: 0.8rem;
+  }
+  .bench-page {
+    padding-block: 2rem;
+  }
+  .bench-actions {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .bench-actions strong {
+    font-size: 1.05rem;
+  }
+  .bench-actions .button > span > span {
+    font-size: 0.72rem;
+  }
+  .source-strip__inner {
+    display: block;
+    padding-block: 1.25rem;
+  }
+  .source-strip dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-block: 1rem;
+  }
+  .source-strip dl > :last-child {
+    grid-column: 1 / -1;
+  }
+  .bench-footnote {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+@media (max-width: 25rem) {
+  .instrument-nameplate {
+    font-size: 0.55rem;
+  }
+  .instrument-intro h1 {
+    font-size: 3rem;
+  }
+  .instrument-intro p {
+    font-size: 0.73rem;
+  }
+  .browser-terminal {
+    grid-template-columns: minmax(6rem, 0.85fr) minmax(0, 1.3fr) 1.3rem;
+    gap: 0.4rem;
+  }
+  .terminal-number {
+    display: none;
+  }
+  .terminal-name {
+    font-size: 0.68rem;
+  }
+  .browser-terminal .circuit-status__drawing {
+    width: 3rem;
+  }
+  .browser-terminal .circuit-status {
+    font-size: 0.55rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .support-workbench * {
+    scroll-behavior: auto;
+  }
+}

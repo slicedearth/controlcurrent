@@ -8,9 +8,17 @@ export const WPT_EVIDENCE_REVIEW = {
   licence: "BSD-3-Clause"
 } as const;
 
+export const WPT_DIRECTIVE_REVIEW = {
+  revision: "cc74d2669f5de548e808779877d1d33339ec5115",
+  reviewedOn: "2026-10-11"
+} as const;
+
+export type WptSourceReview = { revision: string; reviewedOn: string };
+
 export type WptSuite = {
   path: string;
   label: string;
+  tests?: readonly string[];
 };
 
 export type WptEvidenceMapping = {
@@ -19,6 +27,7 @@ export type WptEvidenceMapping = {
   suites: readonly WptSuite[];
   scope: string;
   limitation: string;
+  review?: WptSourceReview;
 };
 
 const MAPPINGS = [
@@ -280,8 +289,124 @@ const MAPPINGS = [
   }
 ] as const satisfies readonly WptEvidenceMapping[];
 
+const DIRECTIVE_MAPPINGS = [
+  {
+    controlId: "permissions-policy-camera",
+    state: "mapped",
+    review: WPT_DIRECTIVE_REVIEW,
+    suites: [
+      {
+        path: "permissions-policy",
+        label: "Camera policy reporting",
+        tests: [
+          "permissions-policy/reporting/camera-potential-report-only.https.html",
+          "permissions-policy/reporting/camera-potential-reporting.https.html",
+          "permissions-policy/reporting/camera-report-only.https.html",
+          "permissions-policy/reporting/camera-reporting.https.html"
+        ]
+      }
+    ],
+    scope:
+      "Camera policy violation and potential-violation reports in enforced and report-only modes.",
+    limitation:
+      "These files also depend on reporting support and media-test automation. Their outcomes do not isolate basic camera blocking or cover every frame allowlist and device."
+  },
+  {
+    controlId: "permissions-policy-microphone",
+    state: "mapped",
+    review: WPT_DIRECTIVE_REVIEW,
+    suites: [
+      {
+        path: "permissions-policy",
+        label: "Microphone policy reporting",
+        tests: [
+          "permissions-policy/reporting/microphone-report-only.https.html",
+          "permissions-policy/reporting/microphone-reporting.https.html"
+        ]
+      }
+    ],
+    scope:
+      "Microphone policy violation reports when audio access is blocked or allowed in report-only mode.",
+    limitation:
+      "These files also depend on reporting support and media-test automation. Their outcomes do not isolate basic microphone blocking or cover every frame allowlist and device."
+  },
+  {
+    controlId: "permissions-policy-geolocation",
+    state: "mapped",
+    review: WPT_DIRECTIVE_REVIEW,
+    suites: [
+      {
+        path: "permissions-policy",
+        label: "Geolocation policy reporting",
+        tests: [
+          "permissions-policy/reporting/geolocation-report-only.https.html",
+          "permissions-policy/reporting/geolocation-reporting.https.html"
+        ]
+      }
+    ],
+    scope: "Geolocation policy violation reports in enforced and report-only modes.",
+    limitation:
+      "Reporting support, location availability and user permission can affect these outcomes. They do not isolate basic geolocation blocking or cover every frame allowlist."
+  },
+  {
+    controlId: "clear-site-data-cache",
+    state: "mapped",
+    review: WPT_DIRECTIVE_REVIEW,
+    suites: [
+      {
+        path: "clear-site-data",
+        label: "Cache clearing",
+        tests: [
+          "clear-site-data/clear-cache-bfcache-partitioning.tentative.https.html",
+          "clear-site-data/clear-cache-bfcache.https.html",
+          "clear-site-data/clear-cache-partitioning.tentative.https.html",
+          "clear-site-data/clear-cache.https.html"
+        ]
+      }
+    ],
+    scope: "Cache eviction, subsequent fetches, partitioning and back/forward cache behaviour.",
+    limitation:
+      "The selected files include wildcard-clearing cases and tentative partitioning tests. File totals do not isolate every cache directive subtest or prove that application logout removes all cached data."
+  },
+  {
+    controlId: "clear-site-data-cookies",
+    state: "mapped",
+    review: WPT_DIRECTIVE_REVIEW,
+    suites: [
+      {
+        path: "clear-site-data",
+        label: "Cookie clearing and response header order",
+        tests: [
+          "clear-site-data/set-cookie-after-clear-cookies.https.html",
+          "clear-site-data/set-cookie-before-clear-cookies.https.html"
+        ]
+      }
+    ],
+    scope:
+      "Cookie visibility when Set-Cookie appears before or after a cookies-clearing header in the same response.",
+    limitation:
+      "These two files cover response header ordering. They do not establish complete cookie-domain or partition coverage, server-side session revocation, or correct logout sequencing."
+  },
+  {
+    controlId: "clear-site-data-storage",
+    state: "mapped",
+    review: WPT_DIRECTIVE_REVIEW,
+    suites: [
+      {
+        path: "clear-site-data",
+        label: "Storage clearing and service-worker control",
+        tests: ["clear-site-data/storage.https.html"]
+      }
+    ],
+    scope:
+      "Clearing supported storage backends and removing service-worker control from an existing client.",
+    limitation:
+      "The file includes setup checks and selects backends available in that browser. Its totals do not prove coverage of every storage mechanism, partition or application data flow."
+  }
+] as const satisfies readonly WptEvidenceMapping[];
+
 const mappingByControl = new Map<string, WptEvidenceMapping>(
-  MAPPINGS.map((mapping) => [mapping.controlId, mapping])
+  [...MAPPINGS, ...DIRECTIVE_MAPPINGS].map((mapping) => [mapping.controlId, mapping])
 );
 
 export const WPT_EVIDENCE = SECURITY_CONTROLS.map((control) => {
@@ -296,8 +421,16 @@ export function getWptEvidence(controlId: string): WptEvidenceMapping {
   return mapping;
 }
 
-export function wptSourceUrl(path: string): string {
-  return `https://github.com/web-platform-tests/wpt/tree/${WPT_EVIDENCE_REVIEW.revision}/${path}`;
+export function getWptSourceReview(mapping: WptEvidenceMapping): WptSourceReview {
+  return mapping.review ?? WPT_EVIDENCE_REVIEW;
+}
+
+export function wptSourceUrl(
+  path: string,
+  revision: string = WPT_EVIDENCE_REVIEW.revision,
+  kind: "tree" | "blob" = "tree"
+): string {
+  return `https://github.com/web-platform-tests/wpt/${kind}/${revision}/${path}`;
 }
 
 export function wptResultsUrl(path: string): string {

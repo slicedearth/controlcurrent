@@ -56,7 +56,7 @@ function profile(overrides: Partial<EvidencePolicyProfile> = {}): EvidencePolicy
     schemaVersion: 4,
     name: "Release evidence baseline",
     expectedAnalyserVersion: "5.1.0",
-    expectedCatalogueVersion: "2.2.0",
+    expectedCatalogueVersion: "2.3.0",
     expectedBcdVersion: "1.0.0",
     attestation: {
       required: false,

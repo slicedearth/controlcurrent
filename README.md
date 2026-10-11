@@ -53,6 +53,9 @@ checker or certification service.
 - Import explicit minimums from a local `.browserslistrc` or `package.json`.
 - Search and filter the result, including a blockers-only view.
 - Save a browser plan locally or export it as JSON.
+- Keep up to 12 named plans locally, with separate rename, duplicate and delete actions.
+- Compare two editable browser plans and calculate the minimum increases needed for selected features.
+- Transfer calculated minimums directly to the planner without saving them.
 - Opt in to remembering one result so a later data update can be compared.
 - Compare an exported result with a newer result from the same source version.
 - Read exact source versions, package timestamps and local package age beside
@@ -79,16 +82,20 @@ checker or certification service.
 
 ### Explore the source data
 
-- Read plain-language pages for 30 browser security and privacy features.
+- Read plain-language pages for 36 browser security and privacy features.
 - Compare current browser support in a matrix.
 - See exact source mappings, qualifications and known data gaps.
 - Review source changes and pinned Web Platform Tests links.
+- Trace support across recorded browser releases and explore deployment dependencies as interactive circuits.
+- Read retained results from exact public browser-test runs, with file outcomes separate from subtest totals.
+- Inspect exact test selections for individual camera, microphone, geolocation and data-clearing directives, with their own counts and coverage limits.
 - Validate exported contracts with public draft 2020-12 JSON Schemas.
 - Find the oldest browser versions that support a selected group of features.
 
 ### Review evidence locally
 
 - Paste a redacted HTTP response-header snapshot.
+- Select or import a browser plan to show compatibility beside each header finding.
 - Choose or drop a bounded JSON evidence file from an authorised collection.
 - Review page, header, request, passkey and local resource evidence without
   executing supplied markup or loading its resources.

@@ -1,0 +1,35 @@
+---
+import type { Outcome } from "../contracts";
+import { outcomeLabels } from "../format";
+interface Props {
+  outcome: Outcome;
+}
+const { outcome } = Astro.props;
+const open = ["unavailable", "removed"].includes(outcome);
+const limited = outcome === "available_with_qualification";
+const unknown = ["unknown", "unsupported_mapping", "source_inconsistent"].includes(outcome);
+---
+
+<span class={`circuit-status circuit-status--${outcome}`}>
+  <svg
+    class="circuit-status__drawing"
+    width="56"
+    height="22"
+    viewBox="0 0 56 22"
+    aria-hidden="true"
+  >
+    <path d="M0 16H10M46 16h10" />
+    <circle cx="13" cy="16" r="3" />
+    <circle cx="43" cy="16" r="3" />
+    {open ? (
+      <path d="M16 15 39 3" />
+    ) : limited ? (
+      <path d="M16 16h3l3-7 5 12 5-12 5 7h3" />
+    ) : unknown ? (
+      <path class="circuit-status__unknown" d="M17 16h22" />
+    ) : (
+      <path d="M16 16h24" />
+    )}
+  </svg>
+  <span>{outcomeLabels[outcome]}</span>
+</span>

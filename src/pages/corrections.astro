@@ -7,37 +7,44 @@ import Layout from "../components/Layout.astro";
   description="How to report incorrect wording, browser data links, feature definitions, or calculations."
 >
   <header class="shell page-header">
-    <span class="eyebrow">Help improve the results</span>
-    <h1>Report incorrect browser support information</h1>
+    <span class="eyebrow">Corrections</span>
+    <h1>Report a correction.</h1>
     <p>
       Include the security feature, browser and version, current result, expected result, and a
       reliable source that supports the correction. Technical reports can also include the MDN data
       path and package version.
     </p>
   </header>
-  <article class="shell prose">
-    <h2>Report a problem with ControlCurrent</h2>
-    <p>
-      Use the repository issue tracker for catalogue mappings, calculations, wording, accessibility,
-      or reproducibility. Do not include private application details or security vulnerabilities in
-      a public issue.
-    </p>
-    <p>
-      <a href="https://github.com/slicedearth/controlcurrent/issues" rel="noopener noreferrer">
-        Open the ControlCurrent issue tracker
-      </a>
-    </p>
+  <div class="shell reading-layout">
+    <nav class="page-contents" aria-label="On this page">
+      <span class="eyebrow">In this section</span>
+      <a href="#section-1">Report a problem with ControlCurrent</a>
+      <a href="#section-2">Report a problem with the source data</a>
+    </nav>
+    <article class="prose">
+      <h2 id="section-1">Report a problem with ControlCurrent</h2>
+      <p>
+        Use the repository issue tracker for catalogue mappings, calculations, wording,
+        accessibility, or reproducibility. Do not include private application details or security
+        vulnerabilities in a public issue.
+      </p>
+      <p>
+        <a href="https://github.com/slicedearth/controlcurrent/issues" rel="noopener noreferrer">
+          Open the ControlCurrent issue tracker
+        </a>
+      </p>
 
-    <h2>Report a problem with the source data</h2>
-    <p>
-      A BCD support-data problem should also be reported through the MDN Browser Compatibility Data
-      contribution process. ControlCurrent will not silently override source evidence with an
-      undocumented local claim.
-    </p>
-    <p>
-      <a href="https://github.com/mdn/browser-compat-data/issues" rel="noopener noreferrer">
-        Open the MDN BCD issue tracker
-      </a>
-    </p>
-  </article>
+      <h2 id="section-2">Report a problem with the source data</h2>
+      <p>
+        A BCD support-data problem should also be reported through the MDN Browser Compatibility
+        Data contribution process. ControlCurrent will not silently override source evidence with an
+        undocumented local claim.
+      </p>
+      <p>
+        <a href="https://github.com/mdn/browser-compat-data/issues" rel="noopener noreferrer">
+          Open the MDN BCD issue tracker
+        </a>
+      </p>
+    </article>
+  </div>
 </Layout>

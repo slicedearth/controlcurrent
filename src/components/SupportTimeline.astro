@@ -1,0 +1,90 @@
+---
+import { BROWSER_IDS } from "../browsers";
+import { browserNames, outcomeLabels } from "../format";
+import { selectedSnapshot } from "../data";
+import { supportTimeline } from "../support-timeline";
+
+interface Props {
+  controlId: string;
+}
+const { controlId } = Astro.props;
+---
+
+<section class="content-card support-history" aria-labelledby="support-history-heading">
+  <span class="eyebrow">The release trace</span>
+  <h2 id="support-history-heading">How support changed</h2>
+  <p>
+    Each segment groups recorded releases with the same result. Gaps between recorded versions are
+    not filled in. This is support at each release, rather than the planner’s check of every release
+    above a minimum.
+  </p>
+  <label class="timeline-picker" hidden>
+    <span>Timeline browser</span>
+    <select id="timeline-browser">
+      {BROWSER_IDS.map((browser) => (
+        <option value={browser}>{browserNames[browser]}</option>
+      ))}
+    </select>
+  </label>
+  {BROWSER_IDS.map((browser) => {
+    const timelines = supportTimeline(selectedSnapshot, controlId, browser);
+    return (
+      <div data-timeline-browser={browser}>
+        <h3>{browserNames[browser]}</h3>
+        {timelines.length === 0 && (
+          <p>No exact compatibility mapping is available for this feature.</p>
+        )}
+        {timelines.map((timeline) => (
+          <div class="timeline-feature">
+            <code class="source-path">{timeline.path}</code>
+            {timeline.intervals.length === 0 && (
+              <p>No comparable recorded release history is available.</p>
+            )}
+            <ol class="release-trace">
+              {timeline.intervals.map((interval) => (
+                <li data-outcome={interval.outcome}>
+                  <div>
+                    <strong>
+                      {interval.first === interval.last
+                        ? interval.first
+                        : `${interval.first} – ${interval.last}`}
+                    </strong>
+                    <span>
+                      {interval.releases} recorded release{interval.releases === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <div>
+                    <strong>{outcomeLabels[interval.outcome]}</strong>
+                    {interval.qualifications.length > 0 && (
+                      <ul>
+                        {interval.qualifications.map((note) => (
+                          <li>{note}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    );
+  })}
+  <p class="muted">
+    BCD {selectedSnapshot.bcdVersion} · catalogue {selectedSnapshot.catalogueVersion}. Source
+    corrections can change this trace without a new browser release.
+  </p>
+</section>
+<script>
+  const picker = document.querySelector<HTMLSelectElement>("#timeline-browser");
+  const panels = [...document.querySelectorAll<HTMLElement>("[data-timeline-browser]")];
+  if (picker) {
+    const selectBrowser = () => {
+      for (const panel of panels) panel.hidden = panel.dataset.timelineBrowser !== picker.value;
+    };
+    document.querySelector<HTMLElement>(".timeline-picker")?.removeAttribute("hidden");
+    picker.addEventListener("change", selectBrowser);
+    selectBrowser();
+  }
+</script>

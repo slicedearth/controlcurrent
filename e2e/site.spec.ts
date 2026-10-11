@@ -14,14 +14,19 @@ test("renders real source provenance and makes no external request", async ({ pa
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Choose security features your supported browsers can handle"
+      name: "Find the break."
     })
   ).toBeVisible();
   await expect(
-    page.getByText("MDN browser data", { exact: true }).first().locator("..")
+    page.locator(".source-strip").getByText("MDN browser data", { exact: true }).locator("..")
   ).toContainText("8.1.5");
-  await expect(page.getByText("Web feature data").locator("..")).toContainText("3.42.0");
-  await expect(page.getByText("Server connection").locator("..")).toContainText("none");
+  await expect(
+    page.locator(".source-strip").getByText("Web feature data").locator("..")
+  ).toContainText("3.42.0");
+  await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute(
+    "content",
+    /(?:^|;)\s*connect-src 'none'(?:;|$)/u
+  );
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).analyze();
@@ -36,7 +41,7 @@ test("evaluates, stores, clears, and exports a profile locally @workflow", async
   await expect(
     page.getByRole("heading", { name: "What your browser choices can support" })
   ).toBeVisible();
-  await expect(page.locator(".result-card")).toHaveCount(30);
+  await expect(page.locator(".result-card")).toHaveCount(36);
   await expect(page.getByRole("heading", { name: /Ready to use/u })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Works with known limitations/u })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Not enough information/u })).toBeVisible();
@@ -53,9 +58,9 @@ test("evaluates, stores, clears, and exports a profile locally @workflow", async
 
   await page.getByLabel("Show blockers only").check();
   await expect(page.locator(".result-group--ready")).toBeHidden();
-  expect(await page.locator("[data-result-card]:visible").count()).toBeLessThan(30);
+  expect(await page.locator("[data-result-card]:visible").count()).toBeLessThan(36);
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("[data-result-card]:visible")).toHaveCount(30);
+  await expect(page.locator("[data-result-card]:visible")).toHaveCount(36);
 
   await page.getByRole("button", { name: "Save locally" }).click();
   await expect
@@ -89,7 +94,7 @@ test("evaluates, stores, clears, and exports a profile locally @workflow", async
   await expect(
     page.getByRole("heading", { name: "What changed since the earlier result" })
   ).toBeVisible();
-  await expect(page.locator("#comparison-events .result-card")).toHaveCount(30);
+  await expect(page.locator("#comparison-events .result-card")).toHaveCount(36);
 
   const reportPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export readable report" }).click();
@@ -260,7 +265,7 @@ test("calculates minimum browser baselines without a network request", async ({ 
     if (url.hostname !== "127.0.0.1") externalRequests.push(request.url());
   });
 
-  await page.goto("/planner/");
+  await page.goto("/minimums/");
   await page.getByRole("button", { name: "Find oldest versions" }).click();
 
   await expect(page.getByRole("heading", { name: "Minimum browser versions" })).toBeVisible();
@@ -304,10 +309,16 @@ test("wraps long browser-data labels without clipping", async ({ page }) => {
   await page.goto("/planner/");
   await page.getByRole("button", { name: "Load example" }).click();
   await page.getByRole("button", { name: "Check support" }).click();
-  await page.getByRole("button", { name: "Find oldest versions" }).click();
   await expectLabelsInsideBounds();
 
   await page.setViewportSize({ width: 320, height: 800 });
+  await expectLabelsInsideBounds();
+
+  await page.goto("/minimums/");
+  await page.locator('input[name="minimum-control"][value="csp-nonces"]').check();
+  await page.getByRole("button", { name: "Find oldest versions" }).click();
+  await expectLabelsInsideBounds();
+  await page.setViewportSize({ width: 1280, height: 900 });
   await expectLabelsInsideBounds();
 });
 
@@ -319,6 +330,9 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
     "/glossary/",
     "/matrix/",
     "/planner/",
+    "/minimums/",
+    "/compare/",
+    "/circuits/",
     "/assess/",
     "/evidence/",
     "/changes/",
@@ -331,12 +345,75 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
     "/controls/trusted-types/",
     "/404.html"
   ]) {
-    await page.goto(path);
-    const dimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth
-    }));
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    await test.step(path, async () => {
+      await page.goto(path);
+      const dimensions = await page.evaluate(() => {
+        const root = document.documentElement;
+        const describe = (element: Element) => {
+          const box = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return {
+            element: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}.${Array.from(element.classList).join(".")}`,
+            left: box.left,
+            right: box.right,
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+            width: style.width,
+            minWidth: style.minWidth,
+            display: style.display,
+            gridTemplateColumns: style.gridTemplateColumns,
+            flex: style.flex,
+            overflowX: style.overflowX,
+            overflowWrap: style.overflowWrap,
+            fontFamily: style.fontFamily,
+            fontSize: style.fontSize
+          };
+        };
+        const overflow = root.scrollWidth > root.clientWidth;
+        return {
+          route: location.pathname,
+          viewportWidth: innerWidth,
+          clientWidth: root.clientWidth,
+          scrollWidth: root.scrollWidth,
+          overflowing: overflow
+            ? Array.from(document.querySelectorAll("body *"))
+                .filter((element) => {
+                  let parent = element.parentElement;
+                  while (parent && parent !== document.body) {
+                    if (
+                      ["auto", "scroll", "hidden", "clip"].includes(
+                        getComputedStyle(parent).overflowX
+                      )
+                    )
+                      return false;
+                    parent = parent.parentElement;
+                  }
+                  const box = element.getBoundingClientRect();
+                  return (
+                    box.width > 0 &&
+                    (box.right > root.clientWidth ||
+                      box.left < 0 ||
+                      (element.scrollWidth > element.clientWidth &&
+                        getComputedStyle(element).overflowX === "visible"))
+                  );
+                })
+                .slice(0, 20)
+                .map((element) => {
+                  const ancestors = [];
+                  let parent = element.parentElement;
+                  while (parent && ancestors.length < 4) {
+                    ancestors.push(describe(parent));
+                    parent = parent.parentElement;
+                  }
+                  return { ...describe(element), ancestors };
+                })
+            : []
+        };
+      });
+      expect(dimensions.scrollWidth, JSON.stringify(dimensions, null, 2)).toBeLessThanOrEqual(
+        dimensions.clientWidth
+      );
+    });
   }
 
   const matrix = page.locator(".table-wrap");
@@ -349,12 +426,39 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
   expect(matrixDimensions.scrollWidth).toBeGreaterThan(matrixDimensions.clientWidth);
 });
 
+for (const [path, title] of [
+  ["/glossary/", "ControlCurrent glossary"],
+  ["/controls/trusted-types/", "Trusted Types enforcement"]
+] as const) {
+  test(`wraps long headings with a fallback font on ${path} @workflow`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto(path);
+    await page.locator("html").evaluate((element) => {
+      element.style.setProperty("--display", "Arial, sans-serif");
+    });
+    const heading = page.locator(".page-header h1");
+    await expect(heading).toHaveText(title);
+    const dimensions = await heading.evaluate((element) => ({
+      headingClientWidth: element.clientWidth,
+      headingScrollWidth: element.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth
+    }));
+    expect(dimensions.headingScrollWidth, JSON.stringify(dimensions)).toBeLessThanOrEqual(
+      dimensions.headingClientWidth
+    );
+    expect(dimensions.scrollWidth, JSON.stringify(dimensions)).toBeLessThanOrEqual(
+      dimensions.clientWidth
+    );
+  });
+}
+
 test("stacks homepage actions evenly on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  const actions = page.locator(".hero-actions .button");
-  await expect(actions).toHaveCount(3);
+  const actions = page.locator(".bench-actions .button");
+  await expect(actions).toHaveCount(2);
   const boxes = await actions.evaluateAll((elements) =>
     elements.map((element) => {
       const box = element.getBoundingClientRect();
@@ -365,10 +469,9 @@ test("stacks homepage actions evenly on mobile", async ({ page }) => {
   expect(new Set(boxes.map((box) => box.x)).size).toBe(1);
   expect(new Set(boxes.map((box) => box.width)).size).toBe(1);
   expect(new Set(boxes.map((box) => box.height)).size).toBe(1);
-  const [first, second, third] = boxes;
-  if (!first || !second || !third) throw new Error("Expected three homepage actions.");
+  const [first, second] = boxes;
+  if (!first || !second) throw new Error("Expected two homepage actions.");
   expect(first.y).toBeLessThan(second.y);
-  expect(second.y).toBeLessThan(third.y);
 });
 
 test("uses a contained mobile navigation menu without horizontal scrolling", async ({ page }) => {
@@ -387,7 +490,12 @@ test("uses a contained mobile navigation menu without horizontal scrolling", asy
   await expect(toggle).toHaveText(/Close/u);
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
   await expect(navigation).toBeVisible();
-  await expect(navigation.getByRole("link")).toHaveCount(8);
+  await expect(navigation.getByRole("link")).toHaveText([
+    "01Plan",
+    "02Inspect",
+    "03Reference",
+    "04Sources"
+  ]);
 
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
@@ -413,12 +521,15 @@ test("shows pinned WPT mappings without fetching result data", async ({ page }) 
   });
 
   await page.goto("/evidence/");
+  await expect(page.getByRole("heading", { name: "Public browser tests." })).toBeVisible();
+  await expect(page.locator(".evidence-card")).toHaveCount(36);
+  await expect(page.locator(".evidence-stats").getByText("34", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "See the public tests behind browser behaviour" })
-  ).toBeVisible();
-  await expect(page.locator(".evidence-card")).toHaveCount(30);
-  await expect(page.getByText("28")).toBeVisible();
-  await expect(page.getByText("af38980d")).toBeVisible();
+    page.getByText("af38980d2fcd74af19a226f5f651051cc15940ed", { exact: true })
+  ).toHaveCount(28);
+  await expect(
+    page.getByText("cc74d2669f5de548e808779877d1d33339ec5115", { exact: true })
+  ).toHaveCount(9);
   await expect(
     page.getByText("No similar test is substituted when an exact link is unavailable.")
   ).toHaveCount(2);
@@ -442,12 +553,12 @@ test("assesses and clears a redacted header snapshot without a network request",
   await page.getByRole("button", { name: "Review headers" }).click();
 
   await expect(page.getByRole("heading", { name: "Security header results" })).toBeVisible();
-  await expect(page.locator(".assurance-card")).toHaveCount(30);
+  await expect(page.locator(".assurance-card")).toHaveCount(36);
   await expect(page.getByText("Headers reviewed on this device")).toBeVisible();
   await expect(page.getByText("18")).toBeVisible();
   expect(externalRequests).toEqual([]);
 
-  await page.getByRole("button", { name: "Clear" }).first().click();
+  await page.locator("#header-form").getByRole("button", { name: "Clear", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Security header results" })).toBeHidden();
   await expect(page.getByLabel("HTTP response headers")).toHaveValue("");
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
@@ -504,7 +615,7 @@ test("reduces a multi-surface evidence bundle without exposing raw inputs @workf
     "captured 2026-07-20T09:05:00.000Z by example-ci (application_ci)"
   );
   await expect(results.locator("#bundle-source")).toContainText(
-    "analyser 5.1.0 · catalogue 2.2.0 · BCD 8.1.5"
+    "analyser 5.1.0 · catalogue 2.3.0 · BCD 8.1.5"
   );
   await expect(
     results.getByText("Supplied page list · Reviewed application route manifest")
@@ -547,6 +658,12 @@ test("shows the reviewed source manifest without inventing review timestamps", a
 
 test("publishes third-party licence notices with the static site", async ({ page, request }) => {
   await page.goto("/data/");
+  await expect(page.getByText("Original suite-link revision", { exact: true })).toBeVisible();
+  await expect(page.getByText("Directive file-selection revision", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "View the directive test source" })).toHaveAttribute(
+    "href",
+    "https://github.com/web-platform-tests/wpt/tree/cc74d2669f5de548e808779877d1d33339ec5115"
+  );
   const noticeLink = page.getByRole("link", {
     name: "Read the deployed third-party notices and licence terms"
   });
@@ -600,17 +717,17 @@ test("filters security features locally without hiding the full static catalogue
   });
 
   await page.goto("/controls/");
-  await expect(page.locator("[data-control-card]")).toHaveCount(30);
+  await expect(page.locator("[data-control-card]")).toHaveCount(36);
   await page.getByLabel("Search features").fill("clickjacking");
   await expect(page.locator("[data-control-card]:visible")).toHaveCount(1);
-  await expect(page.getByText("Showing 1 of 30 features.")).toBeVisible();
+  await expect(page.getByText("Showing 1 of 36 features.")).toBeVisible();
 
   await page.getByLabel("Security area").selectOption("Authentication");
   await expect(page.locator("[data-control-card]:visible")).toHaveCount(0);
   await expect(page.getByText("No features match those filters.")).toBeVisible();
 
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(page.locator("[data-control-card]:visible")).toHaveCount(30);
+  await expect(page.locator("[data-control-card]:visible")).toHaveCount(36);
   expect(externalRequests).toEqual([]);
 
   const violations = await new AxeBuilder({ page }).include("#main-content").analyze();

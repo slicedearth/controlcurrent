@@ -9,140 +9,156 @@ const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
   description="How ControlCurrent turns published browser data and supplied evidence into careful, repeatable results."
 >
   <header class="shell page-header">
-    <span class="eyebrow">How the results are produced</span>
-    <h1>ControlCurrent shows uncertainty instead of guessing</h1>
+    <span class="eyebrow">Method &amp; assumptions</span>
+    <h1>How the checks work.</h1>
     <p>
       The site uses a small, reviewed part of MDN browser data. It checks that every source record
       still exists and keeps the notes and limitations attached to browser support.
     </p>
   </header>
-  <article class="shell prose">
-    <h2>Seven kinds of information stay separate</h2>
-    <p>
-      This prevents a browser-support fact from being mistaken for proof that a website is secure:
-    </p>
-    <ol>
-      <li>
-        <strong>Browser data:</strong> support records, browser versions, and source notes.
-      </li>
-      <li>
-        <strong>Feature mapping:</strong> which source records represent a security feature.
-      </li>
-      <li>
-        <strong>Calculation:</strong> whether your chosen browser versions meet the requirements.
-      </li>
-      <li>
-        <strong>Guidance:</strong> setup needs, fallbacks, and limitations written for this project.
-      </li>
-      <li>
-        <strong>Supplied configuration:</strong> optional headers, page information, local resource
-        checks, request information, and reduced passkey settings.
-      </li>
-      <li>
-        <strong>Public browser tests:</strong> direct links to reviewed Web Platform Tests and their
-        limits.
-      </li>
-      <li>
-        <strong>Report signer:</strong> an optional command-line check that an approved continuous
-        integration (CI) workflow signed the matching report.
-      </li>
-    </ol>
+  <div class="shell reading-layout">
+    <nav class="page-contents" aria-label="On this page">
+      <span class="eyebrow">In this section</span>
+      <a href="#section-1">Seven kinds of information stay separate</a>
+      <a href="#section-2">How a security feature is linked to browser data</a>
+      <a href="#section-3">How browser versions are compared</a>
+      <a href="#section-4">What the result labels mean</a>
+      <a href="#section-5">What a change date means</a>
+      <a href="#section-6">How the local evidence check works</a>
+      <a href="#section-7">How optional report signatures work</a>
+      <a href="#section-8">How public browser tests are used</a>
+      <a href="#section-9">Repeatable results and safety limits</a>
+    </nav>
+    <article class="prose">
+      <h2 id="section-1">Seven kinds of information stay separate</h2>
+      <p>
+        This prevents a browser-support fact from being mistaken for proof that a website is secure:
+      </p>
+      <ol>
+        <li>
+          <strong>Browser data:</strong> support records, browser versions, and source notes.
+        </li>
+        <li>
+          <strong>Feature mapping:</strong> which source records represent a security feature.
+        </li>
+        <li>
+          <strong>Calculation:</strong> whether your chosen browser versions meet the requirements.
+        </li>
+        <li>
+          <strong>Guidance:</strong> setup needs, fallbacks, and limitations written for this
+          project.
+        </li>
+        <li>
+          <strong>Supplied configuration:</strong> optional headers, page information, local
+          resource checks, request information, and reduced passkey settings.
+        </li>
+        <li>
+          <strong>Public browser tests:</strong> direct links to reviewed Web Platform Tests and
+          their limits.
+        </li>
+        <li>
+          <strong>Report signer:</strong> an optional command-line check that an approved continuous
+          integration (CI) workflow signed the matching report.
+        </li>
+      </ol>
 
-    <h2>How a security feature is linked to browser data</h2>
-    <p>
-      A security feature may rely on one browser-data record or several. When every part is
-      required, ControlCurrent reports that the feature works only if every record shows support. If
-      MDN data does not describe the exact feature separately enough, the result is “Not enough
-      browser data” instead of a guess. Content Security Policy (CSP) nonces and hashes currently
-      have this result, although the local header check can still recognise their syntax in a
-      supplied policy.
-    </p>
+      <h2 id="section-2">How a security feature is linked to browser data</h2>
+      <p>
+        A security feature may rely on one browser-data record or several. When every part is
+        required, ControlCurrent reports that the feature works only if every record shows support.
+        If MDN data does not describe the exact feature separately enough, the result is “Not enough
+        browser data” instead of a guess. Content Security Policy (CSP) nonces and hashes currently
+        have this result, although the local header check can still recognise their syntax in a
+        supplied policy.
+      </p>
 
-    <h2>How browser versions are compared</h2>
-    <p>
-      Browser versions are compared as version numbers rather than decimals, so version 100.10 is
-      not confused with 100.1. Support, removal, last-supported versions, and uncertain source
-      records are handled separately. Experimental flags, partial support, old names, and source
-      notes produce “Works with limits” rather than disappearing into a simple yes.
-    </p>
+      <h2 id="section-3">How browser versions are compared</h2>
+      <p>
+        Browser versions are compared as version numbers rather than decimals, so version 100.10 is
+        not confused with 100.1. Support, removal, last-supported versions, and uncertain source
+        records are handled separately. Experimental flags, partial support, old names, and source
+        notes produce “Works with limits” rather than disappearing into a simple yes.
+      </p>
 
-    <h2>What the result labels mean</h2>
-    <ul>
-      <li>
-        <strong>Works:</strong> every required browser-data record shows support without a known
-        limitation.
-      </li>
-      <li>
-        <strong>Works with limits:</strong> supported, but the source records a limitation.
-      </li>
-      <li>
-        <strong>Not supported:</strong> at least one required part is unavailable in the selected
-        browser version.
-      </li>
-      <li>
-        <strong>No longer supported:</strong> the browser removed a required part by the selected
-        version.
-      </li>
-      <li>
-        <strong>Unknown:</strong> the source cannot support a comparable conclusion.
-      </li>
-      <li>
-        <strong>Not enough browser data:</strong> MDN data does not describe the exact feature
-        separately enough for a reliable answer.
-      </li>
-      <li>
-        <strong>Browser data problem:</strong> the reviewed source records and ControlCurrent's
-        feature catalogue do not match.
-      </li>
-    </ul>
+      <h2 id="section-4">What the result labels mean</h2>
+      <ul>
+        <li>
+          <strong>Works:</strong> every required browser-data record shows support without a known
+          limitation.
+        </li>
+        <li>
+          <strong>Works with limits:</strong> supported, but the source records a limitation.
+        </li>
+        <li>
+          <strong>Not supported:</strong> at least one required part is unavailable in the selected
+          browser version.
+        </li>
+        <li>
+          <strong>No longer supported:</strong> the browser removed a required part by the selected
+          version.
+        </li>
+        <li>
+          <strong>Unknown:</strong> the source cannot support a comparable conclusion.
+        </li>
+        <li>
+          <strong>Not enough browser data:</strong> MDN data does not describe the exact feature
+          separately enough for a reliable answer.
+        </li>
+        <li>
+          <strong>Browser data problem:</strong> the reviewed source records and ControlCurrent's
+          feature catalogue do not match.
+        </li>
+      </ul>
 
-    <h2>What a change date means</h2>
-    <p>
-      The update page records the date attached to the source data and the ControlCurrent version
-      that first noticed a difference. It does not claim that browser code changed on that exact
-      date.
-    </p>
+      <h2 id="section-5">What a change date means</h2>
+      <p>
+        The update page records the date attached to the source data and the ControlCurrent version
+        that first noticed a difference. It does not claim that browser code changed on that exact
+        date.
+      </p>
 
-    <h2>How the local evidence check works</h2>
-    <p>
-      The simple inspector reads one final set of response headers that you paste. It makes no web
-      request and reports only reduced information. “Found” means recognisable syntax appeared in
-      the supplied enforced policy or header. It does not prove browser enforcement, coverage across
-      every page, safe rollout, or live behaviour. An advanced evidence file can compare several
-      supplied pages, relate CSP to supplied markup, verify local resource bytes against Subresource
-      Integrity (SRI), examine selected request and passkey settings, and compare reports. You must
-      still provide a complete page list; ControlCurrent cannot discover missing pages itself.
-    </p>
+      <h2 id="section-6">How the local evidence check works</h2>
+      <p>
+        The simple inspector reads one final set of response headers that you paste. It makes no web
+        request and reports only reduced information. “Found” means recognisable syntax appeared in
+        the supplied enforced policy or header. It does not prove browser enforcement, coverage
+        across every page, safe rollout, or live behaviour. An advanced evidence file can compare
+        several supplied pages, relate CSP to supplied markup, verify local resource bytes against
+        Subresource Integrity (SRI), examine selected request and passkey settings, and compare
+        reports. You must still provide a complete page list; ControlCurrent cannot discover missing
+        pages itself.
+      </p>
 
-    <h2>How optional report signatures work</h2>
-    <p>
-      The command-line tool can prepare a standard statement containing the report fingerprint,
-      deployment identity, and reduced page-list fingerprint. It can then check a Sigstore digital
-      signature from the exact certificate issuer and workflow identity allowed by your policy. This
-      confirms the signer and unchanged report; it does not prove that the evidence was complete or
-      true.
-    </p>
+      <h2 id="section-7">How optional report signatures work</h2>
+      <p>
+        The command-line tool can prepare a standard statement containing the report fingerprint,
+        deployment identity, and reduced page-list fingerprint. It can then check a Sigstore digital
+        signature from the exact certificate issuer and workflow identity allowed by your policy.
+        This confirms the signer and unchanged report; it does not prove that the evidence was
+        complete or true.
+      </p>
 
-    <h2>How public browser tests are used</h2>
-    <p>
-      Each security feature either has a direct Web Platform Tests link or is clearly marked as
-      having no exact link. Source links point to the reviewed test version, while live result links
-      are provided for further investigation. ControlCurrent does not turn those results into scores
-      or use them to change its browser-support answer.
-    </p>
+      <h2 id="section-8">How public browser tests are used</h2>
+      <p>
+        Each security feature either has a direct Web Platform Tests link or is clearly marked as
+        having no exact link. Source links point to the reviewed test version, while live result
+        links are provided for further investigation. ControlCurrent does not turn those results
+        into scores or use them to change its browser-support answer.
+      </p>
 
-    <h2>Repeatable results and safety limits</h2>
-    <p>
-      The same reviewed inputs produce the same ordered data, results, and update identifiers.
-      ControlCurrent limits input sizes, record counts, saved plans, and exports. If a required
-      source record disappears, the data update fails instead of silently reporting support.
-    </p>
+      <h2 id="section-9">Repeatable results and safety limits</h2>
+      <p>
+        The same reviewed inputs produce the same ordered data, results, and update identifiers.
+        ControlCurrent limits input sizes, record counts, saved plans, and exports. If a required
+        source record disappears, the data update fails instead of silently reporting support.
+      </p>
 
-    <div class="callout">
-      Browser support cannot prove that a website is configured correctly, follows every part of a
-      standard, has no browser defects, or uses the right security policy for an organisation.
-      Technical terms used here are explained in the{" "}
-      <a href={`${base}/glossary/`}>plain-English glossary</a>.
-    </div>
-  </article>
+      <div class="callout">
+        Browser support cannot prove that a website is configured correctly, follows every part of a
+        standard, has no browser defects, or uses the right security policy for an organisation.
+        Technical terms used here are explained in the{" "}
+        <a href={`${base}/glossary/`}>plain-English glossary</a>.
+      </div>
+    </article>
+  </div>
 </Layout>

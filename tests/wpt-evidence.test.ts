@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { SECURITY_CONTROLS } from "../src/catalogue";
+import { DIRECTIVE_CONTROLS, SECURITY_CONTROLS } from "../src/catalogue";
+import { inspectHeaders, parseHeaderBlock } from "../src/assurance";
 import {
   WPT_EVIDENCE,
   WPT_EVIDENCE_REVIEW,
+  WPT_DIRECTIVE_REVIEW,
   getWptEvidence,
+  getWptSourceReview,
   wptResultsUrl,
   wptSourceUrl
 } from "../src/wpt-evidence";
@@ -20,7 +23,7 @@ describe("WPT evidence registry", () => {
   });
 
   it("keeps mapped and unmapped evidence explicit", () => {
-    expect(WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")).toHaveLength(28);
+    expect(WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped")).toHaveLength(34);
     expect(
       WPT_EVIDENCE.filter((mapping) => mapping.state === "not_mapped").map(
         (mapping) => mapping.controlId
@@ -38,6 +41,16 @@ describe("WPT evidence registry", () => {
       }
       for (const suite of mapping.suites) {
         expect(suite.path).toMatch(/^[a-z0-9][a-z0-9/-]*$/u);
+        if (suite.tests) {
+          expect(suite.tests.length).toBeGreaterThan(0);
+          expect(suite.tests.length).toBeLessThanOrEqual(4);
+          expect(new Set(suite.tests).size).toBe(suite.tests.length);
+          for (const path of suite.tests) {
+            expect(path.startsWith(`${suite.path}/`)).toBe(true);
+            expect(path).not.toContain("..");
+            expect(path).toMatch(/^[a-z0-9][a-z0-9/.-]+\.html$/u);
+          }
+        }
       }
     }
   });
@@ -58,5 +71,37 @@ describe("WPT evidence registry", () => {
 
   it("refuses unknown controls", () => {
     expect(() => getWptEvidence("unknown-control")).toThrow(/Unknown WPT evidence control/u);
+  });
+
+  it("pins the six directive file selections independently of the original suite registry", () => {
+    expect(getWptSourceReview(getWptEvidence("permissions-policy"))).toEqual(WPT_EVIDENCE_REVIEW);
+    for (const control of DIRECTIVE_CONTROLS) {
+      const mapping = getWptEvidence(control.id);
+      expect(mapping.state).toBe("mapped");
+      expect(getWptSourceReview(mapping)).toEqual(WPT_DIRECTIVE_REVIEW);
+      for (const suite of mapping.suites) {
+        expect(suite.tests?.length).toBeGreaterThan(0);
+        for (const path of suite.tests ?? []) {
+          expect(wptSourceUrl(path, getWptSourceReview(mapping).revision, "blob")).toBe(
+            `https://github.com/web-platform-tests/wpt/blob/${WPT_DIRECTIVE_REVIEW.revision}/${path}`
+          );
+          expect(new URL(wptResultsUrl(path)).pathname).toBe(`/results/${path}`);
+        }
+      }
+    }
+  });
+
+  it("does not promote conformance mappings to application directive evidence", () => {
+    const report = inspectHeaders(
+      parseHeaderBlock(
+        'Permissions-Policy: camera=(), microphone=(), geolocation=()\nClear-Site-Data: "cache", "cookies", "storage"'
+      )
+    );
+    for (const control of DIRECTIVE_CONTROLS) {
+      expect(getWptEvidence(control.id).state).toBe("mapped");
+      expect(report.findings.find((finding) => finding.controlId === control.id)?.state).toBe(
+        "not_evaluated"
+      );
+    }
   });
 });

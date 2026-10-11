@@ -239,7 +239,7 @@ describe("bounded evidence bundles", () => {
     expect(report.identity).toEqual(evidenceIdentity);
     expect(report.provenance).toMatchObject({
       analyserVersion: "5.1.0",
-      catalogueVersion: "2.2.0",
+      catalogueVersion: "2.3.0",
       ...evidenceSourceContext
     });
     expect(report.reportFingerprint).toMatch(/^[a-f0-9]{64}$/u);

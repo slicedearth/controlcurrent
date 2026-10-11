@@ -1,0 +1,62 @@
+---
+import { formatDate } from "../format";
+import {
+  getWptSourceReview,
+  wptResultsUrl,
+  wptSourceUrl,
+  type WptEvidenceMapping
+} from "../wpt-evidence";
+
+interface Props {
+  mapping: WptEvidenceMapping;
+}
+const { mapping } = Astro.props;
+const review = getWptSourceReview(mapping);
+---
+
+{mapping.suites.length > 0 ? (
+  <>
+    <p>
+      Source reviewed {formatDate(review.reviewedOn)}
+      <code class="source-path">{review.revision}</code>
+    </p>
+    <ul class="source-list">
+      {mapping.suites.map((suite) => (
+        <li>
+          <strong>{suite.label}</strong>
+          {suite.tests ? (
+            <ul>
+              {suite.tests.map((path) => (
+                <li>
+                  <code class="source-path">{path}</code>
+                  <span class="source-actions">
+                    <a href={wptSourceUrl(path, review.revision, "blob")} rel="noopener noreferrer">
+                      reviewed test source
+                    </a>
+                    <a href={wptResultsUrl(path)} rel="noopener noreferrer">
+                      latest public results
+                    </a>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <>
+              <code class="source-path">{suite.path}</code>
+              <span class="source-actions">
+                <a href={wptSourceUrl(suite.path, review.revision)} rel="noopener noreferrer">
+                  reviewed test source
+                </a>
+                <a href={wptResultsUrl(suite.path)} rel="noopener noreferrer">
+                  latest public results
+                </a>
+              </span>
+            </>
+          )}
+        </li>
+      ))}
+    </ul>
+  </>
+) : (
+  <p>No similar test is substituted when an exact link is unavailable.</p>
+)}

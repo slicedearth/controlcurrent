@@ -1,206 +1,75 @@
 ---
 import Layout from "../components/Layout.astro";
-import ControlCard from "../components/ControlCard.astro";
-import { SECURITY_CONTROLS } from "../catalogue";
-import { currentEvaluation, currentProfile, selectedSnapshot } from "../data";
+import SupportCircuit from "../components/SupportCircuit.astro";
+import { selectedSnapshot } from "../data";
 import { formatDate } from "../format";
-import { WPT_EVIDENCE, WPT_EVIDENCE_REVIEW } from "../wpt-evidence";
-
+import "../styles/home.css";
 const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
-const availableCount = SECURITY_CONTROLS.filter((control) =>
-  (currentEvaluation.results[control.id] ?? []).every(
-    (result) => result.outcome === "available_unqualified"
-  )
-).length;
-const qualifiedCount = SECURITY_CONTROLS.filter((control) =>
-  (currentEvaluation.results[control.id] ?? []).some(
-    (result) => result.outcome === "available_with_qualification"
-  )
-).length;
-const wptMappedCount = WPT_EVIDENCE.filter((mapping) => mapping.state === "mapped").length;
 ---
 
 <Layout
-  title="Plan browser security support"
-  description="Choose the browsers your website supports, see which security features will work, and check supplied configuration evidence privately."
+  title="Find the browser support gaps"
+  description="Turn through 36 browser security protections. See which browsers support them, read the exceptions, and plan the versions your site needs."
 >
-  <section class="shell hero">
-    <div class="hero-copy">
-      <span class="eyebrow">Browser security planning</span>
-      <h1>Choose security features your supported browsers can handle</h1>
-      <p>
-        Select the oldest browser versions your website needs to support. ControlCurrent shows which
-        security features should work, which need extra care, and where you may need a fallback.
-      </p>
-      <div class="hero-actions">
-        <a class="button button--primary" href={`${base}/planner/`}>
-          Check browser support
-        </a>
-        <a class="button" href={`${base}/assess/`}>
-          Review security headers
-        </a>
-        <a class="button" href={`${base}/controls/`}>
-          Explore security features
-        </a>
-      </div>
-      <ul class="hero-principles" aria-label="Product principles">
-        <li>Uses published browser data</li>
-        <li>Keeps known limitations visible</li>
-        <li>Runs on your device</li>
-      </ul>
-    </div>
-    <aside class="hero-terminal" aria-label="Data used by ControlCurrent">
-      <div class="terminal-title">
-        <span class="terminal-indicator" aria-hidden="true"></span>
-        <span>Data used for these results</span>
-        <small>reviewed and versioned</small>
-      </div>
-      <div class="terminal-body">
-        <dl>
+  <SupportCircuit />
+  <div class="shell bench-page">
+    <nav class="bench-actions" aria-label="Continue your review">
+      <a class="button" href={`${base}/planner/`}>
+        <span>
+          <small>01 / PLAN</small>
+          <strong>Set your browser minimums</strong>
+          <span>Check the oldest versions your site supports.</span>
+        </span>
+        <span class="action-contact" aria-hidden="true">
+          ↗
+        </span>
+      </a>
+      <a class="button" href={`${base}/assess/`}>
+        <span>
+          <small>02 / INSPECT</small>
+          <strong>Check supplied headers</strong>
+          <span>Read configuration evidence on your device.</span>
+        </span>
+        <span class="action-contact" aria-hidden="true">
+          ↗
+        </span>
+      </a>
+    </nav>
+  </div>
+  <section class="source-strip" aria-label="Sources for this edition">
+    <div class="shell source-strip__inner">
+      <span class="eyebrow">Source record</span>
+      <dl>
+        <div>
           <dt>MDN browser data</dt>
           <dd>{selectedSnapshot.bcdVersion}</dd>
+        </div>
+        <div>
           <dt>Web feature data</dt>
           <dd>{selectedSnapshot.webFeaturesVersion}</dd>
-          <dt>Data date</dt>
-          <dd>{formatDate(selectedSnapshot.bcdTimestamp)}</dd>
-          <dt>Security features</dt>
-          <dd>{SECURITY_CONTROLS.length}</dd>
-          <dt>Browser test links</dt>
+        </div>
+        <div>
+          <dt>Source date</dt>
           <dd>
-            {wptMappedCount} / {WPT_EVIDENCE.length}
+            <time datetime={selectedSnapshot.bcdTimestamp}>
+              {formatDate(selectedSnapshot.bcdTimestamp)}
+            </time>
           </dd>
-          <dt>Test review</dt>
-          <dd>{WPT_EVIDENCE_REVIEW.revision.slice(0, 8)}</dd>
-          <dt>Source records used</dt>
-          <dd>{Object.keys(selectedSnapshot.features).length}</dd>
-          <dt>Server connection</dt>
-          <dd>none</dd>
-          <dt>Visitor tracking</dt>
-          <dd>none</dd>
-        </dl>
-      </div>
-    </aside>
-  </section>
-
-  <section class="section section--stats">
-    <div class="shell">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <small>01 · works widely</small>
-          <strong>{availableCount}</strong>
-          <span>features supported without a recorded limitation in current browsers</span>
         </div>
-        <div class="stat-card">
-          <small>02 · needs care</small>
-          <strong>{qualifiedCount}</strong>
-          <span>features with at least one known browser limitation</span>
-        </div>
-        <div class="stat-card">
-          <small>03 · browser coverage</small>
-          <strong>{currentProfile.baselines.length}</strong>
-          <span>desktop and mobile browser families included</span>
-        </div>
-        <div class="stat-card">
-          <small>04 · data collection</small>
-          <strong>0</strong>
-          <span>visitor or website observations collected by this site</span>
-        </div>
-      </div>
+      </dl>
+      <a href={`${base}/data/`}>Source notes ↗</a>
     </div>
   </section>
-
-  <section class="section">
-    <div class="shell">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">Who this is for</span>
-          <h2>A practical guide for web and security teams</h2>
-        </div>
-        <p>
-          ControlCurrent is most useful when a team needs to balance stronger browser security with
-          the older browser versions it has promised to support.
-        </p>
-      </div>
-      <div class="control-grid">
-        <article class="content-card">
-          <h3>Web developers</h3>
-          <p>
-            Check whether a security feature will work for your supported browsers and learn which
-            fallback should remain in place.
-          </p>
-        </article>
-        <article class="content-card">
-          <h3>Security engineers</h3>
-          <p>
-            Build an explainable browser-security policy and review supplied header or deployment
-            evidence without sending it to a service.
-          </p>
-        </article>
-        <article class="content-card">
-          <h3>Platform and DevOps teams</h3>
-          <p>
-            Export repeatable results, compare changes, record approved exceptions, and add policy
-            checks to continuous integration (CI).
-          </p>
-        </article>
-        <article class="content-card">
-          <h3>Learners and reviewers</h3>
-          <p>
-            Understand what each browser protection does, where it is supported, and what it cannot
-            guarantee.
-          </p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--catalogue">
-    <div class="shell">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">Current browser versions</span>
-          <h2>Security features at a glance</h2>
-        </div>
-        <p>
-          These cards show support in the current version of nine desktop and mobile browsers.
-          Browser support does not prove that a website has configured a feature correctly.
-        </p>
-      </div>
-      <div class="control-grid">
-        {SECURITY_CONTROLS.map((control) => (
-          <ControlCard
-            control={control}
-            evaluations={currentEvaluation.results[control.id] ?? []}
-          />
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--closing">
-    <div class="shell detail-grid">
-      <div>
-        <span class="eyebrow">What ControlCurrent can tell you</span>
-        <h2>What works, what needs care, and what needs a fallback</h2>
-        <p>
-          Create a browser plan to see whether each security feature is supported at the oldest
-          browser versions you choose. Known limitations stay visible instead of being reduced to a
-          simple yes or no.
-        </p>
-      </div>
-      <div class="content-card">
-        <h3>What ControlCurrent cannot prove</h3>
-        <ul>
-          <li>That every page and environment uses the feature correctly.</li>
-          <li>That a browser or website has no security defects.</li>
-          <li>That other layers of security are no longer needed.</li>
-          <li>That a browser policy is right for every organisation.</li>
-        </ul>
-        <p>
-          You can also check information collected from a deployment without asking ControlCurrent
-          to visit the website. The result is a review aid, not a security certificate.
-        </p>
-      </div>
-    </div>
-  </section>
+  <div class="shell bench-footnote">
+    <p>
+      Browser compatibility, supplied evidence and runtime behaviour answer different questions.
+      ControlCurrent keeps them separate.{" "}
+      <a href={`${base}/limitations/`}>Read the limits of each check.</a>
+    </p>
+    <p>
+      No accounts. No visitor tracking.
+      <br />
+      No website scans or evidence uploads.
+    </p>
+  </div>
 </Layout>

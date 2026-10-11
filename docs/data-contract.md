@@ -389,5 +389,16 @@ upstream result mirror. Its review metadata contains:
 
 Each control has exactly one mapping with a `mapped` or `not_mapped` state,
 zero to four exact suite paths, a bounded scope statement, and a bounded
-limitation. Source links are pinned to the reviewed revision. Dashboard links
-are visibly current and do not enter compatibility calculations.
+limitation. A suite can select up to four exact test files instead of the whole
+directory. File selections carry their own source revision and review date;
+older directory mappings retain the original registry metadata. Source links
+are pinned to the applicable review. Dashboard links are visibly current and do
+not enter compatibility calculations.
+
+Retained directive results require the selection and all browser runs to share
+the exact test-source revision. A mismatch is incomparable. Missing selected
+files remain explicit and never cause parent-suite totals to be substituted.
+Counts describe whole selected files, including any setup and complementary
+subtests; they do not isolate directive-only pass rates or establish application
+evidence. Source response digests continue to identify the complete downloaded
+directory response before selection.

@@ -4983,7 +4983,7 @@
       "upstream": "chrome_android"
     }
   },
-  "catalogueVersion": "2.2.0",
+  "catalogueVersion": "2.3.0",
   "controlMappings": [
     {
       "combination": "all",
@@ -5178,6 +5178,42 @@
       "controlId": "webauthn-conditional-mediation",
       "mappingState": "active",
       "paths": ["api.PublicKeyCredential.isConditionalMediationAvailable_static"]
+    },
+    {
+      "combination": "all",
+      "controlId": "permissions-policy-camera",
+      "mappingState": "active",
+      "paths": ["http.headers.Permissions-Policy.camera"]
+    },
+    {
+      "combination": "all",
+      "controlId": "permissions-policy-microphone",
+      "mappingState": "active",
+      "paths": ["http.headers.Permissions-Policy.microphone"]
+    },
+    {
+      "combination": "all",
+      "controlId": "permissions-policy-geolocation",
+      "mappingState": "active",
+      "paths": ["http.headers.Permissions-Policy.geolocation"]
+    },
+    {
+      "combination": "all",
+      "controlId": "clear-site-data-cache",
+      "mappingState": "active",
+      "paths": ["http.headers.Clear-Site-Data.cache"]
+    },
+    {
+      "combination": "all",
+      "controlId": "clear-site-data-cookies",
+      "mappingState": "active",
+      "paths": ["http.headers.Clear-Site-Data.cookies"]
+    },
+    {
+      "combination": "all",
+      "controlId": "clear-site-data-storage",
+      "mappingState": "active",
+      "paths": ["http.headers.Clear-Site-Data.storage"]
     }
   ],
   "features": {
@@ -5688,6 +5724,309 @@
       "path": "http.headers.Clear-Site-Data",
       "sourceFile": "http/headers/Clear-Site-Data.json",
       "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#header"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "8.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "61"
+          }
+        ]
+      }
+    },
+    "http.headers.Clear-Site-Data.cache": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "name": "Clearing site data",
+          "status": false
+        }
+      ],
+      "description": "<code>&quot;cache&quot;</code>",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Clear-Site-Data#cache",
+      "path": "http.headers.Clear-Site-Data.cache",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#grammardef-cache"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "65",
+            "version_last": "126",
+            "version_removed": "127"
+          },
+          {
+            "notes": [
+              "Setting this value may prevent a page from fully loading. See <a href=\"https://crbug.com/41343050\">bug 41343050</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "61",
+            "version_last": "62",
+            "version_removed": "63"
+          }
+        ],
+        "chrome_android": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "65",
+            "version_last": "126",
+            "version_removed": "127"
+          },
+          {
+            "notes": [
+              "Setting this value may prevent a page from fully loading. See <a href=\"https://crbug.com/41343050\">bug 41343050</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "61",
+            "version_last": "62",
+            "version_removed": "63"
+          }
+        ],
+        "edge": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "79",
+            "version_last": "126",
+            "version_removed": "127"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "138"
+          },
+          {
+            "impl_url": "https://bugzil.la/1838506",
+            "version_added": "63",
+            "version_last": "93",
+            "version_removed": "94"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "138"
+          },
+          {
+            "impl_url": "https://bugzil.la/1838506",
+            "version_added": "63",
+            "version_last": "93",
+            "version_removed": "94"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "28.0"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "9.0",
+            "version_last": "27.0",
+            "version_removed": "28.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "notes": [
+              "Some requests may still be taken from the cache unless the tab is reloaded or the page is requested in a new tab. See <a href=\"https://crbug.com/364634040\">bug 364634040</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "127"
+          },
+          {
+            "notes": "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>.",
+            "partial_implementation": true,
+            "version_added": "65",
+            "version_last": "126",
+            "version_removed": "127"
+          },
+          {
+            "notes": [
+              "Setting this value may prevent a page from fully loading. See <a href=\"https://crbug.com/41343050\">bug 41343050</a>.",
+              "Setting this value may cause seconds-long hangs. See <a href=\"https://crbug.com/40233601\">bug 40233601</a>."
+            ],
+            "partial_implementation": true,
+            "version_added": "61",
+            "version_last": "62",
+            "version_removed": "63"
+          }
+        ]
+      }
+    },
+    "http.headers.Clear-Site-Data.cookies": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "highDate": "2026-03-18",
+          "lowDate": "2023-09-18",
+          "name": "Clearing site data",
+          "status": "high"
+        }
+      ],
+      "description": "<code>&quot;cookies&quot;</code>",
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Clear-Site-Data#cookies",
+      "path": "http.headers.Clear-Site-Data.cookies",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#grammardef-cookies"],
+      "status": {
+        "deprecated": false,
+        "experimental": false,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "61"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "79"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": "63"
+          }
+        ],
+        "safari": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": "17"
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "8.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "61"
+          }
+        ]
+      }
+    },
+    "http.headers.Clear-Site-Data.storage": {
+      "baseline": [
+        {
+          "featureId": "clear-site-data",
+          "highDate": "2026-03-18",
+          "lowDate": "2023-09-18",
+          "name": "Clearing site data",
+          "status": "high"
+        }
+      ],
+      "description": "<code>&quot;storage&quot;</code>",
+      "path": "http.headers.Clear-Site-Data.storage",
+      "sourceFile": "http/headers/Clear-Site-Data.json",
+      "specUrls": ["https://w3c.github.io/webappsec-clear-site-data/#grammardef-storage"],
       "status": {
         "deprecated": false,
         "experimental": false,
@@ -6837,6 +7176,201 @@
         ]
       }
     },
+    "http.headers.Permissions-Policy.camera": {
+      "baseline": [
+        {
+          "featureId": "media-capture",
+          "name": "Media capture",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy/camera",
+      "path": "http.headers.Permissions-Policy.camera",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": ["https://w3c.github.io/mediacapture-main/#permissions-policy-integration"],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": false
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
+          }
+        ]
+      }
+    },
+    "http.headers.Permissions-Policy.geolocation": {
+      "baseline": [
+        {
+          "featureId": "geolocation",
+          "name": "Geolocation API",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy/geolocation",
+      "path": "http.headers.Permissions-Policy.geolocation",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": ["https://w3c.github.io/geolocation/#permissions-policy"],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": false
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
+          }
+        ]
+      }
+    },
+    "http.headers.Permissions-Policy.microphone": {
+      "baseline": [
+        {
+          "featureId": "media-capture",
+          "name": "Media capture",
+          "status": false
+        }
+      ],
+      "mdnUrl": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Permissions-Policy/microphone",
+      "path": "http.headers.Permissions-Policy.microphone",
+      "sourceFile": "http/headers/Permissions-Policy.json",
+      "specUrls": ["https://w3c.github.io/mediacapture-main/#permissions-policy-integration"],
+      "status": {
+        "deprecated": false,
+        "experimental": true,
+        "standardTrack": true
+      },
+      "support": {
+        "chrome": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "chrome_android": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "edge": [
+          {
+            "version_added": "88"
+          }
+        ],
+        "firefox": [
+          {
+            "version_added": false
+          }
+        ],
+        "firefox_android": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari": [
+          {
+            "version_added": false
+          }
+        ],
+        "safari_ios": [
+          {
+            "version_added": false
+          }
+        ],
+        "samsunginternet_android": [
+          {
+            "version_added": "15.0"
+          }
+        ],
+        "webview_android": [
+          {
+            "version_added": "88"
+          }
+        ]
+      }
+    },
     "http.headers.Referrer-Policy": {
       "baseline": [
         {
@@ -7708,7 +8242,7 @@
       }
     }
   },
-  "schemaFingerprint": "55e3832ebde9d4644e72e418bfda3bc9f2104f195a589da318a9fad1cde9a403",
+  "schemaFingerprint": "40f79e0b62093f8aec75a0f6e647bccdc51576157c45ceae6fd12d92d2f6b585",
   "schemaVersion": 2,
   "webFeaturesVersion": "3.42.0"
 }

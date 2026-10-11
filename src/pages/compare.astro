@@ -1,0 +1,132 @@
+---
+import Layout from "../components/Layout.astro";
+import BrowserPlanFields from "../components/BrowserPlanFields.astro";
+import SourceContext from "../components/SourceContext.astro";
+import { SECURITY_CONTROLS } from "../catalogue";
+const base = import.meta.env.BASE_URL.replace(/\/$/u, "");
+---
+
+<Layout
+  title="Compare browser plans"
+  description="Try two browser plans side by side and see which security features a change of minimum versions unlocks."
+>
+  <header class="shell page-header">
+    <span class="eyebrow">The comparison bench</span>
+    <h1>
+      Change a minimum.
+      <br />
+      See what opens up.
+    </h1>
+    <p>
+      Keep the existing plan on the left. Try a different set of minimums on the right. Both use the
+      same reviewed data; removing a browser stays visible as a scope change.
+    </p>
+  </header>
+  <div class="shell comparison-workspace" data-base={base}>
+    <SourceContext />
+    <noscript>
+      <p class="callout">
+        Comparing plans needs JavaScript running locally. The{" "}
+        <a href={`${base}/matrix/`}>support table</a> remains available.
+      </p>
+    </noscript>
+    <form id="compare-plans-form">
+      <div class="comparison-pair">
+        <BrowserPlanFields side="before" label="Existing plan" />
+        <BrowserPlanFields side="after" label="Proposed plan" />
+      </div>
+      <div class="button-row">
+        <button type="submit" class="button button--primary">
+          Compare plans
+        </button>
+        <button type="button" class="button" id="copy-plan">
+          Copy A to B
+        </button>
+        <button type="button" class="button" id="swap-plans">
+          Swap plans
+        </button>
+      </div>
+      <p id="compare-plans-status" role="status" aria-live="polite"></p>
+    </form>
+    <section class="content-card upgrade-panel" aria-labelledby="upgrade-heading">
+      <span class="eyebrow">Work backwards</span>
+      <h2 id="upgrade-heading">What would unlock these features?</h2>
+      <p>
+        Find the smallest increases to plan B that cover the selected features across every recorded
+        later release. Browsers stay in scope and existing minimums are never lowered.
+      </p>
+      <details>
+        <summary>Choose required features</summary>
+        <div class="choice-grid">
+          {SECURITY_CONTROLS.map((control) => (
+            <label class="choice-row">
+              <input type="checkbox" name="upgrade-control" value={control.id} />
+              <span>{control.shortName}</span>
+            </label>
+          ))}
+        </div>
+      </details>
+      <label class="choice-row">
+        <input type="checkbox" id="upgrade-qualified" />
+        <span>Allow known browser limitations</span>
+      </label>
+      <div class="button-row">
+        <button type="button" class="button" id="find-upgrade">
+          Find the required increases
+        </button>
+        <button type="button" class="button" id="apply-upgrade" disabled>
+          Apply proposed minimums to B
+        </button>
+      </div>
+      <p id="upgrade-status" role="status" aria-live="polite"></p>
+    </section>
+    <section id="live-comparison" class="section" aria-labelledby="live-comparison-heading" hidden>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Same sources. Two choices.</span>
+          <h2 id="live-comparison-heading">The difference</h2>
+        </div>
+        <p id="comparison-context"></p>
+      </div>
+      <p id="live-comparison-totals" class="comparison-totals" role="status" aria-live="polite"></p>
+      <p class="muted">
+        Totals count browser–feature pairs. Adding or removing one browser affects every feature in
+        that browser's scope.
+      </p>
+      <div class="button-row">
+        <a class="button" id="use-plan-a" href="#">
+          Use plan A
+        </a>
+        <a class="button button--primary" id="use-plan-b" href="#">
+          Use plan B
+        </a>
+        <button class="button" type="button" id="export-plan-comparison">
+          Export comparison JSON
+        </button>
+      </div>
+      <label class="choice-row">
+        <input type="checkbox" id="comparison-changes-only" checked />
+        <span>Show outcome and scope changes only</span>
+      </label>
+      <p id="comparison-visible-count" class="muted"></p>
+      <div class="table-wrap" role="region" aria-label="Plan comparison results" tabindex="0">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Browser</th>
+              <th scope="col">Plan A</th>
+              <th scope="col">Plan B</th>
+              <th scope="col">Change</th>
+            </tr>
+          </thead>
+          <tbody id="live-comparison-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</Layout>
+<script>
+  import { initialisePlanComparison } from "../controllers/plan-comparison";
+  initialisePlanComparison(document, import.meta.env.BASE_URL);
+</script>

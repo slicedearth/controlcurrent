@@ -28,9 +28,12 @@ Copyright web-platform-tests contributors
 Licensed under the BSD 3-Clause License
 https://github.com/web-platform-tests/wpt/blob/master/LICENSE.md
 
-ControlCurrent does not redistribute Web Platform Tests source or wpt.fyi
-result data. It includes project-authored factual mappings to reviewed suite
-paths.
+ControlCurrent does not redistribute Web Platform Tests source, test bodies or
+raw logs. It includes project-authored mappings to reviewed suite and file paths and a
+bounded projection of public wpt.fyi result counts, statuses and run metadata.
+Each retained summary identifies the original run, source revision and API
+response digest. Test-source licensing does not relicense linked dashboard
+content or reports supplied by their original producers.
 
 BROWSER-BUNDLED SOFTWARE
 

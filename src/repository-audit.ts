@@ -5,6 +5,7 @@ export const MAX_WORKFLOW_BYTES = 128 * 1_024;
 export const ALLOWED_PUBLIC_DATA_FILES = new Set([
   "data/change-events.json",
   "data/selected-bcd.json",
+  "data/wpt-snapshot.json",
   "data/source-history.json"
 ]);
 
@@ -30,6 +31,7 @@ export const ALLOWED_PUBLIC_SCHEMA_FILES = new Set([
 const prohibitedBasenames = new Set([
   "controlcurrent-collected-evidence.json",
   "controlcurrent-profile.json",
+  "controlcurrent-plan-comparison.json",
   "controlcurrent-engineering-report.md",
   "controlcurrent-policy.json",
   "controlcurrent-decision-report.html",
