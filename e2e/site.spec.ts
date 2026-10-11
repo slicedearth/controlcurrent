@@ -331,6 +331,8 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
     "/matrix/",
     "/planner/",
     "/minimums/",
+    "/compare/",
+    "/circuits/",
     "/assess/",
     "/evidence/",
     "/changes/",
@@ -343,12 +345,75 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
     "/controls/trusted-types/",
     "/404.html"
   ]) {
-    await page.goto(path);
-    const dimensions = await page.evaluate(() => ({
-      clientWidth: document.documentElement.clientWidth,
-      scrollWidth: document.documentElement.scrollWidth
-    }));
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    await test.step(path, async () => {
+      await page.goto(path);
+      const dimensions = await page.evaluate(() => {
+        const root = document.documentElement;
+        const describe = (element: Element) => {
+          const box = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return {
+            element: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}.${Array.from(element.classList).join(".")}`,
+            left: box.left,
+            right: box.right,
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+            width: style.width,
+            minWidth: style.minWidth,
+            display: style.display,
+            gridTemplateColumns: style.gridTemplateColumns,
+            flex: style.flex,
+            overflowX: style.overflowX,
+            overflowWrap: style.overflowWrap,
+            fontFamily: style.fontFamily,
+            fontSize: style.fontSize
+          };
+        };
+        const overflow = root.scrollWidth > root.clientWidth;
+        return {
+          route: location.pathname,
+          viewportWidth: innerWidth,
+          clientWidth: root.clientWidth,
+          scrollWidth: root.scrollWidth,
+          overflowing: overflow
+            ? Array.from(document.querySelectorAll("body *"))
+                .filter((element) => {
+                  let parent = element.parentElement;
+                  while (parent && parent !== document.body) {
+                    if (
+                      ["auto", "scroll", "hidden", "clip"].includes(
+                        getComputedStyle(parent).overflowX
+                      )
+                    )
+                      return false;
+                    parent = parent.parentElement;
+                  }
+                  const box = element.getBoundingClientRect();
+                  return (
+                    box.width > 0 &&
+                    (box.right > root.clientWidth ||
+                      box.left < 0 ||
+                      (element.scrollWidth > element.clientWidth &&
+                        getComputedStyle(element).overflowX === "visible"))
+                  );
+                })
+                .slice(0, 20)
+                .map((element) => {
+                  const ancestors = [];
+                  let parent = element.parentElement;
+                  while (parent && ancestors.length < 4) {
+                    ancestors.push(describe(parent));
+                    parent = parent.parentElement;
+                  }
+                  return { ...describe(element), ancestors };
+                })
+            : []
+        };
+      });
+      expect(dimensions.scrollWidth, JSON.stringify(dimensions, null, 2)).toBeLessThanOrEqual(
+        dimensions.clientWidth
+      );
+    });
   }
 
   const matrix = page.locator(".table-wrap");
@@ -360,6 +425,33 @@ test("keeps dense views inside the viewport at 320 pixels @workflow", async ({ p
   }));
   expect(matrixDimensions.scrollWidth).toBeGreaterThan(matrixDimensions.clientWidth);
 });
+
+for (const [path, title] of [
+  ["/glossary/", "ControlCurrent glossary"],
+  ["/controls/trusted-types/", "Trusted Types enforcement"]
+] as const) {
+  test(`wraps long headings with a fallback font on ${path} @workflow`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto(path);
+    await page.locator("html").evaluate((element) => {
+      element.style.setProperty("--display", "Arial, sans-serif");
+    });
+    const heading = page.locator(".page-header h1");
+    await expect(heading).toHaveText(title);
+    const dimensions = await heading.evaluate((element) => ({
+      headingClientWidth: element.clientWidth,
+      headingScrollWidth: element.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth
+    }));
+    expect(dimensions.headingScrollWidth, JSON.stringify(dimensions)).toBeLessThanOrEqual(
+      dimensions.headingClientWidth
+    );
+    expect(dimensions.scrollWidth, JSON.stringify(dimensions)).toBeLessThanOrEqual(
+      dimensions.clientWidth
+    );
+  });
+}
 
 test("stacks homepage actions evenly on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

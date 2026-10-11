@@ -939,6 +939,7 @@ code {
 
 .page-header h1 {
   max-width: 25ch;
+  overflow-wrap: anywhere;
   margin-top: 1rem;
   font-family: var(--display);
   font-weight: 400;
